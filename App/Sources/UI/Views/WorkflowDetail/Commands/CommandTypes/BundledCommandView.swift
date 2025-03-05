@@ -62,7 +62,7 @@ struct BundledCommandView: View {
             case .bundled(let bundledCommand) = workflow.commands[index],
             case .appFocus(var appFocusCommand) = bundledCommand.kind else { return }
       appFocusCommand[keyPath: keyPath] = value
-      workflow.commands[index] = .bundled(BundledCommand(.appFocus(appFocusCommand), meta:  workflow.commands[index].meta))
+      workflow.commands[index] = .bundled(BundledCommand(.appFocus(command: appFocusCommand), meta:  workflow.commands[index].meta))
     }
   }
 
@@ -73,7 +73,7 @@ struct BundledCommandView: View {
             case .bundled(let bundledCommand) = workflow.commands[index],
             case .workspace(var workspaceCommand) = bundledCommand.kind else { return }
       workspaceCommand[keyPath: keyPath] = value
-      workflow.commands[index] = .bundled(BundledCommand(.workspace(workspaceCommand), meta: workflow.commands[index].meta))
+      workflow.commands[index] = .bundled(BundledCommand(.workspace(command: workspaceCommand), meta: workflow.commands[index].meta))
     }
   }
 
@@ -84,7 +84,7 @@ struct BundledCommandView: View {
             case .bundled(let bundledCommand) = workflow.commands[index],
             case .tidy(var tidyCommand) = bundledCommand.kind else { return }
       tidyCommand[keyPath: keyPath] = value
-      workflow.commands[index] = .bundled(BundledCommand(.tidy(tidyCommand), meta: workflow.commands[index].meta))
+      workflow.commands[index] = .bundled(BundledCommand(.tidy(command: tidyCommand), meta: workflow.commands[index].meta))
     }
   }
 

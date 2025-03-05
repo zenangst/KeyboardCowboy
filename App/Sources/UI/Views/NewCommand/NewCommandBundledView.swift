@@ -5,10 +5,10 @@ import SwiftUI
 struct NewCommandBundledView: View {
   private static var kinds: [BundledCommand.Kind] {
     [
-      .appFocus(AppFocusCommand(bundleIdentifer: "", hideOtherApps: false,
+      .appFocus(command: AppFocusCommand(bundleIdentifer: "", hideOtherApps: false,
                                 tiling: nil, createNewWindow: true)),
-      .workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
-      .tidy(WindowTidyCommand(rules: []))
+      .workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
+      .tidy(command: WindowTidyCommand(rules: []))
     ]
   }
   private let kinds: [BundledCommand.Kind]
@@ -52,7 +52,7 @@ struct NewCommandBundledView: View {
       case .appFocus(let command):
         NewCommandAppFocusView(validation: $validation) { tiling in
           currentSelection = .appFocus(
-            AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
+            command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
                               hideOtherApps: command.hideOtherApps,
                               tiling: tiling,
                               createNewWindow: command.createNewWindow)
@@ -60,7 +60,7 @@ struct NewCommandBundledView: View {
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onSelectedAppsChange: { bundleIdentifier in
           currentSelection = .appFocus(
-            AppFocusCommand(bundleIdentifer: bundleIdentifier,
+            command: AppFocusCommand(bundleIdentifer: bundleIdentifier,
                               hideOtherApps: command.hideOtherApps,
                               tiling: command.tiling,
                               createNewWindow: command.createNewWindow)
@@ -69,7 +69,7 @@ struct NewCommandBundledView: View {
           validation = updateAndValidatePayload()
         } onHideOtherAppsChange: { hideOtherApps in
           currentSelection = .appFocus(
-            AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
+            command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
                               hideOtherApps: hideOtherApps,
                               tiling: command.tiling,
                               createNewWindow: command.createNewWindow)
@@ -77,7 +77,7 @@ struct NewCommandBundledView: View {
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onCreateNewWindowChange: { createWindow in
           currentSelection = .appFocus(
-            AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
+            command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
                               hideOtherApps: command.hideOtherApps,
                               tiling: command.tiling,
                               createNewWindow: createWindow)
@@ -86,14 +86,14 @@ struct NewCommandBundledView: View {
         }
       case .workspace(let workspaceCommand):
         NewCommandWorkspaceView(validation: $validation) { tiling in
-          currentSelection = .workspace(WorkspaceCommand(
+          currentSelection = .workspace(command: WorkspaceCommand(
             bundleIdentifiers: workspaceCommand.bundleIdentifiers,
             hideOtherApps: workspaceCommand.hideOtherApps,
             tiling: tiling
           ))
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onSelectedAppsChange: { selectedApps in
-          currentSelection = .workspace(WorkspaceCommand(
+          currentSelection = .workspace(command: WorkspaceCommand(
             bundleIdentifiers: selectedApps.map(\.application.bundleIdentifier),
             hideOtherApps: workspaceCommand.hideOtherApps,
             tiling: workspaceCommand.tiling
@@ -101,7 +101,7 @@ struct NewCommandBundledView: View {
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
           validation = updateAndValidatePayload()
         } onHideOtherAppsChange: { hideOtherApps in
-          currentSelection = .workspace(WorkspaceCommand(
+          currentSelection = .workspace(command: WorkspaceCommand(
             bundleIdentifiers: workspaceCommand.bundleIdentifiers,
             hideOtherApps: hideOtherApps,
             tiling: workspaceCommand.tiling
@@ -111,7 +111,7 @@ struct NewCommandBundledView: View {
       case .tidy:
         NewCommandTidyView(validation: $validation) { rules in
           let rules = rules.map { WindowTidyCommand.Rule(bundleIdentifier: $0.application.bundleIdentifier, tiling: $0.tiling) }
-          currentSelection = .tidy(WindowTidyCommand(id: UUID().uuidString, rules: rules))
+          currentSelection = .tidy(command: WindowTidyCommand(id: UUID().uuidString, rules: rules))
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         }
       }

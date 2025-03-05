@@ -176,7 +176,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       case .window(let window, _):
         if event.modifierFlags.contains(.command) {
           Task {
-            let bundledCommand = BundledCommand(.appFocus(.init(bundleIdentifer: currentItem.app.bundleIdentifier, hideOtherApps: false, tiling: .arrangeDynamicQuarters)), meta: .init())
+            let bundledCommand = BundledCommand(.appFocus(command: .init(bundleIdentifer: currentItem.app.bundleIdentifier, hideOtherApps: false, tiling: .arrangeDynamicQuarters)), meta: .init())
             let command = Command.bundled(bundledCommand)
             if let emptyEvent = MachPortEvent.empty() {
               var runtimeDictionary: [String: String] = [:]
