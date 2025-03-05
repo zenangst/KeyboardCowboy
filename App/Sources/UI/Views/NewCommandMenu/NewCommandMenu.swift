@@ -14,6 +14,7 @@ struct NewCommandMenu<Content>: View where Content: View {
 
   var body: some View {
    Menu {
+     MenuLabel("Commands")
      ApplicationMenuView()
      FileMenuView()
      KeyboardMenuView()
@@ -28,6 +29,9 @@ struct NewCommandMenu<Content>: View where Content: View {
        UserModeMenuView(userModes: userModePublisher.userModes)
      }
      WindowMenu()
+     Divider()
+     MenuLabel("Other Apps")
+     RaycastMenu()
      Divider()
      Button(action: {
        updater.modifyWorkflow(using: transaction) { workflow in
@@ -704,6 +708,55 @@ fileprivate struct MenuLabel: View {
   var body: some View {
     Text(text)
       .font(.caption)
+  }
+}
+
+fileprivate struct RaycastMenu: View {
+  @EnvironmentObject var raycast: Raycast.Store
+
+  var body: some View {
+    Menu {
+      ForEach(raycast.containers) { container in
+        ForEach(container.extensions) { raycastExtension in
+          Menu {
+            RaycastCommands(container: container, raycastExtension: raycastExtension)
+          } label: {
+            Text(raycastExtension.title)
+          }
+        }
+      }
+    } label: {
+      HStack {
+        Image(systemName: "rays")
+        Text("Raycast")
+      }
+    }
+  }
+}
+
+fileprivate struct RaycastCommands: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+  let container: Raycast.Container
+  let raycastExtension: Raycast.Extension
+
+  var body: some View {
+    ForEach(raycastExtension.commands) { command in
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          let raycast = ApplicationStore.shared.applications.first(where: {
+            $0.bundleIdentifier.contains("com.raycast.macos")
+          })
+
+          workflow.commands.append(.open(OpenCommand.init(application: raycast,
+                                                          path: command.path,
+                                                          meta: Command.MetaData(name: command.title))))
+        }
+
+      }, label: {
+        Text(command.title)
+      })
+    }
   }
 }
 
