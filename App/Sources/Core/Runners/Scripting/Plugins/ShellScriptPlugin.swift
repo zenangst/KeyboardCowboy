@@ -30,60 +30,64 @@ final class ShellScriptPlugin: @unchecked Sendable {
     let filePath = path.sanitizedPath
     let command = (filePath as NSString).lastPathComponent
     let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
+    var shell: String
+    let processArguments: [String]
 
-    var shell: String = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
     if let data = FileManager.default.contents(atPath: path),
-       let contents = String(data: data, encoding: .utf8) {
-      let lines = contents.split(separator: "\n")
-      if lines.count > 1 {
-        let firstLine = lines[0]
+       let contents = String(data: data, encoding: .utf8),
+       let firstLine = contents.split(separator: "\n").first,
+       firstLine.hasPrefix("#!") {
 
-        let shebang = "#!"
-        if firstLine.contains(shebang) {
-          let resolvedShell = firstLine
-            .split(separator: shebang)
-          if resolvedShell.count == 1 {
-            shell = String(resolvedShell[0])
-          }
-        }
+      let interpreterLine = firstLine.dropFirst(2).trimmingCharacters(in: .whitespacesAndNewlines)
+      let tokens = interpreterLine.split(separator: " ").map(String.init)
+      if let interpreter = tokens.first {
+        shell = interpreter
+        processArguments = Array(tokens.dropFirst()) + [command]
+      } else {
+        shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+        processArguments = ["-i", "-l", command]
       }
+    } else {
+      shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+      processArguments = ["-i", "-l", command]
     }
 
     shell = shell.trimmingCharacters(in: .whitespacesAndNewlines)
 
     let (process, pipe, errorPipe) = createProcess(shell: shell)
-
-    process.arguments = ["-i", "-l", command]
+    process.arguments = processArguments
     process.environment = environment
     process.currentDirectoryURL = url
 
     if checkCancellation { try Task.checkCancellation() }
 
-    try process.run()
+    do {
+      try process.run()
+      let output: String
 
-    let output: String
+      if let data = try pipe.fileHandleForReading.readToEnd(),
+         let rawOutput = String(data: data, encoding: .utf8) {
+        let ansiEscapePattern = "\u{001B}\\[[0-?]*[ -/]*[@-~]"
+        let regex = try NSRegularExpression(pattern: ansiEscapePattern, options: [])
+        let range = NSRange(rawOutput.startIndex..., in: rawOutput)
+        let cleanOutput = regex.stringByReplacingMatches(in: rawOutput, options: [], range: range, withTemplate: "")
+        output = cleanOutput
+      } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
+        output = String(data: errorPipe, encoding: .utf8) ?? ""
+        throw ShellScriptPluginError.scriptError(output)
+      } else {
+        output = ""
+      }
 
-    if let data = try pipe.fileHandleForReading.readToEnd(),
-       let rawOutput = String(data: data, encoding: .utf8) {
-      let ansiEscapePattern = "\u{001B}\\[[0-?]*[ -/]*[@-~]"
-      let regex = try NSRegularExpression(pattern: ansiEscapePattern, options: [])
-      let range = NSRange(rawOutput.startIndex..., in: rawOutput)
-      let cleanOutput = regex.stringByReplacingMatches(in: rawOutput, options: [], range: range, withTemplate: "")
-      output = cleanOutput
-    } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
-      output = String(data: errorPipe, encoding: .utf8) ?? ""
-      throw ShellScriptPluginError.scriptError(output)
-    } else {
-      output = ""
+      process.waitUntilExit()
+
+      if process.terminationStatus != 0 {
+        throw ShellScriptPluginError.scriptError(output)
+      }
+      return output
+    } catch {
+      throw ShellScriptPluginError.scriptError(error.localizedDescription)
     }
-
-    process.waitUntilExit()
-
-    if process.terminationStatus != 0 {
-      throw ShellScriptPluginError.scriptError(output)
-    }
-
-    return output
   }
 
   // MARK: Private methods

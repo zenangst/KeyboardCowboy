@@ -135,6 +135,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
+  @discardableResult
   func serialRun(_ commands: [Command], checkCancellation: Bool,
                  resolveUserEnvironment: Bool, machPortEvent: MachPortEvent,
                  repeatingEvent: Bool) -> Task<Void, any Error> {
@@ -180,6 +181,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
               }
 
               KeyboardCowboyApp.activate()
+
+              CapsuleNotificationWindow.shared.publish(scriptError.localizedDescription, state: .failure)
 
               alert.runModal()
             }
