@@ -8,7 +8,7 @@ import SwiftUI
 
 protocol CommandRunning {
   func serialRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool,
-                 machPortEvent: MachPortEvent, repeatingEvent: Bool)
+                 machPortEvent: MachPortEvent, repeatingEvent: Bool) -> Task<Void, any Error>
   func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool,
                      machPortEvent: MachPortEvent, repeatingEvent: Bool)
 }
@@ -137,7 +137,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
   func serialRun(_ commands: [Command], checkCancellation: Bool,
                  resolveUserEnvironment: Bool, machPortEvent: MachPortEvent,
-                 repeatingEvent: Bool) {
+                 repeatingEvent: Bool) -> Task<Void, any Error> {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
     ? NSPasteboard.general.string(forType: .string)
     : nil
@@ -147,7 +147,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       serialTask?.cancel()
     }
 
-    serialTask = Task.detached(priority: .userInitiated) { [weak self] in
+    let serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       Benchmark.shared.start("CommandRunner.serialRun")
       guard let self else { return }
       do {
@@ -211,6 +211,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       }
       Benchmark.shared.stop("CommandRunner.serialRun")
     }
+
+    self.serialTask = serialTask
+
+    return serialTask
   }
 
   func concurrentRun(_ commands: [Command], checkCancellation: Bool,

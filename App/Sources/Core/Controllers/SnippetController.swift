@@ -15,8 +15,8 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
   private var currentSnippet: String = ""
   private var machPortEventSubscription: AnyCancellable?
   private var snippetsStorage = [String: [Workflow]]()
-  private var timeout: Timer?
   private var workflowGroupsSubscription: AnyCancellable?
+  private var runningTask: Task<Void, any Error>?
 
   private let commandRunner: CommandRunning
   private let customCharSet: CharacterSet
@@ -58,15 +58,20 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
 
   @MainActor
   private func receiveCGEvent(_ event: CGEvent) {
-    guard isEnabled && !snippetsStorage.isEmpty, event.type == .keyDown else { return }
+    guard isEnabled else {
+      return
+    }
+
     let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
-    let forbiddenKeys = [kVK_Escape, kVK_Space, kVK_Delete]
+    let forbiddenKeys = [kVK_Escape, kVK_Space, kVK_Tab, kVK_Delete, kVK_ForwardDelete]
 
     if forbiddenKeys.contains(keyCode) {
       currentSnippet = ""
-      timeout?.invalidate()
+      runningTask?.cancel()
       return
     }
+
+    guard !snippetsStorage.isEmpty, event.type == .keyDown else { return }
 
     let modifiers = VirtualModifierKey.modifiers(for: keyCode, flags: event.flags, specialKeys: Array(store.specialKeys().keys))
 
@@ -84,23 +89,8 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
       return
     }
 
-    if displayValue == "." {
-      currentSnippet = ""
-      timeout?.invalidate()
-      return
-    }
-
     currentSnippet = currentSnippet + displayValue
     Self.currentSnippet = currentSnippet
-
-    timeout?.invalidate()
-    timeout = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] timer in
-      guard let self else { return }
-      Task { @MainActor in
-        self.currentSnippet = ""
-      }
-      timer.invalidate()
-    })
 
     guard let runningApplication = NSWorkspace.shared.frontmostApplication,
           let bundleIdentifier = runningApplication.bundleIdentifier else { return }
@@ -113,28 +103,36 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
       return
     }
 
-    Task { @MainActor in
+    runningTask?.cancel()
+    let runningTask = Task { @MainActor in
       // Clean up snippet before running command
       if let key = VirtualSpecialKey.keys[kVK_Delete] {
         for _ in 0..<currentSnippet.count {
           _ = try? await keyboardCommandRunner.run([.init(key: key)], iterations: 1, with: nil)
         }
-        try await Task.sleep(for: .milliseconds(10))
       }
 
       for workflow in workflows {
-        commandRunner.serialRun(
+        let task = commandRunner.serialRun(
           workflow.commands,
-          checkCancellation: false,
+          checkCancellation: true,
           resolveUserEnvironment: true,
           machPortEvent: machPortEvent,
           repeatingEvent: false
         )
+
+        try await task.value
+
+        if Task.isCancelled {
+          task.cancel()
+          throw CancellationError()
+        }
       }
 
-      currentSnippet = ""
-      timeout?.invalidate()
+      self.currentSnippet = ""
+      self.runningTask = nil
     }
+    self.runningTask = runningTask
   }
 
   private func receiveGroups(_ groups: [WorkflowGroup]) {
