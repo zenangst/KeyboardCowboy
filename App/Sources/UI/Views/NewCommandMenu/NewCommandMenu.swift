@@ -233,12 +233,12 @@ fileprivate struct KeyboardMenuView: View {
       Menu {
         Button(action: {
           updater.modifyWorkflow(using: transaction, handler: { workflow in
-            workflow.commands.append(.builtIn(.init(kind: .macro(.record), notification: nil)))
+            workflow.commands.append(.builtIn(.init(kind: .macro(action: .record), notification: nil)))
           })
         }, label: { Text("New Macro") })
         Button(action: {
           updater.modifyWorkflow(using: transaction, handler: { workflow in
-            workflow.commands.append(.builtIn(.init(kind: .macro(.remove), notification: nil)))
+            workflow.commands.append(.builtIn(.init(kind: .macro(action: .remove), notification: nil)))
           })
         }, label: { Text("Remove Macro") })
       } label: {
@@ -541,7 +541,7 @@ fileprivate struct UserModeMenuView: View {
   private func performUpdate(_ userMode: UserMode, action: BuiltInCommand.Kind.Action) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .builtIn(.init(kind: .userMode(userMode, action), notification: nil))
+        .builtIn(.init(kind: .userMode(mode: userMode, action: action), notification: nil))
       )
     }
   }

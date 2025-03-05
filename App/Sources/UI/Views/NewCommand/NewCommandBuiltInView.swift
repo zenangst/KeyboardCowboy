@@ -7,7 +7,7 @@ struct NewCommandBuiltInView: View {
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
-  @State private var kindSelection: BuiltInCommand.Kind = .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle)
+  @State private var kindSelection: BuiltInCommand.Kind = .userMode(mode: .init(id: UUID().uuidString, name: "", isEnabled: true), action: .toggle)
   @State private var userModeSelection: UserMode = .init(id: UUID().uuidString, name: "", isEnabled: true)
 
   init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
@@ -25,7 +25,7 @@ struct NewCommandBuiltInView: View {
         VStack {
 
           Menu {
-            Button(action: { kindSelection = .commandLine(.argument(contents: "")) },
+            Button(action: { kindSelection = .commandLine(action: .argument(contents: "")) },
                    label: { Text("Open Command Line") })
             Button(action: { kindSelection = .repeatLastWorkflow },
                    label: { Text("Repeat Last Workflow") })
@@ -33,13 +33,13 @@ struct NewCommandBuiltInView: View {
                    label: { Text("Window Switcher") })
             Text("Modes")
               .font(.caption)
-            Button(action: { kindSelection = .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle) },
+            Button(action: { kindSelection = .userMode(mode: .init(id: UUID().uuidString, name: "", isEnabled: true), action: .toggle) },
                    label: { Text("User Mode") })
             Text("Macros")
               .font(.caption)
-            Button(action: { kindSelection = .macro(.record) },
+            Button(action: { kindSelection = .macro(action: .record) },
                    label: { Text("Record Macros") })
-            Button(action: { kindSelection = .macro(.remove) },
+            Button(action: { kindSelection = .macro(action: .remove) },
                    label: { Text("Remove Macros") })
           } label: {
             switch kindSelection {
@@ -85,15 +85,15 @@ struct NewCommandBuiltInView: View {
       UserModeIconView(size: 24)
 
       Menu(content: {
-        Button(action: { kindSelection = .userMode(userModeSelection, .toggle) }, label: {
+        Button(action: { kindSelection = .userMode(mode: userModeSelection, action: .toggle) }, label: {
           Image(systemName: "togglepower")
           Text("Toggle")
         })
-        Button(action: { kindSelection = .userMode(userModeSelection, .enable) }, label: {
+        Button(action: { kindSelection = .userMode(mode: userModeSelection, action: .enable) }, label: {
           Image(systemName: "lightswitch.on")
           Text("Enable")
         })
-        Button(action: { kindSelection = .userMode(userModeSelection, .disable) }, label: {
+        Button(action: { kindSelection = .userMode(mode: userModeSelection, action: .disable) }, label: {
           Image(systemName: "lightswitch.off")
           Text("Disable")
         })
@@ -119,13 +119,13 @@ struct NewCommandBuiltInView: View {
     switch kindSelection {
     case .macro(let action):
       validation = true
-      newKind = .macro(action)
+      newKind = .macro(action: action)
     case .userMode(_, let action):
       validation = !userModeSelection.name.isEmpty
-      newKind = .userMode(userModeSelection, action)
+      newKind = .userMode(mode: userModeSelection, action: action)
     case .commandLine(let action):
       validation = true
-      newKind = .commandLine(action)
+      newKind = .commandLine(action: action)
     case .repeatLastWorkflow:
       validation = true
       newKind = .repeatLastWorkflow
