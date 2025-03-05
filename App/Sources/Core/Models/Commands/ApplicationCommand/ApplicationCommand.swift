@@ -4,38 +4,6 @@ import Foundation
 /// An application command is a container that is used for
 /// launching or activing applications.
 struct ApplicationCommand: MetaDataProviding {
-  enum Modifier: String, Codable, Hashable, CaseIterable, Sendable {
-    public var id: String { return self.rawValue }
-    public var displayValue: String {
-      switch self {
-      case .background: "Open in background"
-      case .hidden: "Hide when opening"
-      case .onlyIfNotRunning: "Open if not running"
-      case .addToStage: "Add to current stage"
-      case .waitForAppToLaunch: "Wait for app to launch"
-      }
-    }
-    case background
-    case hidden
-    case onlyIfNotRunning
-    case addToStage
-    case waitForAppToLaunch
-  }
-
-  enum Action: String, Codable, Hashable, Equatable, Sendable {
-    public var id: String { return self.rawValue }
-    public var displayValue: String {
-      switch self {
-      case .open:  "Open"
-      case .close: "Close"
-      case .hide:  "Hide"
-      case .unhide: "Unhide"
-      case .peek: "Peek"
-      }
-    }
-    case open, close, hide, unhide, peek
-  }
-
   var application: Application
   var action: Action
   var modifiers: Set<Modifier>
