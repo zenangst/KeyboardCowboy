@@ -2,20 +2,6 @@ import Apps
 import Foundation
 
 struct MenuBarCommand: MetaDataProviding {
-  enum Token: Identifiable, Equatable, Hashable, Codable, Sendable {
-    var id: String {
-      switch self {
-      case .menuItem(let value):
-        return value
-      case .menuItems(let lhs, let rhs):
-        return lhs + rhs
-      }
-    }
-
-    case menuItem(name: String)
-    case menuItems(name: String, fallbackName: String)
-  }
-
   let tokens: [Token]
   var application: Application?
   var meta: Command.MetaData
@@ -42,12 +28,7 @@ struct MenuBarCommand: MetaDataProviding {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    do {
-      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-    } catch {
-      self.meta = try MetaDataMigrator.migrate(decoder)
-    }
-
+    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
     self.tokens = try container.decode([Token].self, forKey: .tokens)
     self.application = try container.decodeIfPresent(Application.self, forKey: .application)
   }

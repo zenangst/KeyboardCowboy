@@ -3,23 +3,6 @@ import Foundation
 /// Keyboard commands only have output because the trigger
 /// will be the `Combination` found in the `Workflow`.
 struct KeyboardCommand: MetaDataProviding {
-  enum Kind: Codable, Hashable {
-    case key(command: KeyCommand)
-    case inputSource(command: InputSourceCommand)
-  }
-
-  struct KeyCommand: Codable, Hashable {
-    var keyboardShortcuts: [KeyShortcut]
-    var iterations: Int
-
-    init(keyboardShortcuts: [KeyShortcut], iterations: Int) {
-      self.keyboardShortcuts = keyboardShortcuts
-      self.iterations = iterations
-    }
-  }
-
-  struct InputSourceCommand: Codable, Hashable { }
-
   var meta: Command.MetaData
   let kind: Kind
 
