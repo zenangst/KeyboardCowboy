@@ -63,8 +63,13 @@ final class ShellScriptPlugin: @unchecked Sendable {
 
     let output: String
 
-    if let data = try pipe.fileHandleForReading.readToEnd() {
-      output = String(data: data, encoding: .utf8) ?? ""
+    if let data = try pipe.fileHandleForReading.readToEnd(),
+       let rawOutput = String(data: data, encoding: .utf8) {
+      let ansiEscapePattern = "\u{001B}\\[[0-?]*[ -/]*[@-~]"
+      let regex = try NSRegularExpression(pattern: ansiEscapePattern, options: [])
+      let range = NSRange(rawOutput.startIndex..., in: rawOutput)
+      let cleanOutput = regex.stringByReplacingMatches(in: rawOutput, options: [], range: range, withTemplate: "")
+      output = cleanOutput
     } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
       output = String(data: errorPipe, encoding: .utf8) ?? ""
       throw ShellScriptPluginError.scriptError(output)
@@ -73,6 +78,10 @@ final class ShellScriptPlugin: @unchecked Sendable {
     }
 
     process.waitUntilExit()
+
+    if process.terminationStatus != 0 {
+      throw ShellScriptPluginError.scriptError(output)
+    }
 
     return output
   }
