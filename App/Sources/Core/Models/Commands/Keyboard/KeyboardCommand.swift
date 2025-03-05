@@ -18,23 +18,14 @@ struct KeyboardCommand: MetaDataProviding {
   }
 
   enum MigrationCodingKeys: String, CodingKey {
-    case id
-    case name
     case keyboardShortcuts
-    case kind
-    case isEnabled = "enabled"
     case iterations
-    case notification
   }
 
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    do {
-      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-    } catch {
-      self.meta = try MetaDataMigrator.migrate(decoder)
-    }
+    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
 
     let migration = try decoder.container(keyedBy: MigrationCodingKeys.self)
     if let keyboardShortcuts = try migration.decodeIfPresent([KeyShortcut].self, forKey: .keyboardShortcuts) {
