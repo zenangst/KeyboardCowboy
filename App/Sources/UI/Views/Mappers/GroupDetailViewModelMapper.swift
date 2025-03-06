@@ -149,7 +149,9 @@ private extension Array where Element == Command {
         }
       case .open(let command):
         let path: String
-        if command.isUrl {
+        if let appPath = command.application?.path {
+          path = appPath
+        } else if command.isUrl {
           path = "/System/Library/SyncServices/Schemas/Bookmarks.syncschema/Contents/Resources/com.apple.Bookmarks.icns"
         } else {
           path = command.path

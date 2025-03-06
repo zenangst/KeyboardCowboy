@@ -68,12 +68,13 @@ private struct HeaderView: View {
     ZStack(alignment: .bottomTrailing) {
       switch metaData.icon {
       case .some(let icon):
-        IconView(icon: icon, size: iconSize)
         if let appPath = model.applicationPath {
           IconView(icon: .init(bundleIdentifier: appPath, path: appPath),
-                   size: iconSize.applying(.init(scaleX: 0.5, y: 0.5)))
+                   size: iconSize)
           .shadow(radius: 3)
           .id("open-with-\(appPath)")
+        } else {
+          IconView(icon: icon, size: iconSize)
         }
       case .none:
         EmptyView()
