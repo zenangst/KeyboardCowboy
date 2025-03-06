@@ -54,7 +54,7 @@ private extension Workflow {
     case .application: .application("foo")
     case .keyboardShortcuts(let trigger): .keyboard(trigger.shortcuts.binding ?? "")
     case .snippet(let snippetTrigger): .snippet(snippetTrigger.text)
-    case .modifier(let modifier): .none
+    case .modifier: .none
     case .none: nil
     }
 
@@ -144,9 +144,15 @@ private extension Array where Element == Command {
       case .mouse:
         images.append(.mouse(element, offset: convertedOffset))
       case .keyboard(let keyCommand):
-        if case .key(let command) = keyCommand.kind, let keyboardShortcut = command.keyboardShortcuts.first {
-          images.append(.keyboard(element, string: keyboardShortcut.key, offset: convertedOffset))
+        switch keyCommand.kind {
+        case .key(let keyCommand):
+          if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
+            images.append(.keyboard(element, string: keyboardShortcut.key, offset: convertedOffset))
+          }
+        case .inputSource:
+          images.append(.inputSource(element, offset: convertedOffset))
         }
+
       case .open(let command):
         let path: String
         if let appPath = command.application?.path {

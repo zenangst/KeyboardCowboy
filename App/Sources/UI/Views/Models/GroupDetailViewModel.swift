@@ -58,6 +58,7 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
       case builtIn(BuiltInCommand.Kind)
       case bundled(Bundled)
       case open
+      case inputSource
       case keyboard(String)
       case script(ScriptCommand.Source)
       case plain
@@ -79,6 +80,7 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
         case .bundled: "bundled"
         case .open: "open"
         case .keyboard: "keyboard"
+        case .inputSource: "inputSource"
         case .script: "script"
         case .plain: "plain"
         case .shortcut: "shortcut"
@@ -100,6 +102,7 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
         case .builtIn: .builtIn
         case .bundled: .bundled
         case .open: .open
+        case .inputSource: .inputSource
         case .keyboard: .keyboard
         case .script: .script
         case .plain: .plain
@@ -131,6 +134,7 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
     static func builtIn(_ command: Command, kind: BuiltInCommand.Kind, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .builtIn(kind)) }
     static func bundled(_ command: Command, offset: Double, kind: Bundled) -> Self { .init(id: command.id, offset: offset, kind: .bundled(kind)) }
     static func keyboard(_ command: Command, string: String, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .keyboard(string)) }
+    static func inputSource(_ command: Command, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .inputSource) }
     static func mouse(_ command: Command, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .mouse) }
     static func menubar(_ command: Command, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .menuBar) }
     static func script(_ command: Command, source: ScriptCommand.Source, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .script(source)) }
