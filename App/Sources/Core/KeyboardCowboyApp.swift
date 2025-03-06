@@ -89,6 +89,7 @@ struct KeyboardCowboyApp: App {
         .environmentObject(core.workflowCoordinator.statePublisher)
         .environmentObject(core.workflowCoordinator.infoPublisher)
         .environmentObject(core.raycast)
+        .environmentObject(core.inputSourceStore)
       }
 
       CommandGroup(replacing: .toolbar) {

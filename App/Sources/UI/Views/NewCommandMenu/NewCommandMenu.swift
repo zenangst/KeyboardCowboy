@@ -249,17 +249,42 @@ fileprivate struct KeyboardMenuView: View {
         Text("Macros")
       }
 
-      Divider()
-
-      Button(action: {
-        fatalError("NOOP")
-      }, label: {
-        Text("Change Input Source")
-      })
+      InputSourceMenuView()
 
     } label: {
       Image(systemName: "keyboard")
       Text("Keyboard")
+    }
+  }
+}
+
+fileprivate struct InputSourceMenuView: View {
+  @EnvironmentObject var store: InputSourceStore
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+
+  var body: some View {
+    Menu {
+      ForEach(store.inputSources, id: \.id) { inputSource in
+        Button(action: {
+          updater.modifyWorkflow(using: transaction) { workflow in
+            let name: String
+            if let localizedName = inputSource.localizedName {
+              name = "Change Input Source to \(localizedName)"
+            } else {
+              name = "Change Input Source"
+            }
+
+            workflow.commands.append(
+              .keyboard(.init(name: name, kind: .inputSource(command: .init(inputSourceId: inputSource.id, name: inputSource.localizedName ?? inputSource.id))))
+            )
+          }
+        }, label: {
+          Text(inputSource.localizedName ?? inputSource.id)
+        })
+      }
+    } label: {
+      Text("Input Source")
     }
   }
 }

@@ -145,8 +145,7 @@ private extension Command {
       case .key(let model):
         kind = .keyboard(.init(id: keyboardCommand.id, command: model))
       case .inputSource(let source):
-        fatalError("NOOP")
-        #warning("Implement this!")
+        kind = .inputSource(.init(id: source.id, inputId: source.id, name: source.name))
       }
     case .menuBar(let menubarCommand):
       kind = .menuBar(.init(id: menubarCommand.id, application: menubarCommand.application, tokens: menubarCommand.tokens))

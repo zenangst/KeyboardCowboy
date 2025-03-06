@@ -159,7 +159,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
       case .key(let command):
         return .keyboardShortcut(command.keyboardShortcuts)
       case .inputSource(let command):
-        return .inputSource
+        return .inputSource(id: command.id, name: command.name)
       }
     case .open(let openCommand):
       return .open(path: openCommand.path, application: openCommand.application)

@@ -18,16 +18,17 @@ struct GroupDetailView: View {
       case application = "app"
       case builtIn = "builtIn"
       case bundled = "bundled"
-      case open = "open"
+      case inputSource = "inputSource"
       case keyboard = "keyboard"
-      case script = "script"
-      case plain = "plain"
-      case snippet = "snippet"
-      case shortcut = "shortcut"
-      case text = "text"
-      case systemCommand = "system" 
       case menuBar = "menubar"
       case mouse = "mouse"
+      case open = "open"
+      case plain = "plain"
+      case script = "script"
+      case shortcut = "shortcut"
+      case snippet = "snippet"
+      case systemCommand = "system" 
+      case text = "text"
       case uiElement = "ui"
       case windowFocus = "windowFocus"
       case windowManagement = "window"
@@ -425,6 +426,7 @@ fileprivate extension CommandViewModel.Kind {
     case .builtIn: .builtIn
     case .bundled: .bundled
     case .open: .open
+    case .inputSource: .inputSource
     case .keyboard: .keyboard
     case .script: .script
     case .shortcut: .shortcut

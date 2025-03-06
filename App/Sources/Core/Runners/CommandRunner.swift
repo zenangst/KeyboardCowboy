@@ -18,6 +18,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let application: ApplicationCommandRunner
     let builtIn: BuiltInCommandRunner
     let bundled: BundledCommandRunner
+    let inputSource: InputSourceCommandRunner
     let keyboard: KeyboardCommandRunner
     let menubar: MenuBarCommandRunner
     let mouse: MouseCommandRunner
@@ -85,6 +86,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       bundled: BundledCommandRunner(applicationStore: applicationStore,
                                     windowFocusRunner: windowFocus,
                                     windowTidy: windowTidy),
+      inputSource: InputSourceCommandRunner(),
       keyboard: keyboardCommandRunner,
       menubar: MenuBarCommandRunner(),
       mouse: MouseCommandRunner(),
@@ -343,10 +345,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         )
         try await Task.sleep(for: .milliseconds(1))
         output = command.name
-      case .inputSource:
-        #warning("Add input source runner")
+      case .inputSource(let command):
+        try await runners.inputSource.run(command)
         output = command.name
-        break
       }
     case .menuBar(let menuBarCommand):
       try await runners.menubar.execute(menuBarCommand, repeatingEvent: repeatingEvent)

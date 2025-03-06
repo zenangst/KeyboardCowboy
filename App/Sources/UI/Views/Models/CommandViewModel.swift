@@ -50,6 +50,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       case .bundled(let bundledModel): bundledModel.placeholder
       case .open(let openModel): openModel.placeholder
       case .keyboard(let keyboardModel): keyboardModel.placeholder
+      case .inputSource(let inputSourceModel): inputSourceModel.placeholder
       case .script(let scriptModel): scriptModel.placeholder
       case .shortcut(let shortcutModel): shortcutModel.placeholder
       case .text(let textModel): textModel.placeholder
@@ -68,6 +69,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     case bundled(BundledModel)
     case open(OpenModel)
     case keyboard(KeyboardModel)
+    case inputSource(InputSourceModel)
     case script(ScriptModel)
     case shortcut(ShortcutModel)
     case text(TextModel)
@@ -146,6 +148,13 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var applicationPath: String?
       var appName: String?
       var applications: [Application]
+    }
+
+    struct InputSourceModel: Codable, Hashable, Identifiable, Sendable {
+      var id: String
+      var inputId: String
+      var name: String
+      var placeholder: String { "Change Input Source …" }
     }
 
     struct KeyboardModel: Codable, Hashable, Identifiable, Sendable {
