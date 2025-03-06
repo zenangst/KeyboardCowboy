@@ -12,7 +12,11 @@ enum Raycast {
         .appending(path: ".config/raycast/extensions")
       self.paths = [userDirectory]
       do {
-        self.watchers = try paths.map {
+        var isDirectory: ObjCBool = true
+        self.watchers = try paths.compactMap {
+          guard FileManager.default.fileExists(atPath: $0.path(), isDirectory: &isDirectory) else {
+            return nil
+          }
           try index($0)
           return try FileWatcher($0, handler: { [weak self] url in
             try? self?.index(url)
@@ -32,6 +36,9 @@ enum Raycast {
         let raycastExtension = try jsonDecoder.decode(Extension.self, from: data)
         extensions.append(raycastExtension)
       }
+
+      extensions.sort(by: { $0.title < $1.title })
+
       let container = Container(id: url.absoluteString, url: url, extensions: extensions)
       var newContainers = containers
       newContainers.removeAll(where: { $0.id == container.id })
