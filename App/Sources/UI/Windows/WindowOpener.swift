@@ -129,8 +129,8 @@ final class WindowOpener: ObservableObject {
             command = .mouse(.init(meta: .init(), kind: kind))
           case .keyboardShortcut(let keyShortcuts):
             command = .keyboard(.init(id: resolvedCommandId, name: "", kind: .key(command: .init(keyboardShortcuts: keyShortcuts, iterations: 1)), notification: nil))
-          case .inputSource:
-            command = .keyboard(.init(name: resolvedCommandId, kind: .inputSource(command: .init())))
+          case .inputSource(let id, let name):
+            command = .keyboard(.init(name: resolvedCommandId, kind: .inputSource(command: .init(inputSourceId: id, name: name))))
           case .script(let value, let kind, let scriptExtension):
             let source: ScriptCommand.Source
             switch kind {

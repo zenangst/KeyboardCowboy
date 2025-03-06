@@ -17,8 +17,8 @@ extension Command {
           }
 
           return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcutString)" : command.name
-        case .inputSource:
-          return "Switch Input Source"
+        case .inputSource(let command):
+          return command.name
         }
       case .open(let command):
         if !command.name.isEmpty { return command.name }
