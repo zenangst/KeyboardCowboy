@@ -69,6 +69,7 @@ private struct HeaderView: View {
         .onChange(of: metaData.isEnabled) { newValue in
           updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.isEnabled = newValue })
         }
+        .padding(.leading, 3)
 
       let textFieldPlaceholder = metaData.namePlaceholder.isEmpty
       ? placeholder
@@ -100,11 +101,13 @@ private struct ContentView<IconContent, Content>: View where IconContent: View, 
 
   var body: some View {
     HStack(alignment: .top, spacing: 6) {
-      RoundedRectangle(cornerRadius: 5)
+      RoundedRectangle(cornerRadius: 6)
         .fill(Color.black.opacity(0.2))
-        .frame(width: 28, height: 28)
+        .frame(width: 34, height: 34)
         .overlay { icon() }
         .fixedSize()
+        .padding(1)
+
       content()
         .menuStyle { menu in
           menu.calm = false

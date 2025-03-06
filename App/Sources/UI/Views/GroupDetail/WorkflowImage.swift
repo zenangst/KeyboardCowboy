@@ -17,6 +17,7 @@ struct WorkflowImage: View {
       case .workspace: WorkspaceIcon(size: iconSize)
       case .tidy: WindowTidyIcon(size: iconSize)
       }
+    case .inputSource: InputSourceIcon(size: iconSize)
     case .keyboard(let string): KeyboardIconView(string, size: iconSize)
     case .script(let source): ContentScriptImageView(source: source, size: iconSize)
     case .plain: EmptyView()

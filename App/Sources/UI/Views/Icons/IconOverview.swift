@@ -6,6 +6,7 @@ struct IconOverview: PreviewProvider {
   static let spacing: CGFloat = 16
   static var previews: some View {
     FlowLayout(itemSpacing: spacing, lineSpacing: spacing) {
+      InputSourceIcon(size: size)
       WorkspaceIcon(size: size)
       AppPeekIcon(size: size)
       WindowTilingIcon(kind: .arrangeLeftQuarters, size: size)

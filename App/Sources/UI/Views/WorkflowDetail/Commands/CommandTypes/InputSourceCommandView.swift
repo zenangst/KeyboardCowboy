@@ -22,8 +22,7 @@ struct InputSourceCommandView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { EmptyView()
-      },
+      icon: { InputSourceIcon(size: iconSize.width) },
       content: {
         ContentView(model: $model) { id, name in
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
