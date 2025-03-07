@@ -74,27 +74,46 @@ final class ModifierTriggerController: @unchecked Sendable {
   }
 
   func cache(_ groups: [WorkflowGroup]) {
-
     if NSUserName() == "christofferwinterkvist" {
       // MARK: Demo modifiers
-      do {
-        let key = KeyShortcut.escape
-        let signature = CGEventSignature(Int64(key.keyCode!), .maskNonCoalesced)
-        let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
-        cache[keySignature] = ModifierTrigger(
-          id: keySignature,
-          alone: .init(kind: .key(key), timeout: 125),
-          heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
-      }
-      
-      do {
-        let key = KeyShortcut.tab
-        let signature = CGEventSignature(Int64(key.keyCode!), .maskNonCoalesced)
-        let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
-        cache[keySignature] = ModifierTrigger(
-          id: keySignature,
-          alone: .init(kind: .key(key), timeout: 125),
-          heldDown: .init(kind: .modifiers([.function]), threshold: 75))
+
+      let variations: [[CGEventFlags]] = [
+        [.maskNonCoalesced],
+        [.maskNonCoalesced, .maskAlternate, .maskLeftAlternate],
+        [.maskNonCoalesced, .maskAlternate, .maskRightAlternate],
+        [.maskNonCoalesced, .maskShift,     .maskLeftShift],
+        [.maskNonCoalesced, .maskShift,     .maskRightShift],
+        [.maskNonCoalesced, .maskControl,   .maskLeftControl],
+        [.maskNonCoalesced, .maskControl,   .maskRightControl],
+        [.maskNonCoalesced, .maskCommand,   .maskLeftCommand],
+        [.maskNonCoalesced, .maskCommand,   .maskRightCommand],
+      ]
+
+      for variation in variations {
+        let flags = variation.reduce(into: CGEventFlags()) { result, flag in
+          result.insert(flag)
+        }
+
+        do {
+          let key = KeyShortcut.escape
+          let signature = CGEventSignature(Int64(key.keyCode!), flags)
+          let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
+
+          cache[keySignature] = ModifierTrigger(
+            id: keySignature,
+            alone: .init(kind: .key(key), timeout: 125),
+            heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
+        }
+
+        do {
+          let key = KeyShortcut.tab
+          let signature = CGEventSignature(Int64(key.keyCode!), flags)
+          let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
+          cache[keySignature] = ModifierTrigger(
+            id: keySignature,
+            alone: .init(kind: .key(key), timeout: 125),
+            heldDown: .init(kind: .modifiers([.function]), threshold: 75))
+        }
       }
     }
 
