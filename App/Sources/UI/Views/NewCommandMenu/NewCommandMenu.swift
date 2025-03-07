@@ -741,6 +741,12 @@ fileprivate struct RaycastMenu: View {
 
   var body: some View {
     Menu {
+      MenuLabel("Core Extensions")
+
+      RaycastCoreCommands()
+
+      MenuLabel("Installed Extensions")
+
       ForEach(raycast.containers) { container in
         ForEach(container.extensions) { raycastExtension in
           Menu {
@@ -757,6 +763,44 @@ fileprivate struct RaycastMenu: View {
       }
     }
   }
+}
+
+fileprivate struct RaycastCoreCommands: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+
+  let coreCommands: [RaycastCoreCommand] = [
+    RaycastCoreCommand(name: "My Schedule", path: "calendar/my-schedule")
+  ]
+
+  var body: some View {
+    let path: String = "raycast://extensions/raycast/"
+
+    Menu {
+      ForEach(coreCommands) { command in
+        Button(action: {
+          updater.modifyWorkflow(using: transaction) { workflow in
+            let raycast = ApplicationStore.shared.applications.first(where: {
+              $0.bundleIdentifier.contains("com.raycast.macos")
+            })
+
+            workflow.commands.append(.open(OpenCommand.init(application: raycast,
+                                                            path: path + command.path,
+                                                            meta: Command.MetaData(name: command.name))))
+          }
+        }, label: { Text(command.name) })
+
+      }
+    } label: {
+      Text("Calendar")
+    }
+  }
+}
+
+struct RaycastCoreCommand: Identifiable, Hashable {
+  var id: String { path }
+  let name: String
+  let path: String
 }
 
 fileprivate struct RaycastCommands: View {
