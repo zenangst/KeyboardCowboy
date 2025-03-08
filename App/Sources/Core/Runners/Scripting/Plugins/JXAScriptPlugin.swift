@@ -11,23 +11,28 @@ final class JXAPlugin: @unchecked Sendable {
     self.fileManager = fileManager
   }
 
-  func execute(_ source: String, withId id: String, checkCancellation: Bool) async throws -> String? {
+  func execute(_ source: String, withId id: String, environment: [String: String], checkCancellation: Bool) async throws -> String? {
     let url = try createTmpDirectory()
     let data = source.data(using: .utf8)
+
     _ = fileManager.createFile(atPath: url.path, contents: data, attributes: nil)
 
-    let output = try await executeScript(at: url.path(), withId: id, checkCancellation: checkCancellation)
+    let output = try await executeScript(at: url.path(), withId: id,
+                                         environment: environment,
+                                         checkCancellation: checkCancellation)
 
     try fileManager.removeItem(atPath: url.path)
     return output
   }
 
-  func executeScript(at path: String, withId key: String, checkCancellation: Bool) async throws -> String? {
+  func executeScript(at path: String, withId key: String, environment: [String: String], checkCancellation: Bool) async throws -> String? {
     let source = """
 osascript -l JavaScript \(path)
 """
 
-    let output = try await shellScript.executeScript(source, environment: [:], checkCancellation: true)
+    let output = try await shellScript.executeScript(source,
+                                                     environment: environment,
+                                                     checkCancellation: true)
     return output
   }
 

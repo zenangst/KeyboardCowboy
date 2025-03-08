@@ -19,7 +19,7 @@ final class ScriptCommandRunner: Sendable {
     self.plugins = Plugins(workspace: workspace)
   }
 
-  func run(_ command: ScriptCommand, environment: [String: String], checkCancellation: Bool) async throws -> String? {
+  func run(_ command: ScriptCommand, snapshot: UserSpace.Snapshot, runtimeDictionary: [String: String], checkCancellation: Bool) async throws -> String? {
     var result: String?
 
     switch (command.kind, command.source) {
@@ -27,18 +27,23 @@ final class ScriptCommandRunner: Sendable {
       result = try await plugins.appleScript.executeScript(at: path, withId: command.id, 
                                                            checkCancellation: checkCancellation)
     case (.appleScript(let variant), .inline(let script)):
+      let input = await snapshot.interpolateUserSpaceVariables(script, runtimeDictionary: runtimeDictionary)
       switch variant {
       case .regular:
-        result = try await plugins.appleScript.execute(script, withId: command.id,
+        result = try await plugins.appleScript.execute(input, withId: command.id,
                                                        checkCancellation: checkCancellation)
       case .jxa:
-        result = try await plugins.jxaScript.execute(script, withId: command.id, checkCancellation: checkCancellation)
+        result = try await plugins.jxaScript.execute(input, withId: command.id,
+                                                     environment: runtimeDictionary,
+                                                     checkCancellation: checkCancellation)
       }
     case (.shellScript, .path(let source)):
-      result = try await plugins.shellScript.executeScript(at: source, environment: environment,
+      let input = await snapshot.interpolateUserSpaceVariables(source, runtimeDictionary: runtimeDictionary)
+      result = try await plugins.shellScript.executeScript(at: input, environment: runtimeDictionary,
                                                            checkCancellation: checkCancellation)
     case (.shellScript, .inline(let script)):
-      result = try await plugins.shellScript.executeScript(script, environment: environment,
+      let input = await snapshot.interpolateUserSpaceVariables(script, runtimeDictionary: runtimeDictionary)
+      result = try await plugins.shellScript.executeScript(input, environment: runtimeDictionary,
                                                            checkCancellation: checkCancellation)
     }
 
