@@ -127,7 +127,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           let shellScript = ScriptCommand(name: "Reveal \(shortcut.shortcutIdentifier)",
                                           kind: .shellScript, source: .inline(source), notification: nil)
 
-          _ = try await runners.script.run(shellScript, environment: [:], checkCancellation: false)
+          _ = try await runners.script.run(shellScript, snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+                                           runtimeDictionary: [:], checkCancellation: false)
         }
       case .builtIn, .keyboard, .text,
           .systemCommand, .menuBar, .windowManagement, 
@@ -366,7 +367,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .script(let scriptCommand):
       let result = try await self.runners.script.run(
         scriptCommand,
-        environment: snapshot.terminalEnvironment(),
+        snapshot: snapshot,
+        runtimeDictionary: runtimeDictionary,
         checkCancellation: checkCancellation
       )
 

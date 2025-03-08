@@ -17,10 +17,7 @@ final class ShortcutsCommandRunner {
     let shellScript = ScriptCommand(
       id: "ShortcutCommand.\(command.shortcutIdentifier)",
       name: command.name, kind: .shellScript, source: .inline(source), notification: nil)
-    return try await commandRunner.run(
-      shellScript,
-      environment: environment,
-      checkCancellation: checkCancellation
-    )
+    return try await commandRunner.run(shellScript, snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+                                       runtimeDictionary: [:], checkCancellation: checkCancellation)
   }
 }

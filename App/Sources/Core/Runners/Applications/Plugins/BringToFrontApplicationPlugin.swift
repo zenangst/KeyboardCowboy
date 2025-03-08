@@ -27,8 +27,7 @@ final class BringToFrontApplicationPlugin {
         source: .inline(source),
         notification: nil
       ),
-      environment: [:],
-      checkCancellation: checkCancellation
-    )
+      snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+      runtimeDictionary: [:], checkCancellation: checkCancellation)
   }
 }
