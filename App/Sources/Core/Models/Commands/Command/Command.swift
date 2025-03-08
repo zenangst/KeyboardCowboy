@@ -323,7 +323,7 @@ extension Command {
     case .menuBar:          Command.menuBar(MenuBarCommand(application: nil, tokens: []))
     case .mouse:            Command.mouse(MouseCommand.empty())
     case .open:             Command.open(.init(path: "", notification: nil))
-    case .script:           Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: nil))
+    case .script:           Command.script(.init(name: "", kind: .appleScript(variant: .regular), source: .path(""), notification: nil))
     case .shortcut:         Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: nil))
     case .text:             Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id), actions: []))))
     case .system:           Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: nil))
@@ -354,7 +354,7 @@ extension Command {
   }
 
   static func appleScriptCommand(id: String) -> Command {
-    Command.script(.init(id: id, name: "", kind: .appleScript, source: .path(""), notification: nil))
+    Command.script(.init(id: id, name: "", kind: .appleScript(variant: .regular), source: .path(""), notification: nil))
   }
 
   static func shellScriptCommand(id: String) -> Command {

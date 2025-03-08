@@ -128,7 +128,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                      workflows: [
                       Workflow(name: "Open a specific note",
                                commands: [
-                                .script(.init(name: "Show note", kind: .appleScript, source: .inline("""
+                                .script(.init(name: "Show note", kind: .appleScript(variant: .regular), source: .inline("""
                                   tell application "Notes"
                                       show note "awesome note"
                                   end tell

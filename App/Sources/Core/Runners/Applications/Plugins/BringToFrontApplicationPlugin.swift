@@ -23,7 +23,7 @@ final class BringToFrontApplicationPlugin {
     _ = try await commandRunner.run(
       ScriptCommand(
         name: "BringToFrontApplicationPlugin",
-        kind: .appleScript,
+        kind: .appleScript(variant: .regular),
         source: .inline(source),
         notification: nil
       ),

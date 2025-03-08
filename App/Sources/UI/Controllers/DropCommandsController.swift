@@ -17,7 +17,7 @@ final class DropCommandsController {
         commands.append(Command.application(applicationCommand))
       case .applescript:
         let name = "\(url.lastPathComponent)"
-        let command = Command.script(.init(name: name, kind: .appleScript, source: .path(url.path), notification: nil))
+        let command = Command.script(.init(name: name, kind: .appleScript(variant: .regular), source: .path(url.path), notification: nil))
         commands.append(command)
       case .shellscript:
         let name = "\(url.lastPathComponent)"

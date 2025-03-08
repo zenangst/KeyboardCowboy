@@ -338,20 +338,26 @@ fileprivate struct ScriptMenuView: View {
   var body: some View {
     Menu {
       Button(action: {
-        OpenPanelController().perform(.selectFile(types: ["scpt"], handler: { path in
+        OpenPanelController().perform(.selectFile(types: ["scpt", "sh"], handler: { path in
           let metaData = Command.MetaData()
           updater.modifyWorkflow(using: transaction, handler: { workflow in
+            let kind: ScriptCommand.Kind
+            if (path as NSString).pathExtension == "scpt" {
+              kind = .appleScript(variant: .regular)
+            } else {
+              kind = .shellScript
+            }
+
             workflow.commands.append(
-              .script(.init(kind: .appleScript, source: .path(path), meta: metaData))
+              .script(.init(kind: kind, source: .path(path), meta: metaData))
             )
           })
         }))
       }, label: { Text("Browse…") })
       Divider()
 
-      Button(action: { performUpdate(.appleScript) }, label: { Text("New Apple Script") })
-      #warning("Change this to JXA")
-      Button(action: { performUpdate(.appleScript) }, label: { Text("New JXA Script") })
+      Button(action: { performUpdate(.appleScript(variant: .regular)) }, label: { Text("New Apple Script") })
+      Button(action: { performUpdate(.appleScript(variant: .jxa)) }, label: { Text("New JXA Script") })
       Button(action: { performUpdate(.shellScript) }, label: { Text("New Shellscript") })
     } label: {
       Image(systemName: "applescript")
