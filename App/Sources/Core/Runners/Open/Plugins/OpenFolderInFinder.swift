@@ -23,7 +23,7 @@ final class OpenFolderInFinder {
       end tell
       """
     let script = ScriptCommand(name: "Open folder in Finder: \(path)",
-                               kind: .appleScript,
+                               kind: .appleScript(variant: .regular),
                                source: .inline(source),
                                notification: nil)
 

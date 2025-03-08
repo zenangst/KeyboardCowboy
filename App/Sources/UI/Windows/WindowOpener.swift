@@ -142,7 +142,7 @@ final class WindowOpener: ObservableObject {
 
             switch scriptExtension {
             case .appleScript:
-              command = .script(.init(name: title, kind: .appleScript, source: source, notification: nil))
+              command = .script(.init(name: title, kind: .appleScript(variant: .regular), source: source, notification: nil))
             case .shellScript:
               command = .script(.init(name: title, kind: .shellScript, source: source, notification: nil))
             }

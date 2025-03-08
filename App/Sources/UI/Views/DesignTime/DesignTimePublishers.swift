@@ -204,7 +204,9 @@ enum DesignTime {
 
   static var scriptCommandWithPath: (model: CommandViewModel, kind: CommandViewModel.Kind.ScriptModel) {
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
-    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .path(scriptFile), scriptExtension: .appleScript, variableName: "", execution: .concurrent)
+    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .path(scriptFile),
+                                                 scriptExtension: .appleScript(variant: .regular),
+                                                 variableName: "", execution: .concurrent)
     return (.init(meta: metadata(name: "Run AppleScript.scpt",
                                  icon: .init(bundleIdentifier: scriptFile, path: scriptFile)),
                   kind: .script(kind)), kind)
