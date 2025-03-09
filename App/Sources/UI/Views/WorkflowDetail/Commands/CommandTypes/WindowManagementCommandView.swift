@@ -29,31 +29,7 @@ struct WindowManagementCommandView: View {
       },
       subContent: {
         HStack {
-          Menu {
-            Button(action: {
-              updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-                command.notification = .none
-              }
-            }, label: { Text("None") })
-            ForEach(Command.Notification.regularCases) { notification in
-              Button(action: {
-                updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-                  command.notification = notification
-                }
-              }, label: { Text(notification.displayValue) })
-            }
-          } label: {
-            switch metaData.notification {
-            case .bezel:        Text("Bezel").font(.caption)
-            case .capsule:      Text("Capsule").font(.caption)
-            case .commandPanel: Text("Command Panel").font(.caption)
-            case .none:         Text("None").font(.caption)
-            }
-          }
-          .fixedSize()
-
           Spacer()
-
           WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
             model.animationDuration = newDuration
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in
