@@ -143,6 +143,31 @@ private struct SubView<Content>: View where Content: View {
           }
         }
       )
+      Menu {
+        Button(action: {
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = .none
+          }
+        }, label: { Text("None") })
+        ForEach(Command.Notification.allCases) { notification in
+          Button(action: {
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              command.notification = notification
+            }
+          }, label: { Text(notification.displayValue) })
+        }
+      } label: {
+        HStack {
+          Image(systemName: "app.badge")
+          switch metaData.notification {
+          case .bezel:        Text("Bezel").font(.caption)
+          case .capsule:      Text("Capsule").font(.caption)
+          case .commandPanel: Text("Command Panel").font(.caption)
+          case .none:         Text("None").font(.caption)
+          }
+        }
+      }
+      .fixedSize()
       content()
     }
     .lineLimit(1)
