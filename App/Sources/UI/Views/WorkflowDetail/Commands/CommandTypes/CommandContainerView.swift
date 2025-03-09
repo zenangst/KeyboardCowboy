@@ -146,11 +146,13 @@ private struct SubView<Content>: View where Content: View {
       Menu {
         Button(action: {
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            metaData.notification = .none
             command.notification = .none
           }
         }, label: { Text("None") })
         ForEach(Command.Notification.allCases) { notification in
           Button(action: {
+            metaData.notification = notification
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in
               command.notification = notification
             }
