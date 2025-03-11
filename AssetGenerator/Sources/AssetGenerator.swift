@@ -16,7 +16,6 @@ final class AssetGenerator {
     )
     hostingView.frame = NSRect(origin: .zero, size: size)
 
-
     if useIntrinsicContentSize { hostingView.frame = NSRect(origin: .zero, size: hostingView.intrinsicContentSize) }
 
     let window = NSWindow(contentRect: hostingView.frame, styleMask: [], backing: .buffered, defer: false)
