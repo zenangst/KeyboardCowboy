@@ -65,6 +65,7 @@ struct PermissionsView: View {
           done.toggle()
           onAction(.requestPermissions)
         })
+        .buttonStyle(.positive)
         .environment(\.buttonBackgroundColor, .systemGreen)
         .environment(\.buttonHoverEffect, false)
         .environment(\.buttonFocusEffect, false)

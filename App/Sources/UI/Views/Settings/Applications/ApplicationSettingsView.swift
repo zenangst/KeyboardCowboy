@@ -17,6 +17,7 @@ struct ApplicationSettingsView: View {
           .style(.derived)
         Spacer()
       }
+      .padding(.top, 8)
 
       Group {
         if additionalApplicationPaths.isEmpty {
@@ -38,7 +39,7 @@ struct ApplicationSettingsView: View {
                 }
                 Divider()
               }
-//              .style(.item)
+              .style(.item)
             }
             .frame(maxHeight: .infinity)
           }

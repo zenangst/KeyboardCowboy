@@ -10,8 +10,10 @@ struct SettingsView: View {
       NotificationsSettingsView()
         .tabItem { Label("Notifications", systemImage: "app.badge") }
       PermissionsSettingsView()
+        .padding(8)
         .tabItem { Label("Permissions", systemImage: "hand.raised.circle.fill") }
     }
+    .frame(minWidth: 450, minHeight: 280, alignment: .center)
     .enableInjection()
   }
 }

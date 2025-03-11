@@ -37,7 +37,6 @@ struct PermissionsSettingsView: View {
         }
       }
     })
-    .frame(minWidth: 480, maxWidth: 480)
   }
 }
 
