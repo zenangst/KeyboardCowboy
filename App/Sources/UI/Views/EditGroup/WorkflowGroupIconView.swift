@@ -25,10 +25,6 @@ struct WorkflowGroupIconView: View {
             .allowsHitTesting(false)
         }
       })
-//      .overlay(Text("Edit")
-//        .font(.caption)
-//        .offset(x: 0, y: 12)
-//        .opacity(isHovering ? 1.0 : 0.0))
       .frame(width: size, height: size, alignment: .center)
       .shadow(
         color: Color(.sRGBLinear, white: 0, opacity: 0.2),

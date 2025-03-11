@@ -50,6 +50,7 @@ struct KeyboardCommandInternalView: View {
         ContentView(model: $model, focus: focus) {
           openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
         }
+        .frame(height: 32)
       },
       subContent: {
         Spacer()
@@ -151,6 +152,5 @@ struct RebindingCommandView_Previews: PreviewProvider {
     ) 
       .designTime()
       .environmentObject(recorderStore)
-      .frame(maxHeight: 120)
   }
 }

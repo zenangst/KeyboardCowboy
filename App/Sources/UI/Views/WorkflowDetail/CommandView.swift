@@ -68,7 +68,6 @@ struct CommandResolverView: View {
     let iconSize = CGSize(width: 24, height: 24)
     switch command.kind {
     case .application(let model):      ApplicationCommandView(command.meta, model: model, iconSize: iconSize)
-                                         .fixedSize(horizontal: false, vertical: true)
     case .builtIn(let model):          BuiltInCommandView(command.meta, model: model, iconSize: iconSize)
     case .bundled(let model):          BundledCommandView(command.meta, model: model, iconSize: iconSize)
     case .inputSource(let model):      InputSourceCommandView(command.meta, model: model, iconSize: iconSize)

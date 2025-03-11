@@ -421,21 +421,21 @@ private struct KeyboardCowboyView: View {
 
       HStack {
         Spacer()
-        Button(action: {}) {
-          HStack {
-            Text("Version")
-            Text("3.27.0")
-              .fontWeight(.bold)
-          }
-            .font(.title)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-        }
+        Text("Version")
+        Text("3.27.0")
+          .fontWeight(.bold)
         Spacer()
       }
+      .font(.title)
+      .padding(.horizontal, 8)
+      .padding(.vertical, 4)
     }
     .frame(width: 431, height: 252)
     .padding(16)
+    .background {
+      BackgroundView()
+        .drawingGroup()
+    }
     .background(
       LinearGradient(stops: [
         .init(color: Color(.systemGray.blended(withFraction: 0.1, of: .black)!).opacity(0.8), location: 0),
@@ -444,6 +444,32 @@ private struct KeyboardCowboyView: View {
       ], startPoint: .topLeading, endPoint: .bottom)
     )
     .clipShape(RoundedRectangle(cornerRadius: 16))
+  }
+}
+
+fileprivate struct BackgroundView: View {
+  @ObservedObject private var publisher: ColorPublisher = ColorPublisher.shared
+  var body: some View {
+    Color.clear
+      .background {
+        Ellipse()
+          .fill(
+            LinearGradient(stops: [
+              .init(color: Color.systemPink, location: 0),
+              .init(color: Color.systemOrange, location: 0.5),
+              .init(color: Color.systemTeal, location: 0.75),
+              .init(color: Color.black, location: 1),
+            ], startPoint: .top, endPoint: .bottom)
+          )
+      }
+      .mask {
+        LinearGradient(stops: [
+          .init(color: .black.opacity(0.5), location: 0.5),
+          .init(color: .black, location: 1),
+        ], startPoint: .top, endPoint: .bottom)
+      }
+      .blur(radius: 50)
+      .frame(maxWidth: 500)
   }
 }
 

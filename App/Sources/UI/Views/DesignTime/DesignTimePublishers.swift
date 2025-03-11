@@ -227,7 +227,16 @@ enum DesignTime {
     let kind = CommandViewModel.Kind.KeyboardModel.init(
       id: UUID().uuidString,
       command: KeyboardCommand.KeyCommand(keyboardShortcuts: [
-        .init(key: "F", modifiers: [.function, .rightCommand])
+        .upArrow,
+        .upArrow,
+        .downArrow,
+        .downArrow,
+        .leftArrow,
+        .rightArrow,
+        .leftArrow,
+        .rightArrow,
+        .b,
+        .a
       ], iterations: 1))
     return (.init(meta: metadata(name: "Rebind esc to enter", icon: nil),
            kind: .keyboard(kind)), kind)

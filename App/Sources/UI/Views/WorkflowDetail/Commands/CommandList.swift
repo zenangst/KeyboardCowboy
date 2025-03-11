@@ -48,7 +48,6 @@ struct CommandList: View {
                             workflowId: workflowId,
                             selectionManager: selectionManager,
                             scrollViewProxy: scrollViewProxy)
-      .padding(.top, 8)
     }
     .background(alignment: .top) {
       BackgroundView()

@@ -163,43 +163,19 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
             }
           }
         }
-        Spacer()
-        Button(action: {
-          keyboardShortcuts.append(KeyShortcut.anyKey)
-          reset()
-        }, label: {
-          Text("Insert Any Key")
-            .font(.caption)
-            .help("This means that any key can be used to end the sequence.")
-        })
-        .opacity((state == .recording && $keyboardShortcuts.count > 1) ? 1 : 0)
 
-        Button(action: {
-          if state == .recording {
+        if mode.features.contains(.record) {
+          Spacer()
+          EditableKeyboardShortcutsButtons(keyboardShortcuts: $keyboardShortcuts, state: $state, mode: mode) {
+            keyboardShortcuts.append(KeyShortcut.anyKey)
             reset()
-          } else {
-            addButtonAction(proxy)
+          } onRecordButton: {
+            if state == .recording {
+              reset()
+            } else {
+              addButtonAction(proxy)
+            }
           }
-        },
-               label: {
-          Image(systemName: state == .recording ? "stop.circle" : "record.circle.fill")
-            .symbolRenderingMode(.palette)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundStyle(
-              state == .recording ? Color(.white) : Color(.systemRed).opacity(0.8),
-              state == .recording ? Color(.systemRed) : Color(nsColor: .darkGray)
-            )
-            .animation(.smooth, value: state)
-            .frame(maxWidth: 14, maxHeight: 14)
-        })
-        .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
-        .opacity(mode.features.contains(.record) ? 1 : 0)
-        .buttonStyle { button in
-          button.grayscaleEffect = state == .recording ? false : true
-          button.backgroundColor = .systemRed
-          button.padding = .large
-          button.hoverEffect = state == .recording ? false : true
         }
       }
       .overlay(overlay(proxy))
@@ -322,6 +298,79 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
       recorderStore.mode = .intercept
     }
     keyboardShortcuts.removeAll(where: { $0.id == placeholderId })
+  }
+}
+
+fileprivate struct EditableKeyboardShortcutsButtons<T: Hashable>: View {
+  @Binding var keyboardShortcuts: [KeyShortcut]
+  @Binding var state: EditableKeyboardShortcutsView<T>.CurrentState?
+  private let mode: EditableKeyboardShortcutsView<T>.Mode
+  private let onInsertAnyKey: () -> Void
+  private let onRecordButton: () -> Void
+
+  init(
+    keyboardShortcuts: Binding<[KeyShortcut]>,
+    state: Binding<EditableKeyboardShortcutsView<T>.CurrentState?>,
+    mode: EditableKeyboardShortcutsView<T>.Mode,
+    onInsertAnyKey: @escaping () -> Void,
+    onRecordButton: @escaping () -> Void
+  ) {
+    _keyboardShortcuts = keyboardShortcuts
+    _state = state
+    self.mode = mode
+    self.onInsertAnyKey = onInsertAnyKey
+    self.onRecordButton = onRecordButton
+  }
+
+  var body: some View {
+    HStack {
+      Button(action: onInsertAnyKey, label: {
+        Text("Insert Any Key")
+          .font(.caption)
+          .help("This means that any key can be used to end the sequence.")
+      })
+      .opacity((state == .recording && $keyboardShortcuts.count > 1) ? 1 : 0)
+
+      RecordButton(mode: mode, state: $state, onAction: onRecordButton)
+      .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
+      .opacity(mode.features.contains(.record) ? 1 : 0)
+    }
+  }
+}
+
+fileprivate struct RecordButton<T: Hashable>: View {
+  @Binding private var state: EditableKeyboardShortcutsView<T>.CurrentState?
+
+  let mode: EditableKeyboardShortcutsView<T>.Mode
+  let onAction: () -> Void
+
+  init(mode: EditableKeyboardShortcutsView<T>.Mode,
+       state: Binding<EditableKeyboardShortcutsView<T>.CurrentState?>,
+       onAction: @escaping () -> Void) {
+    self.mode = mode
+    _state = state
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    Button(action: onAction) {
+      Image(systemName: state == .recording ? "stop.circle" : "record.circle.fill")
+        .symbolRenderingMode(.palette)
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .foregroundStyle(
+          state == .recording ? Color(.white) : Color(.systemRed).opacity(0.8),
+          state == .recording ? Color(.systemRed) : Color(nsColor: .darkGray)
+        )
+        .animation(.smooth, value: state)
+        .frame(maxWidth: 14, maxHeight: 14)
+    }
+    .buttonStyle { button in
+      button.grayscaleEffect = state == .recording ? false : true
+      button.backgroundColor = .systemRed
+      button.padding = .large
+      button.hoverEffect = state == .recording ? false : true
+    }
   }
 }
 

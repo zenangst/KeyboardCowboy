@@ -140,9 +140,16 @@ private struct SubContentView: View {
 
   var body: some View {
     HStack {
-      if model.path.hasPrefix("http") == false {
+      let url = URL(fileURLWithPath: (model.path as NSString).expandingTildeInPath)
+      let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+      if urlComponents?.scheme == "file" {
         Spacer()
-        Button("Reveal", action: onReveal)
+        Button(action: {
+          onReveal()
+        }, label: {
+          Text("Reveal")
+            .font(.caption)
+        })
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
