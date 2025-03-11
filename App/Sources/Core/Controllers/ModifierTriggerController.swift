@@ -77,35 +77,41 @@ final class ModifierTriggerController: @unchecked Sendable {
     if NSUserName() == "christofferwinterkvist" {
       // MARK: Demo modifiers
 
-      let variations: [[CGEventFlags]] = [
-        [.maskNonCoalesced],
-        [.maskNonCoalesced, .maskAlternate, .maskLeftAlternate],
-        [.maskNonCoalesced, .maskAlternate, .maskRightAlternate],
-        [.maskNonCoalesced, .maskShift,     .maskLeftShift],
-        [.maskNonCoalesced, .maskShift,     .maskRightShift],
-        [.maskNonCoalesced, .maskControl,   .maskLeftControl],
-        [.maskNonCoalesced, .maskControl,   .maskRightControl],
-        [.maskNonCoalesced, .maskCommand,   .maskLeftCommand],
-        [.maskNonCoalesced, .maskCommand,   .maskRightCommand],
-      ]
 
-      for variation in variations {
+      do {
+        let variation: [CGEventFlags] = [
+          [.maskNonCoalesced],
+        ]
         let flags = variation.reduce(into: CGEventFlags()) { result, flag in
           result.insert(flag)
         }
+        let key = KeyShortcut.escape
+        let signature = CGEventSignature(Int64(key.keyCode!), flags)
+        let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
 
-        do {
-          let key = KeyShortcut.escape
-          let signature = CGEventSignature(Int64(key.keyCode!), flags)
-          let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
+        cache[keySignature] = ModifierTrigger(
+          id: keySignature,
+          alone: .init(kind: .key(key), timeout: 125),
+          heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
+      }
 
-          cache[keySignature] = ModifierTrigger(
-            id: keySignature,
-            alone: .init(kind: .key(key), timeout: 125),
-            heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
-        }
+      do {
+        let variations: [[CGEventFlags]] = [
+          [.maskNonCoalesced],
+          [.maskNonCoalesced, .maskAlternate, .maskLeftAlternate],
+          [.maskNonCoalesced, .maskAlternate, .maskRightAlternate],
+          [.maskNonCoalesced, .maskShift,     .maskLeftShift],
+          [.maskNonCoalesced, .maskShift,     .maskRightShift],
+          [.maskNonCoalesced, .maskControl,   .maskLeftControl],
+          [.maskNonCoalesced, .maskControl,   .maskRightControl],
+          [.maskNonCoalesced, .maskCommand,   .maskLeftCommand],
+          [.maskNonCoalesced, .maskCommand,   .maskRightCommand],
+        ]
+        for variation in variations {
+          let flags = variation.reduce(into: CGEventFlags()) { result, flag in
+            result.insert(flag)
+          }
 
-        do {
           let key = KeyShortcut.tab
           let signature = CGEventSignature(Int64(key.keyCode!), flags)
           let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
