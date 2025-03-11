@@ -47,6 +47,7 @@ struct WorkspaceCommandView: View {
           HStack(spacing: 8) {
             IconView(icon: Icon(application), size: .init(width: 24, height: 24))
             Text(application.displayName)
+              .font(.caption)
             Spacer()
             Button {
               if offset <= model.applications.count - 1 {
@@ -63,6 +64,7 @@ struct WorkspaceCommandView: View {
                 .frame(width: 8, height: 10)
             }
           }
+          .buttonStyle(.destructive)
           .frame(minHeight: 34)
           .background(alignment: .bottom) {
             ZenDivider()
@@ -118,6 +120,7 @@ struct WorkspaceCommandView: View {
               }
             } label: {
               Text(model.tiling?.name ?? "No Tiling")
+                .font(.caption)
             }
             .frame(minHeight: 20)
           }

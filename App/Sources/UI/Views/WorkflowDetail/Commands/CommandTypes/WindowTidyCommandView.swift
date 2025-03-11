@@ -36,36 +36,38 @@ struct WindowTidyCommandView: View {
 
       CompatList {
         ForEach(Array(zip(model.rules.indices, model.rules)), id: \.0) { offset, item in
-          VStack(spacing: 8) {
-            HStack {
-              IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
+          HStack {
+            IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
 
-              Text(item.application.displayName)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(item.application.displayName)
+              .font(.caption)
+              .lineLimit(1)
+              .frame(maxWidth: .infinity, alignment: .leading)
 
-              TidyWindowTilingMenu(offset: offset, rules: $model.rules) {
-                onRulesChange(model.rules)
-              }
-              .frame(idealWidth: 100)
-              .fixedSize()
-
-              Button {
-                if offset <= model.rules.count - 1 {
-                  let selectedApp = model.rules[offset]
-                  if item.application == selectedApp.application {
-                    model.rules.remove(at: offset)
-                    onRulesChange(model.rules)
-                  }
-                }
-              } label: {
-                Image(systemName: "xmark")
-                  .resizable()
-                  .aspectRatio(contentMode: .fit)
-                  .frame(width: 8, height: 10)
-              }
-              .buttonStyle(.destructive)
+            TidyWindowTilingMenu(offset: offset, rules: $model.rules) {
+              onRulesChange(model.rules)
             }
+            .frame(idealWidth: 100)
+            .fixedSize()
+
+            Button {
+              if offset <= model.rules.count - 1 {
+                let selectedApp = model.rules[offset]
+                if item.application == selectedApp.application {
+                  model.rules.remove(at: offset)
+                  onRulesChange(model.rules)
+                }
+              }
+            } label: {
+              Image(systemName: "xmark")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 8, height: 10)
+            }
+            .buttonStyle(.destructive)
+          }
+          .frame(minHeight: 34)
+          .background(alignment: .bottom) {
             ZenDivider()
           }
         }
@@ -117,8 +119,10 @@ fileprivate struct TidyWindowTilingMenu: View {
     } label: {
       if offset < rules.count {
         Text(rules[offset].tiling.displayValue)
+          .font(.caption)
       } else {
         Text("Unassigned")
+          .font(.caption)
       }
     }
     .enableInjection()

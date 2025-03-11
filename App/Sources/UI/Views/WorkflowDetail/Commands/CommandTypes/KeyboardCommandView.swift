@@ -133,10 +133,8 @@ private struct KeyboardCommandSubContentView: View {
   }
 
   var body: some View {
-    HStack {
-      Button(action: onEdit) { Text("Edit") }
-        .font(.caption)
-    }
+    Button(action: onEdit) { Text("Edit").font(.caption) }
+      .font(.caption)
   }
 }
 

@@ -123,6 +123,7 @@ struct AppFocusCommandView: View {
                 }
               } label: {
                 Text(model.tiling?.name ?? "No Tiling")
+                  .font(.caption)
               }
               .frame(minHeight: 20)
             }
