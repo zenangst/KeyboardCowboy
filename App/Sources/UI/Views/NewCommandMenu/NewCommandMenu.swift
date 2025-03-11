@@ -551,9 +551,7 @@ fileprivate struct URLPrompt: View {
         .keyboardShortcut(.defaultAction)
       }
     }
-    .buttonStyle { button in
-      button.font = .caption
-    }
+    .environment(\.buttonFont, .caption)
     .onAppear {
       focus = true
     }
@@ -893,11 +891,9 @@ fileprivate class PasteboardURLPublisher: ObservableObject, Sendable {
       .frame(width: 12, height: 16)
       .layoutPriority(-1)
   }
-    .buttonStyle { button in
-      button.padding = .medium
-      button.font = .body
-      button.backgroundColor = .systemGreen
-    }
-    .padding()
-    .designTime()
+  .environment(\.menuPadding, .medium)
+  .environment(\.menuFont, .body)
+  .environment(\.menuBackgroundColor, .systemGreen)
+  .padding()
+  .designTime()
 }

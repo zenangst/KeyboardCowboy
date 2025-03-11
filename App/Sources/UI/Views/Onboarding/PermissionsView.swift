@@ -57,23 +57,19 @@ struct PermissionsView: View {
         Button("View source code", action: {
           onAction(.github)
         })
-        .buttonStyle { button in
-          button.backgroundColor = .systemPurple
-          button.padding = .large
-        }
+        .environment(\.buttonBackgroundColor, .systemPurple)
+        .environment(\.buttonPadding, .large)
         Spacer()
 
         Button("Request permission", action: {
           done.toggle()
           onAction(.requestPermissions)
         })
-        .buttonStyle { button in
-          button.backgroundColor = .systemGreen
-          button.hoverEffect = false
-          button.focusEffect = false
-          button.grayscaleEffect = false
-          button.padding = .large
-        }
+        .environment(\.buttonBackgroundColor, .systemGreen)
+        .environment(\.buttonHoverEffect, false)
+        .environment(\.buttonFocusEffect, false)
+        .environment(\.buttonGrayscaleEffect, false)
+        .environment(\.buttonPadding, .large)
       }
       .roundedStyle()
       .style(.derived)

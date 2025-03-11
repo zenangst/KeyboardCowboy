@@ -1,3 +1,4 @@
+import Bonzai
 import Inject
 import SwiftUI
 
@@ -21,13 +22,11 @@ struct NewCommandButtonView<Content>: View where Content: View {
         .contentShape(RoundedRectangle(cornerRadius: 8))
         .foregroundColor(isFocused ? Color(.controlAccentColor) : Color(.textColor))
     }
-    .buttonStyle { button in
-      button.focusEffect = false
-      button.grayscaleEffect = false
-      button.hoverEffect = true
-      button.backgroundColor = .clear
-      button.padding = .small
-    }
+    .environment(\.buttonFocusEffect, false)
+    .environment(\.buttonGrayscaleEffect, false)
+    .environment(\.buttonHoverEffect, true)
+    .environment(\.buttonBackgroundColor, .clear)
+    .environment(\.buttonPadding, .small)
     .enableInjection()
   }
 }

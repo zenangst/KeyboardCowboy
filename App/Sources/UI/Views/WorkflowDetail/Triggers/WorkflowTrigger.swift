@@ -106,9 +106,7 @@ struct WorkflowTrigger: View {
       })
       .frame(maxWidth: .infinity)
       .roundedStyle(padding: 6)
-      .buttonStyle { button in
-        button.backgroundColor = .gray
-      }
+      .environment(\.buttonBackgroundColor, .gray)
     }
     .enableInjection()
   }

@@ -44,15 +44,11 @@ struct EditWorfklowGroupView: View {
             })
             .cornerRadius(24, antialiased: true)
         })
-        .buttonStyle { button in
-          button.cornerRadius = 28
-          button.padding = .zero
-        }
+        .environment(\.buttonCornerRadius, 28)
+        .environment(\.buttonPadding, .zero)
 
         TextField("Name:", text: $group.name)
-          .textFieldStyle({ style in
-            style.font = .largeTitle
-          })
+          .environment(\.textFieldFont, .largeTitle)
           .prefersDefaultFocus(in: namespace)
           .focused($focus, equals: .name)
 
@@ -139,10 +135,8 @@ struct EditWorfklowGroupView: View {
         .roundedStyle(padding: 0)
       }
       .style(.list)
-      .menuStyle {
-        $0.font = .caption
-        $0.unfocusedOpacity = 1.0
-      }
+      .environment(\.menuFont, .caption)
+      .environment(\.menuUnfocusedOpacity, 1.0)
 
       HStack {
         Button(role: .cancel) {
@@ -160,10 +154,8 @@ struct EditWorfklowGroupView: View {
           Text("Save")
             .frame(minWidth: 40)
         }
-        .buttonStyle {
-          $0.backgroundColor = .systemGreen
-          $0.hoverEffect = true
-        }
+        .environment(\.buttonBackgroundColor, .systemGreen)
+        .environment(\.buttonHoverEffect, true)
         .keyboardShortcut(.defaultAction)
       }
       .style(.derived)

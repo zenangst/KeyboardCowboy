@@ -34,9 +34,7 @@ struct WindowManagementAnimationPopoverView: View {
           }
         }
       }
-      .textFieldStyle({ style in
-        style.backgroundColor = Color(.windowBackgroundColor)
-      })
+      .environment(\.textFieldBackgroundColor, Color(.windowBackgroundColor))
 
       Button(action: {
         onChange(0)

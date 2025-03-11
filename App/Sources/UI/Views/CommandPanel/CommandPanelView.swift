@@ -124,7 +124,7 @@ private struct CommandPanelHeaderView: View {
         Text(Self.buttonText(state))
           .frame(minWidth: 80)
       })
-      .buttonStyle { $0.backgroundColor = Self.buttonColor(state) }
+      .environment(\.buttonBackgroundColor, Self.buttonColor(state))
       .fixedSize()
       .animation(.easeIn, value: state)
     }

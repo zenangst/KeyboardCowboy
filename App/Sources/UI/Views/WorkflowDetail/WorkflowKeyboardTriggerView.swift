@@ -111,20 +111,16 @@ struct WorkflowKeyboardTriggerView: View {
                 shortcuts: trigger.shortcuts))
           }
         }
-        .textFieldStyle { style in
-          style.cornerRadius = 4
-          style.backgroundColor = Color(nsColor: .controlColor).opacity(0.5)
-          style.font = .caption
-          style.padding = .small
-        }
+        .environment(\.textFieldCornerRadius, 4)
+        .environment(\.textFieldBackgroundColor, Color(nsColor: .controlColor).opacity(0.5))
+        .environment(\.textFieldFont, .caption)
+        .environment(\.textFieldPadding, .small)
         .frame(maxWidth: 32)
         Text("seconds")
       }
       .font(.caption)
-      .checkboxStyle { checkbox in
-        checkbox.font = .caption
-        checkbox.style = .small
-      }
+      .environment(\.toggleStyle, .small)
+      .environment(\.toggleFont, .caption)
     }
     .textStyle { text in
       text.font = .caption

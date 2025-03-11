@@ -97,14 +97,12 @@ struct WindowSwitcherView: View {
           TextField(text: $publisher.query, label: {
             Text(publisher.query)
           })
-          .textFieldStyle { style in
-            style.font = .largeTitle
-            style.glow = false
-            style.decorationColor = .clear
-            style.focusEffect = false
-            style.hoverEffect = false
-            style.grayscaleEffect = false
-          }
+          .environment(\.textFieldFont, .largeTitle)
+          .environment(\.textFieldGlow, false)
+          .environment(\.textFieldDecorationColor, .clear)
+          .environment(\.textFieldFocusEffect, false)
+          .environment(\.textFieldHoverEffect, false)
+          .environment(\.textFieldGrayscaleEffect, false)
         .overlay(alignment: .leading) {
           PromptView(publisher: publisher)
         }

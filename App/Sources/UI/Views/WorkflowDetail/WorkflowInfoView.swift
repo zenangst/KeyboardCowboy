@@ -25,12 +25,10 @@ struct WorkflowInfoView: View {
       TextField("Workflow name", text: $name)
         .focused(focus, equals: .detail(.name))
         .fontWeight(.semibold)
-        .textFieldStyle { style in
-          style.calm = true
-          style.font = .title
-          style.padding = .small
-          style.unfocusedOpacity = 0
-        }
+        .environment(\.textFieldCalm, true)
+        .environment(\.textFieldFont, .title)
+        .environment(\.textFieldPadding, .small)
+        .environment(\.textFieldUnfocusedOpacity, 0)
         .onChange(of: name) { newName in
           guard newName != publisher.data.name else { return }
           publisher.data.name = newName
@@ -45,9 +43,8 @@ struct WorkflowInfoView: View {
             workflow.isDisabled = !newValue
           }
         }
-        .switchStyle {
-          $0.style = .regular
-        }
+        .switchStyle()
+        .environment(\.switchStyle, .regular)
     }
     .enableInjection()
   }

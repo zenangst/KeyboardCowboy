@@ -136,10 +136,8 @@ private struct ApplicationCommandInternalView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
       }
-      .checkboxStyle { style in
-        style.font = .caption
-        style.style = .small
-      }
+      .environment(\.toggleFont, .caption)
+      .environment(\.toggleStyle, .small)
     }
     .lineLimit(1)
     .allowsTightening(true)

@@ -359,7 +359,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
 
     window.animationBehavior = .none
 
-    let size = window.hostingController.sizeThatFits(in: .init(width: 480, height: 360))
+    let size = window.sizeThatFits(in: .init(width: 480, height: 360))
     window.setFrame(NSRect(origin: .zero, size: size), display: false)
 
     window.backgroundColor = .clear

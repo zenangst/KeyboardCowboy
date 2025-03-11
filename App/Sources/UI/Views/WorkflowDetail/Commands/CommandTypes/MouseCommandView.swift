@@ -140,7 +140,6 @@ private struct MouseCommandContentView: View {
               TextField("Y", text: $yString)
                 .frame(maxWidth: 50)
             }
-            .textFieldStyle()
           }
         }
       }

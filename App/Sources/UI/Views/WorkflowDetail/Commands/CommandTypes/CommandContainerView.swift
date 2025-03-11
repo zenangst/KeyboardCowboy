@@ -28,9 +28,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   var body: some View {
     VStack(alignment: .leading, spacing: 6) {
       HeaderView($metaData, placeholder: placeholder)
-        .switchStyle {
-          $0.style = .small
-        }
+        .environment(\.switchStyle, .small)
 
       ZenDivider()
 
@@ -40,11 +38,9 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .textStyle {
           $0.font = .caption2
         }
-        .menuStyle {
-          $0.calm = true
-          $0.padding = .small
-          $0.unfocusedOpacity = 0.5
-        }
+        .environment(\.menuCalm, true)
+        .environment(\.menuPadding, .small)
+        .environment(\.menuUnfocusedOpacity, 0.5)
     }
     .roundedStyle()
     .enableInjection()
@@ -76,10 +72,8 @@ private struct HeaderView: View {
       ? placeholder
       : metaData.namePlaceholder
       TextField(textFieldPlaceholder, text: $metaData.name)
-        .textFieldStyle { textField in
-          textField.font = .headline
-          textField.unfocusedOpacity = 0
-        }
+        .environment(\.textFieldFont, .headline)
+        .environment(\.textFieldUnfocusedOpacity, 0)
         .onChange(of: metaData.name, perform: { newValue in
           updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.name = newValue })
         })
@@ -110,9 +104,7 @@ private struct ContentView<IconContent, Content>: View where IconContent: View, 
         .padding(1)
 
       content()
-        .menuStyle { menu in
-          menu.calm = false
-        }
+        .environment(\.menuCalm, false)
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
         .style(.subItem)
         .roundedSubStyle(padding: 1)
@@ -206,11 +198,9 @@ private struct CommandContainerActionView: View {
         .aspectRatio(contentMode: .fit)
         .frame(width: 8, height: 10)
     })
-    .buttonStyle({ style in
-      style.calm = true
-      style.backgroundColor = .systemRed
-      style.padding = .medium
-    })
+    .environment(\.buttonCalm, true)
+    .environment(\.buttonBackgroundColor, .systemRed)
+    .environment(\.buttonPadding, .medium)
     .help("Delete Command")
     .enableInjection()
   }

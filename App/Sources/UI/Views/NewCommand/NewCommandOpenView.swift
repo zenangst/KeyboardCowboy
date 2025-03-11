@@ -51,9 +51,7 @@ struct NewCommandOpenView: View {
         }
 
         TextField("Path", text: $path)
-          .textFieldStyle { textField in
-            textField.font = .title
-          }
+          .environment(\.font, .title)
           .focused($focus, equals: .path)
         Button("Browse", action: {
           openPanel.perform(.selectFile(types: [], handler: { path in

@@ -33,10 +33,9 @@ struct GroupDetailHeaderView: View {
             group.isDisabled = !newValue
           }
         }), label: {})
-        .switchStyle {
-          $0.foregroundColor = Color(hex: groupPublisher.data.color)
-          $0.backgroundColor = Color(hex: groupPublisher.data.color)
-        }
+        .switchStyle()
+        .environment(\.switchForegroundColor, Color(hex: groupPublisher.data.color))
+        .environment(\.switchBackgroundColor, Color(hex: groupPublisher.data.color))
         .id("group.toggle.\(groupPublisher.data.id)")
       }
     }

@@ -35,12 +35,10 @@ struct EmptyWorkflowList: View {
         .fixedSize()
         .help("Add Workflow")
         .matchedGeometryEffect(id: "add-workflow-button", in: namespace, isSource: false)
-        .buttonStyle { button in
-          button.backgroundColor = ColorPublisher.shared.color
-          button.focusEffect = true
-          button.hoverEffect = false
-          button.padding = .large
-        }
+        .environment(\.buttonBackgroundColor, ColorPublisher.shared.color)
+        .environment(\.buttonFocusEffect, true)
+        .environment(\.buttonHoverEffect, false)
+        .environment(\.buttonPadding, .large)
 
         Text("No workflows yet,\nadd a workflow to get started.")
           .multilineTextAlignment(.center)

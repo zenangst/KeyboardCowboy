@@ -93,11 +93,9 @@ private struct WorkflowTriggerHeaderView: View {
           .frame(width: 10, height: 10)
       })
       .opacity(showRemoveButton ? 1 : 0)
-      .buttonStyle { style in
-        style.calm = true
-        style.padding = .medium
-        style.backgroundColor = .systemRed
-      }
+      .environment(\.buttonCalm, true)
+      .environment(\.buttonPadding, .medium)
+      .environment(\.buttonBackgroundColor, .systemRed)
       .enableInjection()
     }
   }

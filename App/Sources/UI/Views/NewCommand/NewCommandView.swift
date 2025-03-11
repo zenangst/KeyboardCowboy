@@ -211,26 +211,18 @@ struct NewCommandView: View {
       }
 
       selectedView(selection)
-        .buttonStyle { button in
-          button.calm = false
-          button.hoverEffect = true
-          button.unfocusedOpacity = 0.6
-        }
-        .menuStyle { menu in
-          menu.calm = false
-          menu.hoverEffect = true
-          menu.backgroundColor = .systemGray
-          menu.unfocusedOpacity = 0.8
-        }
-        .textFieldStyle { textField in
-          textField.calm = false
-          textField.cornerRadius = 2
-          textField.decorationColor = .accentColor
-          textField.unfocusedOpacity = 0.0
-        }
-        .checkboxStyle { checkbox in
-          checkbox.font = .caption
-        }
+        .environment(\.buttonCalm, false)
+        .environment(\.buttonHoverEffect, true)
+        .environment(\.buttonUnfocusedOpacity, 0.6)
+        .environment(\.menuCalm, false)
+        .environment(\.menuHoverEffect, true)
+        .environment(\.menuBackgroundColor, .systemGray)
+        .environment(\.menuUnfocusedOpacity, 0.8)
+        .environment(\.textFieldCalm, false)
+        .environment(\.textFieldCornerRadius, 2)
+        .environment(\.textFieldDecorationColor, .accentColor)
+        .environment(\.textFieldUnfocusedOpacity, 0)
+        .environment(\.toggleFont, .caption)
         .roundedStyle()
 
       Spacer()

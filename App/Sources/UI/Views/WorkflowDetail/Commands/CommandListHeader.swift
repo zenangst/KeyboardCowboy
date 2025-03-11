@@ -31,18 +31,20 @@ struct CommandListHeader: View {
           }
         }, label: {
           Text(publisher.data.execution.rawValue)
+            .font(.callout)
+            .bold()
         })
         .fixedSize()
 
         NewCommandMenu {
           Text("New Command")
+            .font(.callout)
+            .bold()
         }
         .fixedSize()
         .help("Add Command")
-        .menuStyle { menu in
-          menu.backgroundColor = .systemGreen
-          menu.hoverEffect = publisher.data.commands.isEmpty ? false : true
-        }
+        .environment(\.menuBackgroundColor, .systemGreen)
+        .environment(\.menuHoverEffect, publisher.data.commands.isEmpty ? false : true)
       }
     }
     .enableInjection()

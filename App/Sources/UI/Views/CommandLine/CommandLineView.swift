@@ -100,12 +100,10 @@ private struct CommandLineInputView: View {
     HStack(spacing: 4) {
       CommandLineImageView(data: data)
       TextField("Command Line…", text: $input)
-        .textFieldStyle({ style in
-          style.calm = true
-          style.backgroundColor = Color.clear
-          style.font = .largeTitle
-          style.hoverEffect = false
-        })
+        .environment(\.textFieldCalm, true)
+        .environment(\.textFieldBackgroundColor, .clear)
+        .environment(\.textFieldFont, .largeTitle)
+        .environment(\.textFieldHoverEffect, false)
         .onSubmit(onSubmit)
     }
     .padding(2)

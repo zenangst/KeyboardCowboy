@@ -45,10 +45,8 @@ struct ApplicationTriggerItem: View {
               .allowsTightening(true)
               .truncationMode(.tail)
           }
-          .checkboxStyle { checkbox in
-            checkbox.style = .small
-            checkbox.font = .caption
-          }
+          .environment(\.toggleStyle, .small)
+          .environment(\.toggleFont, .caption)
         }
       }
       ZenDivider(.vertical)

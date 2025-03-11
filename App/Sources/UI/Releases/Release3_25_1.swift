@@ -305,9 +305,7 @@ private struct ChangesView: View {
                 Text(change.version.rawValue)
                   .font(.caption)
               })
-              .buttonStyle { style in
-                style.backgroundColor = change.version.color
-              }
+              .environment(\.buttonBackgroundColor, change.version.color)
               .padding(.trailing, 4)
             }
           }
@@ -443,11 +441,9 @@ private struct SupporterView: View {
       }
     }
     .padding(2)
-    .buttonStyle { style in
-        style.calm = true
-        style.backgroundColor = .accentColor
-        style.focusEffect = false
-    }
+    .environment(\.buttonCalm, true)
+    .environment(\.buttonBackgroundColor, .accentColor)
+    .environment(\.buttonFocusEffect, false)
   }
 }
 

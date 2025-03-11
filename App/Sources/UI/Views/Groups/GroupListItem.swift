@@ -110,12 +110,10 @@ private struct ContextualMenuView: View {
     }
     .opacity(isSelected ? 1 : 0)
     .frame(maxWidth: isSelected ? nil : 0)
-    .menuStyle { menu in
-      menu.calm = true
-      menu.backgroundColor = Color(.init(hex: group.color))
-      menu.padding = .small
-      menu.unfocusedOpacity = 0
-    }
+    .environment(\.menuCalm, true)
+    .environment(\.menuBackgroundColor, Color(.init(hex: group.color)))
+    .environment(\.menuPadding, .small)
+    .environment(\.menuUnfocusedOpacity, 0)
     .fixedSize()
     .enableInjection()
   }

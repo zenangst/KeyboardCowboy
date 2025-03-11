@@ -77,12 +77,10 @@ private struct ContentView: View {
   var body: some View {
     HStack(spacing: 2) {
       TextField("", text: $model.path)
-        .textFieldStyle({ style in
-          style.backgroundColor = .clear
-          style.font = .callout
-          style.padding = .mini
-          style.unfocusedOpacity = 0.0
-        })
+        .environment(\.textFieldBackgroundColor, .clear)
+        .environment(\.textFieldFont, .callout)
+        .environment(\.textFieldPadding, .mini)
+        .environment(\.textFieldUnfocusedOpacity, 0.0)
         .onChange(of: model.path, perform: { newValue in
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
             guard case .open(var openCommand) = command else { return }

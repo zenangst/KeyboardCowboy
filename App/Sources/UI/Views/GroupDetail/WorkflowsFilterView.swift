@@ -34,13 +34,11 @@ struct WorkflowsFilterView: View {
         .foregroundColor(ColorPublisher.shared.color)
         .frame(width: 12)
         TextField("Filter", text: $searchTerm)
-          .textFieldStyle({ style in
-            style.calm = true
-            style.foregroundColor = ColorPublisher.shared.color
-            style.font = .caption2
-            style.padding = .small
-            style.unfocusedOpacity = 0
-          })
+          .environment(\.textFieldCalm, true)
+          .environment(\.textFieldForegroundColor, ColorPublisher.shared.color)
+          .environment(\.textFieldFont, .caption2)
+          .environment(\.textFieldPadding, .small)
+          .environment(\.textFieldUnfocusedOpacity, 0)
           .focused(focus, equals: .search)
           .onExitCommand(perform: {
             searchTerm = ""
@@ -60,9 +58,7 @@ struct WorkflowsFilterView: View {
         searchTerm = ""
         onClear()
       }, label: { Text("Clear") })
-      .buttonStyle { style in
-        style.backgroundColor = .systemGray
-      }
+      .environment(\.buttonBackgroundColor, .systemGray)
       .font(.caption2)
       .opacity(!searchTerm.isEmpty ? 1 : 0)
       .frame(width: searchTerm.isEmpty ? 0 : nil, height: 25)

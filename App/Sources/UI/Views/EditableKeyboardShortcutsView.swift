@@ -253,9 +253,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
             .frame(width: 16, height: 16)
         }
       })
-      .buttonStyle { button in
-        button.padding = .extraLarge
-      }
+      .environment(\.buttonPadding, .extraLarge)
       .fixedSize(horizontal: false, vertical: true)
       .opacity(keyboardShortcuts.isEmpty ? 1 : 0)
     }
@@ -365,12 +363,10 @@ fileprivate struct RecordButton<T: Hashable>: View {
         .animation(.smooth, value: state)
         .frame(maxWidth: 14, maxHeight: 14)
     }
-    .buttonStyle { button in
-      button.grayscaleEffect = state == .recording ? false : true
-      button.backgroundColor = .systemRed
-      button.padding = .large
-      button.hoverEffect = state == .recording ? false : true
-    }
+    .environment(\.buttonGrayscaleEffect, state == .recording ? false : true)
+    .environment(\.buttonBackgroundColor, .systemRed)
+    .environment(\.buttonPadding, .large)
+    .environment(\.buttonHoverEffect, state == .recording ? false : true)
   }
 }
 

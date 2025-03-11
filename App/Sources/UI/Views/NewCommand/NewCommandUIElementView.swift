@@ -289,12 +289,10 @@ struct NewCommandUIElementView: View {
         Text(captureStore.isCapturing ? "Stop Capture" : "Capture UI Element")
       }
     })
-    .buttonStyle { button in
-      button.calm = false
-      button.focusEffect = true
-      button.hoverEffect = false
-      button.backgroundColor = .systemGreen
-    }
+    .environment(\.buttonCalm, false)
+    .environment(\.buttonFocusEffect, true)
+    .environment(\.buttonHoverEffect, false)
+    .environment(\.buttonBackgroundColor, .systemGreen)
     .matchedGeometryEffect(id: "CaptureButton", in: namespace)
   }
 

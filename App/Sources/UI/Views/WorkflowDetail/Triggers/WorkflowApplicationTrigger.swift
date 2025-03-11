@@ -56,15 +56,11 @@ struct WorkflowApplicationTrigger: View {
         } label: {
          Text("Add Application")
         }
-        .buttonStyle { style in
-          style.grayscaleEffect = !data.isEmpty
-          style.hoverEffect = !data.isEmpty
-        }
+        .environment(\.buttonGrayscaleEffect, !data.isEmpty)
+        .environment(\.buttonHoverEffect, !data.isEmpty)
       }
-      .menuStyle { menu in
-        menu.calm = false
-        menu.unfocusedOpacity = 0.5
-      }
+      .environment(\.menuCalm, false)
+      .environment(\.menuUnfocusedOpacity, 0.5)
       .frame(minHeight: 44)
 
       if !data.isEmpty {

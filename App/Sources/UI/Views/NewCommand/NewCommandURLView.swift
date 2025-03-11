@@ -64,9 +64,7 @@ struct NewCommandURLView: View {
           .focused($focus, equals: .address)
           .padding(-2)
       }
-      .textFieldStyle { textField in
-        textField.font = .title
-      }
+      .environment(\.textFieldFont, .title)
       .background(Color(nsColor: .windowBackgroundColor))
       .onChange(of: address, perform: { newValue in
         if let components = URLComponents(string: newValue),

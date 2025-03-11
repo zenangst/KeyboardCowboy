@@ -33,10 +33,8 @@ struct Release3_27: View {
       .style(.derived)
 
       Button(action: { action(.done) }, label: { Text("Let's Get Started!") })
-        .buttonStyle { style in
-          style.hoverEffect = false
-          style.backgroundColor = .systemGreen
-        }
+        .environment(\.buttonHoverEffect, false)
+        .environment(\.buttonBackgroundColor, .systemGreen)
         .style(.derived)
     }
     .style(.derived)
@@ -177,9 +175,7 @@ private struct ChangesView: View {
                 Text(change.version.rawValue)
                   .font(.caption)
               })
-              .buttonStyle { style in
-                style.backgroundColor = change.version.color
-              }
+              .environment(\.buttonBackgroundColor, change.version.color)
             }
           }
         }
@@ -364,7 +360,7 @@ private extension View {
   var anyView: AnyView { AnyView(self) }
 }
 
-struct Release3_26_Previews: PreviewProvider {
+struct Release3_27_Previews: PreviewProvider {
   static var previews: some View {
     Release3_27 { _ in }
       .previewDisplayName("Release 3.27")

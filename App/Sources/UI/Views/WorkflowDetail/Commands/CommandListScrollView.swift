@@ -34,6 +34,8 @@ struct CommandListScrollView: View {
 
   var body: some View {
     CompatList {
+      Spacer(minLength: 4)
+        .frame(height: 4)
       ForEach(publisher.data.commands, id: \.id) { command in
         CommandView(focus, command: Binding.readonly { command },
                     publisher: publisher, selectionManager: selectionManager,
