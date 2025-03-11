@@ -40,12 +40,12 @@ struct CommandListHeader: View {
         .fixedSize()
         .help("Add Command")
         .menuStyle { menu in
-          menu.padding = .medium
           menu.backgroundColor = .systemGreen
           menu.hoverEffect = publisher.data.commands.isEmpty ? false : true
         }
       }
     }
+    .enableInjection()
   }
 }
 

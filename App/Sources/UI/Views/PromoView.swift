@@ -140,8 +140,13 @@ private struct MuchMoreView: View {
       }
       HStack {
         MouseIconView(size: 48)
-        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: 48)
-        UserModeIconView(size: 48)
+        InputSourceIcon(size: 48)
+        ScriptIconView(size: 48)
+      }
+      HStack {
+        WorkspaceIcon(size: 48)
+        AppFocusIcon(size: 48)
+        WindowTidyIcon(size: 48)
       }
       Text("And so much more")
         .font(.caption)
@@ -325,7 +330,7 @@ private struct AutomationView: View {
 private struct ApplicationLauncherView: View {
   @FocusState var focus: AppFocus?
   var body: some View {
-    VStack(spacing: 16) {
+    VStack(spacing: 0) {
       Text("Application Launcher")
       CommandView($focus,
                   command: .readonly { DesignTime.applicationCommand.model },
@@ -419,7 +424,7 @@ private struct KeyboardCowboyView: View {
         Button(action: {}) {
           HStack {
             Text("Version")
-            Text("3.25.0")
+            Text("3.27.0")
               .fontWeight(.bold)
           }
             .font(.title)

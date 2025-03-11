@@ -40,7 +40,7 @@ final class WorkflowTests: XCTestCase {
     let workflow = Workflow(
       name: "Built-in command",
       commands: [.builtIn(
-        .init(kind: .userMode(.init(id: UUID().uuidString, name: UUID().uuidString, isEnabled: true), .toggle), notification: nil
+        .init(kind: .userMode(mode: .init(id: UUID().uuidString, name: UUID().uuidString, isEnabled: true), action: .toggle), notification: nil
         )
       )]
     )
@@ -149,7 +149,7 @@ final class WorkflowTests: XCTestCase {
       // Empty apple script
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(""), notification: nil))]
+        commands: [.script(.init(name: "", kind: .appleScript(variant: .regular), source: .inline(""), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Script commands with empty apple scripts should not resolve user environment.")
@@ -159,7 +159,7 @@ final class WorkflowTests: XCTestCase {
       // With an invalid env key
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(UserSpace.EnvironmentKey.selectedText.rawValue), notification: nil))]
+        commands: [.script(.init(name: "", kind: .appleScript(variant: .regular), source: .inline(UserSpace.EnvironmentKey.selectedText.rawValue), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Script commands with invalid env keys should not resolve user environment.")
@@ -169,7 +169,7 @@ final class WorkflowTests: XCTestCase {
       // With an valid env key
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(UserSpace.EnvironmentKey.selectedText.asTextVariable), notification: nil))]
+        commands: [.script(.init(name: "", kind: .appleScript(variant: .regular), source: .inline(UserSpace.EnvironmentKey.selectedText.asTextVariable), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertTrue(shouldResolve, "Script commands with valid env keys should resolve user environment.")
@@ -181,7 +181,7 @@ final class WorkflowTests: XCTestCase {
       // Empty apple script
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .path(""), notification: nil))]
+        commands: [.script(.init(name: "", kind: .appleScript(variant: .regular), source: .path(""), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Script commands with empty paths apple scripts should not resolve user environment.")
@@ -191,7 +191,7 @@ final class WorkflowTests: XCTestCase {
       // With an invalid env key
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .path(UserSpace.EnvironmentKey.selectedText.rawValue), notification: nil))]
+        commands: [.script(.init(name: "", kind: .appleScript(variant: .regular), source: .path(UserSpace.EnvironmentKey.selectedText.rawValue), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Script commands with invalid env keys should not resolve user environment.")
@@ -201,7 +201,7 @@ final class WorkflowTests: XCTestCase {
       // With an valid env key
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .path(UserSpace.EnvironmentKey.selectedText.asTextVariable), notification: nil))]
+        commands: [.script(.init(name: "", kind: .appleScript(variant: .regular), source: .path(UserSpace.EnvironmentKey.selectedText.asTextVariable), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertTrue(shouldResolve, "Script commands with valid env keys should resolve user environment.")

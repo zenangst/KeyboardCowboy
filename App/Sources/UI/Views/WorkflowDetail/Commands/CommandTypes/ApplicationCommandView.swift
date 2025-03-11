@@ -197,7 +197,6 @@ struct ApplicationCommandImageView: View {
       Divider()
 
       ForEach(applicationStore.applications.lazy, id: \.path) { app in
-
         Button(action: {
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
             guard case .application(var applicationCommand) = command else { return }

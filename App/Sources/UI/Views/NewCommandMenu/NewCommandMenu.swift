@@ -112,7 +112,7 @@ fileprivate struct ApplicationMenuView: View {
       MenuLabel("Applications")
       ForEach(store.applications, id: \.path) { application in
         Button(action: { performUpdate(.open, application: application) },
-               label: { Text(application.bundleName) })
+               label: { ApplicationLabel(application) })
       }
     } label: {
       Image(systemName: "app")
@@ -126,6 +126,21 @@ fileprivate struct ApplicationMenuView: View {
         .application(.init(action: action, application: application, meta: Command.MetaData(), modifiers: []))
       )
     }
+  }
+}
+
+fileprivate struct ApplicationLabel: View {
+  private let application: Application
+
+  init(_ application: Application) {
+    self.application = application
+  }
+
+  var body: some View {
+    VStack {
+      Text(application.bundleName)
+    }
+    .truncationMode(.middle)
   }
 }
 

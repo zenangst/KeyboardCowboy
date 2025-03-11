@@ -192,6 +192,22 @@ let project = Project(
           ]
         )
       )
+    ),
+    Scheme.scheme(
+      name: "AssetGenerator",
+      shared: true,
+      hidden: false,
+      testAction: .targets(
+        [.testableTarget(target: .target(assetGeneratorTarget.name))],
+        arguments: .arguments(
+          environmentVariables: [
+            "ASSET_PATH": .environmentVariable(value: assetPath, isEnabled: true),
+            "SOURCE_ROOT": .environmentVariable(value: rootPath, isEnabled: true),
+          ],
+          launchArguments: [
+            .launchArgument(name: "-running-unit-tests", isEnabled: true)
+          ])
+      )
     )
   ],
   additionalFiles: [
@@ -234,7 +250,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
         .package(url: "https://github.com/zenangst/AXEssibility.git", .revision("4a06484fd379c2eb34487c467aca043ac2048ee5")),
         .package(url: "https://github.com/zenangst/Apps.git", .revision("98b33d6236cfe912d4accf4e0365fb327b9bca51")),
-        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("26c16972a31500fefcb9ce2e8912947c4128e85c")),
+        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("672024dd8f8da0bd169eb9fa9d3fc84f2047db6e")),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/DynamicNotchKit", .revision("40abe91486627499783f470c4dedb5267df2f0be")),
         .package(url: "https://github.com/zenangst/InputSources.git", from: "1.1.0"),

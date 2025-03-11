@@ -30,14 +30,16 @@ struct AppFocusCommandView: View {
   var body: some View {
     VStack(alignment: .leading) {
       VStack(alignment: .leading, spacing: 8) {
-        Grid {
-          GridRow(alignment: .bottom) {
+        Grid(horizontalSpacing: 8, verticalSpacing: 4) {
+          GridRow(alignment: .center) {
             ZStack {
               RoundedRectangle(cornerRadius: 6)
                 .frame(width: 24, height: 24)
                 .opacity(0.1)
               if let application = model.application {
                 IconView(icon: Icon(application), size: .init(width: 24, height: 24))
+              } else {
+                EmptyView()
               }
             }
 
@@ -71,13 +73,7 @@ struct AppFocusCommandView: View {
             }
           }
 
-          GridRow {
-            ZenDivider()
-              .layoutPriority(-1)
-            ZenDivider()
-          }
-
-          GridRow(alignment: .bottom) {
+          GridRow(alignment: .center) {
             switch model.tiling {
             case .arrangeLeftRight:
               WindowTilingIcon(kind: .arrangeLeftRight, size: 20)

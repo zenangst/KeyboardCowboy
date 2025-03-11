@@ -47,90 +47,11 @@ fileprivate struct WindowsGridView: View {
         WindowTidyIconIllustrationApp(size: size * 0.38)
         WindowTidyIconIllustrationApp(size: size * 0.38)
       }
-      .overlay(alignment: .center) {
-        ZStack {
-          BlurredElement(blurRadius: 0, stops: [
-            .init(color: .white, location: 0.25),
-            .init(color: .clear, location: 0.5),
-          ], size: size * 1.1)
-          .rotationEffect(.degrees(-45))
-          .offset(x: -size * 0.23, y: size * 0.025)
-          .shadow(color: Color(.systemGreen).opacity(0.8), radius: 24,
-                  x: -size * 0.025, y: size * 0.025)
-
-          BlurredElement(blurRadius: 1, stops: [
-            .init(color: .white, location: 0),
-            .init(color: .clear, location: 1),
-          ], size: size * 0.8)
-          .rotationEffect(.degrees(-45))
-          .offset(x: -size * 0.23, y: size * 0.025)
-          .shadow(color: Color(.systemGreen).opacity(0.8), radius: 24,
-                  x: -size * 0.025, y: size * 0.025)
-
-          BlurredElement(blurRadius: 0, stops: [
-            .init(color: .white, location: 0.25),
-            .init(color: .clear, location: 0.5),
-          ], size: size * 1.1)
-          .rotationEffect(.degrees(45))
-          .offset(x: size * 0.23, y: size * 0.025)
-          .shadow(color: Color(.systemCyan).opacity(0.8), radius: 24,
-                  x: size * 0.025, y: size * 0.025)
-
-          BlurredElement(blurRadius: 1, stops: [
-            .init(color: .white, location: 0),
-            .init(color: .clear, location: 1),
-          ], size: size * 0.8)
-          .rotationEffect(.degrees(45))
-          .offset(x: size * 0.23, y: size * 0.025)
-          .shadow(color: Color(.systemCyan).opacity(0.8), radius: 24,
-                  x: size * 0.025, y: size * 0.025)
-
-        }
-      }
       .clipped()
 
       HStack(spacing: size * 0.075) {
         WindowTidyIconIllustrationApp(size: size * 0.38)
         WindowTidyIconIllustrationApp(size: size * 0.38)
-      }
-      .overlay(alignment: .center) {
-        ZStack {
-          BlurredElement(blurRadius: 0, stops: [
-            .init(color: .white, location: 0.25),
-            .init(color: .clear, location: 0.5),
-          ], size: size * 1.1)
-          .rotationEffect(.degrees(-135))
-          .offset(x: -size * 0.23, y: size * 0.015)
-          .shadow(color: Color(.systemPink).opacity(0.8), radius: 24,
-                  x: size * 0.025, y: -size * 0.025)
-
-          BlurredElement(blurRadius: 1, stops: [
-            .init(color: .white, location: 0),
-            .init(color: .clear, location: 1),
-          ], size: size * 0.8)
-          .rotationEffect(.degrees(-135))
-          .offset(x: -size * 0.23, y: size * 0.015)
-          .shadow(color: Color(.systemPink).opacity(0.8), radius: 24,
-                  x: size * 0.025, y: -size * 0.025)
-
-          BlurredElement(blurRadius: 0, stops: [
-            .init(color: .white, location: 0.25),
-            .init(color: .clear, location: 0.5),
-          ], size: size * 1.1)
-          .rotationEffect(.degrees(135))
-          .offset(x: size * 0.23, y: size * 0.015)
-          .shadow(color: Color(.systemOrange).opacity(0.8), radius: 24,
-                  x: size * 0.025, y: -size * 0.025)
-
-          BlurredElement(blurRadius: 1, stops: [
-            .init(color: .white, location: 0),
-            .init(color: .clear, location: 1),
-          ], size: size * 0.8)
-          .rotationEffect(.degrees(135))
-          .offset(x: size * 0.23, y: size * 0.015)
-          .shadow(color: Color(.systemOrange).opacity(0.8), radius: 24,
-                  x: size * 0.025, y: -size * 0.025)
-        }
       }
       .clipped()
 

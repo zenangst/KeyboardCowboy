@@ -38,33 +38,33 @@ struct WorkspaceCommandView: View {
         } label: {
           Text("Add Application")
         }
-        .style(.derived)
       }
 
       ZenDivider()
 
       CompatList {
         ForEach(Array(zip(model.applications.indices, model.applications)), id: \.0) { offset, application in
-          VStack(spacing: 8) {
-            HStack {
-              IconView(icon: Icon(application), size: .init(width: 24, height: 24))
-              Text(application.displayName)
-              Spacer()
-              Button {
-                if offset <= model.applications.count - 1 {
-                  let selectedApp = model.applications[offset]
-                  if selectedApp == application {
-                    model.applications.remove(at: offset)
-                    onSelectedAppsChange(model.applications)
-                  }
+          HStack(spacing: 8) {
+            IconView(icon: Icon(application), size: .init(width: 24, height: 24))
+            Text(application.displayName)
+            Spacer()
+            Button {
+              if offset <= model.applications.count - 1 {
+                let selectedApp = model.applications[offset]
+                if selectedApp == application {
+                  model.applications.remove(at: offset)
+                  onSelectedAppsChange(model.applications)
                 }
-              } label: {
-                Image(systemName: "xmark")
-                  .resizable()
-                  .aspectRatio(contentMode: .fit)
-                  .frame(width: 8, height: 10)
               }
+            } label: {
+              Image(systemName: "xmark")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 8, height: 10)
             }
+          }
+          .frame(minHeight: 34)
+          .background(alignment: .bottom) {
             ZenDivider()
           }
         }
@@ -73,7 +73,7 @@ struct WorkspaceCommandView: View {
           onSelectedAppsChange(model.applications)
         }
       }
-      .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 32, 148)))
+      .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 34, 148)))
 
       VStack(alignment: .leading, spacing: 2) {
         ZenLabel("Window Tiling")

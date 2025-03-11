@@ -38,11 +38,12 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
       SubView($metaData, content: subContent)
         .textStyle {
-          $0.font = .caption
+          $0.font = .caption2
         }
         .menuStyle {
-          $0.calm = false
-          $0.padding = .medium
+          $0.calm = true
+          $0.padding = .small
+          $0.unfocusedOpacity = 0.5
         }
     }
     .roundedStyle()
@@ -120,6 +121,7 @@ private struct ContentView<IconContent, Content>: View where IconContent: View, 
 }
 
 private struct SubView<Content>: View where Content: View {
+  @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   @Binding var metaData: CommandViewModel.MetaData
@@ -150,13 +152,16 @@ private struct SubView<Content>: View where Content: View {
             command.notification = .none
           }
         }, label: { Text("None") })
+
         ForEach(Command.Notification.allCases) { notification in
           Button(action: {
             metaData.notification = notification
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in
               command.notification = notification
             }
-          }, label: { Text(notification.displayValue) })
+          }, label: {
+            Text(notification.displayValue)
+          })
         }
       } label: {
         HStack {
@@ -175,6 +180,7 @@ private struct SubView<Content>: View where Content: View {
     .lineLimit(1)
     .allowsTightening(true)
     .truncationMode(.tail)
+    .enableInjection()
   }
 }
 

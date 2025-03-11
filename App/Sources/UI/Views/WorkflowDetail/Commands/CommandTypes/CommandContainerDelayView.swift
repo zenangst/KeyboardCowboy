@@ -31,10 +31,8 @@ struct CommandContainerDelayView: View {
               Image(systemName: "hourglass")
               if let delay = metaData.delay {
                 Text("\(Int(delay)) milliseconds")
-                  .font(.caption)
               } else {
                 Text("No delay")
-                  .font(.caption)
               }
             }
             Divider()

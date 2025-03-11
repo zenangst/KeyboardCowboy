@@ -3,12 +3,12 @@ import SwiftUI
 
 final class AssetGenerator {
   @MainActor
-  static func generate<T: View>(filename: String, useIntrinsicContentSize: Bool = false, size: CGSize, content: @autoclosure () -> T) throws {
-    try generate(filename: filename, useIntrinsicContentSize: useIntrinsicContentSize, size: size, content: content)
+  static func generate<T: View>(filename: String, useIntrinsicContentSize: Bool = false, size: CGSize, content: @autoclosure () -> T) async throws {
+    try await generate(filename: filename, useIntrinsicContentSize: useIntrinsicContentSize, size: size, content: content)
   }
 
   @MainActor
-  static func generate<T: View>(filename: String, useIntrinsicContentSize: Bool = false, size: CGSize, content: () -> T) throws {
+  static func generate<T: View>(filename: String, useIntrinsicContentSize: Bool = false, size: CGSize, content: () -> T) async throws {
     guard let assetRoot = ProcessInfo.processInfo.environment["ASSET_PATH"] else { return }
 
     let hostingView = NSHostingView(rootView: content()
@@ -16,7 +16,11 @@ final class AssetGenerator {
     )
     hostingView.frame = NSRect(origin: .zero, size: size)
 
+
     if useIntrinsicContentSize { hostingView.frame = NSRect(origin: .zero, size: hostingView.intrinsicContentSize) }
+
+    let window = NSWindow(contentRect: hostingView.frame, styleMask: [], backing: .buffered, defer: false)
+    window.contentView = hostingView
 
     let imageRep = hostingView.bitmapImageRepForCachingDisplay(in: hostingView.bounds)
     hostingView.cacheDisplay(in: hostingView.bounds, to: imageRep!)

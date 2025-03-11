@@ -37,7 +37,7 @@ struct CommandList: View {
 
   @ViewBuilder
   var body: some View {
-    Group {
+    VStack(spacing: 0) {
       CommandListHeader(namespace: namespace)
         .style(.derived)
       ZenDivider()
@@ -48,7 +48,35 @@ struct CommandList: View {
                             workflowId: workflowId,
                             selectionManager: selectionManager,
                             scrollViewProxy: scrollViewProxy)
+      .padding(.top, 8)
     }
+    .background(alignment: .top) {
+      BackgroundView()
+    }
+  }
+}
+
+fileprivate struct BackgroundView: View {
+  @ObservedObject private var publisher: ColorPublisher = ColorPublisher.shared
+  var body: some View {
+    Color.clear
+      .background {
+        Ellipse()
+          .fill(
+            LinearGradient(stops: [
+              .init(color: Color.systemGray, location: 0),
+              .init(color: Color.clear, location: 0.5),
+            ], startPoint: .top, endPoint: .bottom)
+          )
+      }
+      .mask {
+        LinearGradient(stops: [
+          .init(color: .black.opacity(0.3), location: 0),
+          .init(color: .clear, location: 1),
+        ], startPoint: .top, endPoint: .bottom)
+      }
+      .blur(radius: 20)
+      .frame(maxWidth: 500, maxHeight: 100)
   }
 }
 
