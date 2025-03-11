@@ -125,7 +125,7 @@ final class AssetGeneratorTests: XCTestCase {
             findApplication("Xcode"),
             findApplication("GitHub"),
             findApplication("Ghostty"),
-          ], hideOtherApps: true))),
+          ], tiling: .arrangeLeftQuarters, hideOtherApps: true))),
           iconSize: iconSize
         )
       }
@@ -148,6 +148,42 @@ final class AssetGeneratorTests: XCTestCase {
       }
 
       try await AssetGenerator.generate(filename: "Wiki/Commands/WindowTidy", useIntrinsicContentSize: true, size: iconSize, content: content)
+    }
+
+    do {
+      let content = generateCommandView(name: "Keyboard Command") { meta in
+        struct Focus { @FocusState static var focus: AppFocus? }
+
+        return KeyboardCommandView(
+          Focus.$focus,
+          metaData: meta,
+          model: CommandViewModel.Kind.KeyboardModel(
+            id: UUID().uuidString,
+            command: .init(keyboardShortcuts: [
+              .upArrow,
+              .upArrow,
+              .downArrow,
+              .downArrow,
+              .leftArrow,
+              .rightArrow,
+              .leftArrow,
+              .rightArrow,
+              .b,
+              .a,
+            ], iterations: 1)
+          ),
+          iconSize: iconSize
+        )
+      }
+      try await AssetGenerator.generate(filename: "Wiki/Commands/KeyboardCommand", useIntrinsicContentSize: true, size: iconSize, content: content)
+    }
+
+    do {
+      let content = generateCommandView(name: "Change Input Source") { meta in
+        InputSourceCommandView(meta, model: CommandViewModel.Kind.InputSourceModel.init(id: UUID().uuidString, inputId: "", name: "English"), iconSize: iconSize)
+          .environmentObject(InputSourceStore())
+      }
+      try await AssetGenerator.generate(filename: "Wiki/Commands/InputSourceCommand", useIntrinsicContentSize: true, size: iconSize, content: content)
     }
   }
 
