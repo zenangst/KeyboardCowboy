@@ -12,11 +12,11 @@ struct PermissionsSettingsView: View {
     VStack(spacing: 0) {
       ZenDivider()
       Grid(alignment: .topLeading, horizontalSpacing: 16, verticalSpacing: 32) {
-        GridRow {
+        GridRow(alignment: .center) {
           PermissionOverviewItem(
             status: .readonly { accessibilityPermission.viewModel },
             icon: "command.circle.fill",
-            name: "Accessibility permissions",
+            name: "Accessibility Permissions",
             explanation: "Used to trigger workflows when you press a keyboard shortcut.",
             color: Color(.systemPurple)
           ) {
@@ -26,7 +26,6 @@ struct PermissionsSettingsView: View {
         }
       }
       .roundedSubStyle()
-      .style(.derived)
       .style(.section(.content))
 
       Spacer()
@@ -59,6 +58,7 @@ fileprivate struct PermissionOverviewItem: View {
       .frame(width: 24, height: 24)
       .foregroundStyle(color)
       .background(Circle().fill(Color.white).padding(4))
+      .padding(8)
 
     VStack(alignment: .leading) {
       Text(name)
@@ -69,7 +69,7 @@ fileprivate struct PermissionOverviewItem: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
 
-    HStack {
+    Group {
       switch status {
       case .approved:
         Image(systemName: "checkmark.circle.fill")
@@ -87,6 +87,7 @@ fileprivate struct PermissionOverviewItem: View {
           .matchedGeometryEffect(id: "permission-overview-item", in: namespace)
       }
     }
+    .padding(8)
   }
 }
 

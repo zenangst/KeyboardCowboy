@@ -19,7 +19,7 @@ struct PermissionsView: View {
         KeyboardCowboyAsset.applicationIcon.swiftUIImage
           .resizable()
           .frame(width: 84, height: 84)
-        Text("Accessibility permissions are required for Keyboard Cowboy application to function properly.")
+        Text("Accessibility Permissions are required for Keyboard Cowboy application to function properly.")
           .font(.title2)
       }
       .padding([.leading, .top, .trailing], 16)

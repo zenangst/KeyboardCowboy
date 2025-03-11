@@ -7,13 +7,17 @@ final class PermissionsSettings: NSObject, NSWindowDelegate {
 
   func show() {
     let styleMask: NSWindow.StyleMask = [.closable, .miniaturizable, .resizable, .titled]
-    let window = ZenSwiftUIWindow(styleMask: styleMask, content: PermissionsSettingsView())
+    let window = ZenSwiftUIWindow(styleMask: styleMask,
+                                  content: PermissionsSettingsView().style(.derived))
     window.animationBehavior = .utilityWindow
     window.titleVisibility = .hidden
     window.titlebarAppearsTransparent = true
     window.delegate = self
     window.orderFrontRegardless()
     window.center()
+
+    window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+    window.standardWindowButton(.zoomButton)?.isHidden = true
 
     self.window = window
   }

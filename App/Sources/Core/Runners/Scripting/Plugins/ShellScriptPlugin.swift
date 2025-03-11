@@ -81,9 +81,6 @@ final class ShellScriptPlugin: @unchecked Sendable {
 
       process.waitUntilExit()
 
-      if process.terminationStatus != 0 {
-        throw ShellScriptPluginError.scriptError(output)
-      }
       return output
     } catch {
       throw ShellScriptPluginError.scriptError(error.localizedDescription)
