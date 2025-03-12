@@ -67,11 +67,14 @@ private struct HeaderView: View {
           updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.isEnabled = newValue })
         }
         .padding(.leading, 3)
+        .switchStyle(.small)
 
       let textFieldPlaceholder = metaData.namePlaceholder.isEmpty
       ? placeholder
       : metaData.namePlaceholder
+
       TextField(textFieldPlaceholder, text: $metaData.name)
+        .textFieldStyle()
         .environment(\.textFieldFont, .headline)
         .environment(\.textFieldUnfocusedOpacity, 0)
         .onChange(of: metaData.name, perform: { newValue in
