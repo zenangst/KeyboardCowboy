@@ -429,20 +429,3 @@ struct Release3_27_Previews: PreviewProvider {
       .previewDisplayName("Release 3.27")
   }
 }
-
-/*
-
-        - **NEW** Switch between open windows using the new Window Switcher.
-        - **NEW** You can now change the input source with the new Input Source command.
-        - Bug fixes when using macOS Sequoia window tiling.
-        - Shell scripts now resepect shebang (#!).
-        - JXA Apple Script variants are now supported. Happy scripting.
-        - The timeout has been removed from snippets, making them more reliable.
-        - Bug fixes when using macOS Sequoia window tiling.
-        - Bug fixes in the Workspace Command.
-        - Running Raycast extensions via Keyboard Cowboy is now easier than ever.
-        - New UX for adding new commands.
-        - Adds a new notification style called Capsule
-        - Migrated to Swift 6.
-
-*/
