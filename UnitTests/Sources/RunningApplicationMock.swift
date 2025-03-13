@@ -2,7 +2,7 @@ import Cocoa
 @testable import Keyboard_Cowboy
 import Foundation
 
-class RunningApplicationMock: RunningApplication {
+class RunningApplicationMock: @preconcurrency RunningApplication {
   var isFinishedLaunching: Bool = true
   var bundleIdentifier: String?
   var bundleURL: URL?
@@ -11,7 +11,7 @@ class RunningApplicationMock: RunningApplication {
   var localizedName: String?
   var processIdentifier: pid_t
 
-  static let currentApp = NSRunningApplication.currentApp
+  @MainActor static let currentApp = NSRunningApplication.currentApp
 
   init(bundleIdentifier: String? = nil, bundleURL: URL? = nil, isHidden: Bool = false,
        isTerminated: Bool = false, localizedName: String? = nil, processIdentifier: pid_t) {
