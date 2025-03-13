@@ -43,7 +43,7 @@ jobs:
           sdk: macosx
           build-settings: CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO"
       - name: xcresulttool
-        uses: kishikawakatsumi/xcresulttool@v1
+        uses: kishikawakatsumi/xcresulttool@v1.7.1
         with:
           path: ResultBundle.xcresult
         if: success() || failure()
