@@ -46,7 +46,6 @@ jobs:
         uses: kishikawakatsumi/xcresulttool@v1.7.1
         with:
           path: ResultBundle.xcresult
-        if: success() || failure()
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
