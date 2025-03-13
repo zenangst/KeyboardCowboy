@@ -38,7 +38,7 @@ jobs:
           echo "Tuist version:"
           tuist --version
           echo "Generating project with tuist"
-          tuist generate -n || exit 1
+          tuist generate
       - name: Debug tuist status
         if: failure()
         run: |
