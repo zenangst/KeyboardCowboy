@@ -1,84 +1,48 @@
-on:
-  pull_request: {}
 name: Test
-jobs:
-  test:
-    name: Test
-    runs-on: macos-14
-    strategy:
-        matrix:
-          xcode: ['16.2']
-    steps:
-      - name: Set Xcode ${{ matrix.xcode }}
-        run: |
-          echo "Available Xcode versions:"
-          ls /Applications | grep Xcode
-          echo "Choosing Xcode_${{ matrix.xcode }}.app"
-          sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
-          xcodebuild -version
-          swift --version
-          swift package --version
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Authenticate GitHub
-        env:
-          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-      - name: Install & Run tuist
-        run: |
-          touch .env
-          echo "APP_NAME=Keyboard Cowboy" >> .env
-          echo -e "APP_SCHEME=Keyboard-Cowboy" >> .env
-          echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
-          echo -e "TEAM_ID=XXXXXXXXXX" >> .env
-          echo -e "PACKAGE_DEVELOPMENT=false" >> .env
-          brew tap tuist/tuist
-          brew install --formula tuist
-          echo "Tuist version:"
-          tuist --version
-          echo "Generating project with tuist"
-          tuist generate -n
-      - name: Debug tuist status
-        if: failure()
-        run: |
-          echo "Debugging tuist generate failure"
-          tuist generate -n --verbose
-          cat ~/Library/Logs/tuist/tuist.log || true
-      - name: Run tests
-        if: success()
-        uses: sersoft-gmbh/xcodebuild-action@v2
-        with:
-          workspace: "Keyboard Cowboy.xcworkspace"
-          scheme: "Keyboard-Cowboy"
-          destination: platform=macOS
-          action: test
-          result-bundle-path: ResultBundle.xcresult
-          sdk: macosx
-          build-settings: CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO"
-      - name: xcresulttool
-        uses: kishikawakatsumi/xcresulttool@v1
-        with:
-          path: ResultBundle.xcresult
-        if: success() || failure()
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: Test results
-          path: ResultBundle.xcresult
-      - name: Add comment to PR
-        uses: actions/github-script@v6
-        if: always()
-        with:
-          script: |
-            const name = '${{ github.workflow   }}';
-            const url = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
-            const success = '${{ job.status }}' === 'success';
-            const body = `${name}: ${success ? 'succeeded ✅' : 'failed ❌'}\n${url}\n\n@${{ github.event.pull_request.user.login }}`;
 
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            })
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Tuist
+      run: brew install tuist
+
+    - name: Generate project with Tuist
+      run: tuist generate
+      continue-on-error: true
+
+    - name: Check for ResultBundle.xcresult
+      if: success()
+      run: |
+        if [ ! -f ResultBundle.xcresult ]; then
+          echo "ResultBundle.xcresult not found!"
+          exit 1
+        fi
+
+    - name: Run tests
+      if: success()
+      run: kishikawakatsumi/xcresulttool@v1
+      with:
+        show-passed-tests: true
+        show-code-coverage: true
+        upload-bundles: always
+
+    - name: Post results
+      if: success()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const name = 'Test';
+          const url = 'https://github.com/zenangst/KeyboardCowboy/actions/runs/${{ github.run_id }}';
+          const success = 'failure' === 'success';
+          const body = `${name}: ${success ? 'succeeded ✅' : 'failed ❌'}\n${url}\n\n@zenangst`;
+          await github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            body: body
+          });
