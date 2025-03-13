@@ -20,6 +20,10 @@ jobs:
           swift package --version
       - name: Checkout
         uses: actions/checkout@main
+      - name: Install mise
+        run: |
+          brew tap zenangst/tap
+          brew install mise
       - name: Install & Run tuist
         run: |
           touch .env
@@ -28,8 +32,7 @@ jobs:
           echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
-          brew install tuist
-          tuist install
+          mise tuist install
           tuist generate -n
       - name: Run tests
         uses: sersoft-gmbh/xcodebuild-action@v2
