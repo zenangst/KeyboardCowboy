@@ -35,16 +35,16 @@ struct EmptyWorkflowList: View {
         .fixedSize()
         .help("Add Workflow")
         .matchedGeometryEffect(id: "add-workflow-button", in: namespace, isSource: false)
-        .environment(\.buttonBackgroundColor, ColorPublisher.shared.color)
+        .environment(\.buttonBackgroundColor, .systemGreen)
         .environment(\.buttonFocusEffect, true)
         .environment(\.buttonHoverEffect, false)
+        .environment(\.buttonCalm, false)
         .environment(\.buttonPadding, .large)
 
         Text("No workflows yet,\nadd a workflow to get started.")
           .multilineTextAlignment(.center)
           .font(.footnote)
       }
-      .padding(.top, publisher.data.isEmpty ? 48 : 0)
       .frame(height: publisher.data.isEmpty ? nil : 0)
       .opacity(publisher.data.isEmpty ? 1 : 0)
     }

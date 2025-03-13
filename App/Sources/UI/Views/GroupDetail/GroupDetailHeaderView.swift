@@ -21,6 +21,9 @@ struct GroupDetailHeaderView: View {
           )
         VStack(alignment: .leading) {
           Text(groupPublisher.data.name)
+            .truncationMode(.middle)
+            .allowsTightening(true)
+            .lineLimit(1)
             .font(.headline)
           Text("Workflows: \(groupDetailPublisher.data.count)")
             .font(.caption)
