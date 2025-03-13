@@ -56,35 +56,33 @@ final class ShellScriptPlugin: @unchecked Sendable {
 
     let (process, pipe, errorPipe) = createProcess(shell: shell)
     process.arguments = processArguments
+    var environment = ProcessInfo.processInfo.environment
+    environment["PATH"] = "/usr/local/bin:/opt/homebrew/bin:" + (environment["PATH"] ?? "")
     process.environment = environment
     process.currentDirectoryURL = url
 
     if checkCancellation { try Task.checkCancellation() }
 
-    do {
-      try process.run()
-      let output: String
+    try process.run()
 
-      if let data = try pipe.fileHandleForReading.readToEnd(),
-         let rawOutput = String(data: data, encoding: .utf8) {
-        let ansiEscapePattern = "\u{001B}\\[[0-?]*[ -/]*[@-~]"
-        let regex = try NSRegularExpression(pattern: ansiEscapePattern, options: [])
-        let range = NSRange(rawOutput.startIndex..., in: rawOutput)
-        let cleanOutput = regex.stringByReplacingMatches(in: rawOutput, options: [], range: range, withTemplate: "")
-        output = cleanOutput
-      } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
-        output = String(data: errorPipe, encoding: .utf8) ?? ""
-        throw ShellScriptPluginError.scriptError(output)
-      } else {
-        output = ""
-      }
-
-      process.waitUntilExit()
-
-      return output
-    } catch {
-      throw ShellScriptPluginError.scriptError(error.localizedDescription)
+    let output: String
+    if let data = try pipe.fileHandleForReading.readToEnd(),
+       let rawOutput = String(data: data, encoding: .utf8) {
+      let ansiEscapePattern = "\u{001B}\\[[0-?]*[ -/]*[@-~]"
+      let regex = try NSRegularExpression(pattern: ansiEscapePattern, options: [])
+      let range = NSRange(rawOutput.startIndex..., in: rawOutput)
+      let cleanOutput = regex.stringByReplacingMatches(in: rawOutput, options: [], range: range, withTemplate: "")
+      output = cleanOutput
+    } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
+      output = String(data: errorPipe, encoding: .utf8) ?? ""
+      throw ShellScriptPluginError.scriptError(output)
+    } else {
+      output = ""
     }
+
+    process.waitUntilExit()
+
+    return output
   }
 
   // MARK: Private methods
