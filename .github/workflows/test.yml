@@ -36,7 +36,7 @@ jobs:
           echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
-          mise tuist install
+          mise x tuist@latest -- tuist init
           tuist generate -n
       - name: Run tests
         uses: sersoft-gmbh/xcodebuild-action@v2
