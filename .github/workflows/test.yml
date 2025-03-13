@@ -27,7 +27,6 @@ jobs:
           git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
       - name: Install mise
         run: |
-          brew tap zenangst/tap
           brew install mise
       - name: Install & Run tuist
         run: |
