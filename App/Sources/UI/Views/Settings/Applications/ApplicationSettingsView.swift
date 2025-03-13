@@ -22,7 +22,7 @@ struct ApplicationSettingsView: View {
       Group {
         if additionalApplicationPaths.isEmpty {
           Text("No additional directories")
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
           ScrollView(.vertical) {
             VStack(alignment: .leading) {
