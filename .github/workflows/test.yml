@@ -35,8 +35,6 @@ jobs:
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
           brew tap tuist/tuist
           brew install --formula tuist
-          echo "Tuist version:"
-          tuist --version
           echo "Generating project with tuist"
           tuist generate
       - name: Debug tuist status
