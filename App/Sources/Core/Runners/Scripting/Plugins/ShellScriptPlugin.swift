@@ -57,6 +57,7 @@ final class ShellScriptPlugin: @unchecked Sendable {
     let (process, pipe, errorPipe) = createProcess(shell: shell)
     process.arguments = processArguments
     var environment = ProcessInfo.processInfo.environment
+    environment["TERM"] = "xterm-256color"
     environment["PATH"] = "/usr/local/bin:/opt/homebrew/bin:" + (environment["PATH"] ?? "")
     process.environment = environment
     process.currentDirectoryURL = url
