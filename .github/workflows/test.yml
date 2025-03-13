@@ -62,7 +62,6 @@ jobs:
             const url = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
             const success = '${{ job.status }}' === 'success';
             const body = `${name}: ${success ? 'succeeded ✅' : 'failed ❌'}\n${url}\n\n@${{ github.event.pull_request.user.login }}`;
-
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
