@@ -32,12 +32,6 @@ jobs:
           brew install --formula tuist
           echo "Generating project with tuist"
           tuist generate
-      - name: Debug tuist status
-        if: failure()
-        run: |
-          echo "Debugging tuist generate failure"
-          tuist generate -n --verbose
-          cat ~/Library/Logs/tuist/tuist.log || true
       - name: Run tests
         if: success()
         uses: sersoft-gmbh/xcodebuild-action@v2
