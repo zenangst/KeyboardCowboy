@@ -111,7 +111,7 @@ private struct HeaderOverlay: View {
     HStack(alignment: .center) {
       Text("Keyboard Cowboy")
         .font(Font.system(size: 20, design: .rounded))
-      Text("3.27")
+      Text("3.27.1")
         .foregroundStyle(.white)
         .font(Font.system(size: 24, design: .rounded))
         .allowsTightening(true)
@@ -161,6 +161,13 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { ScriptIconView(size: 24).anyView },
+           text: "Improve shell scripting errors by showing the error message in the notification.",
+           version: .v3271),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fix bug where PATH environment is not set properly when using shebangs.",
+           version: .v3271),
 
     Change(icon: { WindowSwitcherIconView(size: 24).anyView },
            text: "**NEW**: Switch between open windows using the new **Window Switcher**.",
