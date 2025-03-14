@@ -58,8 +58,8 @@ fileprivate struct ApplicationMenuView: View {
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
-            .bundled(.init(.appFocus(command: .init(bundleIdentifer: "", hideOtherApps: false, tiling: nil)),
-                           meta: Command.MetaData()))
+            .bundled(BundledCommand(.appFocus(command: .init(bundleIdentifer: "", hideOtherApps: false, tiling: nil)),
+                                    meta: Command.MetaData()))
           )
         }
       }, label: {
@@ -72,8 +72,8 @@ fileprivate struct ApplicationMenuView: View {
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
-            .bundled(.init(.appFocus(command: .init(bundleIdentifer: "", hideOtherApps: false, tiling: nil)),
-                           meta: Command.MetaData()))
+            .bundled(BundledCommand(.workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: false, tiling: nil)),
+                                    meta: Command.MetaData()))
           )
         }
       }, label: {
