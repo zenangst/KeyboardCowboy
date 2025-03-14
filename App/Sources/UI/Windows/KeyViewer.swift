@@ -8,6 +8,8 @@ import SwiftUI
 final class KeyViewer: NSObject, NSWindowDelegate {
   static let instance = KeyViewer()
 
+  public var isWindowOpen: Bool { window != nil }
+
   private lazy var publisher = KeyViewerPublisher()
   private var window: NSWindow?
   private var lastEventTime: Double = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)

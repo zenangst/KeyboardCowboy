@@ -153,6 +153,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
 
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
+    if handleRepeatingKeyEvent(machPortEvent) { return }
+
     let inMacroContext = macroCoordinator.state == .recording && !machPortEvent.isRepeat
     let eventSignature = CGEventSignature.from(machPortEvent.event, keyCode: machPortEvent.keyCode)
 
@@ -162,8 +164,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
          macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature) {
         return
       }
-
-      if handleEscapeKeyDownEvent(machPortEvent) { return }
     case .keyUp:
       if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp {
         if let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent {
@@ -186,12 +186,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       scheduledWorkItem = nil
       repeatExecution = nil
       repeatingMatch = nil
+      previousExactMatch = nil
       return
     default:
       return
     }
-
-    if handleRepeatingKeyEvent(machPortEvent) { return }
 
     let bundleIdentifier = UserSpace.shared.frontmostApplication.bundleIdentifier
     let userModes = UserSpace.shared.currentUserModes.filter(\.isEnabled)
@@ -417,7 +416,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
   /// - Parameter machPortEvent: The MachPortEvent representing the key event.
   /// - Returns: A Boolean value indicating whether the execution should return early (true) or continue (false).
   private func handleEscapeKeyDownEvent(_ machPortEvent: MachPortEvent) -> Bool {
-    if machPortEvent.keyCode == kVK_Escape {
+    if machPortEvent.type == .keyDown && machPortEvent.keyCode == kVK_Escape {
       notifications.reset()
       if previousPartialMatch.rawValue != PartialMatch.default().rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
         machPortEvent.result = nil
@@ -440,6 +439,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
         self.previousExactMatch = nil
       } else if previousPartialMatch.workflow?.machPortConditions.isPassthrough == true {
       } else {
+        self.previousExactMatch = nil
         machPortEvent.result = nil
       }
     } else if case .event(let kind, _) = leaderState,
@@ -455,6 +455,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
   ///   - machPortEvent: The MachPortEvent representing the key event.
   /// - Returns: A Boolean value indicating whether the execution should return early (true) or continue (false).
   @MainActor private func handleRepeatingKeyEvent(_ machPortEvent: MachPortEvent) -> Bool {
+    if handleEscapeKeyDownEvent(machPortEvent) { return true }
     // If the event is repeating and there is an earlier result,
     // reuse that result to avoid unnecessary lookups.
     if machPortEvent.isRepeat, let repeatExecution, repeatingKeyCode == machPortEvent.keyCode {
@@ -465,8 +466,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       // simply opt-out because we don't want to lookup the same
       // keyboard shortcut over and over again.
     } else if machPortEvent.isRepeat, repeatingMatch == false {
-      if machPortEvent.type == .keyDown {
+      if machPortEvent.type == .keyDown && KeyViewer.instance.isWindowOpen {
         KeyViewer.instance.handleInput(machPortEvent.event, store: store)
+      } else {
+        if machPortEvent.type == .keyDown {
+          machPort?.ignoreNextKeyRepeat = true
+        }
       }
       return true
       // Reset the repeating result and match if the event is not repeating.
@@ -477,7 +482,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       machPortEvent.result = nil
       return machPortEvent.isRepeat
     } else {
-
       repeatExecution = nil
       repeatingMatch = nil
       repeatingKeyCode = -1
