@@ -256,7 +256,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/zenangst/Intercom.git", .revision("5a340e185e571d058c09ab8b8ad8716098282443")),
         .package(url: "https://github.com/zenangst/KeyCodes.git", from: "5.0.0"),
         .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.2"),
-        .package(url: "https://github.com/zenangst/MachPort.git", .revision("3eeeae89b701aeef8238d239323e64d77bd156d7")),
+        .package(url: "https://github.com/zenangst/MachPort.git", .revision("6cc17710f7890cdda6cf197573c05a5e767d67af")),
         .package(url: "https://github.com/zenangst/Windows.git", from: "1.2.2"),
       ]
     }
