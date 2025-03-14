@@ -161,6 +161,14 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fix bug where new Workspace ended up adding an App Focus command.",
+           version: .v3271),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "Improve performance when handling repeating keyboard events that don't match a workflow.",
+           version: .v3271),
+
     Change(icon: { ScriptIconView(size: 24).anyView },
            text: "Improve shell scripting errors by showing the error message in the notification.",
            version: .v3271),
@@ -227,6 +235,7 @@ private struct ChangesView: View {
             GridRow {
               change.icon
               ZenDivider(.vertical)
+                .padding(.vertical, 4)
               let markdown: LocalizedStringKey = LocalizedStringKey(change.text)
               Text(markdown)
                 .tint(Color.accentColor)
@@ -329,6 +338,11 @@ private struct SupportersView: View {
       index: 16,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/45841003?v=4"),
       githubHandle: "TaylorJKing"),
+
+    Supporter(
+      index: 16,
+      imageUrl: URL(string: "https://avatars.githubusercontent.com/u/227768?v=4"),
+      githubHandle: "brunns"),
   ]
 
   var body: some View {
@@ -394,7 +408,7 @@ private struct Supporter: Hashable {
   let githubHandle: String
 }
 
-private enum Version: String {
+private enum Version: String, Equatable {
   case v3275 = "3.27.5"
   case v3274 = "3.27.4"
   case v3273 = "3.27.3"
