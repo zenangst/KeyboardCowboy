@@ -153,8 +153,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
 
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
-    if handleRepeatingKeyEvent(machPortEvent) { return }
-
     let inMacroContext = macroCoordinator.state == .recording && !machPortEvent.isRepeat
     let eventSignature = CGEventSignature.from(machPortEvent.event, keyCode: machPortEvent.keyCode)
 
@@ -164,6 +162,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
          macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature) {
         return
       }
+
+      if handleRepeatingKeyEvent(machPortEvent) { return }
     case .keyUp:
       if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp {
         if let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent {
