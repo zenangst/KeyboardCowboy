@@ -14,10 +14,10 @@ final class MainWindow: NSObject, NSWindowDelegate {
   }
 
   func open() {
-    let mainWindowIdentifier = NSUserInterfaceItemIdentifier(rawValue: KeyboardCowboyApp.mainWindowIdentifier)
-    if let mainWindow = NSApplication.shared.windows.first(where: { $0.identifier == mainWindowIdentifier }) {
-      mainWindow.makeKeyAndOrderFront(nil)
-      KeyboardCowboyApp.activate()
+    if let window {
+      window.orderFrontRegardless()
+      window.makeKeyAndOrderFront(nil)
+      KeyboardCowboyApp.activate(setActivationPolicy: true)
       return
     }
 
