@@ -5,12 +5,16 @@ import SwiftUI
 @MainActor
 final class MainWindow: NSObject, NSWindowDelegate {
   private var window: NSWindow?
-  private let core: Core
   private let windowOpener: WindowOpener
+  private let core: Core
 
-  init(core: Core) {
+  private(set) static var shared: MainWindow!
+
+  init(core: Core, windowOpener: WindowOpener) {
     self.core = core
-    self.windowOpener = WindowOpener(core: core)
+    self.windowOpener = windowOpener
+    super.init()
+    Self.shared = self
   }
 
   func open() {

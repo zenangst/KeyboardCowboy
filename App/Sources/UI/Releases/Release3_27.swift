@@ -2,6 +2,8 @@ import Bonzai
 import Inject
 import SwiftUI
 
+private let currentVersion: Version = .v3273
+
 struct Release3_27: View {
   @ObserveInjection var inject
   enum ButtonAction {
@@ -111,12 +113,12 @@ private struct HeaderOverlay: View {
     HStack(alignment: .center) {
       Text("Keyboard Cowboy")
         .font(Font.system(size: 20, design: .rounded))
-      Text("3.27.2")
+      Text(currentVersion.rawValue)
         .foregroundStyle(.white)
         .font(Font.system(size: 24, design: .rounded))
         .allowsTightening(true)
         .fontWeight(.heavy)
-        .shadow(color: Color(.systemOrange), radius: 10)
+        .shadow(color: currentVersion.color, radius: 10)
     }
     .padding(.vertical, 8)
     .padding(.horizontal, 16)
@@ -161,6 +163,10 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fix bug where closing the main window didn't work as expected.",
+           version: .v3273),
+
     Change(icon: { BugFixIconView(size: 24).anyView },
            text: "Fix bug where keyboard sequences became unreliable.",
            version: .v3272),

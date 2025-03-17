@@ -4,15 +4,17 @@ import SwiftUI
 @MainActor
 final class WindowOpener: ObservableObject {
   private let core: Core
+  private var mainWindow: MainWindow!
   private lazy var windowSwitcherWindow = WindowSwitcherWindow(commandRunner: core.commandRunner)
 
   init(core: Core) {
     self.core = core
+    self.mainWindow = MainWindow.shared ?? MainWindow(core: core, windowOpener: self)
     NotificationCenter.default.addObserver(self, selector: #selector(openMainWindow), name: .openKeyboardCowboy, object: nil)
   }
 
   @objc func openMainWindow() {
-    MainWindow(core: core).open()
+    mainWindow.open()
   }
 
   func openWindowSwitcher(_ snapshot: UserSpace.Snapshot) {
