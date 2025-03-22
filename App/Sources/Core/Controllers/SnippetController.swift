@@ -75,17 +75,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
 
     let modifiers = VirtualModifierKey.modifiers(for: keyCode, flags: event.flags, specialKeys: Array(store.specialKeys().keys))
 
-    // Figure out which modifier to apply to get the correct display value.
-    var modifier: VirtualModifierKey?
-    if modifiers == [.leftShift] {
-      modifier = .leftShift
-    } else if modifiers == [.leftOption] {
-      modifier = .leftOption
-    } else if modifiers == [.leftControl] {
-      modifier = .leftControl
-    }
-
-    guard let displayValue = store.displayValue(for: keyCode, modifier: modifier) else {
+    guard let displayValue = store.displayValue(for: keyCode, modifiers: modifiers) else {
       return
     }
 
