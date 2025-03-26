@@ -32,6 +32,10 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
   @MainActor
   func commands(_ applications: [Application]) async throws -> [Command] {
+    let aerospaceIsRunning = NSWorkspace.shared.runningApplications
+      .first(where: { $0.bundleIdentifier == "bobko.aerospace" })
+    != nil
+
     var commands = [Command]()
     let application: Application
     let bundleIdentifer: String
@@ -104,7 +108,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
     if numberOfAppWindows == 0 { return [] }
 
-    if hideOtherApps {
+    if hideOtherApps && !aerospaceIsRunning {
       try await SystemHideAllAppsRunner.run(workflowCommands: [
         .application(.init(action: .open, application: application, meta: Command.MetaData(delay: nil, name: "Hide All Apps"), modifiers: []))
       ])
@@ -192,7 +196,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       windowTiling = nil
     }
 
-    if let windowTiling {
+    if let windowTiling, !aerospaceIsRunning {
       commands.append(
         .windowTiling(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling")))
       )

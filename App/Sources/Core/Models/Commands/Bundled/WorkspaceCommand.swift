@@ -38,6 +38,10 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
   @MainActor
   func commands(_ applications: [Application]) async throws -> [Command] {
+    let aerospaceIsRunning = NSWorkspace.shared.runningApplications
+      .first(where: { $0.bundleIdentifier == "bobko.aerospace" })
+       != nil
+
     var commands = [Command]()
 
     let slowBundles = Set(["com.tinyspeck.slackmacgap"])
@@ -104,7 +108,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             modifiers: [.waitForAppToLaunch]
           )))
 
-        if hideOtherApps {
+        if hideOtherApps && !aerospaceIsRunning {
           if !perfectBundleMatch || windowPids.isEmpty || runningTargetApps.isEmpty {
             commands.append(hideAllAppsCommand)
           }
@@ -170,7 +174,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     case nil:                     nil
     }
 
-    if let windowTiling {
+    if let windowTiling, !aerospaceIsRunning {
       commands.append(.windowTiling(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling"))))
     }
 
