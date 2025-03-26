@@ -47,7 +47,6 @@ struct WorkflowsFilterView: View {
           .onSubmit {
             focus.wrappedValue = .workflows
           }
-          .frame(height: 24)
           .onChange(of: searchTerm, perform: { value in
             debounce.process(value)
           })
