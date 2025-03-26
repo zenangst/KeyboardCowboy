@@ -101,7 +101,8 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
         break
       }
 
-      try? await Task.sleep(for: .milliseconds(10))
+      // Set the sleep to at least 50ms to make sure that the application has a window. 
+      try? await Task.sleep(for: .milliseconds(50))
       timeout += 1
 
       if timeout > 10 {
