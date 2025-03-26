@@ -47,7 +47,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let slowBundles = Set(["com.tinyspeck.slackmacgap"])
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
-    let windows = indexWindowsInStage(getWindows())
+    let windows = indexWindowsInStage(getWindows([.excludeDesktopElements]))
 
     let pids = windows.map(\.ownerPid.rawValue).map(Int32.init)
     let runningApplications = NSWorkspace.shared.runningApplications.filter({
@@ -94,20 +94,12 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           action = .unhide
           name = "Fallback open/unhide \(application.displayName)"
         } else {
-          action = .open
+          action = .unhide
           name = "Open \(application.displayName)"
         }
       }
 
       if isLastItem {
-        commands.append(
-          .application(ApplicationCommand(
-            action: .open,
-            application: application,
-            meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
-            modifiers: [.waitForAppToLaunch]
-          )))
-
         if hideOtherApps && !aerospaceIsRunning {
           if !perfectBundleMatch || windowPids.isEmpty || runningTargetApps.isEmpty {
             commands.append(hideAllAppsCommand)
@@ -120,8 +112,10 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           activationDelay = 225
         } else if perfectBundleMatch {
           activationDelay = nil
-        } else {
+        } else if tiling != nil {
           activationDelay = 25
+        } else {
+          activationDelay = nil
         }
 
         commands.append(
@@ -129,7 +123,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             action: .open,
             application: application,
             meta: Command.MetaData(delay: activationDelay, name: "Activate \(application.displayName)"),
-            modifiers: []
+            modifiers: [.waitForAppToLaunch]
           )))
       } else if isFrontmost {
         commands.append(
@@ -139,7 +133,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             meta: Command.MetaData(delay: nil, name: "Unhide frontmost application \(application.displayName)"),
             modifiers: [.waitForAppToLaunch]
           )))
-
       } else if !appIsRunning {
         commands.append(
           .application(ApplicationCommand(
@@ -190,8 +183,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     )
   }
 
-  private func getWindows() -> [WindowModel] {
-    let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+  private func getWindows(_ options: CGWindowListOption) -> [WindowModel] {
     let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
     return windowModels
   }
@@ -203,7 +195,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       .filter {
         $0.id > 0 &&
         $0.ownerName != "borders" &&
-        $0.isOnScreen &&
         $0.rect.size.width > minimumSize.width &&
         $0.rect.size.height > minimumSize.height &&
         $0.alpha == 1 &&
