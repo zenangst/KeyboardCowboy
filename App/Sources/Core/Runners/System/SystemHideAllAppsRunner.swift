@@ -44,7 +44,7 @@ final class SystemHideAllAppsRunner {
         app.activate(options: .activateAllWindows)
       }
 
-      try await Task.sleep(for: .milliseconds(100))
+      try await Task.sleep(for: .milliseconds(25))
       _ = try await machPort?.post(kVK_ANSI_H, type: .keyDown, flags: .maskCommand)
       _ = try await machPort?.post(kVK_ANSI_H, type: .keyUp, flags: .maskCommand)
       apps.removeAll(where: { $0.bundleIdentifier == app.bundleIdentifier })

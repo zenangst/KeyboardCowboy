@@ -75,11 +75,11 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
         if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleIdentifer {
           waitingForActivation = false
           if runningApplication == nil {
-            try? await Task.sleep(for: .milliseconds(100))
+            try? await Task.sleep(for: .milliseconds(10))
           }
         }
         timeout += 1
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(10))
       }
     }
 
@@ -98,7 +98,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
         break
       }
 
-      try? await Task.sleep(for: .milliseconds(100))
+      try? await Task.sleep(for: .milliseconds(10))
       timeout += 1
 
       if timeout > 10 {
