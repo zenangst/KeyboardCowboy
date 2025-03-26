@@ -50,6 +50,15 @@ struct AppFocusCommandView: View {
                   model.application = application
                   onSelectedAppsChange(application)
                 }, label: { Text("Current Application") })
+
+                Button(action: {
+                  let application = Application.previousApplication()
+                  model.application = application
+                  onSelectedAppsChange(application)
+                }, label: { Text("Previous Application") })
+
+                Divider()
+
                 ForEach(applicationStore.applications) { application in
                   Button(action: {
                     model.application = application
@@ -63,6 +72,8 @@ struct AppFocusCommandView: View {
                 Group {
                   if model.application?.bundleIdentifier == Application.currentAppBundleIdentifier() {
                     Text("Current Application")
+                  } else if model.application?.bundleIdentifier == Application.previousAppBundleIdentifier() {
+                    Text("Previous Application")
                   } else if let application = model.application {
                     Text(application.displayName)
                   } else {

@@ -44,6 +44,9 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     if isCurrentApp {
       application = UserSpace.shared.frontmostApplication.asApplication()
       bundleIdentifer = application.bundleIdentifier
+    } else if self.bundleIdentifer == Application.previousAppBundleIdentifier() {
+      application = UserSpace.shared.previousApplication.asApplication()
+      bundleIdentifer = application.bundleIdentifier
     } else if let resolvedApp = applications.first(where: { $0.bundleIdentifier == self.bundleIdentifer }) {
       application = resolvedApp
       bundleIdentifer = self.bundleIdentifer
