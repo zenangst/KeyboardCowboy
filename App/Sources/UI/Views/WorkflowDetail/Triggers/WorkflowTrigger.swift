@@ -49,7 +49,7 @@ struct WorkflowTrigger: View {
           identity: .detail(.addKeyboardTrigger),
           action: {
             updater.modifyWorkflow(using: transaction) { workflow in
-              workflow.trigger = .keyboardShortcuts(KeyboardShortcutTrigger(passthrough: false, holdDuration: nil, shortcuts: []))
+              workflow.trigger = .keyboardShortcuts(KeyboardShortcutTrigger(allowRepeat: false, passthrough: false, holdDuration: nil, shortcuts: []))
             }
           },
           label: {

@@ -148,7 +148,8 @@ struct GroupsList: View {
       Button(action: { confirmDelete = nil },
              label: { Image(systemName: "x.circle") })
       .keyboardShortcut(.cancelAction)
-      .environment(\.buttonForegroundColor, .systemBrown)
+      .environment(\.buttonBackgroundColor, .systemBrown)
+
       Text("Are you sure?")
         .font(.footnote)
       Spacer()
@@ -157,7 +158,7 @@ struct GroupsList: View {
         confirmDelete = nil
         onAction(.removeGroups(groupSelection.selections))
       }, label: { Image(systemName: "trash") })
-      .environment(\.buttonForegroundColor, .systemRed)
+      .environment(\.buttonBackgroundColor, .systemRed)
       .keyboardShortcut(.defaultAction)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
