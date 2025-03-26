@@ -83,6 +83,8 @@ private extension Command {
 
         if appFocusCommand.bundleIdentifer == Application.currentAppBundleIdentifier() {
           match = Application.currentApplication()
+        } else if appFocusCommand.bundleIdentifer == Application.previousAppBundleIdentifier(){
+          match = Application.previousApplication()
         } else {
           match = applicationStore.applications.first(where: { $0.bundleIdentifier == appFocusCommand.bundleIdentifer })
         }
