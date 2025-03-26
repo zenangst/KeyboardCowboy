@@ -176,20 +176,22 @@ struct GroupDetailView: View {
         }
       }
       .style(.derived)
-
-      WorkflowsFilterView(appFocus,
-                          namespace: namespace,
-                          onClear: {
-        let match = workflowSelection.lastSelection ?? workflowSelection.selections.first ?? ""
-        appFocus.wrappedValue = .workflows
-        DispatchQueue.main.async {
-          proxy.scrollTo(match)
-        }
-      }, onChange: { newValue in
-        withAnimation(.smooth(duration: 0.2)) {
-          searchTerm = newValue
-        }
-      })
+      
+      WorkflowsFilterView(
+        appFocus,
+        namespace: namespace,
+        onClear: {
+          let match = workflowSelection.lastSelection ?? workflowSelection.selections.first ?? ""
+          appFocus.wrappedValue = .workflows
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            proxy.scrollTo(match)
+          }
+        },
+        onChange: { newValue in
+          withAnimation(.smooth(duration: 0.2)) {
+            searchTerm = newValue
+          }
+        })
       .style(.derived)
 
       if groupsPublisher.data.isEmpty {
