@@ -247,17 +247,17 @@ public enum PackageResolver {
       packages = [
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.5.2"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
-        .package(url: "https://github.com/zenangst/AXEssibility.git", .revision("4a06484fd379c2eb34487c467aca043ac2048ee5")),
-        .package(url: "https://github.com/zenangst/Apps.git", .revision("98b33d6236cfe912d4accf4e0365fb327b9bca51")),
-        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("da2e31025dd44f099058a59d33cd4519ca243761")),
-        .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
-        .package(url: "https://github.com/zenangst/DynamicNotchKit", .revision("40abe91486627499783f470c4dedb5267df2f0be")),
-        .package(url: "https://github.com/zenangst/InputSources.git", from: "1.1.0"),
-        .package(url: "https://github.com/zenangst/Intercom.git", .revision("5a340e185e571d058c09ab8b8ad8716098282443")),
-        .package(url: "https://github.com/zenangst/KeyCodes.git", from: "5.0.0"),
-        .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.2"),
-        .package(url: "https://github.com/zenangst/MachPort.git", .revision("6cc17710f7890cdda6cf197573c05a5e767d67af")),
-        .package(url: "https://github.com/zenangst/Windows.git", from: "1.2.2"),
+        .package(url: "https://github.com/zenangst/AXEssibility.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/Apps.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/Bonzai.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/Dock.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/DynamicNotchKit", .branch("main")),
+        .package(url: "https://github.com/zenangst/InputSources.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/Intercom.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/KeyCodes.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/LaunchArguments.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/MachPort.git", .branch("main")),
+        .package(url: "https://github.com/zenangst/Windows.git", .branch("main")),
       ]
     }
     return packages
