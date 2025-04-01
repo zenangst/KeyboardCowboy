@@ -96,6 +96,7 @@ final class Core {
     scriptCommandRunner: scriptCommandRunner,
     shortcutStore: shortcutStore,
     snippetController: snippetController,
+    spaces: spaces,
     uiElementCaptureStore: uiElementCaptureStore,
     workspace: .shared)
   lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
@@ -160,6 +161,8 @@ final class Core {
       }
       configurationStore.update(configuration)
   })
+
+  lazy private(set) var spaces: SpacesCoordinator = SpacesCoordinator(store: keyCodeStore)
 
   init() { }
 }

@@ -22,6 +22,7 @@ final class KeyboardCowboyEngine {
   private let workspace: NSWorkspace
   private let workspacePublisher: WorkspacePublisher
   private let uiElementCaptureStore: UIElementCaptureStore
+  private let spaces: SpacesCoordinator
 //  private let applicationWindowObserver: ApplicationWindowObserver
 
   private var pendingPermissionsSubscription: AnyCancellable?
@@ -42,6 +43,7 @@ final class KeyboardCowboyEngine {
        scriptCommandRunner: ScriptCommandRunner,
        shortcutStore: ShortcutStore,
        snippetController: SnippetController,
+       spaces: SpacesCoordinator,
        uiElementCaptureStore: UIElementCaptureStore,
        workspace: NSWorkspace = .shared) {
     self.applicationActivityMonitor = applicationActivityMonitor
@@ -59,6 +61,7 @@ final class KeyboardCowboyEngine {
     self.workspace = workspace
     self.workspacePublisher = WorkspacePublisher(workspace)
     self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
+    self.spaces = spaces
 
     guard KeyboardCowboyApp.env() != .previews else { return }
 
@@ -101,7 +104,11 @@ final class KeyboardCowboyEngine {
           machPortCoordinator.receiveFlagsChanged($0, allowsEscapeFallback: allowsEscapeFallback)
           keyCache.handle($0.event)
         },
-        onEventChange: { [machPortCoordinator, modifierTriggerController, leaderKey] in
+        onEventChange: { [machPortCoordinator, modifierTriggerController, leaderKey, spaces] in
+          if spaces.intercept($0) {
+            return
+          }
+
           let allowsEscapeFallback: Bool
           if machPortCoordinator.mode == .intercept ||
              machPortCoordinator.mode == .recordMacro {
@@ -156,6 +163,7 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
     modifierTriggerController.subscribe(to: contentStore.groupStore.$groups)
     applicationActivityMonitor.subscribe(to: UserSpace.shared.$frontmostApplication)
+    spaces.subscribe(to: UserSpace.shared.$frontmostApplication)
 
 //    WindowSpace.shared.subscribe(to: UserSpace.shared.$frontmostApplication)
 //    applicationWindowObserver.subscribe(to: UserSpace.shared.$frontmostApplication)
