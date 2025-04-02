@@ -201,6 +201,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
       case .applicationWindows: .systemCommand(kind: .applicationWindows)
       case .minimizeAllOpenWindows: .systemCommand(kind: .minimizeAllOpenWindows)
       case .hideAllApps: .systemCommand(kind: .hideAllApps)
+      case .fillAllOpenWindows: .systemCommand(kind: .fillAllOpenWindows)
       case .missionControl: .systemCommand(kind: .missionControl)
       case .moveFocusToNextWindowOnLeft: .windowFocus(kind: .moveFocusToNextWindowOnLeft)
       case .moveFocusToNextWindowOnRight: .windowFocus(kind: .moveFocusToNextWindowOnRight)

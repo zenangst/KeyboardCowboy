@@ -8,6 +8,7 @@ enum SystemIconBuilder {
     case .applicationWindows:                MissionControlIconView(size: size)
     case .minimizeAllOpenWindows:            MinimizeAllIconView(size: size)
     case .hideAllApps:                       HideAllIconView(size: size)
+    case .fillAllOpenWindows:                EmptyView() // TODO: Fix this!
     case .missionControl:                    MissionControlIconView(size: size)
     case .showDesktop:                       DockIconView(size: size)
 
