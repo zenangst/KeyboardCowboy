@@ -110,6 +110,7 @@ private extension Workflow {
             case .activateLastApplication:           return true
             case .applicationWindows:                return false
             case .hideAllApps:                       return false
+            case .fillAllOpenWindows:                return false
             case .minimizeAllOpenWindows:            return false
             case .missionControl:                    return false
             case .moveFocusToNextWindowUpperLeftQuarter: return false

@@ -7,6 +7,7 @@ final class SystemMigrator {
     case .applicationWindows: return .systemCommand(systemCommand)
     case .minimizeAllOpenWindows: return .systemCommand(systemCommand)
     case .hideAllApps: return .systemCommand(systemCommand)
+    case .fillAllOpenWindows: return .systemCommand(systemCommand)
     case .missionControl: return .systemCommand(systemCommand)
     case .showDesktop: return .systemCommand(systemCommand)
 

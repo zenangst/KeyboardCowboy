@@ -36,6 +36,8 @@ final class SystemCommandRunner: @unchecked Sendable {
                                             snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
           }
         }
+      case .fillAllOpenWindows:
+        await SystemFillAllWindowsRunner.run(snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
       case .hideAllApps:
         try await SystemHideAllAppsRunner.run(workflowCommands: workflowCommands)
       case .minimizeAllOpenWindows:

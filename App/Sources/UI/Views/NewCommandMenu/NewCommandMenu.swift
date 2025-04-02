@@ -637,6 +637,12 @@ fileprivate struct WindowMenu: View {
           Text("Minimize All Open Windows")
         }
       })
+      Button(action: { performUpdate(.fillAllOpenWindows) }, label: {
+        HStack {
+          Image(systemName: "rectangle.fill")
+          Text("Maximize All Open Windows")
+        }
+      })
 
       Divider()
 
