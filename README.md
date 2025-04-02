@@ -44,22 +44,24 @@ Once you've created your workflow, it will run automatically, without the need f
 By assigning frequently-used commands to the function key, you can streamline your workflow and save time. Overall, utilizing function keys can help you work more efficiently and effectively, making it a valuable tool for any programmer or power user.
 
 ### Wiki Quicklinks
-- [Groups](https://github.com/zenangst/KeyboardCowboy/wiki/Groups)
+- **[Groups](https://github.com/zenangst/KeyboardCowboy/wiki/Groups)**
   - [The Role of Groups](https://github.com/zenangst/KeyboardCowboy/wiki/Groups#the-role-of-groups)
   - [Flexibility and Ease of Use](https://github.com/zenangst/KeyboardCowboy/wiki/Groups#flexibility-and-ease-of-use)
-- [Workflows](https://github.com/zenangst/KeyboardCowboy/wiki/Workflows)
+- **[Workflows](https://github.com/zenangst/KeyboardCowboy/wiki/Workflows)**
   - [What Are Workflows?](https://github.com/zenangst/KeyboardCowboy/wiki/Workflows#what-are-workflows)
   - [Sequential Workflows](https://github.com/zenangst/KeyboardCowboy/wiki/Workflows#sequential-workflows)
   - [Concurrent Workflows](https://github.com/zenangst/KeyboardCowboy/wiki/Workflows#concurrent-workflows)
   - [How to Organize Workflows](https://github.com/zenangst/KeyboardCowboy/wiki/Workflows#how-to-organize-workflows)
-- [Triggers](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers)
+- **[Triggers](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers)**
   - [Triggers](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#triggers)
   - [Keyboard Shortcut Triggers](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#keyboard-shortcut-triggers)
+    - [Allow Repeat](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#allow-repeat)
+    - [Keep Last Partial Match](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#keep-last-partial-match)
     - [Passthrough Feature](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#passthrough-feature)
     - [Hold for X Seconds](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#hold-for-x-seconds)
   - [Application Triggers](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#application-triggers)
     - [Future Developments](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#future-developments)
-- [Commands](https://github.com/zenangst/KeyboardCowboy/wiki/Commands)
+- **[Commands](https://github.com/zenangst/KeyboardCowboy/wiki/Commands)**
   - [Applications Commands](https://github.com/zenangst/KeyboardCowboy/wiki/Commands#application-commands)
   - [Menu Bar Commands](https://github.com/zenangst/KeyboardCowboy/wiki/Commands#menu-bar-commands)
   - [URL Commands](https://github.com/zenangst/KeyboardCowboy/wiki/Commands#url-commands)
