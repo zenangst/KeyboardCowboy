@@ -79,11 +79,6 @@ extension BuiltInCommand {
     }
 
     init(from decoder: any Decoder) throws {
-      do {
-        self = try Self.migrate(decoder)
-        return
-      } catch { }
-
       let container = try decoder.container(keyedBy: BuiltInCommand.Kind.CodingKeys.self)
       var allKeys = ArraySlice(container.allKeys)
       guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
@@ -103,30 +98,6 @@ extension BuiltInCommand {
         self = BuiltInCommand.Kind.commandLine(action: try nestedContainer.decode(CommandLineAction.self, forKey: BuiltInCommand.Kind.CommandLineCodingKeys.action))
       case .windowSwitcher:
         self = BuiltInCommand.Kind.windowSwitcher
-      }
-    }
-
-    static func migrate(_ decoder: any Decoder) throws -> Kind {
-      let container = try decoder.container(keyedBy: BuiltInCommand.Kind.CodingKeys.self)
-      var allKeys = ArraySlice(container.allKeys)
-      guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
-        throw DecodingError.typeMismatch(BuiltInCommand.Kind.self, DecodingError.Context.init(codingPath: container.codingPath, debugDescription: "Invalid number of keys found, expected one.", underlyingError: nil))
-      }
-      switch onlyKey {
-      case .repeatLastWorkflow:
-        return BuiltInCommand.Kind.repeatLastWorkflow
-      case .macro:
-        let nestedContainer = try container.nestedContainer(keyedBy: BuiltInCommand.MigrationKind.MigrationCodingKeys.self, forKey: BuiltInCommand.Kind.CodingKeys.macro)
-        return BuiltInCommand.Kind.macro(action: try nestedContainer.decode(MacroAction.self, forKey: BuiltInCommand.MigrationKind.MigrationCodingKeys._0))
-      case .userMode:
-        let nestedContainer = try container.nestedContainer(keyedBy: BuiltInCommand.MigrationKind.MigrationCodingKeys.self, forKey: BuiltInCommand.Kind.CodingKeys.userMode)
-        return BuiltInCommand.Kind.userMode(mode: try nestedContainer.decode(UserMode.self, forKey: BuiltInCommand.MigrationKind.MigrationCodingKeys._0),
-                                            action: try nestedContainer.decode(BuiltInCommand.Kind.Action.self, forKey: BuiltInCommand.MigrationKind.MigrationCodingKeys._1))
-      case .commandLine:
-        let nestedContainer = try container.nestedContainer(keyedBy: BuiltInCommand.MigrationKind.MigrationCodingKeys.self, forKey: BuiltInCommand.Kind.CodingKeys.commandLine)
-        return BuiltInCommand.Kind.commandLine(action: try nestedContainer.decode(CommandLineAction.self, forKey: BuiltInCommand.MigrationKind.MigrationCodingKeys._0))
-      case .windowSwitcher:
-        return BuiltInCommand.Kind.windowSwitcher
       }
     }
   }

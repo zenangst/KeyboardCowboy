@@ -41,11 +41,7 @@ struct ApplicationCommand: MetaDataProviding {
     self.application = try container.decode(Application.self, forKey: .application)
     self.action = try container.decode(ApplicationCommand.Action.self, forKey: .action)
     self.modifiers = try container.decodeIfPresent(Set<ApplicationCommand.Modifier>.self, forKey: .modifiers) ?? []
-    do {
-      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-    } catch {
-      self.meta = try MetaDataMigrator.migrate(decoder)
-    }
+    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
 
   func encode(to encoder: any Encoder) throws {

@@ -39,13 +39,7 @@ extension TextCommand {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       self.input = try container.decode(String.self, forKey: .input)
       self.mode = try container.decodeIfPresent(Mode.self, forKey: .mode) ?? .instant
-
-      do {
-        self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-      } catch {
-        self.meta = try MetaDataMigrator.migrate(decoder)
-      }
-
+      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
       self.actions = try container.decodeIfPresent(Set<TypeCommand.Action>.self, forKey: .actions) ?? []
     }
 

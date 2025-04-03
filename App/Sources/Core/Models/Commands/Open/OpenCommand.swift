@@ -45,12 +45,7 @@ struct OpenCommand: MetaDataProviding {
 
     self.application = try container.decodeIfPresent(Application.self, forKey: .application)
     self.path = try container.decode(String.self, forKey: .path)
-
-    do {
-      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-    } catch {
-      self.meta = try MetaDataMigrator.migrate(decoder)
-    }
+    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
 
   func copy() -> OpenCommand {

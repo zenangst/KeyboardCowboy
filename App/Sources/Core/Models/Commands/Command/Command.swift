@@ -446,43 +446,4 @@ extension MetaDataProviding {
       }
     }
   }
-
-}
-
-enum MetaDataMigrator: String, CodingKey {
-  case id
-  case name
-  case isEnabled = "enabled"
-  case notification
-
-  static func migrate(_ decoder: Decoder) throws -> Command.MetaData {
-    Task {
-      await MainActor.run {
-        Migration.shouldSave = true
-      }
-    }
-    // Try and migrate from the previous data structure.
-    let container = try decoder.container(keyedBy: Command.MetaData.CodingKeys.self)
-    let id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-    let name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
-    let isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
-    let notification: Command.Notification?
-
-    if let notificationValue = try container.decodeIfPresent(Command.Notification.self, forKey: .notification) {
-      notification = notificationValue
-    } else if let notificationBool = try container.decodeIfPresent(Bool.self, forKey: .notification) {
-      if notificationBool {
-        notification = .bezel
-      } else {
-        notification = nil
-      }
-    } else {
-      notification = nil
-    }
-
-    let delay = try container.decodeIfPresent(Double.self, forKey: .delay)
-
-    return Command.MetaData(delay: delay, id: id, name: name,
-                            isEnabled: isEnabled, notification: notification)
-  }
 }

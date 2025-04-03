@@ -37,37 +37,7 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.key = try container.decode(String.self, forKey: .key)
-
-    if let lhs = try? migration.decodeIfPresent(Bool.self, forKey: .lhs) {
-      let migrateModifiers = (try? migration.decodeIfPresent([MigrateModifier].self, forKey: .modifiers)) ?? []
-      var modifiers: [ModifierKey] = []
-      if lhs {
-        migrateModifiers.forEach { modifier in
-          switch modifier {
-          case .capsLock: modifiers.append(.capsLock)
-          case .function: modifiers.append(.function)
-          case .command: modifiers.append(.leftCommand)
-          case .control: modifiers.append(.leftControl)
-          case .option: modifiers.append(.leftOption)
-          case .shift: modifiers.append(.leftShift)
-          }
-        }
-      } else {
-        migrateModifiers.forEach { modifier in
-          switch modifier {
-          case .capsLock: modifiers.append(.capsLock)
-          case .function: modifiers.append(.function)
-          case .command: modifiers.append(.rightCommand)
-          case .control: modifiers.append(.rightControl)
-          case .option: modifiers.append(.rightOption)
-          case .shift: modifiers.append(.rightShift)
-          }
-        }
-      }
-      self.modifiers = modifiers
-    } else {
-      self.modifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .modifiers) ?? []
-    }
+    self.modifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .modifiers) ?? []
   }
 
   func encode(to encoder: any Encoder) throws {
@@ -116,13 +86,4 @@ extension KeyShortcut {
     modifiers.forEach { flags.insert($0.cgEventFlags) }
     return flags
   }
-}
-
-private enum MigrateModifier: String, Decodable {
-  case shift = "$"
-  case function = "fn"
-  case control = "^"
-  case option = "~"
-  case command = "@"
-  case capsLock = "⇪"
 }
