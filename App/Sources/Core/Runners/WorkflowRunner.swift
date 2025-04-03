@@ -113,44 +113,7 @@ private extension Workflow {
             case .fillAllOpenWindows:                return false
             case .minimizeAllOpenWindows:            return false
             case .missionControl:                    return false
-            case .moveFocusToNextWindowUpperLeftQuarter: return false
-            case .moveFocusToNextWindowUpperRightQuarter: return false
-            case .moveFocusToNextWindowLowerLeftQuarter: return false
-            case .moveFocusToNextWindowLowerRightQuarter: return false
-            case .moveFocusToNextWindowOnLeft:        return false
-            case .moveFocusToNextWindowOnRight:       return false
-            case .moveFocusToNextWindowUpwards:       return false
-            case .moveFocusToNextWindowDownwards:     return false
-            case .moveFocusToNextWindowFront:         return false
-            case .moveFocusToNextWindowCenter:        return false
-            case .moveFocusToPreviousWindowFront:     return false
-            case .moveFocusToNextWindow:              return false
-            case .moveFocusToPreviousWindow:          return false
-            case .moveFocusToNextWindowGlobal:        return false
-            case .moveFocusToPreviousWindowGlobal:    return false
-            case .showDesktop:                        return false
-            case .windowTilingLeft:                   return true
-            case .windowTilingRight:                  return true
-            case .windowTilingTop:                    return true
-            case .windowTilingBottom:                 return true
-            case .windowTilingTopLeft:                return true
-            case .windowTilingTopRight:               return true
-            case .windowTilingBottomLeft:             return true
-            case .windowTilingBottomRight:            return true
-            case .windowTilingCenter:                 return true
-            case .windowTilingFill:                   return true
-            case .windowTilingZoom:                   return true
-            case .windowTilingArrangeLeftRight:       return true
-            case .windowTilingArrangeRightLeft:       return true
-            case .windowTilingArrangeTopBottom:       return true
-            case .windowTilingArrangeBottomTop:       return true
-            case .windowTilingArrangeLeftQuarters:    return true
-            case .windowTilingArrangeRightQuarters:   return true
-            case .windowTilingArrangeTopQuarters:     return true
-            case .windowTilingArrangeBottomQuarters:  return true
-            case .windowTilingArrangeDynamicQuarters: return true
-            case .windowTilingArrangeQuarters:        return true
-            case .windowTilingPreviousSize:           return true
+            case .showDesktop:                       return false
           }
         case .uiElement:                             return true
       case .windowFocus: return false

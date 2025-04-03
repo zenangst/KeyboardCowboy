@@ -249,7 +249,7 @@ enum DesignTime {
   }
 
   static var systemCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.SystemModel) {
-    let kind = CommandViewModel.Kind.SystemModel(id: UUID().uuidString, kind: .moveFocusToNextWindow)
+    let kind = CommandViewModel.Kind.SystemModel(id: UUID().uuidString, kind: .hideAllApps)
     return (.init(meta: metadata(name: "Run shortcut", icon: nil),
                  kind: .systemCommand(kind)), kind)
   }
