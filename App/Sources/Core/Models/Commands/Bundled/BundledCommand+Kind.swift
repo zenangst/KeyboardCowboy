@@ -40,11 +40,6 @@ extension BundledCommand {
     }
 
     init(from decoder: any Decoder) throws {
-      do {
-        self = try Self.migrate(decoder)
-        return
-      } catch { }
-
       let container = try decoder.container(keyedBy: BundledCommand.Kind.CodingKeys.self)
       var allKeys = ArraySlice(container.allKeys)
       guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
@@ -60,28 +55,6 @@ extension BundledCommand {
       case .tidy:
         let nestedContainer = try container.nestedContainer(keyedBy: BundledCommand.Kind.TidyCodingKeys.self, forKey: BundledCommand.Kind.CodingKeys.tidy)
         self = BundledCommand.Kind.tidy(command: try nestedContainer.decode(WindowTidyCommand.self, forKey: BundledCommand.Kind.TidyCodingKeys.command))
-      }
-    }
-
-    static func migrate(_ decoder: any Decoder) throws -> Kind {
-      let container = try decoder.container(keyedBy: BundledCommand.MigrationKind.CodingKeys.self)
-      var allKeys = ArraySlice(container.allKeys)
-      guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
-        throw DecodingError.typeMismatch(BundledCommand.Kind.self, DecodingError.Context.init(codingPath: container.codingPath, debugDescription: "Invalid number of keys found, expected one.", underlyingError: nil))
-      }
-      switch onlyKey {
-      case .workspace:
-        let nestedContainer = try container.nestedContainer(keyedBy: BundledCommand.MigrationKind.WorkspaceCodingKeys.self, forKey: BundledCommand.MigrationKind.CodingKeys.workspace)
-        let command = try nestedContainer.decode(WorkspaceCommand.self, forKey: BundledCommand.MigrationKind.WorkspaceCodingKeys._0)
-        return BundledCommand.Kind.workspace(command: command)
-      case .appFocus:
-        let nestedContainer = try container.nestedContainer(keyedBy: BundledCommand.MigrationKind.WorkspaceCodingKeys.self, forKey: BundledCommand.MigrationKind.CodingKeys.appFocus)
-        let command = try nestedContainer.decode(AppFocusCommand.self, forKey: BundledCommand.MigrationKind.WorkspaceCodingKeys._0)
-        return BundledCommand.Kind.appFocus(command: command)
-      case .tidy:
-        let nestedContainer = try container.nestedContainer(keyedBy: BundledCommand.MigrationKind.WorkspaceCodingKeys.self, forKey: BundledCommand.MigrationKind.CodingKeys.tidy)
-        let command = try nestedContainer.decode(WindowTidyCommand.self, forKey: BundledCommand.MigrationKind.WorkspaceCodingKeys._0)
-        return BundledCommand.Kind.tidy(command: command)
       }
     }
   }

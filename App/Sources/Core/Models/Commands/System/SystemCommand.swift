@@ -18,11 +18,7 @@ struct SystemCommand: MetaDataProviding {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.kind = try container.decode(Kind.self, forKey: .kind)
-    do {
-      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-    } catch {
-      self.meta = try MetaDataMigrator.migrate(decoder)
-    }
+    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
 
   func copy() -> SystemCommand {
