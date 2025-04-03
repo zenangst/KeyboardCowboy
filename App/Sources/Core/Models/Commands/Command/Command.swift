@@ -242,9 +242,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       self = .text(command)
     case .system:
       let command = try container.decode(SystemCommand.self, forKey: .system)
-      self = SystemMigrator.migrateIfNeeded(command)
-      if case .windowFocus = self { Task { @MainActor in Migration.shouldSave = true } }
-      if case .windowTiling = self { Task { @MainActor in Migration.shouldSave = true } }
+      self = .systemCommand(command)
     case .uiElement:
       let command = try container.decode(UIElementCommand.self, forKey: .uiElement)
       self = .uiElement(command)
