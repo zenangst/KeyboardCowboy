@@ -159,11 +159,6 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   case windowManagement(WindowManagementCommand)
   case windowTiling(WindowTilingCommand)
 
-  enum MigrationKeys: String, CodingKey, CaseIterable {
-    case type = "typeCommand"
-    case windowCommand = "windowCommand"
-  }
-
   enum CodingKeys: String, CodingKey, CaseIterable {
     case application = "applicationCommand"
     case builtIn = "builtInCommand"
@@ -193,21 +188,6 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
 
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    let migration = try decoder.container(keyedBy: MigrationKeys.self)
-
-    switch migration.allKeys.first {
-    case .type:
-      if let command = try? migration.decode(TextCommand.TypeCommand.self, forKey: .type) {
-        self = .text(.init(.insertText(command)))
-        return
-      }
-    case .windowCommand:
-      if let command = try? migration.decode(WindowManagementCommand.self, forKey: .windowCommand) {
-        self = .windowManagement(command)
-        return
-      }
-    case .none: break
-    }
 
     switch container.allKeys.first {
     case .application:

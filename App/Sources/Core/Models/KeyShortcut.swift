@@ -20,11 +20,6 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
     case modifiers
   }
 
-  enum MigrationKeys: String, CodingKey {
-    case lhs
-    case modifiers
-  }
-
   init(id: String = UUID().uuidString, key: String, modifiers: [ModifierKey] = []) {
     self.id = id
     self.key = key
@@ -33,7 +28,6 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
 
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    let migration = try decoder.container(keyedBy: MigrationKeys.self)
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.key = try container.decode(String.self, forKey: .key)

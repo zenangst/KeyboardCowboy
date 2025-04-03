@@ -1,23 +1,6 @@
 import Foundation
 
 extension BundledCommand {
-  // MARK: Migration from 3.26.1 -> 3.27.0
-  enum MigrationKind: Codable, Hashable {
-    case workspace(WorkspaceCommand)
-    case appFocus(AppFocusCommand)
-    case tidy(WindowTidyCommand)
-
-    enum CodingKeys: CodingKey {
-      case workspace
-      case appFocus
-      case tidy
-    }
-
-    enum WorkspaceCodingKeys: CodingKey {
-      case _0
-    }
-  }
-
   enum Kind: Codable, Hashable, Identifiable {
     case workspace(command: WorkspaceCommand)
     case appFocus(command: AppFocusCommand)
