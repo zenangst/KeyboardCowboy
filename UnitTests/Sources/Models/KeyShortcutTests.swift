@@ -84,7 +84,6 @@ final class KeyShortcutTests: XCTestCase {
     {
       "id": "\(id)",
       "key": "A",
-      "lhs": true,
       "modifiers": ["$"]
     }
     """.data(using: .utf8)!
@@ -102,8 +101,7 @@ final class KeyShortcutTests: XCTestCase {
     {
       "id": "\(id)",
       "key": "A",
-      "lhs": false,
-      "modifiers": ["$"]
+      "modifiers": ["r$"]
     }
     """.data(using: .utf8)!
 
@@ -138,8 +136,7 @@ final class KeyShortcutTests: XCTestCase {
     {
       "id": "\(id)",
       "key": "A",
-      "lhs": false,
-      "modifiers": ["fn", "$", "^", "~", "@", "⇪"]
+      "modifiers": ["fn", "r$", "r^", "r~", "r@", "⇪"]
     }
     """.data(using: .utf8)!
 
