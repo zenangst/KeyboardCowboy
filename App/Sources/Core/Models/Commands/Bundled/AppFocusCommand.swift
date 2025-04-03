@@ -67,7 +67,6 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
     runningApplication?.activate(options: .activateAllWindows)
 
-
     var waitingForActivation: Bool = true
     var timeout: TimeInterval = 0
 
@@ -113,9 +112,11 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     if numberOfAppWindows == 0 { return [] }
 
     if hideOtherApps && !aerospaceIsRunning {
-      try await SystemHideAllAppsRunner.run(workflowCommands: [
-        .application(.init(action: .open, application: application, meta: Command.MetaData(delay: nil, name: "Hide All Apps"), modifiers: []))
-      ])
+      try await SystemHideAllAppsRunner.run(
+        targetApplication: application,
+        workflowCommands: [
+          Command.application(.init(action: .open, application: application, meta: Command.MetaData(delay: nil, name: "Hide All Apps"), modifiers: []))
+        ])
     }
 
     let windowTiling: WindowTiling?

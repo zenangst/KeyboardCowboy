@@ -25,6 +25,13 @@ final class WindowManagementWindowToNextDisplay {
     let nextDisplay = displays[nextIndex]
 
     moveWindowToNextDisplay(window, to: nextDisplay, from: currentScreen)
+
+    // Move the mouse to the window on the next monitor.
+    guard let frame = window.frame else { return }
+    let midPoint = CGPoint(x: frame.midX,
+                           y: frame.midY)
+    NSCursor.moveCursor(to: midPoint)
+
   }
 
   static func moveWindowToNextDisplay(_ window: WindowAccessibilityElement, to screen: NSScreen, from currentScreen: NSScreen) {

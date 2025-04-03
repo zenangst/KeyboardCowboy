@@ -43,7 +43,6 @@ final class WindowFocusRelativeFocus {
       return
     }
 
-    let previousWindow = activeWindow
     let match = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction)
     let nextWindow = match?.window ?? activeWindow
 
@@ -57,102 +56,114 @@ final class WindowFocusRelativeFocus {
       try Task.checkCancellation()
 
       FocusBorder.shared.show(nextWindow.rect.mainDisplayFlipped)
+      axWindow.main = true
       axWindow.performAction(.raise)
 
-      let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
-      let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
-      let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect.mainDisplayFlipped) }) ?? NSScreen.screens[0]
-      let nextScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(targetPoint) }) ?? NSScreen.screens[0]
-      let previousTiling = WindowTilingRunner.calculateTiling(for: previousWindow.rect, ownerName: previousWindow.ownerName, in: previousScreen.visibleFrame.mainDisplayFlipped)
-      let nextTiling = WindowTilingRunner.calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: nextScreen.visibleFrame.mainDisplayFlipped)
+      let midPoint = CGPoint(x: frame.midX,
+                             y: frame.midY)
+      NSCursor.moveCursor(to: midPoint)
 
       if let frontmostApplication = NSWorkspace.shared.frontmostApplication,
          let nextApp = NSRunningApplication(processIdentifier: processIdentifier) {
-          swap(from: frontmostApplication, to: nextApp)
-      }
-
-      if nextTiling == .fill {
-        if previousScreen != nextScreen  {
-          let midPoint = CGPoint(x: frame.midX,
-                                 y: frame.midY)
-          NSCursor.moveCursor(to: midPoint)
-          return
+        if !swap(from: frontmostApplication, to: nextApp) {
+          fallback(frame: frame, direction: direction, axWindow: axWindow, nextWindow: nextWindow, previousWindow: activeWindow)
         }
-      }
-
-      var clickPoint: CGPoint
-
-      if Self.debug {
-        print("🔀", direction, "from", previousWindow.ownerName, "(\(previousTiling)) to", nextWindow.ownerName, "(\(nextTiling))")
-      }
-
-      switch(direction, previousTiling, nextTiling) {
-      case (.down, .topLeft, .left),
-           (.down, .left, .bottomLeft),
-           (.down, .bottomLeft, .left),
-           (.down, .topLeft, .bottomLeft):
-        clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
-      case (.down, .topRight, .right),
-           (.down, .topLeft, .bottomRight),
-           (.down, .right, .bottomRight),
-           (.down, .right, .right),
-           (.down, .bottomRight, .right),
-           (.down, .topRight, .bottomRight),
-           (.down, .left, .bottomRight),
-           (.right, .left, .bottom),
-           (.right, .left, .right),
-           (.right, .bottomLeft, .right):
-        clickPoint = CGPoint(x: frame.maxX, y: frame.maxY)
-      case (.left, .right, .topRight),
-           (.down, .right, .bottom):
-        clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
-      case (.down, .left, .bottom),
-           (.left, .bottomRight, .left),
-           (.down, .left, .left):
-        clickPoint = CGPoint(x: frame.minX, y: frame.minX)
-      case (.right, .bottomLeft, .center):
-        clickPoint = CGPoint(x: frame.midX + 1.5, y: frame.midY + 1.5)
-      case (.left, .right, .center), (.left, .bottomRight, .center):
-        clickPoint = CGPoint(x: frame.midX - 1.5, y: frame.midY - 1.5)
-      case (.left, .right, .left):
-        clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
-      default:
-        clickPoint = CGPoint(x: frame.midX, y: frame.minY)
-      }
-
-      // Adjust the clickpoint if tiled window borders are enabled..
-      if UserSettings.WindowManager.tiledWindowBorder {
-        clickPoint.y += 4
-      }
-
-      if Self.debug {
-        print("🐭", clickPoint)
-      }
-
-      // Verify that the window that we are trying to mouse click
-      // is actually the match that we got from `navigation.findNextWindow`
-      let systemElement = SystemAccessibilityElement()
-      let windowId = systemElement.element(at: clickPoint, as: AnyAccessibilityElement.self)?.window?.id
-      guard axWindow.id == windowId else {
-        NSCursor.moveCursor(to: targetPoint)
-        return
-      }
-
-      let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: clickPoint, mouseButton: .left)
-      mouseDown?.flags = .maskNonCoalesced
-      let mouseUp = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: clickPoint, mouseButton: .left)
-      mouseUp?.flags = .maskNonCoalesced
-
-      mouseDown?.post(tap: .cghidEventTap)
-      mouseUp?.post(tap: .cghidEventTap)
-
-      for _ in 0..<4 {
-        NSCursor.moveCursor(to: Self.mouseFollow ? targetPoint : originalPoint)
       }
     }
   }
 
   // MARK: Private methods
+
+  private func fallback(frame: CGRect,
+                        direction: Direction,
+                        axWindow: WindowAccessibilityElement,
+                        nextWindow: RelativeWindowModel, previousWindow: RelativeWindowModel) {
+    let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
+    let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
+    let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect.mainDisplayFlipped) }) ?? NSScreen.screens[0]
+    let nextScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(targetPoint) }) ?? NSScreen.screens[0]
+    let previousTiling = WindowTilingRunner.calculateTiling(for: previousWindow.rect, ownerName: previousWindow.ownerName, in: previousScreen.visibleFrame.mainDisplayFlipped)
+    let nextTiling = WindowTilingRunner.calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: nextScreen.visibleFrame.mainDisplayFlipped)
+
+    if nextTiling == .fill {
+      if previousScreen != nextScreen  {
+        let midPoint = CGPoint(x: frame.midX,
+                               y: frame.midY)
+        NSCursor.moveCursor(to: midPoint)
+        return
+      }
+    }
+
+    var clickPoint: CGPoint
+
+    if Self.debug {
+      print("🔀", direction, "from", previousWindow.ownerName, "(\(previousTiling)) to", nextWindow.ownerName, "(\(nextTiling))")
+    }
+
+    switch(direction, previousTiling, nextTiling) {
+    case (.down, .topLeft, .left),
+      (.down, .left, .bottomLeft),
+      (.down, .bottomLeft, .left),
+      (.down, .topLeft, .bottomLeft):
+      clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
+    case (.down, .topRight, .right),
+      (.down, .topLeft, .bottomRight),
+      (.down, .right, .bottomRight),
+      (.down, .right, .right),
+      (.down, .bottomRight, .right),
+      (.down, .topRight, .bottomRight),
+      (.down, .left, .bottomRight),
+      (.right, .left, .bottom),
+      (.right, .left, .right),
+      (.right, .bottomLeft, .right):
+      clickPoint = CGPoint(x: frame.maxX, y: frame.maxY)
+    case (.left, .right, .topRight),
+      (.down, .right, .bottom):
+      clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
+    case (.down, .left, .bottom),
+      (.left, .bottomRight, .left),
+      (.down, .left, .left):
+      clickPoint = CGPoint(x: frame.minX, y: frame.minX)
+    case (.right, .bottomLeft, .center):
+      clickPoint = CGPoint(x: frame.midX + 1.5, y: frame.midY + 1.5)
+    case (.left, .right, .center), (.left, .bottomRight, .center):
+      clickPoint = CGPoint(x: frame.midX - 1.5, y: frame.midY - 1.5)
+    case (.left, .right, .left):
+      clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
+    default:
+      clickPoint = CGPoint(x: frame.midX, y: frame.minY)
+    }
+
+    // Adjust the clickpoint if tiled window borders are enabled..
+    if UserSettings.WindowManager.tiledWindowBorder {
+      clickPoint.y += 4
+    }
+
+    if Self.debug {
+      print("🐭", clickPoint)
+    }
+
+    // Verify that the window that we are trying to mouse click
+    // is actually the match that we got from `navigation.findNextWindow`
+    let systemElement = SystemAccessibilityElement()
+    let windowId = systemElement.element(at: clickPoint, as: AnyAccessibilityElement.self)?.window?.id
+    guard axWindow.id == windowId else {
+      NSCursor.moveCursor(to: targetPoint)
+      return
+    }
+
+    let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: clickPoint, mouseButton: .left)
+    mouseDown?.flags = .maskNonCoalesced
+    let mouseUp = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: clickPoint, mouseButton: .left)
+    mouseUp?.flags = .maskNonCoalesced
+
+    mouseDown?.post(tap: .cghidEventTap)
+    mouseUp?.post(tap: .cghidEventTap)
+
+    for _ in 0..<4 {
+      NSCursor.moveCursor(to: Self.mouseFollow ? targetPoint : originalPoint)
+    }
+  }
 
   private func resolveAXWindow(_ window: RelativeWindowModel) -> WindowAccessibilityElement? {
     try? AppAccessibilityElement(pid_t(window.ownerPid))
@@ -160,12 +171,14 @@ final class WindowFocusRelativeFocus {
       .first(where: { $0.id == window.id })
   }
 
-  private func swap(from currentApplication: NSRunningApplication, to nextApplication: NSRunningApplication) {
+  private func swap(from currentApplication: NSRunningApplication, to nextApplication: NSRunningApplication) -> Bool {
+    let result: Bool
     if #available(macOS 14.0, *) {
-      nextApplication.activate(from: currentApplication)
+      result = nextApplication.activate(from: currentApplication, options: .activateIgnoringOtherApps)
     } else {
-      nextApplication.activate(options: [])
+      result = nextApplication.activate(options: [.activateIgnoringOtherApps])
     }
+    return result
   }
 
   private func getWindows() -> [WindowModel] {
