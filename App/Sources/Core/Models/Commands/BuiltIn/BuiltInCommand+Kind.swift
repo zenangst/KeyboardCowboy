@@ -1,17 +1,4 @@
 extension BuiltInCommand {
-  // MARK: Migration from 3.26.1 -> 3.27.0
-  enum MigrationKind: Codable {
-    case repeatLastWorkflow
-    case macro(MacroAction)
-    case userMode(UserMode, Kind.Action)
-    case commandLine(CommandLineAction)
-    case windowSwitcher
-
-    enum MigrationCodingKeys: CodingKey {
-      case _0,_1
-    }
-  }
-
   enum Kind: Codable, Hashable, Identifiable, Sendable {
     enum Action: String, Codable, Hashable, Sendable {
       case enable
