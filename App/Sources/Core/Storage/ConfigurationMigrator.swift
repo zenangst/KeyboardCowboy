@@ -99,7 +99,7 @@ final class ConfigurationMigrator {
   private func isSymbolicLink(atPath path: String) throws(ConfigurationMigratorError) -> Bool {
     do {
       if !fileManager.fileExists(atPath: path) {
-        throw ConfigurationMigratorError.fileDoesNotExist(path: path)
+        return false
       }
 
       let attributes = try fileManager.attributesOfItem(atPath: path)

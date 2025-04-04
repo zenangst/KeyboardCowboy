@@ -87,6 +87,10 @@ final class WindowCommandFocusRunner {
       )
     case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
       WindowFocusFrontmostWindow.run(kind: command.kind, snapshot: snapshot)
+    case .accordianLeft: WindowFocusAccordian.run(.left)
+    case .accordianRight: WindowFocusAccordian.run(.right)
+    case .accordianUp: WindowFocusAccordian.run(.up)
+    case .accordianDown: WindowFocusAccordian.run(.down)
     }
   }
 }

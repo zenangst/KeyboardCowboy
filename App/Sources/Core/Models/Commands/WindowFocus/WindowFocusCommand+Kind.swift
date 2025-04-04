@@ -2,6 +2,11 @@ extension WindowFocusCommand {
   enum Kind: String, Identifiable, CaseIterable, Codable {
     var id: String { rawValue }
 
+    case accordianLeft
+    case accordianRight
+    case accordianUp
+    case accordianDown
+
     case moveFocusToNextWindowOnLeft
     case moveFocusToNextWindowOnRight
     case moveFocusToNextWindowUpwards
@@ -23,6 +28,10 @@ extension WindowFocusCommand {
 
     var displayValue: String {
       switch self {
+      case .accordianLeft:                 "Accordian Left"
+      case .accordianDown:                  "Accordian Down"
+      case .accordianRight:                "Accordian Right"
+      case .accordianUp:                   "Accordian Up"
       case .moveFocusToNextWindowGlobal:     "Move Focus to Next Window (All Windows)"
       case .moveFocusToPreviousWindowGlobal: "Move Focus to Previous window (All Windows)"
       case .moveFocusToNextWindow:           "Move Focus to Next Window"
@@ -43,6 +52,11 @@ extension WindowFocusCommand {
 
     var symbol: String {
       switch self {
+      case .accordianDown:                  "arrow.down.circle"
+      case .accordianLeft:                 "arrow.left.circle"
+      case .accordianRight:                "arrow.right.circle"
+      case .accordianUp:                   "arrow.up.circle"
+
       case .moveFocusToNextWindowOnLeft:     "arrow.left.circle"
       case .moveFocusToNextWindowOnRight:    "arrow.right.circle"
       case .moveFocusToNextWindowUpwards:    "arrow.up.circle"

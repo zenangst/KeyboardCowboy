@@ -4,6 +4,10 @@ enum WindowFocusIconBuilder {
   @ViewBuilder @MainActor
   static func icon(_ kind: WindowFocusCommand.Kind?, size: CGFloat) -> some View {
     switch kind {
+    case .accordianUp: EmptyView()
+    case .accordianDown: EmptyView()
+    case .accordianLeft: EmptyView()
+    case .accordianRight: EmptyView()
     case .moveFocusToNextWindow:             MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
     case .moveFocusToNextWindowFront:        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
     case .moveFocusToNextWindowGlobal:       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
