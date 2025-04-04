@@ -39,7 +39,13 @@ final class SystemCommandRunner: @unchecked Sendable {
       case .fillAllOpenWindows:
         await SystemFillAllWindowsRunner.run(snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
       case .hideAllApps:
-        try await SystemHideAllAppsRunner.run(workflowCommands: workflowCommands)
+        let targetApplication: Application? = workflowCommands.compactMap {
+          switch $0 {
+          case .application(let command): command.application
+          default: nil
+          }
+        }.last
+        try await SystemHideAllAppsRunner.run(targetApplication: targetApplication, checkCancellation: checkCancellation, workflowCommands: workflowCommands)
       case .minimizeAllOpenWindows:
         guard let machPort else { return }
         try SystemMinimizeAllWindows.run(snapshot, machPort: machPort)

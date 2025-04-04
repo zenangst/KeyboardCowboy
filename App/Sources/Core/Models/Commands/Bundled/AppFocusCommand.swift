@@ -31,7 +31,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
   }
 
   @MainActor
-  func commands(_ applications: [Application]) async throws -> [Command] {
+  func commands(_ applications: [Application], checkCancellation: Bool) async throws -> [Command] {
     let aerospaceIsRunning = NSWorkspace.shared.runningApplications
       .first(where: { $0.bundleIdentifier == "bobko.aerospace" })
     != nil
@@ -114,6 +114,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     if hideOtherApps && !aerospaceIsRunning {
       try await SystemHideAllAppsRunner.run(
         targetApplication: application,
+        checkCancellation: checkCancellation,
         workflowCommands: [
           Command.application(.init(action: .open, application: application, meta: Command.MetaData(delay: nil, name: "Hide All Apps"), modifiers: []))
         ])

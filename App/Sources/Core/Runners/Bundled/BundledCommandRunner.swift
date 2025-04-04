@@ -23,7 +23,7 @@ final class BundledCommandRunner: Sendable {
     switch bundledCommand.kind {
     case .appFocus(let focusCommand):
       let applications = applicationStore.applications
-      let commands = try await focusCommand.commands(applications)
+      let commands = try await focusCommand.commands(applications, checkCancellation: checkCancellation)
       for command in commands {
         try Task.checkCancellation()
         switch command {
