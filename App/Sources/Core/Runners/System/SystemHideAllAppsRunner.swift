@@ -8,7 +8,7 @@ import Windows
 final class SystemHideAllAppsRunner {
   @MainActor static var machPort: MachPortEventController?
 
-  static func run(targetApplication: Application? = nil, workflowCommands: [Command]) async throws {
+  static func run(targetApplication: Application? = nil, checkCancellation: Bool, workflowCommands: [Command]) async throws {
     guard let currentScreen = NSScreen.main else { return }
 
     var targetScreenFrame: CGRect = currentScreen.visibleFrame
@@ -19,22 +19,26 @@ final class SystemHideAllAppsRunner {
     }
 
     var (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
-                                                              targetPid: nil, exceptBundleIdentifiers: exceptBundleIdentifiers)
+                                                              targetPid: nil, options: [.excludeDesktopElements, .optionOnScreenOnly],
+                                                              exceptBundleIdentifiers: exceptBundleIdentifiers)
 
-    if let targetApplication, NSScreen.screens.count > 1,
-       let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == targetApplication.bundleIdentifier }),
-       !processIdentifiers.contains(Int(app.processIdentifier)) {
+    if let targetApplication, NSScreen.screens.count > 1 {
+      // Find target application
+      if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == targetApplication.bundleIdentifier }) {
+        if !processIdentifiers.contains(Int(app.processIdentifier)) {
+          for screen in NSScreen.screens where screen != currentScreen {
+            let windows = indexWindowsInStage(getWindows(options: [.excludeDesktopElements]), targetRect: screen.visibleFrame)
+            let pids = Set(windows.map(\.ownerPid.rawValue))
 
-      for screen in NSScreen.screens where screen != currentScreen {
-        let windows = indexWindowsInStage(getWindows(), targetRect: screen.visibleFrame)
-        let pids = Set(windows.map(\.ownerPid.rawValue))
-
-        if pids.contains(Int(app.processIdentifier)) {
-          targetScreenFrame = screen.visibleFrame
-          (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
-                                                                targetPid: Int(app.processIdentifier),
-                                                                exceptBundleIdentifiers: exceptBundleIdentifiers)
-          break
+            if pids.contains(Int(app.processIdentifier)) {
+              targetScreenFrame = screen.visibleFrame
+              (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
+                                                                    targetPid: Int(app.processIdentifier),
+                                                                    options: [.excludeDesktopElements],
+                                                                    exceptBundleIdentifiers: exceptBundleIdentifiers)
+              break
+            }
+          }
         }
       }
     }
@@ -68,12 +72,16 @@ final class SystemHideAllAppsRunner {
     let frontMostPid: Set<Int> = [Int(NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0)]
 
     while waitingForWindowsToDisappear {
+      if checkCancellation {
+        try Task.checkCancellation()
+      }
+
       if timeout >= 10 {
         waitingForWindowsToDisappear = false
         return
       }
 
-      let windows = indexWindowsInStage(getWindows(), targetRect: targetScreenFrame)
+      let windows = indexWindowsInStage(getWindows(options: [.optionOnScreenOnly, .excludeDesktopElements]), targetRect: targetScreenFrame)
       let windowsProcessIds = Set(windows.map(\.ownerPid.rawValue))
 
       if windowsProcessIds == frontMostPid, windowsProcessIds.isDisjoint(with: processIdentifiers) {
@@ -86,8 +94,10 @@ final class SystemHideAllAppsRunner {
     }
   }
 
-  private static func runningApplications(in targetRect: CGRect, targetApplication: Application? = nil, targetPid: Int?, exceptBundleIdentifiers: [String]) -> (Set<Int>, [NSRunningApplication]) {
-    let processIdentifiers = Set(indexWindowsInStage(getWindows(), targetRect: targetRect)
+  private static func runningApplications(in targetRect: CGRect, targetApplication: Application? = nil,
+                                          targetPid: Int?, options: CGWindowListOption,
+                                          exceptBundleIdentifiers: [String]) -> (Set<Int>, [NSRunningApplication]) {
+    let processIdentifiers = Set(indexWindowsInStage(getWindows(options: options), targetRect: targetRect)
       .map(\.ownerPid.rawValue))
       .filter({ $0 != targetPid })
 
@@ -116,10 +126,8 @@ final class SystemHideAllAppsRunner {
 
   // MARK: Private methods
 
-  private static func getWindows() -> [WindowModel] {
-    let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
-    let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
-    return windowModels
+  private static func getWindows(options: CGWindowListOption) -> [WindowModel] {
+    ((try? WindowsInfo.getWindows(options)) ?? [])
   }
 
   private static func indexWindowsInStage(_ models: [WindowModel], targetRect: CGRect) -> [WindowModel] {
@@ -129,7 +137,6 @@ final class SystemHideAllAppsRunner {
       .filter {
         $0.id > 0 &&
         $0.ownerName != "borders" &&
-        $0.isOnScreen &&
         $0.rect.size.width > minimumSize.width &&
         $0.rect.size.height > minimumSize.height &&
         $0.alpha == 1 &&
