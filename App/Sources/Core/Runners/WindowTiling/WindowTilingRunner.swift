@@ -345,6 +345,20 @@ final class WindowTilingRunner {
         try Task.checkCancellation()
         match.performAction(.pick)
 
+        let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
+        let matchingScreen = NSScreen.screens.first { screen in
+          screen.frame.contains(originalPoint)
+        }
+
+        if matchingScreen != NSScreen.main {
+          if let axWindow = try? app.windows().first(where: { $0.id == nextWindow.id }),
+             let windowFrame = axWindow.frame {
+            let midPoint = CGPoint(x: windowFrame.midX,
+                                   y: windowFrame.midY)
+            NSCursor.moveCursor(to: midPoint)
+          }
+        }
+
         if !updateSubjects.isEmpty {
           try await Task.sleep(for: .milliseconds(325))
 
