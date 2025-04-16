@@ -57,7 +57,14 @@ struct KeyboardCowboyApp: App {
                      onAction: { action in coordinator.handle(action) })
     .commands {
       CommandGroup(after: .appSettings) {
-        AppMenu()
+        AppMenu(modePublisher: KeyboardCowboyModePublisher(source: core.machPortCoordinator.$mode)) { newValue in
+          if newValue {
+            core.machPortCoordinator.startIntercept()
+          } else {
+            core.machPortCoordinator.disable()
+          }
+        }
+
         Button {
           windowOpener.openReleaseNotes()
         } label: { Text("What's new?") }

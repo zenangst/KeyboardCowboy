@@ -72,8 +72,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     mode = .captureUIElement
   }
 
-  func stopCapturingUIElement() {
+  func startIntercept() {
     mode = .intercept
+  }
+
+  func disable() {
+    mode = .disabled
   }
 
   func subscribe(to publisher: Published<KeyboardCowboyMode?>.Publisher) {

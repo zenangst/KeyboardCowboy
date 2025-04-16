@@ -22,6 +22,7 @@ struct AppMenuBarExtras: Scene {
   @EnvironmentObject private var openWindow: WindowOpener
   @ObservedObject private var keyboardCleaner: KeyboardCleaner
 
+  private let machPortCoordinator: MachPortCoordinator
   private let core: Core
   private let contentStore: ContentStore
   private let onAction: (Action) -> Void
@@ -29,6 +30,7 @@ struct AppMenuBarExtras: Scene {
   init(core: Core, contentStore: ContentStore, keyboardCleaner: KeyboardCleaner, onAction: @escaping (Action) -> Void) {
     self.core = core
     self.contentStore = contentStore
+    self.machPortCoordinator = core.machPortCoordinator
     self.onAction = onAction
     _keyboardCleaner = .init(initialValue: keyboardCleaner)
   }
@@ -36,7 +38,13 @@ struct AppMenuBarExtras: Scene {
   var body: some Scene {
     MenuBarExtra(content: {
       Button { onAction(.openMainWindow) } label: { Text("Open \(applicationName)") }
-      AppMenu()
+      AppMenu(modePublisher: KeyboardCowboyModePublisher(source: core.machPortCoordinator.$mode)) { newValue in
+        if newValue {
+          core.machPortCoordinator.startIntercept()
+        } else {
+          core.machPortCoordinator.disable()
+        }
+      }
       Divider()
 
       Button { onAction(.openKeyViewer) } label: { Text("Key Viewer") }
