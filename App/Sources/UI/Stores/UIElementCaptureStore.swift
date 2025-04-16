@@ -70,7 +70,7 @@ final class UIElementCaptureStore: ObservableObject {
   }
 
   func stopCapturing() {
-    coordinator?.stopCapturingUIElement()
+    coordinator?.startIntercept()
     UserModeWindow.shared.show([])
     windowCoordinator.close()
     capturedElement = nil
