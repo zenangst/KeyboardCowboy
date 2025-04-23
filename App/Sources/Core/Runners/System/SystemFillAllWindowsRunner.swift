@@ -6,8 +6,14 @@ import Cocoa
 final class SystemFillAllWindowsRunner {
   static func run(snapshot: UserSpace.Snapshot) async {
     Task {
+      guard let screen = NSScreen.main else { return }
+
+      let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager")
+      let spacing = max(CGFloat(userDefaults?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
       let windows = snapshot.windows.visibleWindowsInSpace.reversed()
-      for window in windows {
+      let windowCount = windows.count
+
+      for (index, window) in windows.enumerated() {
         guard let runningApplication = NSWorkspace.shared.runningApplications
           .first(where: { $0.processIdentifier == window.ownerPid.rawValue }) else { continue }
 
@@ -15,6 +21,18 @@ final class SystemFillAllWindowsRunner {
         guard let window = try? appElement.windows().first(where: { $0.id == window.id }) else { return }
 
         window.main = true
+
+        var finalFrame = screen.visibleFrame
+          .insetBy(dx: spacing, dy: spacing)
+
+        let offset = abs(screen.frame.size.height - screen.visibleFrame.size.height)
+        finalFrame.origin.y += offset
+
+        if index != windowCount - 1 {
+          if finalFrame == window.frame {
+            continue
+          }
+        }
 
         if #available(macOS 14.0, *) {
           runningApplication.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateIgnoringOtherApps)
