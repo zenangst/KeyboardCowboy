@@ -50,7 +50,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
   let runners: Runners
 
-  private var notchInfo: DynamicNotchInfo = DynamicNotchInfo(title: "")
+  @MainActor private var notchInfo: DynamicNotchInfo = DynamicNotchInfo(icon: nil, title: "")
 
   @MainActor
   var lastExecutedCommand: Command?
@@ -286,12 +286,14 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   func run(_ command: Command, workflowCommands: [Command], snapshot: UserSpace.Snapshot,
            machPortEvent: MachPortEvent, checkCancellation: Bool, repeatingEvent: Bool,
            runtimeDictionary: inout [String: String]) async throws {
-    let contentID = UUID()
     switch command.notification {
     case .bezel:
-      await MainActor.run {
-        notchInfo.setContent(contentID: contentID, title: command.name, description: "Running...")
-        notchInfo.show(on: NSScreen.main ?? NSScreen.screens[0], for: 10.0)
+      Task { @MainActor in
+        notchInfo.title = LocalizedStringKey(stringLiteral: command.name)
+        notchInfo.description = "Running…"
+        await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
+        try await Task.sleep(for: .seconds(10))
+        await notchInfo.hide()
       }
     case .capsule:
       let capsule = await CapsuleNotificationWindow.shared
@@ -437,10 +439,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
     switch command.notification {
     case .bezel:
-      await MainActor.run {
+      Task { @MainActor in
         lastExecutedCommand = command
-        notchInfo.setContent(contentID: contentID, title: output, description: nil)
-        notchInfo.show(on: NSScreen.main ?? NSScreen.screens[0], for: 2.0)
+        notchInfo.title = LocalizedStringKey(stringLiteral: output)
+        notchInfo.description = nil
+        await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
+        try await Task.sleep(for: .seconds(2))
+        await notchInfo.hide()
       }
     case .capsule:
       let capsule = await CapsuleNotificationWindow.shared

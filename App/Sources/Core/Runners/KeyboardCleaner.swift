@@ -2,15 +2,22 @@ import AppKit
 import DynamicNotchKit
 import Foundation
 import MachPort
+import SwiftUI
 
 @MainActor
 final class KeyboardCleaner: ObservableObject {
-  private lazy var notchInfo = DynamicNotchInfo(title: "") { KeyboardCleanerIcon(size: 24) }
+
+  private lazy var notchInfo = DynamicNotchInfo.init(icon: .init(content: { KeyboardCleanerIcon(size: 24) }), title: "")
   @Published var isEnabled: Bool = false {
     didSet {
       let title = isEnabled ? "Keyboard Cleaner enabled" : "Keyboard Cowboy disabled"
-      notchInfo.setContent(title: title, iconView: KeyboardCleanerIcon(size: 36))
-      notchInfo.show(on: NSScreen.main ?? NSScreen.screens[0], for: isEnabled ? 5.0 : 2.0)
+      notchInfo.title = LocalizedStringKey(stringLiteral: title)
+      notchInfo.icon = .init { KeyboardCleanerIcon(size: 36) }
+      Task {
+        await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
+        try await Task.sleep(for: .seconds(2))
+        await notchInfo.hide()
+      }
     }
   }
 
