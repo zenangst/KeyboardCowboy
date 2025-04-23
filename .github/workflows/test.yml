@@ -4,10 +4,10 @@ name: Test
 jobs:
   test:
     name: Test
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
         matrix:
-          xcode: ['16.2']
+          xcode: ['16.3']
     steps:
       - name: Set Xcode ${{ matrix.xcode }}
         run: |
