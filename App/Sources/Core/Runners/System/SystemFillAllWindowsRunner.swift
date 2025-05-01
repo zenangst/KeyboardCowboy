@@ -20,8 +20,6 @@ final class SystemFillAllWindowsRunner {
         let appElement = AppAccessibilityElement(runningApplication.processIdentifier)
         guard let window = try? appElement.windows().first(where: { $0.id == window.id }) else { return }
 
-        window.main = true
-
         var finalFrame = screen.visibleFrame
           .insetBy(dx: spacing, dy: spacing)
 
@@ -33,6 +31,8 @@ final class SystemFillAllWindowsRunner {
             continue
           }
         }
+
+        window.main = true
 
         if #available(macOS 14.0, *) {
           runningApplication.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateIgnoringOtherApps)
