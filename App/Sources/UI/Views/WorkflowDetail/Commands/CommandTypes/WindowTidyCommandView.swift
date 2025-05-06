@@ -21,7 +21,7 @@ struct WindowTidyCommandView: View {
       Menu {
         ForEach(applicationStore.applications) { application in
           Button(action: {
-            if model.rules.contains(where: { $0.application != application }) {
+            if !model.rules.contains(where: { $0.application == application }) {
               model.rules.append(.init(application: application, tiling: .left))
               onRulesChange(model.rules)
             }
