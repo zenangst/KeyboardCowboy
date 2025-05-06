@@ -94,7 +94,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           action = .unhide
           name = "Fallback open/unhide \(application.displayName)"
         } else {
-          action = .unhide
+          action = tiling == nil ? .open : .unhide
           name = "Open \(application.displayName)"
         }
       }
