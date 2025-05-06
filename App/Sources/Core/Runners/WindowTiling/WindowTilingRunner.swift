@@ -1,6 +1,8 @@
 import AXEssibility
+import Bonzai
 import Cocoa
 import Foundation
+import SwiftUI
 import Windows
 
 final class WindowTilingRunner {
@@ -9,7 +11,7 @@ final class WindowTilingRunner {
   @MainActor private static var storage = [WindowModel.WindowNumber: TileStorage]()
   private static let tilingWindowSpacingKey: String = "TiledWindowSpacing"
 
-  static func initialIndex() {
+  static func index() {
     Task {
       let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
       for screen in NSScreen.screens {
@@ -54,16 +56,11 @@ final class WindowTilingRunner {
 
     let activatedTiling: WindowTiling
     let updateSubjects: [WindowModel]
-//    let currentTiling = SystemWindowTilingRunner.calculateTiling(
-//      for: nextWindow.rect,
-//      ownerName: nextWindow.ownerName,
-//      in: visibleScreenFrame
-//    )
 
     // Pre-cache window tiling for new windows.
     if await storage[nextWindow.windowNumber] == nil {
-      let tiling = calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
-      await store(tiling, for: nextWindow)
+      let currentTiling = await calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
+      await store(currentTiling, for: nextWindow)
     }
 
     switch tiling {
@@ -155,7 +152,9 @@ final class WindowTilingRunner {
         updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeDynamicQuarters:
-      let tiling: WindowTiling = calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
+      let tiling: WindowTiling = await calculateTiling(for: nextWindow.rect,
+                                                       ownerName: nextWindow.ownerName,
+                                                       in: visibleScreenFrame)
       let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft, .fill]
 
       if oldWindows.count == 1 {
@@ -239,14 +238,13 @@ final class WindowTilingRunner {
           if let currentStorage, currentStorage.isFullScreen {
             if currentStorage.tiling == activatedTiling {
               nextTiling = .center
-              updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
             } else if currentStorage.isFullScreen {
+              // this is where we are at.
               nextTiling = currentStorage.tiling
-              updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
             } else {
               nextTiling = .fill
-              updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
             }
+            updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
           } else {
             nextTiling = activatedTiling
             updateStore(isFullScreen: true, isCentered: false, in: visibleScreenFrame, for: nextWindow)
@@ -257,6 +255,10 @@ final class WindowTilingRunner {
         }
 
         guard let match = WindowTilingMenuItemFinder.find(nextTiling, in: menuItems) else { return }
+
+        if Self.debug {
+          print("activating", nextTiling)
+        }
 
         try Task.checkCancellation()
         match.performAction(.pick)
@@ -295,10 +297,23 @@ final class WindowTilingRunner {
       storage[window.windowNumber] = nil
       return
     }
+
+    let isFullScreen: Bool = if let storageIsFullScreen = storage[window.windowNumber]?.isFullScreen {
+      storageIsFullScreen
+    } else {
+      tiling == .fill ? true : false
+    }
+
+    let isCentered: Bool = if let storageIsCenter = storage[window.windowNumber]?.isCentered {
+      storageIsCenter
+    } else {
+      tiling == .center ? true : false
+    }
+
     storage[window.windowNumber] = TileStorage(
       tiling: tiling,
-      isFullScreen: storage[window.windowNumber]?.isFullScreen ?? false,
-      isCentered: storage[window.windowNumber]?.isCentered ?? false)
+      isFullScreen: isFullScreen,
+      isCentered: isCentered)
   }
 
   @MainActor
@@ -327,63 +342,67 @@ final class WindowTilingRunner {
     }
   }
 
+  @MainActor
   static func calculateTiling(for rect: CGRect, ownerName: String? = nil, in screenFrame: CGRect) -> WindowTiling {
     let windowSpacing: CGFloat = UserSettings.WindowManager.tiledWindowSpacing
+    let currentScreen = NSScreen.main!
+    let offset = currentScreen.frame.maxY - currentScreen.visibleFrame.maxY
     let screenInsetFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
     let delta = screenInsetFrame.delta(rect)
-    let halfWidth = Int(screenInsetFrame.width / 2 + screenFrame.origin.x)
-    let halfHeight = Int(screenInsetFrame.height / 2 + screenFrame.origin.y)
-    let centerX = Int(rect.midX)
-    let centerY = Int(rect.midY)
+    let halfWidth = Int(screenFrame.width / 2 + screenFrame.origin.x - (windowSpacing * 2))
+    let halfHeight = Int(screenFrame.height / 2 + screenFrame.origin.y - (windowSpacing * 2) - offset)
     let width = Int(rect.width)
     let height = Int(rect.height)
     let widthDelta = abs(Int(screenInsetFrame.width) - width)
     let heightDelta = abs(Int(screenInsetFrame.height) - height)
 
-    let isTopLeft = centerX < halfWidth && centerY < halfHeight + Int(windowSpacing)
-    let isTopRight = centerX >= halfWidth && centerY < halfHeight + Int(windowSpacing)
-    let isBottomLeft = centerX < halfWidth && centerY > halfHeight + Int(windowSpacing)
-    let isBottomRight = centerX >= halfWidth && centerY > halfHeight + Int(windowSpacing)
+    let containerSize = CGSize(width: halfWidth,
+                               height: halfHeight)
+
+    let topLeftRect = CGRect(origin: .init(x: windowSpacing, y: windowSpacing + offset),
+                             size: containerSize)
+    let bottomLeftRect = CGRect(origin: CGPoint(x: windowSpacing, y: windowSpacing * 3 + containerSize.height + offset),
+                                size: containerSize)
+    let topRightRect = CGRect(origin: CGPoint(x: containerSize.width + windowSpacing * 3, y: windowSpacing + offset),
+                              size: containerSize)
+    let bottomRightRect = CGRect(origin: CGPoint(x: containerSize.width + windowSpacing * 3, y: windowSpacing * 3 + containerSize.height + offset),
+                                 size: containerSize)
+    let isTopLeft = rect.intersects(topLeftRect)
+    let isTopRight = rect.intersects(topRightRect)
+    let isBottomLeft = rect.intersects(bottomLeftRect)
+    let isBottomRight = rect.intersects(bottomRightRect)
     let isFill = delta.size.inThreshold(min(windowSpacing, 1))
     let isCenter = Int(rect.midX) == Int(screenFrame.midX)
 
-    var xOffset: CGFloat = windowSpacing
-    for screen in NSScreen.screens {
-      if screen.visibleFrame.mainDisplayFlipped == screenFrame {
-        break
-      }
-      xOffset = screen.frame.maxX
-    }
-
-    let leftThreshold = Int(rect.origin.x - xOffset)
-    let isLeft = rect.minY == screenFrame.minY + windowSpacing && leftThreshold <= halfWidth && height >= halfHeight
-    let isRight = max(rect.maxX, rect.maxX + 1) >= screenFrame.maxX - windowSpacing && height >= halfHeight + Int(windowSpacing)
-    let isTop = rect.minY == screenFrame.minY + windowSpacing && width >= halfWidth + Int(windowSpacing)
-    let isBottom = rect.maxY == screenFrame.maxY - windowSpacing && width >= halfWidth + Int(windowSpacing)
-
-    if isFill || widthDelta == 0 && heightDelta == 0 {
-      return .fill
-    } else if isTopLeft {
-      return .topLeft
-    } else if isTopRight {
-      return .topRight
-    } else if isBottomRight {
-      return .bottomRight
-    } else if isBottomLeft {
-      return .bottomLeft
-    } else if isRight {
-      return .right
+    let isLeft = isTopLeft && isBottomLeft
+    let isRight = isTopRight && isBottomRight
+    let isTop = isTopLeft && isTopRight
+    let isBottom = isBottomLeft && isBottomRight
+    let result: WindowTiling = if isFill || widthDelta == 0 && heightDelta == 0 {
+      .fill
     } else if isLeft {
-      return .left
+       .left
+    } else if isRight {
+      .right
     } else if isTop {
-      return .top
+       .top
     } else if isBottom {
-      return .bottom
+       .bottom
+    } else if isTopLeft {
+      .topLeft
+    } else if isTopRight {
+      .topRight
+    } else if isBottomRight {
+      .bottomRight
+    } else if isBottomLeft {
+      .bottomLeft
     } else if isCenter {
-      return .center
+       .center
     } else {
-      return .fill
+       .fill
     }
+
+    return result
   }
 }
 

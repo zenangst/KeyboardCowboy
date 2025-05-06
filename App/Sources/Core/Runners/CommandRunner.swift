@@ -173,6 +173,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
                                machPortEvent: machPortEvent,
                                checkCancellation: checkCancellation,
                                repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
+            if case .bundled = command {
+              await runners.windowFocus.resetFocusComponents()
+            }
           } catch let scriptError as ShellScriptPlugin.ShellScriptPluginError {
             await MainActor.run {
               let alert = NSAlert()

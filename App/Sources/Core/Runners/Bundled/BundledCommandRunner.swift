@@ -48,7 +48,7 @@ final class BundledCommandRunner: Sendable {
       await windowFocusRunner.resetFocusComponents()
       Task.detached {
         try await Task.sleep(for: .milliseconds(375))
-        WindowTilingRunner.initialIndex()
+        WindowTilingRunner.index()
       }
       output = command.name
     case .workspace(let workspaceCommand):
@@ -76,7 +76,10 @@ final class BundledCommandRunner: Sendable {
         }
       }
       await windowFocusRunner.resetFocusComponents()
-      WindowTilingRunner.initialIndex()
+      Task.detached {
+        try await Task.sleep(for: .milliseconds(375))
+        WindowTilingRunner.index()
+      }
       output = command.name
     case .tidy(let command):
       try await windowTidy.run(command)

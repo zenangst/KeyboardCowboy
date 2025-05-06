@@ -55,8 +55,6 @@ final class SystemCommandRunner: @unchecked Sendable {
         Dock.run(.applicationWindows)
       case .missionControl:
         Dock.run(.missionControl)
-      default:
-        break
       }
     }
   }
