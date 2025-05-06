@@ -117,7 +117,14 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     }
 
     if command.modifiers.contains(.waitForAppToLaunch) {
-      try await plugins.wait.run(for: bundleIdentifier)
+      let runningApplication = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleIdentifier })
+      if let runningApplication {
+        if runningApplication.isFinishedLaunching == false {
+          try await plugins.wait.run(for: bundleIdentifier)
+        }
+      } else {
+        try await plugins.wait.run(for: bundleIdentifier)
+      }
     }
   }
 }
