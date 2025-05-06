@@ -644,6 +644,17 @@ fileprivate struct WindowMenu: View {
         }
       })
 
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(.bundled(.init(.tidy(command: .init(rules: [])), meta: .init())))
+        }
+      }, label: {
+        HStack {
+          Image(systemName: "uiwindow.split.2x1")
+          Text("Window Tidy")
+        }
+      })
+
       Divider()
 
       WindowFocusMenuView()
