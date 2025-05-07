@@ -227,7 +227,7 @@ extension Command {
       switch bundled.kind {
       case .assignToWorkspace, .moveToWorkspace: fatalError()
       case .appFocus: AppFocusIcon(size: size)
-      case .workspace: WorkspaceIcon(size: size)
+      case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: size)
       case .tidy: WindowTidyIcon(size: size)
       }
       case .mouse:                            MouseIconView(size: size)

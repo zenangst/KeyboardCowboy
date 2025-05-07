@@ -37,6 +37,8 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   var assignmentModifiers: [ModifierKey]
   var moveModifiers: [ModifierKey]
 
+  var isDynamic: Bool { bundleIdentifiers.isEmpty }
+
   init(id: String = UUID().uuidString,
        assignmentModifierS: [ModifierKey] = [],
        moveModifiers: [ModifierKey] = [],

@@ -7,7 +7,8 @@ struct IconOverview: PreviewProvider {
   static var previews: some View {
     FlowLayout(itemSpacing: spacing, lineSpacing: spacing) {
       InputSourceIcon(size: size)
-      WorkspaceIcon(size: size)
+      WorkspaceIcon(.dynamic, size: size)
+      WorkspaceIcon(.regular, size: size)
       AppPeekIcon(size: size)
       WindowTilingIcon(kind: .arrangeLeftQuarters, size: size)
       WindowTidyIcon(size: size)

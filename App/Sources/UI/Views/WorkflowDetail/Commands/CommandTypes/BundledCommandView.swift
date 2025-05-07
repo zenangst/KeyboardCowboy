@@ -18,7 +18,7 @@ struct BundledCommandView: View {
   var body: some View {
     CommandContainerView(metaData, placeholder: model.placeholder) {
       switch model.kind {
-      case .workspace: WorkspaceIcon(size: iconSize.width)
+      case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: iconSize.width)
       case .appFocus: AppFocusIcon(size: iconSize.width)
       case .tidy: WindowTidyIcon(size: iconSize.width)
       }

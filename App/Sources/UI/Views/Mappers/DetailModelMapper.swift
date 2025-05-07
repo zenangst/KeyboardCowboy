@@ -114,12 +114,13 @@ private extension Command {
           applications.append(match)
         }
 
-        let model = CommandViewModel.Kind.WorkspaceModel.init(
+        let model = CommandViewModel.Kind.WorkspaceModel(
           applications: applications,
           assignmentModifiers: workspaceCommand.assignmentModifiers,
           moveModifiers: workspaceCommand.moveModifiers,
           tiling: workspaceCommand.tiling,
-          hideOtherApps: workspaceCommand.hideOtherApps)
+          hideOtherApps: workspaceCommand.hideOtherApps,
+          isDynamic: workspaceCommand.isDynamic)
         kind = .bundled(
           .init(
             id: bundledCommand.id,
