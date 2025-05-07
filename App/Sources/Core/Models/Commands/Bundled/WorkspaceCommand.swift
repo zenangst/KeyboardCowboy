@@ -227,6 +227,8 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   func copy() -> WorkspaceCommand {
     WorkspaceCommand(
       id: UUID().uuidString,
+      assignmentModifierS: assignmentModifiers,
+      moveModifiers: moveModifiers,
       bundleIdentifiers: bundleIdentifiers,
       hideOtherApps: hideOtherApps,
       tiling: tiling
