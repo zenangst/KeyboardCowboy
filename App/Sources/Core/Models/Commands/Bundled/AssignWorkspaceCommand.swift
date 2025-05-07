@@ -1,8 +1,10 @@
 import Apps
+import AppKit
+import Combine
 
 struct AssignWorkspaceCommand: Identifiable, Hashable, Codable {
   let id: String
-  let workspace: WorkspaceCommand.ID
+  let workspaceID: WorkspaceCommand.ID
 }
 
 struct MoveToWorkspaceCommand: Identifiable, Hashable, Codable {
@@ -13,22 +15,33 @@ struct MoveToWorkspaceCommand: Identifiable, Hashable, Codable {
 
 @MainActor
 final class DynamicWorkspace {
-  var assigned: [WorkspaceCommand.ID: [Application]] = [:]
+  private var assigned: [WorkspaceCommand.ID: [Application]] = [:]
+  private var subscription: AnyCancellable?
+
 
   static let shared = DynamicWorkspace()
 
-  private init() { }
+  private init() {
+    let terminationPublisher = NSWorkspace.shared.notificationCenter
+      .publisher(for: NSWorkspace.didTerminateApplicationNotification)
+
+    subscription = terminationPublisher.sink { [weak self] notification in
+      guard let self,
+            let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
+      self.remove(app)
+    }
+  }
 
   func applications(for workspace: WorkspaceCommand.ID) -> [Application] {
     assigned[workspace] ?? []
   }
 
   func assign(application: Application, using command: AssignWorkspaceCommand) async {
-    if var copy = assigned[command.workspace] {
+    if var copy = assigned[command.workspaceID] {
       copy.append(application)
-      assigned[command.workspace] = copy
+      assigned[command.workspaceID] = copy
     } else {
-      assigned[command.workspace] = [application]
+      assigned[command.workspaceID] = [application]
     }
   }
 
@@ -40,6 +53,13 @@ final class DynamicWorkspace {
         assigned[id] = applications
       }
     }
-    await assign(application: application, using: AssignWorkspaceCommand(id: command.id, workspace: command.workspace.id))
+    await assign(application: application, using: AssignWorkspaceCommand(id: command.id, workspaceID: command.workspace.id))
+  }
+
+  private func remove(_ app: RunningApplication) {
+    for (id, applications) in self.assigned {
+      let newApplications = applications.filter { $0.bundleIdentifier != app.bundleIdentifier }
+      self.assigned[id] = newApplications.isEmpty ? nil : newApplications
+    }
   }
 }
