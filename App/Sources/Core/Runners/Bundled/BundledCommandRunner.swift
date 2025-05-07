@@ -21,6 +21,16 @@ final class BundledCommandRunner: Sendable {
            runtimeDictionary: inout [String: String]) async throws -> String {
     let output: String
     switch bundledCommand.kind {
+    case .assignToWorkspace(let command):
+      let currentApplication = await UserSpace.shared.frontmostApplication.asApplication()
+      await DynamicWorkspace.shared.assign(application: currentApplication,
+                                           using: command)
+      output = ""
+    case .moveToWorkspace(let command):
+      let currentApplication = await UserSpace.shared.frontmostApplication.asApplication()
+
+      await DynamicWorkspace.shared.move(application: currentApplication, using: command)
+      output = ""
     case .appFocus(let focusCommand):
       let applications = applicationStore.applications
       let commands = try await focusCommand.commands(applications, checkCancellation: checkCancellation)
@@ -53,7 +63,9 @@ final class BundledCommandRunner: Sendable {
       output = command.name
     case .workspace(let workspaceCommand):
       let applications = applicationStore.applications
-      let commands = try await workspaceCommand.commands(applications)
+      let dynamicApps = await DynamicWorkspace.shared.applications(for: workspaceCommand.id)
+        .filter { !workspaceCommand.bundleIdentifiers.contains($0.bundleIdentifier) }
+      let commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
       for command in commands {
         try Task.checkCancellation()
         switch command {
@@ -76,6 +88,9 @@ final class BundledCommandRunner: Sendable {
         }
       }
       await windowFocusRunner.resetFocusComponents()
+      await MainActor.run {
+        UserSpace.shared.currentWorkspace = workspaceCommand
+      }
       Task.detached {
         try await Task.sleep(for: .milliseconds(375))
         WindowTilingRunner.index()

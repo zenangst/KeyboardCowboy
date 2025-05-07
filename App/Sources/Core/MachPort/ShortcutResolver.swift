@@ -231,9 +231,20 @@ final class ShortcutResolver {
                                   bundleIdentifier: bundleIdentifier,
                                   userModeKey: "",
                                   previousKey: previousKey)
+              let currentPreviousKey = previousKey
               previousKey += "\(eventSignature.id)+"
 
               if offset == count {
+                createDynamicWorkflows(
+                  for: workflow,
+                  keyCode: Int64(keyCode),
+                  flags: flags,
+                  bundleIdentifier: bundleIdentifier,
+                  userModeKey: "",
+                  previousKey: currentPreviousKey
+                ) { newKey, match in
+                  newCache[newKey] = match
+                }
                 newCache[key] = .exact(workflow)
               } else {
                 newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
@@ -244,6 +255,7 @@ final class ShortcutResolver {
               var didSetPreviousKey: Bool = false
               for userMode in group.userModes {
                 let userModeKey = userMode.dictionaryKey(true)
+                let currentPreviousKey = previousKey
                 let key = createKey(eventSignature: eventSignature,
                                     bundleIdentifier: bundleIdentifier,
                                     userModeKey: userModeKey,
@@ -258,6 +270,16 @@ final class ShortcutResolver {
                 }
 
                 if offset == count {
+                  createDynamicWorkflows(
+                    for: workflow,
+                    keyCode: Int64(keyCode),
+                    flags: flags,
+                    bundleIdentifier: bundleIdentifier,
+                    userModeKey: userModeKey,
+                    previousKey: currentPreviousKey
+                  ) { newKey, match in
+                    newCache[newKey] = match
+                  }
                   newCache[key] = .exact(workflow)
                 } else {
                   newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
@@ -274,6 +296,55 @@ final class ShortcutResolver {
   }
 
   // MARK: - Private methods
+
+  private func createDynamicWorkflows(for workflow: Workflow,
+                                      keyCode: Int64,
+                                      flags: CGEventFlags,
+                                      bundleIdentifier: String,
+                                      userModeKey: String,
+                                      previousKey: String,
+                                      onCreate: (_ key: String, _ match: KeyboardShortcutResult) -> Void) {
+    let workspaces = workflow.commands.compactMap {
+      if case .bundled(let command) = $0,
+         case .workspace(let workspace) = command.kind {
+        workspace
+      } else {
+        nil
+      }
+    }
+    guard let first = workspaces.first else { return }
+
+    let moveModifiers = first.moveModifiers
+    if !moveModifiers.isEmpty {
+      for modifier in moveModifiers {
+        var flags = flags
+        flags.insert(modifier.cgEventFlags)
+        let eventSignature = CGEventSignature(Int64(keyCode), flags)
+
+        let key = createKey(eventSignature: eventSignature,
+                            bundleIdentifier: bundleIdentifier,
+                            userModeKey: userModeKey,
+                            previousKey: previousKey)
+        let workflow = Workflow(
+          name: "Dynamic Workflow from \(key)",
+          commands: [
+            .bundled(
+              BundledCommand(
+                .moveToWorkspace(
+                  command: MoveToWorkspaceCommand(
+                    id: UUID().uuidString,
+                    workspace: first.id
+                  )
+                ),
+                meta: Command.MetaData()
+              )
+            )
+          ]
+        )
+        onCreate(key, .exact(workflow))
+      }
+    }
+  }
 
   private func resolveAnyKeyCode(_ keyShortcut: KeyShortcut) -> Int? {
     keyShortcut.key == KeyShortcut.anyKey.key

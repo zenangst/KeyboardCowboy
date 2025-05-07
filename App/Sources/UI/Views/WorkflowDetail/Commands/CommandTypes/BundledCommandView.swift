@@ -35,13 +35,13 @@ struct BundledCommandView: View {
           performAppFocusUpdate(set: \.createNewWindow, to: createNewWindow)
         }
       case .workspace(let model):
-        WorkspaceCommandView(model) { tiling in
-          performWorkspaceUpdate(set: \.tiling, to: tiling)
-        } onSelectedAppsChange: { applications in
-          performWorkspaceUpdate(set: \.bundleIdentifiers, to: applications.map(\.bundleIdentifier))
-        } onHideOtherAppsChange: { hideOtherApps in
-          performWorkspaceUpdate(set: \.hideOtherApps, to: hideOtherApps)
-        }
+        WorkspaceCommandView(
+          model,
+          onAssignmentChange:    { performWorkspaceUpdate(set: \.assignmentModifiers, to: $0) },
+          onMoveModifiersChange: { performWorkspaceUpdate(set: \.moveModifiers, to: $0) },
+          onTilingChange:        { performWorkspaceUpdate(set: \.tiling, to: $0) },
+          onSelectedAppsChange:  { performWorkspaceUpdate(set: \.bundleIdentifiers, to: $0.map(\.bundleIdentifier)) },
+          onHideOtherAppsChange: { performWorkspaceUpdate(set: \.hideOtherApps, to: $0) })
         .id(metaData.id)
       case .tidy(let model):
         WindowTidyCommandView(model) { rules in
