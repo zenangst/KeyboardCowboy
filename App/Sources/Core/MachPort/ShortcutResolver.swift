@@ -333,7 +333,7 @@ final class ShortcutResolver {
                 .moveToWorkspace(
                   command: MoveToWorkspaceCommand(
                     id: UUID().uuidString,
-                    workspace: first.id
+                    workspace: first
                   )
                 ),
                 meta: Command.MetaData()

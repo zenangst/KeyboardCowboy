@@ -7,7 +7,7 @@ struct AssignWorkspaceCommand: Identifiable, Hashable, Codable {
 
 struct MoveToWorkspaceCommand: Identifiable, Hashable, Codable {
   let id: String
-  let workspace: WorkspaceCommand.ID
+  let workspace: WorkspaceCommand
 }
 
 
@@ -40,6 +40,6 @@ final class DynamicWorkspace {
         assigned[id] = applications
       }
     }
-    await assign(application: application, using: AssignWorkspaceCommand(id: command.id, workspace: command.workspace))
+    await assign(application: application, using: AssignWorkspaceCommand(id: command.id, workspace: command.workspace.id))
   }
 }
