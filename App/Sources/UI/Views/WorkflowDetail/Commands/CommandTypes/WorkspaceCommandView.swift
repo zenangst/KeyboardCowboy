@@ -42,9 +42,19 @@ struct WorkspaceCommandView: View {
                    label: { Text(application.displayName) })
           }
         } label: {
-          Text("Add Application")
+          Text("Add Application to Workspace")
+            .font(.subheadline)
         }
       }
+
+      if model.applications.isEmpty {
+        Text("Dynamic Workspace, empty Workspaces are dynamic and applications that are opened in them will be automatically added to the Workspace.")
+        .font(.footnote)
+        .foregroundStyle(.primary)
+        .frame(maxWidth: .infinity)
+        .style(.derived)
+      }
+
 
       ZenDivider()
 
@@ -81,7 +91,7 @@ struct WorkspaceCommandView: View {
           onSelectedAppsChange(model.applications)
         }
       }
-      .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 34, 148)))
+      .frame(minHeight: max(8, min(CGFloat(model.applications.count) * 34, 148)))
 
       VStack(alignment: .leading, spacing: 2) {
         ZenLabel("Window Tiling")
