@@ -49,6 +49,7 @@ struct NewCommandBundledView: View {
       Divider()
 
       switch currentSelection {
+      case .assignToWorkspace, .moveToWorkspace: fatalError()
       case .appFocus(let command):
         NewCommandAppFocusView(validation: $validation) { tiling in
           currentSelection = .appFocus(
@@ -129,6 +130,7 @@ struct NewCommandBundledView: View {
   @discardableResult
   private func updateAndValidatePayload() -> NewCommandValidation {
     switch currentSelection {
+    case .assignToWorkspace, .moveToWorkspace: fatalError()
     case .workspace(let workspaceCommand):
       if workspaceCommand.bundleIdentifiers.isEmpty {
         return .invalid(reason: "Pick at least one application.")
@@ -150,6 +152,7 @@ fileprivate extension BundledCommand.Kind {
   @ViewBuilder
   var icon: some View {
     switch self {
+    case .assignToWorkspace, .moveToWorkspace: fatalError()
     case .workspace: WorkspaceIcon(size: 24)
     case .appFocus: AppFocusIcon(size: 24)
     case .tidy: WindowTidyIcon(size: 24)
@@ -158,6 +161,7 @@ fileprivate extension BundledCommand.Kind {
 
   var name: String {
     switch self {
+    case .assignToWorkspace, .moveToWorkspace: fatalError()
     case .workspace: "Workspace"
     case .appFocus: "Focus on Application"
     case .tidy: "Tidy up Windows"

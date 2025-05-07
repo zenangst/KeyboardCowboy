@@ -137,6 +137,7 @@ private extension Array where Element == Command {
       case .builtIn(let command): images.append(.builtIn(element, kind: command.kind, offset: convertedOffset))
       case .bundled(let command):
         switch command.kind {
+        case .assignToWorkspace, .moveToWorkspace: fatalError()
         case .appFocus: images.append(.bundled(element, offset: convertedOffset, kind: .appFocus))
         case .workspace: images.append(.bundled(element, offset: convertedOffset, kind: .workspace))
         case .tidy: images.append(.bundled(element, offset: convertedOffset, kind: .tidy))

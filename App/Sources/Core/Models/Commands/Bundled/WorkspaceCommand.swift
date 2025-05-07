@@ -21,23 +21,63 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     var id: String { self.rawValue }
   }
 
+  enum CodingKeys: CodingKey {
+    case id
+    case bundleIdentifiers
+    case tiling
+    case hideOtherApps
+    case assignmentModifiers
+    case moveModifiers
+  }
+
   var id: String
   var bundleIdentifiers: [String]
   var tiling: Tiling?
   var hideOtherApps: Bool
+  var assignmentModifiers: [ModifierKey]
+  var moveModifiers: [ModifierKey]
 
   init(id: String = UUID().uuidString,
+       assignmentModifierS: [ModifierKey] = [],
+       moveModifiers: [ModifierKey] = [],
        bundleIdentifiers: [String],
        hideOtherApps: Bool,
        tiling: Tiling?) {
     self.id = id
+    self.assignmentModifiers = assignmentModifierS
+    self.moveModifiers = moveModifiers
     self.bundleIdentifiers = bundleIdentifiers
     self.hideOtherApps = hideOtherApps
     self.tiling = tiling
   }
 
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(self.id, forKey: .id)
+    try container.encode(self.bundleIdentifiers, forKey: .bundleIdentifiers)
+    try container.encodeIfPresent(self.tiling, forKey: .tiling)
+    try container.encode(self.hideOtherApps, forKey: .hideOtherApps)
+    if !self.assignmentModifiers.isEmpty {
+      try container.encode(self.assignmentModifiers, forKey: .assignmentModifiers)
+    }
+    if !self.moveModifiers.isEmpty {
+      try container.encode(self.moveModifiers, forKey: .moveModifiers)
+    }
+  }
+
+  init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.id = try container.decode(String.self, forKey: .id)
+    self.bundleIdentifiers = try container.decode([String].self, forKey: .bundleIdentifiers)
+    self.tiling = try container.decodeIfPresent(WorkspaceCommand.Tiling.self, forKey: .tiling)
+    self.hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
+    self.assignmentModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .assignmentModifiers) ?? []
+    self.moveModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .moveModifiers) ?? []
+  }
+
   @MainActor
-  func commands(_ applications: [Application]) async throws -> [Command] {
+  func commands(_ applications: [Application], dynamicApps: [Application] = []) async throws -> [Command] {
+    let bundleIdentifiers = dynamicApps.map { $0.bundleIdentifier } + bundleIdentifiers
     let aerospaceIsRunning = NSWorkspace.shared.runningApplications
       .first(where: { $0.bundleIdentifier == "bobko.aerospace" })
        != nil
@@ -47,28 +87,18 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let slowBundles = Set(["com.tinyspeck.slackmacgap"])
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
-    let windows = indexWindowsInStage(getWindows([.excludeDesktopElements]))
+    let windows = indexWindowsInStage(getWindows([.optionOnScreenOnly, .excludeDesktopElements]))
 
     let pids = windows.map(\.ownerPid.rawValue).map(Int32.init)
     let runningApplications = NSWorkspace.shared.runningApplications.filter({
       pids.contains($0.processIdentifier)
     })
 
-    let runningTargetApps: [Int] = runningApplications
-      .compactMap {
-        guard let bundleIdentifier = $0.bundleIdentifier,
-              bundleIdentifiers.contains(bundleIdentifier) else { return nil }
-        return Int($0.processIdentifier)
-      }
-    let windowPids = windows.prefix(runningTargetApps.count)
-      .map { $0.ownerPid.rawValue }
-
-    let perfectBundleMatch = Set(runningTargetApps) == Set(windowPids)
-    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: nil, name: "Hide All Apps")))
+    let hideAllAppsCommand = Command.systemCommand(SystemCommand(
+      kind: .hideAllApps,
+      meta: Command.MetaData(delay: tiling != nil ? 40 : nil, name: "Hide All Apps")))
 
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
-      try Task.checkCancellation()
-
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         continue
       }
@@ -100,22 +130,24 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       }
 
       if isLastItem {
+        commands.append(
+          .application(ApplicationCommand(
+            action: .open,
+            application: application,
+            meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
+            modifiers: [.waitForAppToLaunch]
+          )))
+
         if hideOtherApps && !aerospaceIsRunning {
-          if !perfectBundleMatch || windowPids.isEmpty || runningTargetApps.isEmpty {
-            commands.append(hideAllAppsCommand)
-          }
+          commands.append(hideAllAppsCommand)
         }
 
         let activationDelay: Double?
 
         if slowBundles.contains(application.bundleIdentifier) || application.metadata.isElectron {
           activationDelay = 225
-        } else if perfectBundleMatch {
-          activationDelay = nil
-        } else if tiling != nil {
-          activationDelay = 25
         } else {
-          activationDelay = nil
+          activationDelay = 40
         }
 
         commands.append(
@@ -146,7 +178,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           .application(ApplicationCommand(
             action: action,
             application: application,
-            meta: Command.MetaData(delay: nil, name: name), modifiers: [.waitForAppToLaunch]
+            meta: Command.MetaData(delay: 10, name: name), modifiers: [.waitForAppToLaunch]
           )))
       }
     }

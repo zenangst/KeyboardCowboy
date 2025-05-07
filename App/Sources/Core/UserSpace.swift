@@ -219,6 +219,7 @@ final class UserSpace: @unchecked Sendable {
   @MainActor
   static let shared = UserSpace()
 
+  @Published var currentWorkspace: WorkspaceCommand?
   @Published private(set) var frontmostApplication: Application
   @Published private(set) var previousApplication: Application
   @Published private(set) var runningApplications: [Application]

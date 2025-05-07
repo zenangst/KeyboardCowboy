@@ -225,6 +225,7 @@ extension Command {
       case .builtIn(let builtInCommand):      BuiltinIconBuilder.icon(builtInCommand.kind, size: size)
       case .bundled(let bundled):
       switch bundled.kind {
+      case .assignToWorkspace, .moveToWorkspace: fatalError()
       case .appFocus: AppFocusIcon(size: size)
       case .workspace: WorkspaceIcon(size: size)
       case .tidy: WindowTidyIcon(size: size)

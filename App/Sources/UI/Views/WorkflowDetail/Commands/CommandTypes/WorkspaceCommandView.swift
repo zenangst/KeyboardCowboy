@@ -9,14 +9,20 @@ struct WorkspaceCommandView: View {
   @State private var model: CommandViewModel.Kind.WorkspaceModel
 
   private let onTilingChange: (WorkspaceCommand.Tiling?) -> Void
+  private let onAssignmentChange: ([ModifierKey]) -> Void
+  private let onMoveModifiersChange: ([ModifierKey]) -> Void
   private let onSelectedAppsChange: ([Application]) -> Void
   private let onHideOtherAppsChange: (Bool) -> Void
 
   init(_ model: CommandViewModel.Kind.WorkspaceModel,
+       onAssignmentChange: @escaping ([ModifierKey]) -> Void,
+       onMoveModifiersChange: @escaping ([ModifierKey]) -> Void,
        onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        onSelectedAppsChange: @escaping ([Application]) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void) {
     self.model = model
+    self.onAssignmentChange = onAssignmentChange
+    self.onMoveModifiersChange = onMoveModifiersChange
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange
     self.onHideOtherAppsChange = onHideOtherAppsChange
@@ -138,6 +144,92 @@ struct WorkspaceCommandView: View {
                 }
             }
           }
+
+          ZenDivider()
+
+          VStack(alignment: .leading) {
+            ZenLabel("Dynamic assignment modifiers")
+              .style(.derived)
+            Menu {
+              let modifiers: [ModifierKey] = [
+                .leftShift, .leftCommand, .leftOption, .leftControl, .function
+              ]
+              ForEach(modifiers) { modifier in
+                let isOn = Binding<Bool>(
+                  get: { model.assignmentModifiers.contains(where: { $0 == modifier }) },
+                  set: { newValue in
+                    if model.assignmentModifiers.contains(where: { $0 == modifier }) {
+                      model.assignmentModifiers.removeAll { $0 == modifier.pair || $0 == modifier }
+                    } else {
+                      model.assignmentModifiers.append(modifier)
+                      if let pair = modifier.pair {
+                        model.assignmentModifiers.append(pair)
+                      }
+                    }
+                    onAssignmentChange(model.assignmentModifiers)
+                  })
+                Toggle(isOn: isOn) {
+                  Text(modifier.keyValue + " " + modifier.writtenValue.capitalized)
+                }
+              }
+            } label: {
+              let validModifiers = model.assignmentModifiers
+                .unique(by: \.writtenValue)
+              var counter = 0
+              let displayValue = validModifiers
+                .reduce(into: "") { result, modifier in
+                  result += modifier.keyValue + " " + modifier.writtenValue.capitalized
+                  if counter != validModifiers.count - 1 { result += "," }
+
+                  counter += 1
+                }
+              Text(displayValue)
+                .font(.caption)
+            }
+            .toggleStyle(.button)
+          }
+
+          VStack(alignment: .leading) {
+            ZenLabel("Dynamic move modifiers")
+              .style(.derived)
+            Menu {
+              let modifiers: [ModifierKey] = [
+                .leftShift, .leftCommand, .leftOption, .leftControl, .function
+              ]
+              ForEach(modifiers) { modifier in
+                let isOn = Binding<Bool>(
+                  get: { model.moveModifiers.contains(where: { $0 == modifier }) },
+                  set: { newValue in
+                    if model.moveModifiers.contains(where: { $0 == modifier }) {
+                      model.moveModifiers.removeAll { $0 == modifier.pair || $0 == modifier }
+                    } else {
+                      model.moveModifiers.append(modifier)
+                      if let pair = modifier.pair {
+                        model.moveModifiers.append(pair)
+                      }
+                    }
+                    onMoveModifiersChange(model.moveModifiers)
+                  })
+                Toggle(isOn: isOn) {
+                  Text(modifier.keyValue + " " + modifier.writtenValue.capitalized)
+                }
+              }
+            } label: {
+              let validModifiers = model.moveModifiers
+                .unique(by: \.writtenValue)
+              var counter = 0
+              let displayValue = validModifiers
+                .reduce(into: "") { result, modifier in
+                  result += modifier.keyValue + " " + modifier.writtenValue.capitalized
+                  if counter != validModifiers.count - 1 { result += "," }
+
+                  counter += 1
+                }
+              Text(displayValue)
+                .font(.caption)
+            }
+            .toggleStyle(.button)
+          }
         }
         .style(.derived)
       }
@@ -162,5 +254,12 @@ fileprivate extension WorkspaceCommand.Tiling {
     case .fill: "Fill"
     case .center: "Center"
     }
+  }
+}
+
+private extension Array {
+  func unique<T: Hashable>(by keyPath: KeyPath<Element, T>) -> [Element] {
+    var seen = Set<T>()
+    return self.filter { seen.insert($0[keyPath: keyPath]).inserted }
   }
 }

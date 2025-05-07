@@ -78,6 +78,7 @@ private extension Command {
       kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
+      case .assignToWorkspace, .moveToWorkspace: fatalError()
       case .appFocus(let appFocusCommand):
         let match: Application?
 
@@ -115,6 +116,8 @@ private extension Command {
 
         let model = CommandViewModel.Kind.WorkspaceModel.init(
           applications: applications,
+          assignmentModifiers: workspaceCommand.assignmentModifiers,
+          moveModifiers: workspaceCommand.moveModifiers,
           tiling: workspaceCommand.tiling,
           hideOtherApps: workspaceCommand.hideOtherApps)
         kind = .bundled(
