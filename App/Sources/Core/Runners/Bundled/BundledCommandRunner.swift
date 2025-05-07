@@ -29,7 +29,7 @@ final class BundledCommandRunner: Sendable {
       output = ""
     case .moveToWorkspace(let workspaceCommand):
       let application = await UserSpace.shared.frontmostApplication
-      await DynamicWorkspace.shared.move(
+      let movedToWorkspace = await DynamicWorkspace.shared.moveOrRemove(
         application: application.asApplication(),
         using: workspaceCommand)
       try await run(workspaceCommand: workspaceCommand.workspace,
@@ -40,13 +40,15 @@ final class BundledCommandRunner: Sendable {
                     repeatingEvent: repeatingEvent,
                     runtimeDictionary: &runtimeDictionary)
 
-      if let runningApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == application.bundleIdentifier }) {
-        if #available(macOS 14.0, *) {
-          runningApp.activate(from: NSWorkspace.shared.frontmostApplication!,
-            options: .activateIgnoringOtherApps
-          )
-        } else {
-          runningApp.activate(options: .activateIgnoringOtherApps)
+      if movedToWorkspace {
+        if let runningApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == application.bundleIdentifier }) {
+          if #available(macOS 14.0, *) {
+            runningApp.activate(from: NSWorkspace.shared.frontmostApplication!,
+                                options: .activateIgnoringOtherApps
+            )
+          } else {
+            runningApp.activate(options: .activateIgnoringOtherApps)
+          }
         }
       }
       output = ""

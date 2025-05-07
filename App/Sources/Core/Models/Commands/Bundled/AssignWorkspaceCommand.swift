@@ -69,15 +69,31 @@ final class DynamicWorkspace {
     }
   }
 
-  func move(application: Application, using command: MoveToWorkspaceCommand) async {
+  /// Move or remove an application from a workspace
+  /// - Parameters:
+  ///   - application: The targeted `Application`
+  ///   - command: The in-memory command
+  /// - Returns: `true` if the `Application` was added to the Workspace, `false` if it was removed.
+  func moveOrRemove(application: Application, using command: MoveToWorkspaceCommand) async -> Bool {
+    var wasAlreadyMember: Bool = false
     for (id, applications) in assigned {
-      var applications = applications
-      if applications.contains(where: { $0.bundleIdentifier == application.bundleIdentifier }) {
-        applications.removeAll(where: { $0.bundleIdentifier == application.bundleIdentifier })
-        assigned[id] = applications
+      var newApplications = applications
+      if newApplications.contains(where: { $0.bundleIdentifier == application.bundleIdentifier }) {
+        if command.workspace.id == id {
+          wasAlreadyMember = true
+        }
+
+        newApplications.removeAll(where: { $0.bundleIdentifier == application.bundleIdentifier })
+        assigned[id] = newApplications
       }
     }
-    await assign(application: application, using: AssignWorkspaceCommand(id: command.id, workspaceID: command.workspace.id))
+
+    if !wasAlreadyMember {
+      await assign(application: application, using: AssignWorkspaceCommand(id: command.id, workspaceID: command.workspace.id))
+      return true
+    } else {
+      return false
+    }
   }
 
   private func remove(_ app: RunningApplication) {
