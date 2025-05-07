@@ -153,7 +153,7 @@ fileprivate extension BundledCommand.Kind {
   var icon: some View {
     switch self {
     case .assignToWorkspace, .moveToWorkspace: fatalError()
-    case .workspace: WorkspaceIcon(size: 24)
+    case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: 24)
     case .appFocus: AppFocusIcon(size: 24)
     case .tidy: WindowTidyIcon(size: 24)
     }

@@ -1,28 +1,63 @@
 import SwiftUI
 
 struct WorkspaceIcon: View {
+  struct Variant {
+    let fillGradient: LinearGradient
+    let firstOverlay: LinearGradient
+    let secondOverlay: LinearGradient
+
+    nonisolated static let regular: Variant = Variant(
+      fillGradient: LinearGradient(stops: [
+        .init(color: Color.black, location: 0.0),
+        .init(color: Color(.black), location: 0.6),
+        .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 1.0),
+      ], startPoint: .topLeading, endPoint: .bottom),
+      firstOverlay: LinearGradient(stops: [
+        .init(color: Color.blue, location: 0.5),
+        .init(color: Color(.systemTeal.blended(withFraction: 0.3, of: .white)!), location: 1.0),
+      ], startPoint: .topTrailing, endPoint: .bottomTrailing),
+      secondOverlay: LinearGradient(stops: [
+        .init(color: Color(.systemGreen.blended(withFraction: 0.3, of: .white)!), location: 0.2),
+        .init(color: Color.clear, location: 0.8),
+      ], startPoint: .topTrailing, endPoint: .bottomLeading)
+    )
+
+    nonisolated static let dynamic: Variant = Variant(
+      fillGradient: LinearGradient(stops: [
+        .init(color: Color(.systemPurple), location: 0.0),
+        .init(color: Color(.black), location: 0.6),
+        .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 1.0),
+      ], startPoint: .topLeading, endPoint: .bottom),
+      firstOverlay: LinearGradient(stops: [
+        .init(color: Color.systemPink, location: 0.5),
+        .init(color: Color(.black.blended(withFraction: 0.3, of: .white)!), location: 1.0),
+      ], startPoint: .topTrailing, endPoint: .bottomTrailing),
+      secondOverlay: LinearGradient(stops: [
+        .init(color: Color(.systemPink.blended(withFraction: 0.1, of: .red)!), location: 0.2),
+        .init(color: Color.clear, location: 0.8),
+      ], startPoint: .topTrailing, endPoint: .bottomLeading)
+    )
+
+
+  }
+
+  let variant: Variant
   let size: CGFloat
+
+  nonisolated init(_ variant: Variant, size: CGFloat) {
+    self.variant = variant
+    self.size = size
+  }
+
   var body: some View {
     Rectangle()
-      .fill(
-        LinearGradient(stops: [
-          .init(color: Color.blue, location: 0.0),
-          .init(color: Color(.cyan), location: 0.6),
-          .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
-      )
+      .fill(variant.fillGradient)
       .overlay {
-        LinearGradient(stops: [
-          .init(color: Color.blue, location: 0.5),
-          .init(color: Color(.systemTeal.blended(withFraction: 0.3, of: .white)!), location: 1.0),
-        ], startPoint: .topTrailing, endPoint: .bottomTrailing)
+        variant.firstOverlay
         .opacity(0.6)
       }
       .overlay {
-        LinearGradient(stops: [
-          .init(color: Color(.systemGreen.blended(withFraction: 0.3, of: .white)!), location: 0.2),
-          .init(color: Color.clear, location: 0.8),
-        ], startPoint: .topTrailing, endPoint: .bottomLeading)
+        variant.secondOverlay
       }
       .overlay { iconOverlay().opacity(0.65) }
       .overlay { iconBorder(size) }
@@ -178,5 +213,6 @@ fileprivate struct WorkspaceFill: View {
 
 
 #Preview {
-  IconPreview { WorkspaceIcon(size: $0) }
+  IconPreview { WorkspaceIcon(.dynamic, size: $0) }
+  IconPreview { WorkspaceIcon(.regular, size: $0) }
 }

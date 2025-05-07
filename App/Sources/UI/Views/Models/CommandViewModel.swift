@@ -125,6 +125,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var moveModifiers: [ModifierKey]
       var tiling: WorkspaceCommand.Tiling?
       var hideOtherApps: Bool
+      var isDynamic: Bool
     }
 
     struct AppFocusModel: Codable, Hashable, Sendable {

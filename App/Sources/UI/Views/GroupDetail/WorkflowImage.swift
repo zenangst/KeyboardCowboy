@@ -14,9 +14,9 @@ struct WorkflowImage: View {
     case .builtIn(let builtIn): BuiltinIconBuilder.icon(builtIn, size: iconSize)
     case .bundled(let bundled): switch bundled {
       case .appFocus: AppFocusIcon(size: iconSize)
-      case .workspace: WorkspaceIcon(size: iconSize)
+      case .workspace: WorkspaceIcon(.regular, size: iconSize)
       case .tidy: WindowTidyIcon(size: iconSize)
-      }
+    }
     case .inputSource: InputSourceIcon(size: iconSize)
     case .keyboard(let string): KeyboardIconView(string, size: iconSize)
     case .script(let source): ContentScriptImageView(source: source, size: iconSize)
