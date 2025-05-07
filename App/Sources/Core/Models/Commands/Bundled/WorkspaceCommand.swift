@@ -93,6 +93,20 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let runningApplications = NSWorkspace.shared.runningApplications.filter({
       pids.contains($0.processIdentifier)
     })
+    let runningTargetApps: [Int] = runningApplications
+      .compactMap {
+        guard let bundleIdentifier = $0.bundleIdentifier,
+              bundleIdentifiers.contains(bundleIdentifier) else { return nil }
+        return Int($0.processIdentifier)
+      }
+    let windowPids = windows
+      .map { $0.ownerPid.rawValue }
+
+    let runningTargetAppsSet = Set(runningTargetApps)
+    let windowPidsSet = Set(windowPids)
+    let perfectBundleMatch = runningTargetAppsSet == windowPidsSet
+                          && !runningApplications.isEmpty
+                          && !windowPids.isEmpty
 
     let hideAllAppsCommand = Command.systemCommand(SystemCommand(
       kind: .hideAllApps,
@@ -139,13 +153,17 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           )))
 
         if hideOtherApps && !aerospaceIsRunning {
-          commands.append(hideAllAppsCommand)
+          if !perfectBundleMatch {
+            commands.append(hideAllAppsCommand)
+          }
         }
 
         let activationDelay: Double?
 
         if slowBundles.contains(application.bundleIdentifier) || application.metadata.isElectron {
           activationDelay = 225
+        } else if perfectBundleMatch {
+          activationDelay = 15
         } else {
           activationDelay = 40
         }
