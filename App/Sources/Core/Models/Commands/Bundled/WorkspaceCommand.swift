@@ -78,6 +78,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   @MainActor
   func commands(_ applications: [Application], dynamicApps: [Application] = []) async throws -> [Command] {
     let bundleIdentifiers = dynamicApps.map { $0.bundleIdentifier } + bundleIdentifiers
+
+    guard !bundleIdentifiers.isEmpty else {
+      return handleEmptyWorkspace()
+    }
+
     let aerospaceIsRunning = NSWorkspace.shared.runningApplications
       .first(where: { $0.bundleIdentifier == "bobko.aerospace" })
        != nil
@@ -233,6 +238,16 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       hideOtherApps: hideOtherApps,
       tiling: tiling
     )
+  }
+
+  // MARK: Private methods
+
+  private func handleEmptyWorkspace() -> [Command] {
+    [
+      Command.systemCommand(SystemCommand(
+        kind: .hideAllApps,
+        meta: Command.MetaData(delay: nil, name: "Clean Workspace")))
+    ]
   }
 
   private func getWindows(_ options: CGWindowListOption) -> [WindowModel] {
