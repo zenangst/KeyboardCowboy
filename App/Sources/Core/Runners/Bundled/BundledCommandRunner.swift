@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import MachPort
 
 final class BundledCommandRunner: Sendable {
@@ -26,10 +27,28 @@ final class BundledCommandRunner: Sendable {
       await DynamicWorkspace.shared.assign(application: currentApplication,
                                            using: command)
       output = ""
-    case .moveToWorkspace(let command):
-      let currentApplication = await UserSpace.shared.frontmostApplication.asApplication()
+    case .moveToWorkspace(let workspaceCommand):
+      let application = await UserSpace.shared.frontmostApplication
+      await DynamicWorkspace.shared.move(
+        application: application.asApplication(),
+        using: workspaceCommand)
+      try await run(workspaceCommand: workspaceCommand.workspace,
+                    commandRunner: commandRunner,
+                    snapshot: snapshot,
+                    machPortEvent: machPortEvent,
+                    checkCancellation: checkCancellation,
+                    repeatingEvent: repeatingEvent,
+                    runtimeDictionary: &runtimeDictionary)
 
-      await DynamicWorkspace.shared.move(application: currentApplication, using: command)
+      if let runningApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == application.bundleIdentifier }) {
+        if #available(macOS 14.0, *) {
+          runningApp.activate(from: NSWorkspace.shared.frontmostApplication!,
+            options: .activateIgnoringOtherApps
+          )
+        } else {
+          runningApp.activate(options: .activateIgnoringOtherApps)
+        }
+      }
       output = ""
     case .appFocus(let focusCommand):
       let applications = applicationStore.applications
@@ -62,44 +81,59 @@ final class BundledCommandRunner: Sendable {
       }
       output = command.name
     case .workspace(let workspaceCommand):
-      let applications = applicationStore.applications
-      let dynamicApps = await DynamicWorkspace.shared.applications(for: workspaceCommand.id)
-        .filter { !workspaceCommand.bundleIdentifiers.contains($0.bundleIdentifier) }
-      let commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
-      for command in commands {
-        try Task.checkCancellation()
-        switch command {
-        case .windowTiling(let tilingCommand):
-          try await WindowTilingRunner.run(tilingCommand.kind, toggleFill: false, snapshot: snapshot)
-        default:
-          try await commandRunner
-            .run(command,
-                 workflowCommands: commands,
-                 snapshot: snapshot,
-                 machPortEvent: machPortEvent,
-                 checkCancellation: checkCancellation,
-                 repeatingEvent: repeatingEvent,
-                 runtimeDictionary: &runtimeDictionary
-            )
-        }
-
-        if let delay = command.delay, delay > 0 {
-          try? await Task.sleep(for: .milliseconds(delay))
-        }
-      }
-      await windowFocusRunner.resetFocusComponents()
-      await MainActor.run {
-        UserSpace.shared.currentWorkspace = workspaceCommand
-      }
-      Task.detached {
-        try await Task.sleep(for: .milliseconds(375))
-        WindowTilingRunner.index()
-      }
+      try await run(workspaceCommand: workspaceCommand,
+                    commandRunner: commandRunner,
+                    snapshot: snapshot,
+                    machPortEvent: machPortEvent,
+                    checkCancellation: checkCancellation,
+                    repeatingEvent: repeatingEvent,
+                    runtimeDictionary: &runtimeDictionary)
       output = command.name
     case .tidy(let command):
       try await windowTidy.run(command)
       output = bundledCommand.name
     }
     return output
+  }
+
+  private func run(workspaceCommand: WorkspaceCommand,
+                   commandRunner: CommandRunner,
+                   snapshot: UserSpace.Snapshot,
+                   machPortEvent: MachPortEvent,
+                   checkCancellation: Bool, repeatingEvent: Bool,
+                   runtimeDictionary: inout [String: String]) async throws {
+    let applications = applicationStore.applications
+    let dynamicApps = await DynamicWorkspace.shared.applications(for: workspaceCommand.id)
+      .filter { !workspaceCommand.bundleIdentifiers.contains($0.bundleIdentifier) }
+    let commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
+    for command in commands {
+      try Task.checkCancellation()
+      switch command {
+      case .windowTiling(let tilingCommand):
+        try await WindowTilingRunner.run(tilingCommand.kind, toggleFill: false, snapshot: snapshot)
+      default:
+        try await commandRunner
+          .run(command,
+               workflowCommands: commands,
+               snapshot: snapshot,
+               machPortEvent: machPortEvent,
+               checkCancellation: checkCancellation,
+               repeatingEvent: repeatingEvent,
+               runtimeDictionary: &runtimeDictionary
+          )
+      }
+
+      if let delay = command.delay, delay > 0 {
+        try? await Task.sleep(for: .milliseconds(delay))
+      }
+    }
+    await windowFocusRunner.resetFocusComponents()
+    await MainActor.run {
+      UserSpace.shared.currentWorkspace = workspaceCommand
+    }
+    Task.detached {
+      try await Task.sleep(for: .milliseconds(375))
+      WindowTilingRunner.index()
+    }
   }
 }
