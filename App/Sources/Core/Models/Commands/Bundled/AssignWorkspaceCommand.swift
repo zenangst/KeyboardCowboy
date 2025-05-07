@@ -16,20 +16,44 @@ struct MoveToWorkspaceCommand: Identifiable, Hashable, Codable {
 @MainActor
 final class DynamicWorkspace {
   private var assigned: [WorkspaceCommand.ID: [Application]] = [:]
-  private var subscription: AnyCancellable?
-
+  private var subscriptions = [AnyCancellable]()
 
   static let shared = DynamicWorkspace()
 
   private init() {
     let terminationPublisher = NSWorkspace.shared.notificationCenter
       .publisher(for: NSWorkspace.didTerminateApplicationNotification)
+    let launchPublisher = NSWorkspace.shared.notificationCenter
+      .publisher(for: NSWorkspace.didLaunchApplicationNotification)
 
-    subscription = terminationPublisher.sink { [weak self] notification in
+    launchPublisher
+      .sink { [weak self] notification in
+        Task { @MainActor in
+          guard
+            let self,
+            let currentWorkspace = UserSpace.shared.currentWorkspace,
+            let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+            let bundleIdentifier = app.bundleIdentifier,
+            let application = ApplicationStore.shared.application(for: bundleIdentifier) else { return }
+
+          let hasAssignmentKeys = !currentWorkspace.moveModifiers.isEmpty
+                               && !currentWorkspace.assignmentModifiers.isEmpty
+          let isDynamicWorkspace = hasAssignmentKeys && currentWorkspace.bundleIdentifiers.isEmpty
+
+          guard isDynamicWorkspace else { return }
+
+          await self.assign(application: application, using: .init(id: UUID().uuidString, workspaceID: currentWorkspace.id))
+        }
+      }
+      .store(in: &subscriptions)
+
+    terminationPublisher
+      .sink { [weak self] notification in
       guard let self,
             let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
       self.remove(app)
     }
+    .store(in: &subscriptions)
   }
 
   func applications(for workspace: WorkspaceCommand.ID) -> [Application] {
