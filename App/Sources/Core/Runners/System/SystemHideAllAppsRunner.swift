@@ -43,6 +43,20 @@ final class SystemHideAllAppsRunner {
       }
     }
 
+
+    var validPids = Set<Int>()
+    if let targetApplication {
+      if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == targetApplication.bundleIdentifier }) {
+        validPids.insert(Int(app.processIdentifier))
+      }
+    }
+
+    for exceptBundleIdentifier in exceptBundleIdentifiers {
+      if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == exceptBundleIdentifier }) {
+        validPids.insert(Int(app.processIdentifier))
+      }
+    }
+
     guard !apps.isEmpty else {
       return
     }
@@ -68,29 +82,25 @@ final class SystemHideAllAppsRunner {
     }
 
     var timeout: Int = 0
+    let limit: Int = 100
     var waitingForWindowsToDisappear: Bool = true
-    let frontMostPid: Set<Int> = [Int(NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0)]
 
     while waitingForWindowsToDisappear {
       if checkCancellation {
         try Task.checkCancellation()
       }
 
-      if timeout >= 10 {
-        waitingForWindowsToDisappear = false
-        return
-      }
-
       let windows = indexWindowsInStage(getWindows(options: [.optionOnScreenOnly, .excludeDesktopElements]), targetRect: targetScreenFrame)
       let windowsProcessIds = Set(windows.map(\.ownerPid.rawValue))
 
-      if windowsProcessIds == frontMostPid, windowsProcessIds.isDisjoint(with: processIdentifiers) {
+      if windowsProcessIds == validPids {
         waitingForWindowsToDisappear = false
-        return
+      } else if timeout >= limit {
+        waitingForWindowsToDisappear = false
+      } else {
+        timeout += 1
+        try await Task.sleep(for: .milliseconds(10))
       }
-
-      timeout += 1
-      try await Task.sleep(for: .milliseconds(10))
     }
   }
 
