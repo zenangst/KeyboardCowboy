@@ -264,6 +264,8 @@ final class ModifierTriggerController: @unchecked Sendable {
           machPortEvent.event.type = .flagsChanged
           machPortEvent.event.flags = .maskNonCoalesced
 
+          coordinator.postMaskNonCoalesced()
+
           if hasDecoratedEvent {
             coordinator.discardSystemEvent(on: machPortEvent)
           }
