@@ -25,6 +25,7 @@ final class BundledCommandRunner: Sendable {
     case .activatePreviousWorkspace:
       if let previousWorkspace = await UserSpace.shared.previousWorkspace {
         try await run(workspaceCommand: previousWorkspace,
+                      forceDisableTiling: true,
                       commandRunner: commandRunner,
                       snapshot: snapshot,
                       machPortEvent: machPortEvent,
@@ -44,6 +45,7 @@ final class BundledCommandRunner: Sendable {
         application: application.asApplication(),
         using: workspaceCommand)
       try await run(workspaceCommand: workspaceCommand.workspace,
+                    forceDisableTiling: false,
                     commandRunner: commandRunner,
                     snapshot: snapshot,
                     machPortEvent: machPortEvent,
@@ -95,6 +97,7 @@ final class BundledCommandRunner: Sendable {
       output = command.name
     case .workspace(let workspaceCommand):
       try await run(workspaceCommand: workspaceCommand,
+                    forceDisableTiling: false,
                     commandRunner: commandRunner,
                     snapshot: snapshot,
                     machPortEvent: machPortEvent,
@@ -110,6 +113,7 @@ final class BundledCommandRunner: Sendable {
   }
 
   private func run(workspaceCommand: WorkspaceCommand,
+                   forceDisableTiling: Bool,
                    commandRunner: CommandRunner,
                    snapshot: UserSpace.Snapshot,
                    machPortEvent: MachPortEvent,
@@ -127,6 +131,7 @@ final class BundledCommandRunner: Sendable {
       }
       UserSpace.shared.currentWorkspace = workspaceCommand
     }
+
     let commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
     for command in commands {
       do {
@@ -137,7 +142,10 @@ final class BundledCommandRunner: Sendable {
       }
       switch command {
       case .windowTiling(let tilingCommand):
-        try await WindowTilingRunner.run(tilingCommand.kind, toggleFill: false, snapshot: snapshot)
+        if !forceDisableTiling {
+          try await WindowTilingRunner.run(tilingCommand.kind, toggleFill: false, snapshot: snapshot)
+          continue
+        }
       default:
         try await commandRunner
           .run(command,
