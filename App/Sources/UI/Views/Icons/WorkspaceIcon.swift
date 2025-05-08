@@ -2,11 +2,13 @@ import SwiftUI
 
 struct WorkspaceIcon: View {
   struct Variant {
+    let showSymbol: Bool
     let fillGradient: LinearGradient
     let firstOverlay: LinearGradient
     let secondOverlay: LinearGradient
 
     nonisolated static let regular: Variant = Variant(
+      showSymbol: false,
       fillGradient: LinearGradient(stops: [
         .init(color: Color.black, location: 0.0),
         .init(color: Color(.black), location: 0.6),
@@ -23,6 +25,7 @@ struct WorkspaceIcon: View {
     )
 
     nonisolated static let activatePrevious: Variant = Variant(
+      showSymbol: true,
       fillGradient: LinearGradient(stops: [
         .init(color: Color(.systemPurple), location: 0.0),
         .init(color: Color(.black), location: 0.6),
@@ -30,15 +33,16 @@ struct WorkspaceIcon: View {
       ], startPoint: .topLeading, endPoint: .bottom),
       firstOverlay: LinearGradient(stops: [
         .init(color: Color.systemPink, location: 0.5),
-        .init(color: Color(.black.blended(withFraction: 0.3, of: .white)!), location: 1.0),
+        .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 1.0),
       ], startPoint: .topTrailing, endPoint: .bottomTrailing),
       secondOverlay: LinearGradient(stops: [
-        .init(color: Color(.systemPink.blended(withFraction: 0.1, of: .red)!), location: 0.2),
+        .init(color: Color(.systemOrange.blended(withFraction: 0.1, of: .red)!), location: 0.2),
         .init(color: Color.clear, location: 0.8),
       ], startPoint: .topTrailing, endPoint: .bottomLeading)
     )
 
     nonisolated static let dynamic: Variant = Variant(
+      showSymbol: false,
       fillGradient: LinearGradient(stops: [
         .init(color: Color(.systemPurple), location: 0.0),
         .init(color: Color(.black), location: 0.6),
@@ -80,9 +84,33 @@ struct WorkspaceIcon: View {
       .overlay {
         WorkspaceIconIllustration(size: size)
       }
+      .overlay(alignment: .center) {
+        SymbolView(size: size)
+          .opacity(variant.showSymbol ? 1 : 0)
+      }
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
+  }
+}
+
+private struct SymbolView: View {
+  let size: CGFloat
+  var body: some View {
+    LinearGradient(stops: [
+      .init(color: Color(nsColor: .white).opacity(0.8), location: 0.6),
+      .init(color: Color(nsColor: .gray), location: 1.0),
+    ], startPoint: .topLeading, endPoint: .bottom)
+    .mask {
+      ZStack {
+        Image(systemName: "arrowshape.turn.up.backward.fill")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: size * 0.35)
+          .offset(x: -size * 0.015, y: -size * 0.015)
+      }
+    }
+    .shadow(color: Color(nsColor: .systemPink.blended(withFraction: 0.4, of: .black)!), radius: 2, y: 1)
   }
 }
 
@@ -229,6 +257,7 @@ fileprivate struct WorkspaceFill: View {
 
 
 #Preview {
+  IconPreview { WorkspaceIcon(.activatePrevious, size: $0) }
   IconPreview { WorkspaceIcon(.dynamic, size: $0) }
   IconPreview { WorkspaceIcon(.regular, size: $0) }
 }
