@@ -314,9 +314,9 @@ final class ShortcutResolver {
     }
     guard let first = workspaces.first else { return }
 
-    let moveModifiers = first.moveModifiers
-    if !moveModifiers.isEmpty {
-      for modifier in moveModifiers {
+    let appToggleModifiers = first.appToggleModifiers
+    if !appToggleModifiers.isEmpty {
+      for modifier in appToggleModifiers {
         var flags = flags
         flags.insert(modifier.cgEventFlags)
         let eventSignature = CGEventSignature(Int64(keyCode), flags)
