@@ -62,7 +62,7 @@ final class DynamicWorkspace {
 
   func assign(application: Application, using command: AssignWorkspaceCommand) async {
     if var copy = assigned[command.workspaceID] {
-      copy.append(application)
+      copy.insert(application, at: 0)
       assigned[command.workspaceID] = copy
     } else {
       assigned[command.workspaceID] = [application]
