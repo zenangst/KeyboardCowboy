@@ -91,7 +91,7 @@ final class ModifierTriggerController: @unchecked Sendable {
 
         cache[keySignature] = ModifierTrigger(
           id: keySignature,
-          alone: .init(kind: .key(key), timeout: 125),
+          alone: .init(kind: .key(key), threshold: 125),
           heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
       }
 
@@ -117,7 +117,7 @@ final class ModifierTriggerController: @unchecked Sendable {
           let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
           cache[keySignature] = ModifierTrigger(
             id: keySignature,
-            alone: .init(kind: .key(key), timeout: 125),
+            alone: .init(kind: .key(key), threshold: 125),
             heldDown: .init(kind: .modifiers([.function]), threshold: 75))
         }
       }
@@ -263,8 +263,6 @@ final class ModifierTriggerController: @unchecked Sendable {
         if machPortEvent.keyCode == currentTrigger.keyCode! {
           machPortEvent.event.type = .flagsChanged
           machPortEvent.event.flags = .maskNonCoalesced
-          coordinator
-            .postMaskNonCoalesced()
 
           if hasDecoratedEvent {
             coordinator.discardSystemEvent(on: machPortEvent)
