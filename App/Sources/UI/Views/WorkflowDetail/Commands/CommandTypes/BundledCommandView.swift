@@ -47,8 +47,7 @@ struct BundledCommandView: View {
       case .workspace(let model):
         WorkspaceCommandView(
           model,
-          onAssignmentChange:    { performWorkspaceUpdate(set: \.assignmentModifiers, to: $0) },
-          onMoveModifiersChange: { performWorkspaceUpdate(set: \.moveModifiers, to: $0) },
+          onAppToggleModifiers:  { performWorkspaceUpdate(set: \.appToggleModifiers, to: $0) },
           onTilingChange:        { performWorkspaceUpdate(set: \.tiling, to: $0) },
           onSelectedAppsChange:  { performWorkspaceUpdate(set: \.bundleIdentifiers, to: $0.map(\.bundleIdentifier)) },
           onHideOtherAppsChange: { performWorkspaceUpdate(set: \.hideOtherApps, to: $0) })

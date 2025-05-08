@@ -123,8 +123,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
 
     struct WorkspaceModel: Codable, Hashable, Sendable {
       var applications: [Application]
-      var assignmentModifiers: [ModifierKey]
-      var moveModifiers: [ModifierKey]
+      var appToggleModifiers: [ModifierKey]
       var tiling: WorkspaceCommand.Tiling?
       var hideOtherApps: Bool
       var isDynamic: Bool

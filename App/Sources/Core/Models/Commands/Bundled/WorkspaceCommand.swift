@@ -26,28 +26,26 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     case bundleIdentifiers
     case tiling
     case hideOtherApps
-    case assignmentModifiers
-    case moveModifiers
+    case appToggleModifiers
+    case moveModifiers // Only for migration.
   }
 
   var id: String
   var bundleIdentifiers: [String]
   var tiling: Tiling?
   var hideOtherApps: Bool
-  var assignmentModifiers: [ModifierKey]
-  var moveModifiers: [ModifierKey]
+  var appToggleModifiers: [ModifierKey]
 
   var isDynamic: Bool { bundleIdentifiers.isEmpty }
 
   init(id: String = UUID().uuidString,
        assignmentModifierS: [ModifierKey] = [],
-       moveModifiers: [ModifierKey] = [],
+       appToggleModifiers: [ModifierKey] = [],
        bundleIdentifiers: [String],
        hideOtherApps: Bool,
        tiling: Tiling?) {
     self.id = id
-    self.assignmentModifiers = assignmentModifierS
-    self.moveModifiers = moveModifiers
+    self.appToggleModifiers = appToggleModifiers
     self.bundleIdentifiers = bundleIdentifiers
     self.hideOtherApps = hideOtherApps
     self.tiling = tiling
@@ -59,11 +57,8 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     try container.encode(self.bundleIdentifiers, forKey: .bundleIdentifiers)
     try container.encodeIfPresent(self.tiling, forKey: .tiling)
     try container.encode(self.hideOtherApps, forKey: .hideOtherApps)
-    if !self.assignmentModifiers.isEmpty {
-      try container.encode(self.assignmentModifiers, forKey: .assignmentModifiers)
-    }
-    if !self.moveModifiers.isEmpty {
-      try container.encode(self.moveModifiers, forKey: .moveModifiers)
+    if !self.appToggleModifiers.isEmpty {
+      try container.encode(self.appToggleModifiers, forKey: .appToggleModifiers)
     }
   }
 
@@ -73,8 +68,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     self.bundleIdentifiers = try container.decode([String].self, forKey: .bundleIdentifiers)
     self.tiling = try container.decodeIfPresent(WorkspaceCommand.Tiling.self, forKey: .tiling)
     self.hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
-    self.assignmentModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .assignmentModifiers) ?? []
-    self.moveModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .moveModifiers) ?? []
+    if let oldModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .moveModifiers) {
+      self.appToggleModifiers = oldModifiers
+    } else {
+      self.appToggleModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .appToggleModifiers) ?? []
+    }
   }
 
   @MainActor
@@ -234,8 +232,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   func copy() -> WorkspaceCommand {
     WorkspaceCommand(
       id: UUID().uuidString,
-      assignmentModifierS: assignmentModifiers,
-      moveModifiers: moveModifiers,
+      appToggleModifiers: appToggleModifiers,
       bundleIdentifiers: bundleIdentifiers,
       hideOtherApps: hideOtherApps,
       tiling: tiling

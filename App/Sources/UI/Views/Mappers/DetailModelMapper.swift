@@ -135,8 +135,7 @@ private extension Command {
 
         let model = CommandViewModel.Kind.WorkspaceModel(
           applications: applications,
-          assignmentModifiers: workspaceCommand.assignmentModifiers,
-          moveModifiers: workspaceCommand.moveModifiers,
+          appToggleModifiers: workspaceCommand.appToggleModifiers,
           tiling: workspaceCommand.tiling,
           hideOtherApps: workspaceCommand.hideOtherApps,
           isDynamic: workspaceCommand.isDynamic)
