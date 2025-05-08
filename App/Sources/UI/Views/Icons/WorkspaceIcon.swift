@@ -22,6 +22,22 @@ struct WorkspaceIcon: View {
       ], startPoint: .topTrailing, endPoint: .bottomLeading)
     )
 
+    nonisolated static let activatePrevious: Variant = Variant(
+      fillGradient: LinearGradient(stops: [
+        .init(color: Color(.systemPurple), location: 0.0),
+        .init(color: Color(.black), location: 0.6),
+        .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 1.0),
+      ], startPoint: .topLeading, endPoint: .bottom),
+      firstOverlay: LinearGradient(stops: [
+        .init(color: Color.systemPink, location: 0.5),
+        .init(color: Color(.black.blended(withFraction: 0.3, of: .white)!), location: 1.0),
+      ], startPoint: .topTrailing, endPoint: .bottomTrailing),
+      secondOverlay: LinearGradient(stops: [
+        .init(color: Color(.systemPink.blended(withFraction: 0.1, of: .red)!), location: 0.2),
+        .init(color: Color.clear, location: 0.8),
+      ], startPoint: .topTrailing, endPoint: .bottomLeading)
+    )
+
     nonisolated static let dynamic: Variant = Variant(
       fillGradient: LinearGradient(stops: [
         .init(color: Color(.systemPurple), location: 0.0),

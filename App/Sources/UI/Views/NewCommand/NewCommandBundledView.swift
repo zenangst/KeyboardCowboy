@@ -49,7 +49,7 @@ struct NewCommandBundledView: View {
       Divider()
 
       switch currentSelection {
-      case .assignToWorkspace, .moveToWorkspace: fatalError()
+      case .assignToWorkspace, .moveToWorkspace, .activatePreviousWorkspace: fatalError()
       case .appFocus(let command):
         NewCommandAppFocusView(validation: $validation) { tiling in
           currentSelection = .appFocus(
@@ -130,7 +130,7 @@ struct NewCommandBundledView: View {
   @discardableResult
   private func updateAndValidatePayload() -> NewCommandValidation {
     switch currentSelection {
-    case .assignToWorkspace, .moveToWorkspace: fatalError()
+    case .assignToWorkspace, .moveToWorkspace, .activatePreviousWorkspace: fatalError()
     case .workspace(let workspaceCommand):
       if workspaceCommand.bundleIdentifiers.isEmpty {
         return .invalid(reason: "Pick at least one application.")
@@ -152,19 +152,21 @@ fileprivate extension BundledCommand.Kind {
   @ViewBuilder
   var icon: some View {
     switch self {
-    case .assignToWorkspace, .moveToWorkspace: fatalError()
-    case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: 24)
+    case .activatePreviousWorkspace: WorkspaceIcon(.activatePrevious, size: 24)
     case .appFocus: AppFocusIcon(size: 24)
+    case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: 24)
     case .tidy: WindowTidyIcon(size: 24)
+    case .assignToWorkspace, .moveToWorkspace: fatalError()
     }
   }
 
   var name: String {
     switch self {
     case .assignToWorkspace, .moveToWorkspace: fatalError()
-    case .workspace: "Workspace"
+    case .activatePreviousWorkspace: "Activate Previous Workspace"
     case .appFocus: "Focus on Application"
     case .tidy: "Tidy up Windows"
+    case .workspace: "Workspace"
     }
   }
 }

@@ -22,6 +22,17 @@ final class BundledCommandRunner: Sendable {
            runtimeDictionary: inout [String: String]) async throws -> String {
     let output: String
     switch bundledCommand.kind {
+    case .activatePreviousWorkspace:
+      if let previousWorkspace = await UserSpace.shared.previousWorkspace {
+        try await run(workspaceCommand: previousWorkspace,
+                      commandRunner: commandRunner,
+                      snapshot: snapshot,
+                      machPortEvent: machPortEvent,
+                      checkCancellation: checkCancellation,
+                      repeatingEvent: repeatingEvent,
+                      runtimeDictionary: &runtimeDictionary)
+      }
+      output = command.name
     case .assignToWorkspace(let command):
       let currentApplication = await UserSpace.shared.frontmostApplication.asApplication()
       await DynamicWorkspace.shared.assign(application: currentApplication,
@@ -107,9 +118,19 @@ final class BundledCommandRunner: Sendable {
     let applications = applicationStore.applications
     let dynamicApps = await DynamicWorkspace.shared.applications(for: workspaceCommand.id)
       .filter { !workspaceCommand.bundleIdentifiers.contains($0.bundleIdentifier) }
+    await MainActor.run {
+      let previousWorkspace = UserSpace.shared.currentWorkspace
+      UserSpace.shared.previousWorkspace = previousWorkspace
+      UserSpace.shared.currentWorkspace = workspaceCommand
+    }
     let commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
     for command in commands {
-      try Task.checkCancellation()
+      do {
+        try Task.checkCancellation()
+      } catch {
+        await windowFocusRunner.resetFocusComponents()
+        throw error
+      }
       switch command {
       case .windowTiling(let tilingCommand):
         try await WindowTilingRunner.run(tilingCommand.kind, toggleFill: false, snapshot: snapshot)
@@ -130,9 +151,6 @@ final class BundledCommandRunner: Sendable {
       }
     }
     await windowFocusRunner.resetFocusComponents()
-    await MainActor.run {
-      UserSpace.shared.currentWorkspace = workspaceCommand
-    }
     Task.detached {
       try await Task.sleep(for: .milliseconds(375))
       WindowTilingRunner.index()
