@@ -226,6 +226,7 @@ extension Command {
       case .bundled(let bundled):
       switch bundled.kind {
       case .assignToWorkspace, .moveToWorkspace: fatalError()
+      case .activatePreviousWorkspace: WorkspaceIcon(.activatePrevious, size: size)
       case .appFocus: AppFocusIcon(size: size)
       case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: size)
       case .tidy: WindowTidyIcon(size: size)

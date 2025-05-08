@@ -18,9 +18,10 @@ struct BundledCommandView: View {
   var body: some View {
     CommandContainerView(metaData, placeholder: model.placeholder) {
       switch model.kind {
-      case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: iconSize.width)
+      case .activatePreviousWorkspace: WorkspaceIcon(.activatePrevious, size: iconSize.width)
       case .appFocus: AppFocusIcon(size: iconSize.width)
       case .tidy: WindowTidyIcon(size: iconSize.width)
+      case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: iconSize.width)
       }
     } content: {
       switch model.kind {
@@ -34,6 +35,15 @@ struct BundledCommandView: View {
         } onCreateWindowChange: { createNewWindow in
           performAppFocusUpdate(set: \.createNewWindow, to: createNewWindow)
         }
+      case .activatePreviousWorkspace:
+        ActivatePreviousWorkspaceCommandView()
+      case .tidy(let model):
+        WindowTidyCommandView(model) { rules in
+          let newRules = rules.map {
+            WindowTidyCommand.Rule(bundleIdentifier: $0.application.bundleIdentifier, tiling: $0.tiling)
+          }
+          performTidyUpdate(set: \.rules, to: newRules)
+        }
       case .workspace(let model):
         WorkspaceCommandView(
           model,
@@ -43,13 +53,6 @@ struct BundledCommandView: View {
           onSelectedAppsChange:  { performWorkspaceUpdate(set: \.bundleIdentifiers, to: $0.map(\.bundleIdentifier)) },
           onHideOtherAppsChange: { performWorkspaceUpdate(set: \.hideOtherApps, to: $0) })
         .id(metaData.id)
-      case .tidy(let model):
-        WindowTidyCommandView(model) { rules in
-          let newRules = rules.map {
-            WindowTidyCommand.Rule(bundleIdentifier: $0.application.bundleIdentifier, tiling: $0.tiling)
-          }
-          performTidyUpdate(set: \.rules, to: newRules)
-        }
       }
     }
   }

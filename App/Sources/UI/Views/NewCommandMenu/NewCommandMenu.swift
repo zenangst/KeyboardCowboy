@@ -83,6 +83,20 @@ fileprivate struct ApplicationMenuView: View {
         }
       })
 
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(
+            .bundled(BundledCommand(.activatePreviousWorkspace(command: ActivatePreviousWorkspaceCommand(id: UUID().uuidString)),
+                                    meta: Command.MetaData()))
+          )
+        }
+      }, label: {
+        HStack {
+          Image(systemName: "arrow.uturn.left")
+          Text("Activate Previous Workspace")
+        }
+      })
+
       Divider()
 
       MenuLabel("System")

@@ -79,6 +79,8 @@ private extension Command {
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
       case .assignToWorkspace, .moveToWorkspace: fatalError()
+      case .activatePreviousWorkspace(let command):
+        kind = .bundled(CommandViewModel.Kind.BundledModel(id: command.id, name: "Focus on last Workspace", kind: .activatePreviousWorkspace))
       case .appFocus(let appFocusCommand):
         let match: Application?
 
@@ -105,6 +107,23 @@ private extension Command {
           )
         )
         break
+      case .tidy(let tidyCommand):
+        var rules = [CommandViewModel.Kind.WindowTidyModel.Rule]()
+        for rule in tidyCommand.rules {
+          guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == rule.bundleIdentifier }) else {
+            continue
+          }
+          rules.append(CommandViewModel.Kind.WindowTidyModel.Rule(application: match, tiling: rule.tiling))
+        }
+        let tidyModel = CommandViewModel.Kind.WindowTidyModel(rules: rules)
+
+        kind = .bundled(
+          .init(
+            id: bundledCommand.id,
+            name: bundledCommand.name,
+            kind: .tidy(tidyModel)
+          )
+        )
       case .workspace(let workspaceCommand):
         var applications = [Application]()
         for bundleIdentifier in workspaceCommand.bundleIdentifiers {
@@ -126,23 +145,6 @@ private extension Command {
             id: bundledCommand.id,
             name: bundledCommand.name,
             kind: .workspace(model)
-          )
-        )
-      case .tidy(let tidyCommand):
-        var rules = [CommandViewModel.Kind.WindowTidyModel.Rule]()
-        for rule in tidyCommand.rules {
-          guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == rule.bundleIdentifier }) else {
-            continue
-          }
-          rules.append(CommandViewModel.Kind.WindowTidyModel.Rule(application: match, tiling: rule.tiling))
-        }
-        let tidyModel = CommandViewModel.Kind.WindowTidyModel(rules: rules)
-
-        kind = .bundled(
-          .init(
-            id: bundledCommand.id,
-            name: bundledCommand.name,
-            kind: .tidy(tidyModel)
           )
         )
       }
