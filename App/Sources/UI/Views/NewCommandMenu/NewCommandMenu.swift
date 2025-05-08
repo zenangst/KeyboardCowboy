@@ -72,7 +72,7 @@ fileprivate struct ApplicationMenuView: View {
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
-            .bundled(BundledCommand(.workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: false, tiling: nil)),
+            .bundled(BundledCommand(.workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
                                     meta: Command.MetaData()))
           )
         }
