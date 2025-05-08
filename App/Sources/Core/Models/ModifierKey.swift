@@ -67,6 +67,17 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     }
   }
 
+  public var iconValue: String {
+    switch self {
+    case .function: ""
+    case .leftShift, .rightShift: ""
+    case .leftControl, .rightControl:        "control"
+    case .leftOption, .rightOption:          "option"
+    case .leftCommand, .rightCommand:        "command"
+    case .capsLock:         ""
+    }
+  }
+
   public var writtenValue: String {
     switch self {
     case .function: "function"
