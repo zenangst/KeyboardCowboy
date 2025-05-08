@@ -120,7 +120,11 @@ final class BundledCommandRunner: Sendable {
       .filter { !workspaceCommand.bundleIdentifiers.contains($0.bundleIdentifier) }
     await MainActor.run {
       let previousWorkspace = UserSpace.shared.currentWorkspace
-      UserSpace.shared.previousWorkspace = previousWorkspace
+      if let previousWorkspace, previousWorkspace.id != workspaceCommand.id {
+        UserSpace.shared.previousWorkspace = previousWorkspace
+      } else if workspaceCommand.id != previousWorkspace?.id {
+        UserSpace.shared.previousWorkspace = previousWorkspace
+      }
       UserSpace.shared.currentWorkspace = workspaceCommand
     }
     let commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
