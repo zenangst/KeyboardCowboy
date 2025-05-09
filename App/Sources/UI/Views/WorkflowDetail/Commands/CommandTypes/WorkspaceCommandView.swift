@@ -14,7 +14,7 @@ struct WorkspaceCommandView: View {
   private let onHideOtherAppsChange: (Bool) -> Void
 
   init(_ model: CommandViewModel.Kind.WorkspaceModel,
-                 onAppToggleModifiers: @escaping ([ModifierKey]) -> Void,
+       onAppToggleModifiers: @escaping ([ModifierKey]) -> Void,
        onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        onSelectedAppsChange: @escaping ([Application]) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void) {

@@ -26,6 +26,7 @@ final class BundledCommandRunner: Sendable {
       if let previousWorkspace = await UserSpace.shared.previousWorkspace {
         try await run(workspaceCommand: previousWorkspace,
                       forceDisableTiling: true,
+                      onlyUnhide: true,
                       commandRunner: commandRunner,
                       snapshot: snapshot,
                       machPortEvent: machPortEvent,
@@ -46,6 +47,7 @@ final class BundledCommandRunner: Sendable {
         using: workspaceCommand)
       try await run(workspaceCommand: workspaceCommand.workspace,
                     forceDisableTiling: false,
+                    onlyUnhide: false,
                     commandRunner: commandRunner,
                     snapshot: snapshot,
                     machPortEvent: machPortEvent,
@@ -98,6 +100,7 @@ final class BundledCommandRunner: Sendable {
     case .workspace(let workspaceCommand):
       try await run(workspaceCommand: workspaceCommand,
                     forceDisableTiling: false,
+                    onlyUnhide: false,
                     commandRunner: commandRunner,
                     snapshot: snapshot,
                     machPortEvent: machPortEvent,
@@ -114,6 +117,7 @@ final class BundledCommandRunner: Sendable {
 
   private func run(workspaceCommand: WorkspaceCommand,
                    forceDisableTiling: Bool,
+                   onlyUnhide: Bool,
                    commandRunner: CommandRunner,
                    snapshot: UserSpace.Snapshot,
                    machPortEvent: MachPortEvent,
@@ -132,7 +136,19 @@ final class BundledCommandRunner: Sendable {
       UserSpace.shared.currentWorkspace = workspaceCommand
     }
 
-    let commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
+    var commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
+    // This should only be true if it comes from `activatePreviousWorkspace`.
+    // It is set to true in order to keep the last focused application the same as when the
+    // workspace was previously active.
+    if onlyUnhide {
+      for (offset, command) in commands.enumerated() {
+        if case .application(var application) = command {
+          application.action = .unhide
+          commands[offset] = .application(application)
+        }
+      }
+    }
+
     for command in commands {
       do {
         try Task.checkCancellation()
