@@ -27,7 +27,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     case tiling
     case hideOtherApps
     case appToggleModifiers
-    case moveModifiers // Only for migration.
   }
 
   var id: String
@@ -68,11 +67,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     self.bundleIdentifiers = try container.decode([String].self, forKey: .bundleIdentifiers)
     self.tiling = try container.decodeIfPresent(WorkspaceCommand.Tiling.self, forKey: .tiling)
     self.hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
-    if let oldModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .moveModifiers) {
-      self.appToggleModifiers = oldModifiers
-    } else {
-      self.appToggleModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .appToggleModifiers) ?? []
-    }
+    self.appToggleModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .appToggleModifiers) ?? []
   }
 
   @MainActor
