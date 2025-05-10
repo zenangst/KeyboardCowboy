@@ -382,28 +382,31 @@ final class WindowTilingRunner {
     let isRight = isTopRight && isBottomRight
     let isTop = isTopLeft && isTopRight
     let isBottom = isBottomLeft && isBottomRight
-    let result: WindowTiling = if isFill || widthDelta == 0 && heightDelta == 0 {
+    let isFillZeroDelta = isFill || widthDelta == 0 && heightDelta == 0
+
+    let result: WindowTiling = if isFillZeroDelta {
       .fill
-    } else if isLeft {
-       .left
-    } else if isRight {
-      .right
-    } else if isTop {
-       .top
-    } else if isBottom {
-       .bottom
-    } else if isTopLeft {
-      .topLeft
-    } else if isTopRight {
-      .topRight
-    } else if isBottomRight {
-      .bottomRight
-    } else if isBottomLeft {
-      .bottomLeft
-    } else if isCenter {
-       .center
-    } else {
-       .fill
+    }
+    else if isCenter { .center }
+    else if isLeft { .left }
+    else if isRight { .right }
+    else if isTop { .top }
+    else if isBottom { .bottom }
+    else if isTopLeft { .topLeft }
+    else if isTopRight { .topRight }
+    else if isBottomRight { .bottomRight }
+    else if isBottomLeft { .bottomLeft }
+    else { .fill }
+
+    if Self.debug {
+      print("isTopLeft", isTopLeft)
+      print("isBottomLeft", isBottomLeft)
+      print("isTopRight", isTopRight)
+      print("isBottomRight", isBottomRight)
+      print("isFill", isFill)
+      print("isCenter", isCenter)
+      print("result", result)
+      print("--------")
     }
 
     return result
