@@ -95,6 +95,58 @@ final class DynamicWorkspace {
     }
   }
 
+  // MARK: - Static methods
+
+  static func createDynamicWorkflows(for workflow: Workflow,
+                                      keyCode: Int64,
+                                      flags: CGEventFlags,
+                                      bundleIdentifier: String,
+                                      userModeKey: String,
+                                      previousKey: String,
+                                      onCreate: (_ key: String, _ match: KeyboardShortcutResult) -> Void) {
+    let workspaces = workflow.commands.compactMap {
+      if case .bundled(let command) = $0,
+         case .workspace(let workspace) = command.kind {
+        workspace
+      } else {
+        nil
+      }
+    }
+    guard let first = workspaces.first else { return }
+
+    let appToggleModifiers = first.appToggleModifiers
+    if !appToggleModifiers.isEmpty {
+      for modifier in appToggleModifiers {
+        var flags = flags
+        flags.insert(modifier.cgEventFlags)
+        let eventSignature = CGEventSignature(Int64(keyCode), flags)
+        let key = ShortcutResolver.createKey(eventSignature: eventSignature,
+                                             bundleIdentifier: bundleIdentifier,
+                                             userModeKey: userModeKey,
+                                             previousKey: previousKey)
+        let workflow = Workflow(
+          name: "Dynamic Workflow from \(key)",
+          commands: [
+            .bundled(
+              BundledCommand(
+                .moveToWorkspace(
+                  command: MoveToWorkspaceCommand(
+                    id: UUID().uuidString,
+                    workspace: first
+                  )
+                ),
+                meta: Command.MetaData()
+              )
+            )
+          ]
+        )
+        onCreate(key, .exact(workflow))
+      }
+    }
+  }
+
+  // MARK: - Private methods
+
   private func remove(_ app: RunningApplication) {
     for (id, applications) in self.assigned {
       let newApplications = applications.filter { $0.bundleIdentifier != app.bundleIdentifier }
