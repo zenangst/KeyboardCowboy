@@ -12,15 +12,16 @@ final class SystemHideAllAppsRunner {
     guard let currentScreen = NSScreen.main else { return }
 
     var targetScreenFrame: CGRect = currentScreen.visibleFrame
-
-    let exceptBundleIdentifiers = workflowCommands.compactMap {
+    var excludedBundleIdentifiers = workflowCommands.compactMap {
       if case .application(let command) = $0, (command.action == .open || command.action == .unhide) { return command.application.bundleIdentifier }
       return nil
     }
 
+    excludedBundleIdentifiers.append(Bundle.main.bundleIdentifier!)
+
     var (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
                                                               targetPid: nil, options: [.excludeDesktopElements, .optionOnScreenOnly],
-                                                              exceptBundleIdentifiers: exceptBundleIdentifiers)
+                                                              exceptBundleIdentifiers: excludedBundleIdentifiers)
 
     if let targetApplication, NSScreen.screens.count > 1 {
       // Find target application
@@ -35,7 +36,7 @@ final class SystemHideAllAppsRunner {
               (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
                                                                     targetPid: Int(app.processIdentifier),
                                                                     options: [.excludeDesktopElements],
-                                                                    exceptBundleIdentifiers: exceptBundleIdentifiers)
+                                                                    exceptBundleIdentifiers: excludedBundleIdentifiers)
               break
             }
           }
@@ -51,7 +52,7 @@ final class SystemHideAllAppsRunner {
       }
     }
 
-    for exceptBundleIdentifier in exceptBundleIdentifiers {
+    for exceptBundleIdentifier in excludedBundleIdentifiers {
       if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == exceptBundleIdentifier }) {
         validPids.insert(Int(app.processIdentifier))
       }
