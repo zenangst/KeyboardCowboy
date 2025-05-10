@@ -498,7 +498,8 @@ extension Collection where Element == Command {
       switch command {
       case .bundled(let bundledCommand):
         switch bundledCommand.kind {
-        case .appFocus, .workspace, .tidy:
+        case .assignToWorkspace, .moveToWorkspace: return false
+        case .activatePreviousWorkspace, .appFocus, .workspace, .tidy:
           return true
         }
       default:

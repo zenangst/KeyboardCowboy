@@ -238,16 +238,20 @@ final class WindowTilingRunner {
           if let currentStorage, currentStorage.isFullScreen {
             if currentStorage.tiling == activatedTiling {
               nextTiling = .center
-            } else if currentStorage.isFullScreen {
+            } else if currentStorage.isFullScreen && currentStorage.tiling != .fill {
               // this is where we are at.
               nextTiling = currentStorage.tiling
             } else {
               nextTiling = .fill
             }
-            updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
+            let isFullScreen = nextTiling == .fill
+            let isCentered = nextTiling == .center
+            updateStore(isFullScreen: isFullScreen, isCentered: isCentered, in: visibleScreenFrame, for: nextWindow)
           } else {
             nextTiling = activatedTiling
-            updateStore(isFullScreen: true, isCentered: false, in: visibleScreenFrame, for: nextWindow)
+            let isFullScreen = nextTiling == .fill
+            let isCentered = nextTiling == .center
+            updateStore(isFullScreen: isFullScreen, isCentered: isCentered, in: visibleScreenFrame, for: nextWindow)
           }
         default:
           nextTiling = activatedTiling
@@ -378,28 +382,31 @@ final class WindowTilingRunner {
     let isRight = isTopRight && isBottomRight
     let isTop = isTopLeft && isTopRight
     let isBottom = isBottomLeft && isBottomRight
-    let result: WindowTiling = if isFill || widthDelta == 0 && heightDelta == 0 {
+    let isFillZeroDelta = isFill || widthDelta == 0 && heightDelta == 0
+
+    let result: WindowTiling = if isFillZeroDelta {
       .fill
-    } else if isLeft {
-       .left
-    } else if isRight {
-      .right
-    } else if isTop {
-       .top
-    } else if isBottom {
-       .bottom
-    } else if isTopLeft {
-      .topLeft
-    } else if isTopRight {
-      .topRight
-    } else if isBottomRight {
-      .bottomRight
-    } else if isBottomLeft {
-      .bottomLeft
-    } else if isCenter {
-       .center
-    } else {
-       .fill
+    }
+    else if isCenter { .center }
+    else if isLeft { .left }
+    else if isRight { .right }
+    else if isTop { .top }
+    else if isBottom { .bottom }
+    else if isTopLeft { .topLeft }
+    else if isTopRight { .topRight }
+    else if isBottomRight { .bottomRight }
+    else if isBottomLeft { .bottomLeft }
+    else { .fill }
+
+    if Self.debug {
+      print("isTopLeft", isTopLeft)
+      print("isBottomLeft", isBottomLeft)
+      print("isTopRight", isTopRight)
+      print("isBottomRight", isBottomRight)
+      print("isFill", isFill)
+      print("isCenter", isCenter)
+      print("result", result)
+      print("--------")
     }
 
     return result

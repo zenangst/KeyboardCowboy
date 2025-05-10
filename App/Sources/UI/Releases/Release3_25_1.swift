@@ -48,7 +48,7 @@ private struct HeaderView: View {
       WindowTilingIcon(kind: .arrangeLeftQuarters, size: 128)
         .rotation3DEffect(.degrees(10), axis: (x: 1, y: 1, z: -1))
         .zIndex(9)
-      WorkspaceIcon(size: 128)
+      WorkspaceIcon(.regular, size: 128)
         .rotation3DEffect(.degrees(2.5), axis: (x: 1, y: 0, z: 1))
         .shadow(radius: 30)
         .zIndex(10)
@@ -170,7 +170,7 @@ private struct ChangesView: View {
            text: "Fixes main window handling for older versions of macOS.",
            version: .v3253),
 
-    Change(icon: { WorkspaceIcon(size: 24).anyView },
+    Change(icon: { WorkspaceIcon(.regular, size: 24).anyView },
            text: "Minor tweaks to the workspace command to make it more accurate and efficient.",
            version: .v3253),
 
@@ -214,7 +214,7 @@ private struct ChangesView: View {
            text: "A quick fix for contextual menus not working on macOS Sonoma.",
            version: .v3251),
 
-    Change(icon: { WorkspaceIcon(size: 24).anyView },
+    Change(icon: { WorkspaceIcon(.regular, size: 24).anyView },
            text: "Level up your macOS productivity with Workspaces.",
            version: .v3250),
 

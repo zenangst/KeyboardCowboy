@@ -67,9 +67,21 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     }
   }
 
+  public var iconValue: String {
+    switch self {
+    case .function: ""
+    case .leftShift, .rightShift: ""
+    case .leftControl, .rightControl:        "control"
+    case .leftOption, .rightOption:          "option"
+    case .leftCommand, .rightCommand:        "command"
+    case .capsLock:         ""
+    }
+  }
+
   public var writtenValue: String {
     switch self {
-    case .function, .leftShift, .rightShift: ""
+    case .function: "function"
+    case .leftShift, .rightShift: "shift"
     case .leftControl, .rightControl:        "control"
     case .leftOption, .rightOption:          "option"
     case .leftCommand, .rightCommand:        "command"
@@ -153,6 +165,21 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     }
 
     return modifierFlags
+  }
+
+  var pair: ModifierKey? {
+    switch self {
+    case .function: nil
+    case .capsLock: nil
+    case .leftShift:    .rightShift
+    case .leftControl:  .rightControl
+    case .leftOption:   .rightOption
+    case .leftCommand:  .rightCommand
+    case .rightShift:   .leftShift
+    case .rightControl: .leftControl
+    case .rightOption:  .leftOption
+    case .rightCommand: .leftCommand
+    }
   }
 
   init(keyCode: Int) {

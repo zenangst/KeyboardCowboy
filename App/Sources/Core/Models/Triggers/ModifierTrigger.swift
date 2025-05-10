@@ -28,9 +28,9 @@ struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
     let kind: Kind
     let threshold: TimeInterval
 
-    init(kind: Kind, timeout: TimeInterval = 75) {
+    init(kind: Kind, threshold: TimeInterval = 75) {
       self.kind = kind
-      self.threshold = timeout
+      self.threshold = threshold
     }
   }
 

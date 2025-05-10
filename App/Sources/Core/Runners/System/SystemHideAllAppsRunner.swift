@@ -12,15 +12,16 @@ final class SystemHideAllAppsRunner {
     guard let currentScreen = NSScreen.main else { return }
 
     var targetScreenFrame: CGRect = currentScreen.visibleFrame
-
-    let exceptBundleIdentifiers = workflowCommands.compactMap {
+    var excludedBundleIdentifiers = workflowCommands.compactMap {
       if case .application(let command) = $0, (command.action == .open || command.action == .unhide) { return command.application.bundleIdentifier }
       return nil
     }
 
+    excludedBundleIdentifiers.append(Bundle.main.bundleIdentifier!)
+
     var (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
                                                               targetPid: nil, options: [.excludeDesktopElements, .optionOnScreenOnly],
-                                                              exceptBundleIdentifiers: exceptBundleIdentifiers)
+                                                              exceptBundleIdentifiers: excludedBundleIdentifiers)
 
     if let targetApplication, NSScreen.screens.count > 1 {
       // Find target application
@@ -35,11 +36,25 @@ final class SystemHideAllAppsRunner {
               (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
                                                                     targetPid: Int(app.processIdentifier),
                                                                     options: [.excludeDesktopElements],
-                                                                    exceptBundleIdentifiers: exceptBundleIdentifiers)
+                                                                    exceptBundleIdentifiers: excludedBundleIdentifiers)
               break
             }
           }
         }
+      }
+    }
+
+
+    var validPids = Set<Int>()
+    if let targetApplication {
+      if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == targetApplication.bundleIdentifier }) {
+        validPids.insert(Int(app.processIdentifier))
+      }
+    }
+
+    for exceptBundleIdentifier in excludedBundleIdentifiers {
+      if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == exceptBundleIdentifier }) {
+        validPids.insert(Int(app.processIdentifier))
       }
     }
 
@@ -68,29 +83,25 @@ final class SystemHideAllAppsRunner {
     }
 
     var timeout: Int = 0
+    let limit: Int = 100
     var waitingForWindowsToDisappear: Bool = true
-    let frontMostPid: Set<Int> = [Int(NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0)]
 
     while waitingForWindowsToDisappear {
       if checkCancellation {
         try Task.checkCancellation()
       }
 
-      if timeout >= 10 {
-        waitingForWindowsToDisappear = false
-        return
-      }
-
       let windows = indexWindowsInStage(getWindows(options: [.optionOnScreenOnly, .excludeDesktopElements]), targetRect: targetScreenFrame)
       let windowsProcessIds = Set(windows.map(\.ownerPid.rawValue))
 
-      if windowsProcessIds == frontMostPid, windowsProcessIds.isDisjoint(with: processIdentifiers) {
+      if windowsProcessIds == validPids {
         waitingForWindowsToDisappear = false
-        return
+      } else if timeout >= limit {
+        waitingForWindowsToDisappear = false
+      } else {
+        timeout += 1
+        try await Task.sleep(for: .milliseconds(10))
       }
-
-      timeout += 1
-      try await Task.sleep(for: .milliseconds(10))
     }
   }
 

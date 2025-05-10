@@ -78,6 +78,9 @@ private extension Command {
       kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
+      case .assignToWorkspace, .moveToWorkspace: fatalError()
+      case .activatePreviousWorkspace(let command):
+        kind = .bundled(CommandViewModel.Kind.BundledModel(id: command.id, name: "Focus on last Workspace", kind: .activatePreviousWorkspace))
       case .appFocus(let appFocusCommand):
         let match: Application?
 
@@ -104,26 +107,6 @@ private extension Command {
           )
         )
         break
-      case .workspace(let workspaceCommand):
-        var applications = [Application]()
-        for bundleIdentifier in workspaceCommand.bundleIdentifiers {
-          guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
-            continue
-          }
-          applications.append(match)
-        }
-
-        let model = CommandViewModel.Kind.WorkspaceModel.init(
-          applications: applications,
-          tiling: workspaceCommand.tiling,
-          hideOtherApps: workspaceCommand.hideOtherApps)
-        kind = .bundled(
-          .init(
-            id: bundledCommand.id,
-            name: bundledCommand.name,
-            kind: .workspace(model)
-          )
-        )
       case .tidy(let tidyCommand):
         var rules = [CommandViewModel.Kind.WindowTidyModel.Rule]()
         for rule in tidyCommand.rules {
@@ -139,6 +122,28 @@ private extension Command {
             id: bundledCommand.id,
             name: bundledCommand.name,
             kind: .tidy(tidyModel)
+          )
+        )
+      case .workspace(let workspaceCommand):
+        var applications = [Application]()
+        for bundleIdentifier in workspaceCommand.bundleIdentifiers {
+          guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
+            continue
+          }
+          applications.append(match)
+        }
+
+        let model = CommandViewModel.Kind.WorkspaceModel(
+          applications: applications,
+          appToggleModifiers: workspaceCommand.appToggleModifiers,
+          tiling: workspaceCommand.tiling,
+          hideOtherApps: workspaceCommand.hideOtherApps,
+          isDynamic: workspaceCommand.isDynamic)
+        kind = .bundled(
+          .init(
+            id: bundledCommand.id,
+            name: bundledCommand.name,
+            kind: .workspace(model)
           )
         )
       }

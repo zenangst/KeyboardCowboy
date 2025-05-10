@@ -57,17 +57,17 @@ final class ShortcutResolver {
     if !userModes.isEmpty {
       for userMode in userModes {
         let userModeKey = userMode.dictionaryKey(true)
-        let scopedKeyWithUserMode = createKey(eventSignature: eventSignature,
-                                              bundleIdentifier: bundleIdentifier,
-                                              userModeKey: userModeKey, previousKey: partialMatch.rawValue)
+        let scopedKeyWithUserMode = Self.createKey(eventSignature: eventSignature,
+                                                   bundleIdentifier: bundleIdentifier,
+                                                   userModeKey: userModeKey, previousKey: partialMatch.rawValue)
 
         if let result = cache[scopedKeyWithUserMode] {
           if Self.debug { print("scopedKeyWithUserMode: \(scopedKeyWithUserMode)") }
           return result
         }
 
-        let globalKeyWithUserMode = createKey(eventSignature: eventSignature,
-                                              bundleIdentifier: "*", userModeKey: userModeKey, previousKey: partialMatch.rawValue)
+        let globalKeyWithUserMode = Self.createKey(eventSignature: eventSignature,
+                                                   bundleIdentifier: "*", userModeKey: userModeKey, previousKey: partialMatch.rawValue)
 
         if let result = cache[globalKeyWithUserMode] {
           if Self.debug { print("globalKeyWithUserMode: \(globalKeyWithUserMode)") }
@@ -77,8 +77,8 @@ final class ShortcutResolver {
       }
     }
 
-    let scopedKey = createKey(eventSignature: eventSignature,
-                              bundleIdentifier: bundleIdentifier, userModeKey: "", previousKey: partialMatch.rawValue)
+    let scopedKey = Self.createKey(eventSignature: eventSignature,
+                                   bundleIdentifier: bundleIdentifier, userModeKey: "", previousKey: partialMatch.rawValue)
 
 
 
@@ -87,8 +87,8 @@ final class ShortcutResolver {
       return result
     }
 
-    let globalKey = createKey(eventSignature: eventSignature,
-                              bundleIdentifier: "*", userModeKey: "", previousKey: partialMatch.rawValue)
+    let globalKey = Self.createKey(eventSignature: eventSignature,
+                                   bundleIdentifier: "*", userModeKey: "", previousKey: partialMatch.rawValue)
 
     if Self.debug { print("globalKey: \(globalKey)") }
 
@@ -227,13 +227,24 @@ final class ShortcutResolver {
             }
 
             if group.userModes.isEmpty {
-              let key = createKey(eventSignature: eventSignature,
+              let key = Self.createKey(eventSignature: eventSignature,
                                   bundleIdentifier: bundleIdentifier,
                                   userModeKey: "",
                                   previousKey: previousKey)
+              let currentPreviousKey = previousKey
               previousKey += "\(eventSignature.id)+"
 
               if offset == count {
+                DynamicWorkspace.createDynamicWorkflows(
+                  for: workflow,
+                  keyCode: Int64(keyCode),
+                  flags: flags,
+                  bundleIdentifier: bundleIdentifier,
+                  userModeKey: "",
+                  previousKey: currentPreviousKey
+                ) { newKey, match in
+                  newCache[newKey] = match
+                }
                 newCache[key] = .exact(workflow)
               } else {
                 newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
@@ -244,10 +255,11 @@ final class ShortcutResolver {
               var didSetPreviousKey: Bool = false
               for userMode in group.userModes {
                 let userModeKey = userMode.dictionaryKey(true)
-                let key = createKey(eventSignature: eventSignature,
-                                    bundleIdentifier: bundleIdentifier,
-                                    userModeKey: userModeKey,
-                                    previousKey: previousKey)
+                let currentPreviousKey = previousKey
+                let key = Self.createKey(eventSignature: eventSignature,
+                                         bundleIdentifier: bundleIdentifier,
+                                         userModeKey: userModeKey,
+                                         previousKey: previousKey)
                 if !didSetPreviousKey {
                   previousKey += "\(eventSignature.id)+"
                   didSetPreviousKey = true
@@ -258,6 +270,16 @@ final class ShortcutResolver {
                 }
 
                 if offset == count {
+                  DynamicWorkspace.createDynamicWorkflows(
+                    for: workflow,
+                    keyCode: Int64(keyCode),
+                    flags: flags,
+                    bundleIdentifier: bundleIdentifier,
+                    userModeKey: userModeKey,
+                    previousKey: currentPreviousKey
+                  ) { newKey, match in
+                    newCache[newKey] = match
+                  }
                   newCache[key] = .exact(workflow)
                 } else {
                   newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
@@ -273,6 +295,14 @@ final class ShortcutResolver {
     cache = newCache
   }
 
+  // MARK: - Static methods
+
+  static func createKey(eventSignature: CGEventSignature,
+                        bundleIdentifier: String, userModeKey: String,
+                        previousKey: String) -> String {
+    "\(bundleIdentifier)\(previousKey)\(eventSignature.id)\(userModeKey)"
+  }
+
   // MARK: - Private methods
 
   private func resolveAnyKeyCode(_ keyShortcut: KeyShortcut) -> Int? {
@@ -281,11 +311,6 @@ final class ShortcutResolver {
     : nil
   }
 
-  private func createKey(eventSignature: CGEventSignature,
-                         bundleIdentifier: String, userModeKey: String,
-                         previousKey: String) -> String {
-    "\(bundleIdentifier)\(previousKey)\(eventSignature.id)\(userModeKey)"
-  }
 }
 
 private struct FallbackLookupToken: LookupToken {

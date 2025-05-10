@@ -101,15 +101,17 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
 
     struct BundledModel: Codable, Hashable, Identifiable, Sendable {
       enum Kind: Codable, Hashable, Sendable {
-        case workspace(WorkspaceModel)
+        case activatePreviousWorkspace
         case appFocus(AppFocusModel)
         case tidy(WindowTidyModel)
+        case workspace(WorkspaceModel)
 
         var placeholder: String {
           switch self {
-          case .workspace: "Organize Apps into Workspace…"
+          case .activatePreviousWorkspace: "Activate Previous Workspace…"
           case .appFocus: "Focus on App…"
           case .tidy: "Tidy up Windows…"
+          case .workspace: "Organize Apps into Workspace…"
           }
         }
       }
@@ -121,8 +123,10 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
 
     struct WorkspaceModel: Codable, Hashable, Sendable {
       var applications: [Application]
+      var appToggleModifiers: [ModifierKey]
       var tiling: WorkspaceCommand.Tiling?
       var hideOtherApps: Bool
+      var isDynamic: Bool
     }
 
     struct AppFocusModel: Codable, Hashable, Sendable {

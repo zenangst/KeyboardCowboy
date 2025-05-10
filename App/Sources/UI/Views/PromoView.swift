@@ -144,7 +144,7 @@ private struct MuchMoreView: View {
         ScriptIconView(size: 48)
       }
       HStack {
-        WorkspaceIcon(size: 48)
+        WorkspaceIcon(.regular, size: 48)
         AppFocusIcon(size: 48)
         WindowTidyIcon(size: 48)
       }

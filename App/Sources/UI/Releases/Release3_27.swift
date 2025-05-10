@@ -99,7 +99,7 @@ private struct HeaderView: View {
         .rotation3DEffect(.degrees(2.5), axis: (x: 1, y: 0, z: 1))
         .shadow(radius: 30)
         .zIndex(10)
-      WorkspaceIcon(size: iconSize)
+      WorkspaceIcon(.regular, size: iconSize)
         .rotation3DEffect(.degrees(10), axis: (x: 1, y: 0, z: 1))
         .zIndex(9)
     }
@@ -223,7 +223,7 @@ private struct ChangesView: View {
            text: "Bug fixes when using macOS Sequoia window tiling.",
            version: .v3270),
 
-    Change(icon: { WorkspaceIcon(size: 24).anyView },
+    Change(icon: { WorkspaceIcon(.regular, size: 24).anyView },
            text: "Bug fixes in the **Workspace Command**.",
            version: .v3270),
 

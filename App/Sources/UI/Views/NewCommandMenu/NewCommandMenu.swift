@@ -72,7 +72,7 @@ fileprivate struct ApplicationMenuView: View {
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
-            .bundled(BundledCommand(.workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: false, tiling: nil)),
+            .bundled(BundledCommand(.workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
                                     meta: Command.MetaData()))
           )
         }
@@ -80,6 +80,20 @@ fileprivate struct ApplicationMenuView: View {
         HStack {
           Image(systemName: "app.gift")
           Text("Workspaces")
+        }
+      })
+
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(
+            .bundled(BundledCommand(.activatePreviousWorkspace(command: ActivatePreviousWorkspaceCommand(id: UUID().uuidString)),
+                                    meta: Command.MetaData()))
+          )
+        }
+      }, label: {
+        HStack {
+          Image(systemName: "arrow.uturn.left")
+          Text("Activate Previous Workspace")
         }
       })
 

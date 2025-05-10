@@ -9,14 +9,17 @@ struct WorkspaceCommandView: View {
   @State private var model: CommandViewModel.Kind.WorkspaceModel
 
   private let onTilingChange: (WorkspaceCommand.Tiling?) -> Void
+  private let onAppToggleModifiers: ([ModifierKey]) -> Void
   private let onSelectedAppsChange: ([Application]) -> Void
   private let onHideOtherAppsChange: (Bool) -> Void
 
   init(_ model: CommandViewModel.Kind.WorkspaceModel,
+       onAppToggleModifiers: @escaping ([ModifierKey]) -> Void,
        onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        onSelectedAppsChange: @escaping ([Application]) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void) {
     self.model = model
+    self.onAppToggleModifiers = onAppToggleModifiers
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange
     self.onHideOtherAppsChange = onHideOtherAppsChange
@@ -36,9 +39,19 @@ struct WorkspaceCommandView: View {
                    label: { Text(application.displayName) })
           }
         } label: {
-          Text("Add Application")
+          Text("Add Application to Workspace")
+            .font(.subheadline)
         }
       }
+
+      if model.applications.isEmpty {
+        Text("Dynamic Workspace, empty Workspaces are dynamic and applications that are opened in them will be automatically added to the Workspace.")
+        .font(.footnote)
+        .foregroundStyle(.primary)
+        .frame(maxWidth: .infinity)
+        .style(.derived)
+      }
+
 
       ZenDivider()
 
@@ -75,7 +88,7 @@ struct WorkspaceCommandView: View {
           onSelectedAppsChange(model.applications)
         }
       }
-      .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 34, 148)))
+      .frame(minHeight: max(8, min(CGFloat(model.applications.count) * 34, 148)))
 
       VStack(alignment: .leading, spacing: 2) {
         ZenLabel("Window Tiling")
@@ -138,6 +151,50 @@ struct WorkspaceCommandView: View {
                 }
             }
           }
+
+          ZenDivider()
+
+          VStack(alignment: .leading) {
+            ZenLabel("Dynamic move modifiers")
+              .style(.derived)
+            Menu {
+              let modifiers: [ModifierKey] = [
+                .leftShift, .leftCommand, .leftOption, .leftControl, .function
+              ]
+              ForEach(modifiers) { modifier in
+                let isOn = Binding<Bool>(
+                  get: { model.appToggleModifiers.contains(where: { $0 == modifier }) },
+                  set: { newValue in
+                    if model.appToggleModifiers.contains(where: { $0 == modifier }) {
+                      model.appToggleModifiers.removeAll { $0 == modifier.pair || $0 == modifier }
+                    } else {
+                      model.appToggleModifiers.append(modifier)
+                      if let pair = modifier.pair {
+                        model.appToggleModifiers.append(pair)
+                      }
+                    }
+                    onAppToggleModifiers(model.appToggleModifiers)
+                  })
+                Toggle(isOn: isOn) {
+                  Text(modifier.keyValue + " " + modifier.writtenValue.capitalized)
+                }
+              }
+            } label: {
+              let validModifiers = model.appToggleModifiers
+                .unique(by: \.writtenValue)
+              var counter = 0
+              let displayValue = validModifiers
+                .reduce(into: "") { result, modifier in
+                  result += modifier.keyValue + " " + modifier.writtenValue.capitalized
+                  if counter != validModifiers.count - 1 { result += "," }
+
+                  counter += 1
+                }
+              Text(displayValue)
+                .font(.caption)
+            }
+            .toggleStyle(.button)
+          }
         }
         .style(.derived)
       }
@@ -162,5 +219,12 @@ fileprivate extension WorkspaceCommand.Tiling {
     case .fill: "Fill"
     case .center: "Center"
     }
+  }
+}
+
+private extension Array {
+  func unique<T: Hashable>(by keyPath: KeyPath<Element, T>) -> [Element] {
+    var seen = Set<T>()
+    return self.filter { seen.insert($0[keyPath: keyPath]).inserted }
   }
 }
