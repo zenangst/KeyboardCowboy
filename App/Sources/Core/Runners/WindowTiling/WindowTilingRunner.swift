@@ -238,16 +238,20 @@ final class WindowTilingRunner {
           if let currentStorage, currentStorage.isFullScreen {
             if currentStorage.tiling == activatedTiling {
               nextTiling = .center
-            } else if currentStorage.isFullScreen {
+            } else if currentStorage.isFullScreen && currentStorage.tiling != .fill {
               // this is where we are at.
               nextTiling = currentStorage.tiling
             } else {
               nextTiling = .fill
             }
-            updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
+            let isFullScreen = nextTiling == .fill
+            let isCentered = nextTiling == .center
+            updateStore(isFullScreen: isFullScreen, isCentered: isCentered, in: visibleScreenFrame, for: nextWindow)
           } else {
             nextTiling = activatedTiling
-            updateStore(isFullScreen: true, isCentered: false, in: visibleScreenFrame, for: nextWindow)
+            let isFullScreen = nextTiling == .fill
+            let isCentered = nextTiling == .center
+            updateStore(isFullScreen: isFullScreen, isCentered: isCentered, in: visibleScreenFrame, for: nextWindow)
           }
         default:
           nextTiling = activatedTiling
