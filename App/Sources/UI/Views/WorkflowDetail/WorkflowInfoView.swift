@@ -6,7 +6,6 @@ import SwiftUI
 struct WorkflowInfoView: View {
   @EnvironmentObject private var transaction: UpdateTransaction
   @EnvironmentObject private var updater: ConfigurationUpdater
-  @ObserveInjection var inject
   @ObservedObject private var publisher: InfoPublisher
   @State var name: String
 
@@ -46,7 +45,6 @@ struct WorkflowInfoView: View {
         .switchStyle()
         .environment(\.switchStyle, .regular)
     }
-    .enableInjection()
   }
 }
 

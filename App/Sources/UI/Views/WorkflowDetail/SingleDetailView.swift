@@ -4,7 +4,6 @@ import SwiftUI
 import Apps
 
 struct SingleDetailView: View {
-  @ObserveInjection var inject
   @Namespace var namespace
 
   @EnvironmentObject private var commandPublisher: CommandsPublisher
@@ -63,7 +62,6 @@ struct SingleDetailView: View {
                 focus.wrappedValue = .detail(.commands)
               }
             })
-          .id(infoPublisher.data.id)
         }
         .padding(.top, 12)
         .padding(.bottom, 24)
@@ -90,7 +88,6 @@ struct SingleDetailView: View {
     }
     .focusScope(namespace)
     .frame(maxHeight: .infinity, alignment: .top)
-    .enableInjection()
   }
 }
 

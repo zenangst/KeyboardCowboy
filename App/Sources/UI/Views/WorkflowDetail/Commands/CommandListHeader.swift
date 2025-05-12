@@ -3,7 +3,6 @@ import Inject
 import SwiftUI
 
 struct CommandListHeader: View {
-  @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject var publisher: CommandsPublisher
@@ -47,7 +46,6 @@ struct CommandListHeader: View {
         .environment(\.menuHoverEffect, publisher.data.commands.isEmpty ? false : true)
       }
     }
-    .enableInjection()
   }
 }
 

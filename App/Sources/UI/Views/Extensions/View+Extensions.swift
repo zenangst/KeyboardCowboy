@@ -1,35 +1,19 @@
 import SwiftUI
 
 extension View {
-  @ViewBuilder
-  func stacked(_ stacked: Binding<Bool>, color: Color, size: CGFloat) -> some View {
-    let angle = Angle.degrees(stacked.wrappedValue ? 45 : 0)
-    let cosineOfAngle = cos(angle.radians)
-    let adjustmentFactor: CGFloat = 1.0
-    let scale = (1.0 / cosineOfAngle) * adjustmentFactor
-    self
-      .rotation3DEffect(
-        angle,
-        axis: (x: 1, y: 0, z: 0)
-      )
-      .scaleEffect(x: scale, y: 1, anchor: .center)
-      .animation(.easeInOut(duration: 3.0), value: stacked.wrappedValue)
-  }
-
   func iconShape(_ size: CGFloat) -> some View {
     self
       .clipShape(RoundedRectangle(cornerRadius: size * 0.2))
   }
 
-  @ViewBuilder
   func iconOverlay() -> some View {
     IconOverlayView()
   }
+
   func iconBorder(_ size: CGFloat) -> some View {
     IconBorderView(size)
   }
 
-  @ViewBuilder
   func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
     transform(self)
   }
@@ -38,11 +22,6 @@ extension View {
     onHover(perform: { hovering in
       if hovering { cursor.push() } else { NSCursor.pop() }
     })
-  }
-
-  @ViewBuilder
-  func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
-    if condition { transform(self) } else { self }
   }
 
   @MainActor @ViewBuilder
@@ -54,7 +33,6 @@ extension View {
     }
   }
 
-  @ViewBuilder
   func debugID<Element: Identifiable>(_ element: Element) -> some View where Element.ID == String {
     self
       .overlay(content: {

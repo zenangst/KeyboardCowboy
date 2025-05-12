@@ -9,9 +9,9 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   private let placeholder: String
 
   @State private var metaData: CommandViewModel.MetaData
-  @ViewBuilder private let icon: () -> IconContent
-  @ViewBuilder private let content: () -> Content
-  @ViewBuilder private let subContent: () -> SubContent
+  private let icon: () -> IconContent
+  private let content: () -> Content
+  private let subContent: () -> SubContent
 
   init(_ metaData: CommandViewModel.MetaData,
        placeholder: String,
@@ -88,8 +88,8 @@ private struct HeaderView: View {
 }
 
 private struct ContentView<IconContent, Content>: View where IconContent: View, Content: View {
-  @ViewBuilder private let icon: () -> IconContent
-  @ViewBuilder private let content: () -> Content
+  private let icon: () -> IconContent
+  private let content: () -> Content
 
   init(icon: @escaping () -> IconContent,
        content: @escaping () -> Content) {

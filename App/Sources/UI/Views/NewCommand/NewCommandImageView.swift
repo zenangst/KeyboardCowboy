@@ -4,7 +4,6 @@ import SwiftUI
 struct NewCommandImageView: View {
   let kind: NewCommandView.Kind
 
-  @ViewBuilder
   var body: some View {
     Group {
       switch kind {

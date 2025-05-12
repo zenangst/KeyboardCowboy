@@ -3,7 +3,6 @@ import Bonzai
 import SwiftUI
 
 struct CommandListScrollView: View {
-  @ObserveInjection var inject
   @EnvironmentObject private var updater: ConfigurationUpdater
   @EnvironmentObject private var transaction: UpdateTransaction
   @EnvironmentObject private var applicationStore: ApplicationStore
@@ -121,6 +120,5 @@ struct CommandListScrollView: View {
     }
     .focused(focus, equals: .detail(.commands))
     .matchedGeometryEffect(id: "command-list", in: namespace)
-    .enableInjection()
   }
 }

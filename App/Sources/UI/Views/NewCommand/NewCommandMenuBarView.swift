@@ -23,7 +23,6 @@ struct NewCommandMenuBarView: View {
 
   private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#menu-bar-commands")!
 
-  @ObserveInjection var inject
   @Namespace var namespace
   @FocusState var focus: Focus?
   @Environment(\.resetFocus) var resetFocus
@@ -54,7 +53,6 @@ struct NewCommandMenuBarView: View {
     }
   }
 
-  @ViewBuilder
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
@@ -130,7 +128,6 @@ struct NewCommandMenuBarView: View {
     }
     .focusScope(namespace)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .enableInjection()
   }
 
   @discardableResult

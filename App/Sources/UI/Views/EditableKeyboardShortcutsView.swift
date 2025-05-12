@@ -221,7 +221,6 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     }
   }
 
-  @ViewBuilder
   private func overlay(_ proxy: ScrollViewProxy) -> some View {
     ZStack {
       RoundedRectangle(cornerRadius: 6)
@@ -374,7 +373,6 @@ private struct DraggableToggle<T: Transferable>: ViewModifier {
   let isEnabled: Bool
   let model: T
 
-  @ViewBuilder
   func body(content: Content) -> some View {
     if isEnabled {
       content

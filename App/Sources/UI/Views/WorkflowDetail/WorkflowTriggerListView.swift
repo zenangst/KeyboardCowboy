@@ -4,7 +4,6 @@ import Inject
 import SwiftUI
 
 struct WorkflowTriggerListView: View {
-  @ObserveInjection var inject
   @Namespace private var namespace
   @ObservedObject private var publisher: TriggerPublisher
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
@@ -62,7 +61,6 @@ struct WorkflowTriggerListView: View {
     }
     .style(.derived)
     .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: publisher.data)
-    .enableInjection()
   }
 }
 

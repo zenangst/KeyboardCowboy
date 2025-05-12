@@ -232,7 +232,6 @@ private struct ChangesView: View {
            version: .v3270),
   ]
 
-  @ViewBuilder
   var body: some View {
     VStack(spacing: 8) {
       Text("Changes")

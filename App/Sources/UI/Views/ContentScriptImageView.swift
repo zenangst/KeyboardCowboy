@@ -5,7 +5,6 @@ struct ContentScriptImageView: View {
   let source: ScriptCommand.Source
   let size: CGFloat
 
-  @ViewBuilder
   var body: some View {
     switch source {
     case .inline:
