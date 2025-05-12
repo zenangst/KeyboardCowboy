@@ -47,7 +47,6 @@ struct GroupDetailView: View {
     case addWorkflow(workflowId: Workflow.ID)
   }
 
-  @ObserveInjection var inject
   @FocusState var focus: LocalFocus<GroupDetailViewModel>?
   @EnvironmentObject private var updater: ConfigurationUpdater
   @EnvironmentObject private var transaction: UpdateTransaction
@@ -159,7 +158,6 @@ struct GroupDetailView: View {
     }
   }
 
-  @ViewBuilder
   var body: some View {
     ScrollViewReader { proxy in
       GroupDetailHeaderView()
@@ -330,7 +328,6 @@ struct GroupDetailView: View {
           })
         }
     }
-    .enableInjection()
   }
 
   private func toolbarContent() -> some ToolbarContent {

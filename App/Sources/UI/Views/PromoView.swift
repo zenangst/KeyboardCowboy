@@ -434,7 +434,6 @@ private struct KeyboardCowboyView: View {
     .padding(16)
     .background {
       BackgroundView()
-        .drawingGroup()
     }
     .background(
       LinearGradient(stops: [

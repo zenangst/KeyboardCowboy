@@ -244,7 +244,7 @@ struct NewCommandView: View {
     .enableInjection()
   }
 
-  @ViewBuilder @MainActor
+  @MainActor
   private func selectedView(_ selection: Kind) -> some View {
     VStack(alignment: .leading) {
       switch selection {

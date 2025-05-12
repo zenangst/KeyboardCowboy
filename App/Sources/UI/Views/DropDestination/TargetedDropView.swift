@@ -1,7 +1,6 @@
 import SwiftUI
 
 extension View {
-  @ViewBuilder
   func dropDestination<T: Transferable & Equatable>(_ type: T.Type,
                                         alignment: TargetedAlignment = .vertical,
                                         color: Color, kind: TargetedKind = .reorder,
@@ -55,7 +54,6 @@ private struct TargetedDropView<T: Transferable & Equatable>: View, Equatable, S
     self.onDrop = onDrop
   }
 
-  @ViewBuilder
   var body: some View {
     if LocalEventMonitor.shared.mouseDown {
       containerView(alignment,

@@ -35,7 +35,6 @@ struct CommandList: View {
     self.scrollViewProxy = scrollViewProxy
   }
 
-  @ViewBuilder
   var body: some View {
     VStack(spacing: 0) {
       CommandListHeader(namespace: namespace)
