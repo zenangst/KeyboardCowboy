@@ -34,7 +34,7 @@ struct WorkflowTrigger: View {
                 .font(.caption)
                 .lineLimit(1)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: 24)
           })
         .onMoveCommand(perform: { direction in
           switch direction {
@@ -60,7 +60,7 @@ struct WorkflowTrigger: View {
               .lineLimit(1)
               .font(.caption)
           }
-          .frame(maxWidth: .infinity)
+          .frame(maxWidth: .infinity, minHeight: 24)
         })
         .onMoveCommand(perform: { direction in
           switch direction {
@@ -88,7 +88,7 @@ struct WorkflowTrigger: View {
                 .font(.caption)
                 .lineLimit(1)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: 24)
           })
         .onMoveCommand(perform: { direction in
           switch direction {
