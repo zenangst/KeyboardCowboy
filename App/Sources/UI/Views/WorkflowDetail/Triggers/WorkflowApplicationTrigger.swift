@@ -35,6 +35,7 @@ struct WorkflowApplicationTrigger: View {
             withAnimation(CommandList.animation) {
               data.append(.init(id: uuid.uuidString, name: anyApplication.displayName,
                                 application: anyApplication, contexts: []))
+              updateApplicationTriggers(data)
             }
           }, label: {
             Text("Any Application")
@@ -48,6 +49,7 @@ struct WorkflowApplicationTrigger: View {
               withAnimation(CommandList.animation) {
                 data.append(.init(id: uuid.uuidString, name: application.displayName,
                                   application: application, contexts: []))
+                updateApplicationTriggers(data)
               }
             }, label: {
               Text(application.displayName)
@@ -81,6 +83,7 @@ struct WorkflowApplicationTrigger: View {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
                   data.move(fromOffsets: IndexSet(from), toOffset: destination)
                 }
+                updateApplicationTriggers(data)
                 return false
               })
               .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
@@ -103,6 +106,7 @@ struct WorkflowApplicationTrigger: View {
               withAnimation {
                 data.remove(atOffsets: IndexSet(offsets))
               }
+              updateApplicationTriggers(data)
             }
           }
           .onChange(of: data, perform: { newValue in
@@ -149,7 +153,7 @@ struct WorkflowApplicationTrigger: View {
   }
 }
 
-fileprivate extension DetailViewModel.ApplicationTrigger.Context {
+extension DetailViewModel.ApplicationTrigger.Context {
   var appTriggerContext: ApplicationTrigger.Context {
     switch self {
     case .launched:        .launched

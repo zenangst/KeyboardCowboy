@@ -55,6 +55,7 @@ struct ApplicationTriggerItem: View {
           withAnimation(CommandList.animation) {
             if let index = data.firstIndex(of: element) {
               data.remove(at: index)
+              updateApplicationTriggers(data)
             }
           }
         },
@@ -71,5 +72,26 @@ struct ApplicationTriggerItem: View {
     .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(element.id) }, cornerRadius: 6))
     .draggable(element)
     .enableInjection()
+  }
+
+  private func updateApplicationTriggers(_ data: [DetailViewModel.ApplicationTrigger]) {
+    updater.modifyWorkflow(using: transaction) { workflow in
+      let applicationTriggers = data
+        .map { trigger in
+          var viewModelContexts = Set<DetailViewModel.ApplicationTrigger.Context>()
+          let allContexts: [DetailViewModel.ApplicationTrigger.Context] = [.closed, .frontMost, .launched, .resignFrontMost]
+          for context in allContexts {
+            if trigger.contexts.contains(context) {
+              viewModelContexts.insert(context)
+            } else {
+              viewModelContexts.remove(context)
+            }
+          }
+          let contexts = viewModelContexts.map(\.appTriggerContext)
+          return ApplicationTrigger(id: trigger.id, application: trigger.application, contexts: contexts)
+        }
+
+      workflow.trigger = .application(applicationTriggers)
+    }
   }
 }
