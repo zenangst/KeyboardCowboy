@@ -45,6 +45,10 @@ struct WorkflowInfoView: View {
         .switchStyle()
         .environment(\.switchStyle, .regular)
     }
+    .onChange(of: publisher.data.name) { newValue in
+      guard newValue != name else { return }
+      name = newValue
+    }
   }
 }
 
