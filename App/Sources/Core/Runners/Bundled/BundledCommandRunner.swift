@@ -140,11 +140,21 @@ final class BundledCommandRunner: Sendable {
     // This should only be true if it comes from `activatePreviousWorkspace`.
     // It is set to true in order to keep the last focused application the same as when the
     // workspace was previously active.
-    if onlyUnhide || (workspaceCommand.isDynamic && workspaceCommand.tiling == nil) {
+    let dynamicWorkspaceWithoutTiling = (workspaceCommand.isDynamic && workspaceCommand.tiling == nil)
+    if onlyUnhide || dynamicWorkspaceWithoutTiling {
+      let indexOfLast = commands.lastIndex(where: {
+        if case .application = $0 { return true }
+        return false
+      })
       for (offset, command) in commands.enumerated() {
-        if case .application(var application) = command {
-          application.action = .unhide
-          commands[offset] = .application(application)
+        if case .application(var applicationCommand) = command {
+          if dynamicWorkspaceWithoutTiling {
+            applicationCommand.action = offset == indexOfLast ? .open : .unhide
+          } else {
+            applicationCommand.action = .unhide
+          }
+
+          commands[offset] = .application(applicationCommand)
         }
       }
     }
