@@ -67,7 +67,7 @@ struct WorkflowApplicationTrigger: View {
 
       if !data.isEmpty {
         let count = data.count
-        let itemHeight: CGFloat = 55
+        let itemHeight: CGFloat = 60
 
         ScrollView {
           LazyVStack {
