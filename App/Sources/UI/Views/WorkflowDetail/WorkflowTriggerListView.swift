@@ -60,7 +60,6 @@ struct WorkflowTriggerListView: View {
       }
     }
     .style(.derived)
-    .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: publisher.data)
   }
 }
 
