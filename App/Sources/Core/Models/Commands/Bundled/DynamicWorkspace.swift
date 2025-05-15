@@ -35,6 +35,13 @@ final class DynamicWorkspace {
       }
       .store(in: &subscriptions)
 
+    NSWorkspace.shared.publisher(for: \.frontmostApplication)
+      .sink { [weak self] runningApplication in
+        guard let bundleIdentifier = runningApplication?.bundleIdentifier else { return }
+        self?.reorderCurrentWorkspace(bundleIdentifier)
+      }
+      .store(in: &subscriptions)
+
     terminationPublisher
       .sink { [weak self] notification in
       guard let self,
@@ -135,6 +142,18 @@ final class DynamicWorkspace {
   }
 
   // MARK: - Private methods
+
+  private func reorderCurrentWorkspace(_ bundleIdentifier: String) {
+    guard
+      let currentWorkspaceId = UserSpace.shared.currentWorkspace?.id,
+      var applications = self.assigned[currentWorkspaceId],
+      !applications.isEmpty,
+      let index = applications.firstIndex(where: { $0.bundleIdentifier == bundleIdentifier }) else { return }
+
+    applications.append(applications.remove(at: index))
+
+    self.assigned[currentWorkspaceId] = applications
+  }
 
   private func remove(_ app: RunningApplication) {
     for (id, applications) in self.assigned {
