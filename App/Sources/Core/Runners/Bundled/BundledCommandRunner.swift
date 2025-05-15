@@ -142,21 +142,7 @@ final class BundledCommandRunner: Sendable {
     // workspace was previously active.
     let dynamicWorkspaceWithoutTiling = (workspaceCommand.isDynamic && workspaceCommand.tiling == nil)
     if onlyUnhide || dynamicWorkspaceWithoutTiling {
-      let indexOfLast = commands.lastIndex(where: {
-        if case .application = $0 { return true }
-        return false
-      })
-      for (offset, command) in commands.enumerated() {
-        if case .application(var applicationCommand) = command {
-          if dynamicWorkspaceWithoutTiling {
-            applicationCommand.action = offset == indexOfLast ? .open : .unhide
-          } else {
-            applicationCommand.action = .unhide
-          }
-
-          commands[offset] = .application(applicationCommand)
-        }
-      }
+      commands = handleOnlyUnhide(commands, dynamicWorkspaceWithoutTiling: dynamicWorkspaceWithoutTiling)
     }
 
     for command in commands {
@@ -193,5 +179,26 @@ final class BundledCommandRunner: Sendable {
       try await Task.sleep(for: .milliseconds(375))
       WindowTilingRunner.index()
     }
+  }
+
+  private func handleOnlyUnhide(_ commands: [Command], dynamicWorkspaceWithoutTiling: Bool) -> [Command] {
+    var commands = commands
+    let indexOfLast = commands.lastIndex(where: {
+      if case .application = $0 { return true }
+      return false
+    })
+    for (offset, command) in commands.enumerated() {
+      if case .application(var applicationCommand) = command {
+        if dynamicWorkspaceWithoutTiling {
+          applicationCommand.delay = nil
+          applicationCommand.action = offset == indexOfLast ? .open : .unhide
+        } else {
+          applicationCommand.action = .unhide
+        }
+
+        commands[offset] = .application(applicationCommand)
+      }
+    }
+    return commands
   }
 }
