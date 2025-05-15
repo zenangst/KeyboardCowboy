@@ -4,6 +4,7 @@ import Inject
 import SwiftUI
 
 struct WorkflowKeyboardTriggerView: View {
+  @EnvironmentObject private var publisher: TriggerPublisher
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   @ObserveInjection var inject
@@ -122,6 +123,12 @@ struct WorkflowKeyboardTriggerView: View {
       .environment(\.toggleStyle, .small)
       .environment(\.toggleFont, .caption)
     }
+    .onChange(of: publisher.data, perform: { newValue in
+      guard case .keyboardShortcuts(let trigger) = newValue,
+         trigger != self.trigger else { return }
+
+      self.trigger = trigger
+    })
     .textStyle { text in
       text.font = .caption
     }
