@@ -88,33 +88,33 @@ final class KeyboardCowboyEngine {
         eventsOfInterest: keyboardEvents,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
-        onFlagsChanged: { [machPortCoordinator, modifierTriggerController, leaderKey] in
-          let allowsEscapeFallback: Bool
-          if machPortCoordinator.mode == .intercept ||
-             machPortCoordinator.mode == .recordMacro {
-            allowsEscapeFallback = !modifierTriggerController.handleIfApplicable($0)
-          } else {
-            allowsEscapeFallback = true
-          }
+        onFlagsChanged: { [machPortCoordinator, leaderKey] in
+//          let allowsEscapeFallback: Bool
+//          if machPortCoordinator.mode == .intercept ||
+//             machPortCoordinator.mode == .recordMacro {
+//            allowsEscapeFallback = !modifierTriggerController.handleIfApplicable($0)
+//          } else {
+//            allowsEscapeFallback = true
+//          }
 
           _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
-          machPortCoordinator.receiveFlagsChanged($0, allowsEscapeFallback: allowsEscapeFallback)
+          machPortCoordinator.receiveFlagsChanged($0, allowsEscapeFallback: true)
           keyCache.handle($0.event)
         },
-        onEventChange: { [machPortCoordinator, modifierTriggerController, leaderKey] in
-          let allowsEscapeFallback: Bool
-          if machPortCoordinator.mode == .intercept ||
-             machPortCoordinator.mode == .recordMacro {
-            allowsEscapeFallback = !modifierTriggerController.handleIfApplicable($0)
-          } else {
-            allowsEscapeFallback = false
-          }
+        onEventChange: { [machPortCoordinator, leaderKey] in
+//          let allowsEscapeFallback: Bool
+//          if machPortCoordinator.mode == .intercept ||
+//             machPortCoordinator.mode == .recordMacro {
+//            allowsEscapeFallback = !modifierTriggerController.handleIfApplicable($0)
+//          } else {
+//            allowsEscapeFallback = false
+//          }
 
           _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
 
           if $0.event.type == .flagsChanged {
             if $0.isRepeat { return }
-            machPortCoordinator.receiveFlagsChanged($0, allowsEscapeFallback: allowsEscapeFallback)
+            machPortCoordinator.receiveFlagsChanged($0, allowsEscapeFallback: true)
           } else {
             machPortCoordinator.receiveEvent($0)
           }
