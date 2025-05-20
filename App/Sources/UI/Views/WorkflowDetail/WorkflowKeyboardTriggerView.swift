@@ -116,7 +116,7 @@ struct WorkflowKeyboardTriggerView: View {
         .environment(\.textFieldBackgroundColor, Color(nsColor: .controlColor).opacity(0.5))
         .environment(\.textFieldFont, .caption)
         .environment(\.textFieldPadding, .small)
-        .frame(maxWidth: 32)
+        .frame(minWidth: 32, maxWidth: min(20 + CGFloat(4 * holdDurationText.count), 64))
         Text("seconds")
       }
       .font(.caption)
@@ -128,6 +128,13 @@ struct WorkflowKeyboardTriggerView: View {
          trigger != self.trigger else { return }
 
       self.trigger = trigger
+
+      if let holdDuration = trigger.holdDuration {
+        holdDurationText = "\(holdDuration)"
+      }
+      keepLastPartialMatch = trigger.keepLastPartialMatch
+      passthrough = trigger.passthrough
+      allowRepeat = trigger.allowRepeat
     })
     .textStyle { text in
       text.font = .caption
