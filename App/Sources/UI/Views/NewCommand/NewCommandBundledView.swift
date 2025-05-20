@@ -7,7 +7,14 @@ struct NewCommandBundledView: View {
     [
       .appFocus(command: AppFocusCommand(bundleIdentifer: "", hideOtherApps: false,
                                 tiling: nil, createNewWindow: true)),
-      .workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
+      .workspace(
+        command: WorkspaceCommand(
+          bundleIdentifiers: [],
+          defaultForDynamicWorkspace: false,
+          hideOtherApps: true,
+          tiling: nil
+        )
+      ),
       .tidy(command: WindowTidyCommand(rules: []))
     ]
   }
@@ -25,7 +32,6 @@ struct NewCommandBundledView: View {
   }
 
   var body: some View {
-
     HStack {
       Text("Command")
       Menu {
@@ -89,6 +95,7 @@ struct NewCommandBundledView: View {
         NewCommandWorkspaceView(validation: $validation) { tiling in
           currentSelection = .workspace(command: WorkspaceCommand(
             bundleIdentifiers: workspaceCommand.bundleIdentifiers,
+            defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: workspaceCommand.hideOtherApps,
             tiling: tiling
           ))
@@ -96,6 +103,7 @@ struct NewCommandBundledView: View {
         } onSelectedAppsChange: { selectedApps in
           currentSelection = .workspace(command: WorkspaceCommand(
             bundleIdentifiers: selectedApps.map(\.application.bundleIdentifier),
+            defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: workspaceCommand.hideOtherApps,
             tiling: workspaceCommand.tiling
           ))
@@ -104,6 +112,7 @@ struct NewCommandBundledView: View {
         } onHideOtherAppsChange: { hideOtherApps in
           currentSelection = .workspace(command: WorkspaceCommand(
             bundleIdentifiers: workspaceCommand.bundleIdentifiers,
+            defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: hideOtherApps,
             tiling: workspaceCommand.tiling
           ))

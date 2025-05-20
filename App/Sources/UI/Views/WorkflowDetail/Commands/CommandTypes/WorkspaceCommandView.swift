@@ -8,21 +8,25 @@ struct WorkspaceCommandView: View {
   @ObserveInjection var inject
   @State private var model: CommandViewModel.Kind.WorkspaceModel
 
-  private let onTilingChange: (WorkspaceCommand.Tiling?) -> Void
   private let onAppToggleModifiers: ([ModifierKey]) -> Void
-  private let onSelectedAppsChange: ([Application]) -> Void
+  private let onDefaultForDynamicWorkspace: (Bool) -> Void
   private let onHideOtherAppsChange: (Bool) -> Void
+  private let onSelectedAppsChange: ([Application]) -> Void
+  private let onTilingChange: (WorkspaceCommand.Tiling?) -> Void
 
   init(_ model: CommandViewModel.Kind.WorkspaceModel,
        onAppToggleModifiers: @escaping ([ModifierKey]) -> Void,
-       onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
+       onDefaultForDynamicWorkspace: @escaping (Bool) -> Void,
+       onHideOtherAppsChange: @escaping (Bool) -> Void,
        onSelectedAppsChange: @escaping ([Application]) -> Void,
-       onHideOtherAppsChange: @escaping (Bool) -> Void) {
+       onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
+       ) {
     self.model = model
     self.onAppToggleModifiers = onAppToggleModifiers
-    self.onTilingChange = onTilingChange
-    self.onSelectedAppsChange = onSelectedAppsChange
+    self.onDefaultForDynamicWorkspace = onDefaultForDynamicWorkspace
     self.onHideOtherAppsChange = onHideOtherAppsChange
+    self.onSelectedAppsChange = onSelectedAppsChange
+    self.onTilingChange = onTilingChange
   }
 
   var body: some View {
@@ -51,7 +55,6 @@ struct WorkspaceCommandView: View {
         .frame(maxWidth: .infinity)
         .style(.derived)
       }
-
 
       ZenDivider()
 
@@ -138,6 +141,24 @@ struct WorkspaceCommandView: View {
             .frame(minHeight: 20)
           }
 
+          if model.applications.isEmpty {
+            GridRow {
+              RoundedRectangle(cornerRadius: 4)
+                .fill(Color.accentColor.opacity(0.2))
+                .frame(width: 20)
+              HStack {
+                Text("Default Dynamic Workspace")
+                  .font(.caption)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .padding([.vertical, .leading], 4)
+                Toggle(isOn: $model.defaultForDynamicWorkspace, label: {})
+                  .onChange(of: model.defaultForDynamicWorkspace) { newValue in
+                    onDefaultForDynamicWorkspace(newValue)
+                  }
+              }
+            }
+          }
+
           GridRow {
             HideAllIconView(size: 20)
             HStack {
@@ -155,7 +176,7 @@ struct WorkspaceCommandView: View {
           ZenDivider()
 
           VStack(alignment: .leading) {
-            ZenLabel("Dynamic move modifiers")
+            ZenLabel("Dynamic Move Modifiers")
               .style(.derived)
             Menu {
               let modifiers: [ModifierKey] = [
