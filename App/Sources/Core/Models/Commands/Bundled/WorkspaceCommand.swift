@@ -23,10 +23,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
   enum CodingKeys: CodingKey {
     case id
-    case bundleIdentifiers
-    case tiling
-    case hideOtherApps
     case appToggleModifiers
+    case bundleIdentifiers
+    case defaultForDynamicWorkspace
+    case hideOtherApps
+    case tiling
   }
 
   var id: String
@@ -35,17 +36,20 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   var hideOtherApps: Bool
   var appToggleModifiers: [ModifierKey]
 
+  var defaultForDynamicWorkspace: Bool
   var isDynamic: Bool { bundleIdentifiers.isEmpty }
 
   init(id: String = UUID().uuidString,
        assignmentModifierS: [ModifierKey] = [],
        appToggleModifiers: [ModifierKey] = [],
        bundleIdentifiers: [String],
+       defaultForDynamicWorkspace: Bool,
        hideOtherApps: Bool,
        tiling: Tiling?) {
     self.id = id
     self.appToggleModifiers = appToggleModifiers
     self.bundleIdentifiers = bundleIdentifiers
+    self.defaultForDynamicWorkspace = defaultForDynamicWorkspace
     self.hideOtherApps = hideOtherApps
     self.tiling = tiling
   }
@@ -59,6 +63,9 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     if !self.appToggleModifiers.isEmpty {
       try container.encode(self.appToggleModifiers, forKey: .appToggleModifiers)
     }
+    if self.defaultForDynamicWorkspace {
+      try container.encode(self.defaultForDynamicWorkspace, forKey: .defaultForDynamicWorkspace)
+    }
   }
 
   init(from decoder: any Decoder) throws {
@@ -68,6 +75,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     self.tiling = try container.decodeIfPresent(WorkspaceCommand.Tiling.self, forKey: .tiling)
     self.hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
     self.appToggleModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .appToggleModifiers) ?? []
+    self.defaultForDynamicWorkspace = try container.decodeIfPresent(Bool.self, forKey: .defaultForDynamicWorkspace) ?? false
   }
 
   @MainActor
@@ -229,6 +237,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       id: UUID().uuidString,
       appToggleModifiers: appToggleModifiers,
       bundleIdentifiers: bundleIdentifiers,
+      defaultForDynamicWorkspace: defaultForDynamicWorkspace,
       hideOtherApps: hideOtherApps,
       tiling: tiling
     )

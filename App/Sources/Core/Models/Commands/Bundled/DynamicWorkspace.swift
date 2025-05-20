@@ -1,6 +1,7 @@
 import Apps
 import Combine
 import Cocoa
+import Windows
 
 @MainActor
 final class DynamicWorkspace {
@@ -103,9 +104,12 @@ final class DynamicWorkspace {
     let workspaces = workflow.commands.compactMap {
       if case .bundled(let command) = $0,
          case .workspace(let workspace) = command.kind {
-        workspace
+        if UserSpace.shared.currentWorkspace == nil && workspace.defaultForDynamicWorkspace {
+          assignAppsToDefaultDynamicWorkspace(workspace)
+        }
+        return workspace
       } else {
-        nil
+        return nil
       }
     }
     guard let first = workspaces.first else { return }
@@ -143,6 +147,45 @@ final class DynamicWorkspace {
 
   // MARK: - Private methods
 
+  private static func assignAppsToDefaultDynamicWorkspace(_ workspace: WorkspaceCommand) {
+    UserSpace.shared.currentWorkspace = workspace
+
+    let pids = Set(
+      indexWindowsInStage(getWindows([.optionOnScreenOnly, .excludeDesktopElements]))
+        .map { pid_t($0.ownerPid.rawValue) }
+    )
+    let excludedBundleIdentifiers: Set<String> = ["com.apple.finder"]
+    let bundleUrls = NSWorkspace.shared.runningApplications
+      .filter {
+        guard let bundleIdentifier = $0.bundleIdentifier else {
+          return false
+        }
+
+        if excludedBundleIdentifiers.contains(bundleIdentifier) {
+          return false
+        }
+        return pids.contains($0.processIdentifier)
+      }
+      .compactMap(\.bundleURL)
+
+
+    for bundleUrl in bundleUrls {
+      guard let application = ApplicationStore.shared.application(at: bundleUrl) else {
+        continue
+      }
+
+      Task {
+        await DynamicWorkspace.shared.assign(
+          application: application,
+          using: AssignWorkspaceCommand(
+            id: UUID().uuidString,
+            workspaceID: workspace.id
+          )
+        )
+      }
+    }
+  }
+
   private func reorderCurrentWorkspace(_ bundleIdentifier: String) {
     guard
       let currentWorkspaceId = UserSpace.shared.currentWorkspace?.id,
@@ -161,4 +204,26 @@ final class DynamicWorkspace {
       self.assigned[id] = newApplications.isEmpty ? nil : newApplications
     }
   }
+
+  private static func getWindows(_ options: CGWindowListOption) -> [WindowModel] {
+    let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
+    return windowModels
+  }
+
+  private static func indexWindowsInStage(_ models: [WindowModel]) -> [WindowModel] {
+    let excluded = ["WindowManager", "Window Server"]
+    let minimumSize = CGSize(width: 300, height: 200)
+    let windows: [WindowModel] = models
+      .filter {
+        $0.id > 0 &&
+        $0.ownerName != "borders" &&
+        $0.rect.size.width > minimumSize.width &&
+        $0.rect.size.height > minimumSize.height &&
+        $0.alpha == 1 &&
+        !excluded.contains($0.ownerName)
+      }
+
+    return windows
+  }
+
 }

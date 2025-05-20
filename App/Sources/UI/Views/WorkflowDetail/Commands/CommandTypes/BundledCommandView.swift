@@ -48,9 +48,11 @@ struct BundledCommandView: View {
         WorkspaceCommandView(
           model,
           onAppToggleModifiers:  { performWorkspaceUpdate(set: \.appToggleModifiers, to: $0) },
-          onTilingChange:        { performWorkspaceUpdate(set: \.tiling, to: $0) },
+          onDefaultForDynamicWorkspace: { performWorkspaceUpdate(set: \.defaultForDynamicWorkspace, to: $0) },
+          onHideOtherAppsChange: { performWorkspaceUpdate(set: \.hideOtherApps, to: $0) },
           onSelectedAppsChange:  { performWorkspaceUpdate(set: \.bundleIdentifiers, to: $0.map(\.bundleIdentifier)) },
-          onHideOtherAppsChange: { performWorkspaceUpdate(set: \.hideOtherApps, to: $0) })
+          onTilingChange:        { performWorkspaceUpdate(set: \.tiling, to: $0) },
+        )
         .id(metaData.id)
       }
     }

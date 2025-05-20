@@ -296,7 +296,7 @@ extension Command {
     return switch kind {
     case .application:      Command.application(ApplicationCommand.empty())
     case .builtIn:          Command.builtIn(.init(kind: .userMode(mode: .init(id: UUID().uuidString, name: "", isEnabled: true), action: .toggle), notification: nil))
-    case .bundled:          Command.bundled(.init(.workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)), meta: metaData))
+    case .bundled:          Command.bundled(.init(.workspace(command: WorkspaceCommand(bundleIdentifiers: [], defaultForDynamicWorkspace: false, hideOtherApps: true, tiling: nil)), meta: metaData))
     case .keyboard:         Command.keyboard(KeyboardCommand.empty())
     case .menuBar:          Command.menuBar(MenuBarCommand(application: nil, tokens: []))
     case .mouse:            Command.mouse(MouseCommand.empty())
