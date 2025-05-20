@@ -29,8 +29,8 @@ final class CapsuleNotificationPublisher: ObservableObject {
     var backgroundColor: Color {
       switch self {
       case .running, .idle: .black
-      case .failure: Color(nsColor: .systemRed.blended(withFraction: 0.85, of: .black)!)
-      case .success: Color(nsColor: .controlAccentColor.blended(withFraction: 0.85, of: .black)!)
+      case .failure: Color.systemRed.blended(withFraction: 0.85, of: .black)
+      case .success: Color(nsColor: .controlAccentColor).blended(withFraction: 0.45, of: .black)
       }
     }
   }
@@ -61,8 +61,7 @@ struct CapsuleNotificationView: View {
 
   var body: some View {
     Text(publisher.text.isEmpty ? " " : publisher.text)
-      .frame(minWidth: 64)
-      .font(.system(.title, design: .rounded, weight: .semibold))
+      .font(.system(.title2, design: .rounded, weight: .regular))
       .padding(.leading, publisher.state == .running ?  24 : 0)
       .overlay(alignment: .leading) {
         ProgressView()
@@ -72,7 +71,8 @@ struct CapsuleNotificationView: View {
           .animation(nil, value: publisher.state)
       }
       .foregroundStyle(publisher.state.foregroundColor)
-      .padding(18)
+      .padding(.horizontal, 16)
+      .padding(.vertical, 8)
       .background(
         ZStack {
           Capsule(style: .continuous)
@@ -87,7 +87,12 @@ struct CapsuleNotificationView: View {
       )
       .background(
         Capsule(style: .continuous)
-          .fill(publisher.state.backgroundColor.opacity(0.9))
+          .fill(
+            LinearGradient(stops: [
+              .init(color: publisher.state.backgroundColor.opacity(0.8), location: 0),
+              .init(color: publisher.state.backgroundColor.opacity(0.9), location: 0.8),
+            ], startPoint: .top, endPoint: .bottom)
+          )
           .opacity(publisher.state == .idle ? 0 : 1)
           .animation(.smooth(duration: 0.1), value: publisher.state)
       )
