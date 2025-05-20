@@ -1,5 +1,6 @@
 import AppKit
 import Bonzai
+import Combine
 import KeyCodes
 import MachPort
 import SwiftUI
@@ -9,11 +10,21 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate {
   static let shared = CapsuleNotificationWindow()
 
   private lazy var publisher = CapsuleNotificationPublisher(text: "")
-  private var window: NSWindow?
+  private var window: (NSWindow & SizeFitting)?
   private var dismiss: DispatchWorkItem?
+  private var subscription: AnyCancellable?
 
   private override init() {
     super.init()
+
+    subscription = NotificationCenter.default
+      .publisher(for: NSApplication.didChangeScreenParametersNotification)
+      .sink { [weak self] _ in
+        guard let window = self?.window, let screen = NSScreen.main else { return }
+        let size = window.sizeThatFits(in: CGSize(width: screen.frame.width / 2,
+                                                  height: screen.frame.height / 2))
+        window.setSize(size, to: screen)
+      }
   }
 
   func publish(_ text: String, state: CapsuleNotificationPublisher.State) {
@@ -39,8 +50,6 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate {
   func open() {
     guard let screen = NSScreen.main else { return }
 
-    let screenRect = screen.visibleFrame.mainDisplayFlipped
-
     window?.close()
 
     let styleMask: NSWindow.StyleMask = [.closable]
@@ -50,10 +59,7 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate {
 
     let size = window.sizeThatFits(in: CGSize(width: screen.frame.width / 2,
                                               height: screen.frame.height / 2))
-
-    window.setFrame(NSRect(origin: .init(x: screenRect.midX - size.width / 2,
-                                         y: screenRect.midY / 2 - size.height),
-                           size: size), display: false)
+    window.setSize(size, to: screen)
 
     window.animationBehavior = .none
     window.backgroundColor = .clear
@@ -71,5 +77,14 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate {
 
   func windowWillClose(_ notification: Notification) {
     self.window = nil
+  }
+}
+
+private extension NSWindow {
+  func setSize(_ size: CGSize, to screen: NSScreen) {
+    let screenRect = screen.visibleFrame.mainDisplayFlipped
+    setFrame(NSRect(origin: .init(x: screenRect.midX - size.width / 2,
+                                  y: screenRect.midX / 4 + size.height),
+                    size: size), display: false)
   }
 }
