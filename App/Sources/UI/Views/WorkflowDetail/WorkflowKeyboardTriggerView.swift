@@ -116,7 +116,7 @@ struct WorkflowKeyboardTriggerView: View {
         .environment(\.textFieldBackgroundColor, Color(nsColor: .controlColor).opacity(0.5))
         .environment(\.textFieldFont, .caption)
         .environment(\.textFieldPadding, .small)
-        .frame(minWidth: 32, maxWidth: min(20 + CGFloat(4 * holdDurationText.count), 64))
+        .frame(minWidth: 32, maxWidth: min(32 + CGFloat(4 * holdDurationText.count), 64))
         Text("seconds")
       }
       .font(.caption)
