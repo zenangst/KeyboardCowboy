@@ -11,3 +11,4 @@ SWIFT_OPTIMIZATION_LEVEL = -Onone
 OTHER_LDFLAGS = -Xlinker -interposable
 OTHER_SWIFT_FLAGS = $(inherited) -Xfrontend -debug-time-function-bodies -Xfrontend -warn-long-function-bodies=400 -Xfrontend -warn-long-expression-type-checking=400 -DDEBUG
 _EXPERIMENTAL_SWIFT_EXPLICIT_MODULES = YES
+EMIT_FRONTEND_COMMAND_LINES = YES
