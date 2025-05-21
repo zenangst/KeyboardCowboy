@@ -33,13 +33,15 @@ final class BundledCommandRunner: Sendable {
                       checkCancellation: checkCancellation,
                       repeatingEvent: repeatingEvent,
                       runtimeDictionary: &runtimeDictionary)
+        output = "Back to \(command.name)"
+      } else {
+        output = ""
       }
-      output = command.name
-    case .assignToWorkspace(let command):
+    case .assignToWorkspace(let assignCommand):
       let currentApplication = await UserSpace.shared.frontmostApplication.asApplication()
       await DynamicWorkspace.shared.assign(application: currentApplication,
-                                           using: command)
-      output = ""
+                                           using: assignCommand)
+      output = "Assign \(currentApplication.displayName) to \(command.name)"
     case .moveToWorkspace(let workspaceCommand):
       let application = await UserSpace.shared.frontmostApplication
       let movedToWorkspace = await DynamicWorkspace.shared.moveOrRemove(
@@ -142,7 +144,9 @@ final class BundledCommandRunner: Sendable {
     // workspace was previously active.
     let dynamicWorkspaceWithoutTiling = (workspaceCommand.isDynamic && workspaceCommand.tiling == nil)
     if onlyUnhide || dynamicWorkspaceWithoutTiling {
-      commands = handleOnlyUnhide(commands, dynamicWorkspaceWithoutTiling: dynamicWorkspaceWithoutTiling)
+      if workspaceCommand.bundleIdentifiers.count > 1 {
+        commands = handleOnlyUnhide(commands, dynamicWorkspaceWithoutTiling: dynamicWorkspaceWithoutTiling)
+      }
     }
 
     for command in commands {
@@ -187,6 +191,7 @@ final class BundledCommandRunner: Sendable {
       if case .application = $0 { return true }
       return false
     })
+
     for (offset, command) in commands.enumerated() {
       if case .application(var applicationCommand) = command {
         if dynamicWorkspaceWithoutTiling {
