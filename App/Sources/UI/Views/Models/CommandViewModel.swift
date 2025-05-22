@@ -208,6 +208,12 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var kind: SystemCommand.Kind
     }
 
+    struct WallpaperModel: Codable, Hashable, Identifiable, Sendable {
+      let id: String
+      var source: WallpaperCommand.Source
+      var screens: [WallpaperCommand.Screen]
+    }
+
     struct TypeModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var mode: TextCommand.TypeCommand.Mode
