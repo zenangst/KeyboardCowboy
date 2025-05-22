@@ -1,16 +1,15 @@
 extension WallpaperCommand {
-  enum Kind: Codable, Hashable {
+  enum Source: Codable, Hashable {
     case file(path: String)
-    case folder(source: Source)
+    case folder(folder: Folder)
   }
 
-  struct Source: Codable, Hashable {
+  struct Folder: Codable, Hashable {
     let path: String
     let strategy: Strategy
   }
 
   enum Strategy: Codable, Hashable {
     case random
-    case matchingScreen
   }
 }

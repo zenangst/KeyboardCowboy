@@ -28,6 +28,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let system: SystemCommandRunner
     let text: TextCommandRunner
     let uiElement: UIElementCommandRunner
+    let wallpaper: WallpaperCommandRunner
     let windowFocus: WindowCommandFocusRunner
     let windowManagement: WindowManagementCommandRunner
     let windowTiling: WindowTilingCommandRunner
@@ -96,6 +97,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       system: systemCommandRunner,
       text: TextCommandRunner(keyboardCommandRunner),
       uiElement: uiElementCommandRunner,
+      wallpaper: WallpaperCommandRunner(),
       windowFocus: windowFocus,
       windowManagement: WindowManagementCommandRunner(),
       windowTiling: WindowTilingCommandRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus)
