@@ -47,7 +47,8 @@ final class GroupCoordinator {
 
       let shouldRemoveLastSelection = !contentPublisher.data.isEmpty
       handle(.refresh(ids))
-      if shouldRemoveLastSelection {
+
+      if shouldRemoveLastSelection && ids.count == 1 && ids.first != groupPublisher.data.id {
         if let firstId = contentPublisher.data.first?.id {
           workflowsSelectionManager.setLastSelection(firstId)
         } else {
