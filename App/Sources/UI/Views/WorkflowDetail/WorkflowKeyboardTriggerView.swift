@@ -131,7 +131,10 @@ struct WorkflowKeyboardTriggerView: View {
 
       if let holdDuration = trigger.holdDuration {
         holdDurationText = "\(holdDuration)"
+      } else {
+        holdDurationText = ""
       }
+
       keepLastPartialMatch = trigger.keepLastPartialMatch
       passthrough = trigger.passthrough
       allowRepeat = trigger.allowRepeat
