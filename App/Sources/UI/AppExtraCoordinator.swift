@@ -33,6 +33,8 @@ final class AppExtraCoordinator {
       windowOpener.openEmptyConfig()
     case .openMainWindow:
       windowOpener.openMainWindow()
+    case .install:
+      moveToApplicationsFolderAndRestart()
     case .reveal:
       NSWorkspace.shared.selectFile(Bundle.main.bundlePath, inFileViewerRootedAtPath: "")
       NSWorkspace.shared.runningApplications
@@ -51,6 +53,33 @@ final class AppExtraCoordinator {
       NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/discussions")!)
     case .fileBug:
       NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
+    }
+  }
+
+  private func moveToApplicationsFolderAndRestart() {
+    let bundlePath = Bundle.main.bundlePath as NSString
+    let applicationsPath = "/Applications" as NSString
+    let destinationPath = applicationsPath.appendingPathComponent(bundlePath.lastPathComponent)
+
+    guard bundlePath as String != destinationPath else { return }
+
+    let fileManager = FileManager.default
+    do {
+      if fileManager.fileExists(atPath: destinationPath) {
+        try fileManager.removeItem(atPath: destinationPath)
+      }
+
+      try fileManager.copyItem(atPath: bundlePath as String, toPath: destinationPath)
+
+      let task = Process()
+      task.launchPath = "/usr/bin/open"
+      task.arguments = [destinationPath]
+
+      task.launch()
+      NSApp.terminate(nil)
+
+    } catch {
+      print("Failed to move app to /Applications: \(error)")
     }
   }
 }

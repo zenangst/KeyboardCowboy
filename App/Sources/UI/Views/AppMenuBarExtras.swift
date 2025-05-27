@@ -7,6 +7,7 @@ struct AppMenuBarExtras: Scene {
     case openMainWindow
     case openEmptyConfigurationWindow
     case reveal
+    case install
     case openKeyViewer
     case helpMenu(HelpMenu.Action)
   }
@@ -59,6 +60,9 @@ struct AppMenuBarExtras: Scene {
       Button(action: { onAction(.reveal) }, label: {
         Text("Reveal")
       })
+      if !Bundle.main.bundlePath.hasPrefix("/Applications") {
+        Button(action: { onAction(.install) }, label: { Text("Move to Applications Folder") })
+      }
 #endif
       Button(action: {
         NSApplication.shared.terminate(nil)
