@@ -200,133 +200,134 @@ struct GroupDetailView: View {
           .foregroundColor(Color(.systemGray))
       }
 
-        if publisher.data.isEmpty {
-          EmptyWorkflowList(namespace, onAction: onAction)
-            .frame(maxHeight: .infinity)
-            .toolbar(content: { toolbarContent() })
-        } else {
-          CompatList {
-            let items = publisher.data.filter({ search($0) })
-            ForEach(items.lazy, id: \.id) { element in
-              WorkflowView(
-                workflow: element,
-                publisher: publisher,
-                contentSelectionManager: workflowSelection,
-                onAction: onAction
-              )
-              .modifier(LegacyOnTapFix(onTap: {
-                focus = .element(element.id)
-                onTap(element)
-              }))
-              .contextMenu(menuItems: {
-                contextualMenu(element.id)
-              })
-              .focusable($focus, as: .element(element.id)) {
-                if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
-                   let lastSelection = workflowSelection.lastSelection,
-                   let match = publisher.data.first(where: { $0.id == lastSelection }) {
-                  focus = .element(match.id)
-                } else {
-                  onTap(element)
-                  proxy.scrollTo(element.id)
-                }
-              }
-            }
-            .dropDestination(for: GroupDetailViewModel.self, action: { collection, destination in
-              var indexSet = IndexSet()
-              for item in collection {
-                guard let index = publisher.data.firstIndex(of: item) else { continue }
-                indexSet.insert(index)
-              }
-              onAction(.reorderWorkflows(source: indexSet, destination: destination))
-            })
-            .compatContentListPadding()
-            .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-              appFocus.wrappedValue = .detail(.name)
-            })
-            .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-              if searchTerm.isEmpty {
-                appFocus.wrappedValue = .groups
-              } else {
-                appFocus.wrappedValue = .search
-              }
-            })
-            .onCommand(#selector(NSResponder.selectAll(_:)),
-                       perform: {
-              let newSelections = Set(publisher.data.map(\.id))
-              workflowSelection.publish(newSelections)
-              if let elementID = publisher.data.first?.id,
-                 let lastSelection = workflowSelection.lastSelection {
-                focus = .element(elementID)
-                focus = .element(lastSelection)
-              }
-            })
-            .onMoveCommand(perform: { direction in
-              if let elementID = workflowSelection.handle(
-                direction,
-                publisher.data.filter({ search($0) }),
-                proxy: proxy,
-                vertical: true) {
-                focus = .element(elementID)
-              }
-            })
-            .onDeleteCommand {
-              if workflowSelection.selections.count == publisher.data.count {
-                withAnimation {
-                  onAction(.removeWorkflows(workflowSelection.selections))
-                }
-              } else {
-                onAction(.removeWorkflows(workflowSelection.selections))
-                if let first = workflowSelection.selections.first {
-                  let index = max(publisher.data.firstIndex(where: { $0.id == first }) ?? 0, 0)
-                  let newId = publisher.data[index].id
-                  focus = .element(newId)
-                }
-              }
-            }
-
-            Text("Results: \(items.count)")
-              .font(.caption)
-              .opacity(!searchTerm.isEmpty ? 1 : 0)
-              .padding(.vertical, 8)
-              .frame(maxWidth: .infinity)
-              .frame(height: searchTerm.isEmpty ? 0 : nil)
-
-            Color(.clear)
-              .id("bottom")
-              .padding(.bottom, 24)
-
-          }
-          .onChange(of: workflowSelection.selections) { newValue in
-            let ids = Set(publisher.data.map(\.id))
-            let newIds = Set(newValue)
-            let result = ids.intersection(newIds)
-            if !result.isEmpty, let first = result.first {
-              proxy.scrollTo(first)
-            }
-          }
-          .onAppear {
-            guard let initialSelection = workflowSelection.initialSelection else { return }
-            focus = .element(initialSelection)
-            proxy.scrollTo(initialSelection)
-          }
-          .focused(appFocus, equals: .workflows)
-          .onChange(of: searchTerm, perform: { newValue in
-            if !searchTerm.isEmpty {
-              if let firstSelection = publisher.data.filter({ search($0) }).first {
-                workflowSelection.publish([firstSelection.id])
-              } else {
-                workflowSelection.publish([])
-              }
-
-              debounce.process(.init(workflows: workflowSelection.selections))
-            }
-          })
+      if publisher.data.isEmpty {
+        EmptyWorkflowList(namespace, onAction: onAction)
+          .frame(maxHeight: .infinity)
           .toolbar(content: { toolbarContent() })
-          .onReceive(NotificationCenter.default.publisher(for: .newWorkflow), perform: { _ in
-            proxy.scrollTo("bottom")
+      }
+
+      CompatList {
+        let items = publisher.data.filter({ search($0) })
+        ForEach(items.lazy, id: \.id) { element in
+          WorkflowView(
+            workflow: element,
+            publisher: publisher,
+            contentSelectionManager: workflowSelection,
+            onAction: onAction
+          )
+          .modifier(LegacyOnTapFix(onTap: {
+            focus = .element(element.id)
+            onTap(element)
+          }))
+          .contextMenu(menuItems: {
+            contextualMenu(element.id)
           })
+          .focusable($focus, as: .element(element.id)) {
+            if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
+               let lastSelection = workflowSelection.lastSelection,
+               let match = publisher.data.first(where: { $0.id == lastSelection }) {
+              focus = .element(match.id)
+            } else {
+              onTap(element)
+              proxy.scrollTo(element.id)
+            }
+          }
         }
+        .dropDestination(for: GroupDetailViewModel.self, action: { collection, destination in
+          var indexSet = IndexSet()
+          for item in collection {
+            guard let index = publisher.data.firstIndex(of: item) else { continue }
+            indexSet.insert(index)
+          }
+          onAction(.reorderWorkflows(source: indexSet, destination: destination))
+        })
+        .compatContentListPadding()
+        .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+          appFocus.wrappedValue = .detail(.name)
+        })
+        .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
+          if searchTerm.isEmpty {
+            appFocus.wrappedValue = .groups
+          } else {
+            appFocus.wrappedValue = .search
+          }
+        })
+        .onCommand(#selector(NSResponder.selectAll(_:)),
+                   perform: {
+          let newSelections = Set(publisher.data.map(\.id))
+          workflowSelection.publish(newSelections)
+          if let elementID = publisher.data.first?.id,
+             let lastSelection = workflowSelection.lastSelection {
+            focus = .element(elementID)
+            focus = .element(lastSelection)
+          }
+        })
+        .onMoveCommand(perform: { direction in
+          if let elementID = workflowSelection.handle(
+            direction,
+            publisher.data.filter({ search($0) }),
+            proxy: proxy,
+            vertical: true) {
+            focus = .element(elementID)
+          }
+        })
+        .onDeleteCommand {
+          if workflowSelection.selections.count == publisher.data.count {
+            withAnimation {
+              onAction(.removeWorkflows(workflowSelection.selections))
+            }
+          } else {
+            onAction(.removeWorkflows(workflowSelection.selections))
+            if let first = workflowSelection.selections.first {
+              let index = max(publisher.data.firstIndex(where: { $0.id == first }) ?? 0, 0)
+              let newId = publisher.data[index].id
+              focus = .element(newId)
+            }
+          }
+        }
+
+        Text("Results: \(items.count)")
+          .font(.caption)
+          .opacity(!searchTerm.isEmpty ? 1 : 0)
+          .padding(.vertical, 8)
+          .frame(maxWidth: .infinity)
+          .frame(height: searchTerm.isEmpty ? 0 : nil)
+
+        Color(.clear)
+          .id("bottom")
+          .padding(.bottom, 24)
+
+      }
+      .opacity(!publisher.data.isEmpty ? 1 : 0)
+      .onChange(of: workflowSelection.selections) { newValue in
+        let ids = Set(publisher.data.map(\.id))
+        let newIds = Set(newValue)
+        let result = ids.intersection(newIds)
+        if !result.isEmpty, let first = result.first {
+          proxy.scrollTo(first)
+        }
+      }
+      .onAppear {
+        guard let initialSelection = workflowSelection.initialSelection else { return }
+        focus = .element(initialSelection)
+        proxy.scrollTo(initialSelection)
+      }
+      .focused(appFocus, equals: .workflows)
+      .onChange(of: searchTerm, perform: { newValue in
+        if !searchTerm.isEmpty {
+          if let firstSelection = publisher.data.filter({ search($0) }).first {
+            workflowSelection.publish([firstSelection.id])
+          } else {
+            workflowSelection.publish([])
+          }
+
+          debounce.process(.init(workflows: workflowSelection.selections))
+        }
+      })
+      .toolbar(content: { toolbarContent() })
+      .onReceive(NotificationCenter.default.publisher(for: .newWorkflow), perform: { _ in
+        proxy.scrollTo("bottom")
+      })
     }
   }
 
