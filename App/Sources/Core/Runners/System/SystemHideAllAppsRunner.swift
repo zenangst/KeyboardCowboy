@@ -19,8 +19,9 @@ final class SystemHideAllAppsRunner {
 
     excludedBundleIdentifiers.append(Bundle.main.bundleIdentifier!)
 
+    let options: CGWindowListOption = [.excludeDesktopElements, .optionOnScreenOnly]
     var (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
-                                                              targetPid: nil, options: [.excludeDesktopElements, .optionOnScreenOnly],
+                                                              targetPid: nil, options: options,
                                                               exceptBundleIdentifiers: excludedBundleIdentifiers)
 
     if let targetApplication, NSScreen.screens.count > 1 {
@@ -28,14 +29,14 @@ final class SystemHideAllAppsRunner {
       if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == targetApplication.bundleIdentifier }) {
         if !processIdentifiers.contains(Int(app.processIdentifier)) {
           for screen in NSScreen.screens where screen != currentScreen {
-            let windows = indexWindowsInStage(getWindows(options: [.excludeDesktopElements]), targetRect: screen.visibleFrame)
+            let windows = indexWindowsInStage(getWindows(options: options), targetRect: screen.visibleFrame)
             let pids = Set(windows.map(\.ownerPid.rawValue))
 
             if pids.contains(Int(app.processIdentifier)) {
               targetScreenFrame = screen.visibleFrame
               (processIdentifiers, apps) = Self.runningApplications(in: targetScreenFrame, targetApplication: targetApplication,
                                                                     targetPid: Int(app.processIdentifier),
-                                                                    options: [.excludeDesktopElements],
+                                                                    options: options,
                                                                     exceptBundleIdentifiers: excludedBundleIdentifiers)
               break
             }
@@ -43,7 +44,6 @@ final class SystemHideAllAppsRunner {
         }
       }
     }
-
 
     var validPids = Set<Int>()
     if let targetApplication {
@@ -65,6 +65,7 @@ final class SystemHideAllAppsRunner {
     // Fix Podcasts app not hiding when calling `NSRunningApplication.hide()`
     let misbehavingBundles = Set(arrayLiteral: "com.apple.podcasts")
     for app in apps where misbehavingBundles.contains(app.bundleIdentifier ?? "") {
+
       if #available(macOS 14.0, *) {
         app.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateAllWindows)
       } else {
@@ -78,6 +79,8 @@ final class SystemHideAllAppsRunner {
     }
 
     for app in apps {
+      if checkCancellation { try Task.checkCancellation() }
+      print("hiding", app.bundleURL)
       app.hide()
       processIdentifiers.insert(Int(app.processIdentifier))
     }
@@ -87,9 +90,7 @@ final class SystemHideAllAppsRunner {
     var waitingForWindowsToDisappear: Bool = true
 
     while waitingForWindowsToDisappear {
-      if checkCancellation {
-        try Task.checkCancellation()
-      }
+      if checkCancellation { try Task.checkCancellation() }
 
       let windows = indexWindowsInStage(getWindows(options: [.optionOnScreenOnly, .excludeDesktopElements]), targetRect: targetScreenFrame)
       let windowsProcessIds = Set(windows.map(\.ownerPid.rawValue))
@@ -103,6 +104,8 @@ final class SystemHideAllAppsRunner {
         try await Task.sleep(for: .milliseconds(10))
       }
     }
+
+    print("-------")
   }
 
   private static func runningApplications(in targetRect: CGRect, targetApplication: Application? = nil,
