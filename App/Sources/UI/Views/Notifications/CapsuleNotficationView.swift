@@ -63,7 +63,8 @@ struct CapsuleNotificationView: View {
   }
 
   var body: some View {
-    Text(publisher.text.isEmpty ? " " : publisher.text)
+    TextContainerView(publisher: publisher)
+      .animation(.none, value: publisher.state)
       .font(.system(.title2, design: .rounded, weight: .regular))
       .padding(.leading, publisher.state == .running ?  24 : 0)
       .overlay(alignment: .leading) {
@@ -102,6 +103,94 @@ struct CapsuleNotificationView: View {
       .frame(minWidth: 128, maxWidth: .infinity)
       .opacity(publisher.state == .idle ? 0 : 1)
       .animation(.smooth(duration: 0.275), value: publisher.state)
+  }
+}
+
+fileprivate struct TextContainerView: View {
+  @ObservedObject var publisher: CapsuleNotificationPublisher
+
+  var body: some View {
+    Group {
+      if !publisher.text.isEmpty {
+        AnimatedText(text: publisher.text)
+      } else {
+        Text(" ")
+      }
+    }
+  }
+}
+
+fileprivate struct AnimatedText: View {
+  let text: String
+
+  @State private var previousText: String = ""
+  @State private var animatingIndices: Set<Int> = []
+
+  var body: some View {
+    HStack(spacing: 0) {
+      ForEach(Array(text.enumerated()), id: \.offset) { idx, char in
+        AnimatedCharacterView(
+          char: char,
+          index: idx,
+          shouldAnimate: animatingIndices.contains(idx)
+        )
+        .id("\(idx)-\(char)")
+      }
+    }
+    .onChange(of: text) { newValue in
+      let newChars = Array(newValue)
+      let oldChars = Array(previousText)
+
+      var changed = Set<Int>()
+      let count = max(newChars.count, oldChars.count)
+      for i in 0..<count {
+        let oldChar = i < oldChars.count ? oldChars[i] : nil
+        let newChar = i < newChars.count ? newChars[i] : nil
+        if oldChar != newChar {
+          changed.insert(i)
+        }
+      }
+      animatingIndices = changed
+      previousText = newValue
+
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+        animatingIndices = []
+      }
+    }
+    .onAppear {
+      previousText = text
+      animatingIndices = []
+    }
+  }
+}
+
+fileprivate struct AnimatedCharacterView: View {
+  let char: Character
+  let index: Int
+  let shouldAnimate: Bool
+
+  @State private var animating = false
+
+  var body: some View {
+    Text(String(char))
+      .opacity(animating ? 1 : 0)
+      .offset(y: animating ? 0 : -10)
+      .animation(
+        shouldAnimate ?
+          .smooth.delay(Double(index) * 0.001) : .none,
+        value: animating
+      )
+      .onAppear {
+        animating = true
+      }
+      .onChange(of: shouldAnimate) { newValue in
+        if newValue {
+          animating = false
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.001) {
+            animating = true
+          }
+        }
+      }
   }
 }
 
