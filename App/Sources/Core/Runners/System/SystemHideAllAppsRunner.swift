@@ -80,7 +80,6 @@ final class SystemHideAllAppsRunner {
 
     for app in apps {
       if checkCancellation { try Task.checkCancellation() }
-      print("hiding", app.bundleURL)
       app.hide()
       processIdentifiers.insert(Int(app.processIdentifier))
     }
@@ -104,8 +103,6 @@ final class SystemHideAllAppsRunner {
         try await Task.sleep(for: .milliseconds(10))
       }
     }
-
-    print("-------")
   }
 
   private static func runningApplications(in targetRect: CGRect, targetApplication: Application? = nil,
