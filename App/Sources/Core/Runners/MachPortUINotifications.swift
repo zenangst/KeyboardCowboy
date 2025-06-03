@@ -24,7 +24,7 @@ final class MachPortUINotifications {
       Task { @MainActor in
         #warning("The user should be able to configure this for settings")
         CapsuleNotificationWindow.shared.open()
-        CapsuleNotificationWindow.shared.publish(workflow.name, state: .success)
+        CapsuleNotificationWindow.shared.publish(workflow.name, id: workflow.id, state: .success)
       }
     }
   }

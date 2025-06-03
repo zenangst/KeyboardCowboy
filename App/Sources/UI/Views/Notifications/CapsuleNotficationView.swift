@@ -35,16 +35,19 @@ final class CapsuleNotificationPublisher: ObservableObject {
     }
   }
 
+  var id: String
   @Published var text: String
   @Published var state: State
 
-  init(text: String = "", state: State = .running) {
+  init(text: String = "", id: String, state: State = .running) {
+    self.id = id
     self.text = text
     self.state = state
   }
 
   @MainActor
-  func publish(_ text: String, state: State) {
+  func publish(_ text: String, id: String, state: State) {
+    self.id = id
     self.state = state
     self.text = text
   }
@@ -99,7 +102,6 @@ struct CapsuleNotificationView: View {
       .frame(minWidth: 128, maxWidth: .infinity)
       .opacity(publisher.state == .idle ? 0 : 1)
       .animation(.smooth(duration: 0.275), value: publisher.state)
-      .enableInjection()
   }
 }
 
@@ -132,7 +134,7 @@ fileprivate struct CustomProgressViewStyle: ProgressViewStyle {
 }
 
 #Preview {
-  let dynamicPublisher = CapsuleNotificationPublisher(text: "Running…")
+  let dynamicPublisher = CapsuleNotificationPublisher(text: "Running…", id: UUID().uuidString)
 
   return VStack(spacing: 4) {
     CapsuleNotificationView(publisher: dynamicPublisher)
@@ -143,9 +145,9 @@ fileprivate struct CustomProgressViewStyle: ProgressViewStyle {
         }
       }
     ZenDivider()
-    CapsuleNotificationView(publisher: CapsuleNotificationPublisher(text: "Running…", state: .running))
-    CapsuleNotificationView(publisher: CapsuleNotificationPublisher(text: "Workflow successful.", state: .failure))
-    CapsuleNotificationView(publisher: CapsuleNotificationPublisher(text: "Workflow successful.", state: .success))
+    CapsuleNotificationView(publisher: CapsuleNotificationPublisher(text: "Running…", id: UUID().uuidString, state: .running))
+    CapsuleNotificationView(publisher: CapsuleNotificationPublisher(text: "Workflow successful.", id: UUID().uuidString, state: .failure))
+    CapsuleNotificationView(publisher: CapsuleNotificationPublisher(text: "Workflow successful.", id: UUID().uuidString, state: .success))
   }
   .padding(10)
 }

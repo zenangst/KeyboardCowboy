@@ -6,10 +6,12 @@ import MachPort
 import SwiftUI
 
 @MainActor
-final class CapsuleNotificationWindow: NSObject, NSWindowDelegate {
+final class CapsuleNotificationWindow: NSObject, NSWindowDelegate, Sendable {
   static let shared = CapsuleNotificationWindow()
 
-  private lazy var publisher = CapsuleNotificationPublisher(text: "")
+  private(set) var isOpen: Bool = false
+
+  private lazy var publisher = CapsuleNotificationPublisher(text: "", id: UUID().uuidString)
   private var window: (NSWindow & SizeFitting)?
   private var dismiss: DispatchWorkItem?
   private var subscription: AnyCancellable?
@@ -27,20 +29,28 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate {
       }
   }
 
-  func publish(_ text: String, state: CapsuleNotificationPublisher.State) {
-    publisher.publish(text, state: state)
+  func publish(_ text: String, id: String, state: CapsuleNotificationPublisher.State) {
+    if publisher.id == id {
+      switch (state, publisher.state) {
+      case (.running, .failure), (.running, .success):
+        return
+      default: break
+      }
+    }
 
+    publisher.publish(text, id: id, state: state)
     dismiss?.cancel()
 
     let dismiss = DispatchWorkItem { [weak self] in
-      self?.publisher.publish("", state: .idle)
+      self?.publisher.publish("", id: UUID().uuidString, state: .idle)
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [window=self?.window] in
         window?.close()
       }
     }
 
     switch state {
-    case .running, .idle: break
+    case .running, .idle:
+      break
     case .failure, .success:
       self.dismiss = dismiss
       DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: dismiss)
@@ -48,6 +58,8 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate {
   }
 
   func open() {
+    guard !isOpen else { return }
+
     guard let screen = NSScreen.main else { return }
 
     window?.close()
@@ -70,13 +82,15 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate {
     window.level = .statusBar
     window.orderFrontRegardless()
 
-    publisher.publish("", state: .idle)
+    publisher.publish("", id: UUID().uuidString, state: .idle)
 
     self.window = window
+    isOpen = true
   }
 
   func windowWillClose(_ notification: Notification) {
     self.window = nil
+    isOpen = false
   }
 }
 

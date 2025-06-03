@@ -47,6 +47,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   private var serialTask: Task<Void, Error>?
   private var concurrentTask: Task<Void, Error>?
   private var subscription: AnyCancellable?
+  private var longRunningTask: Task<Void, any Error>?
 
   let runners: Runners
 
@@ -188,7 +189,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
               KeyboardCowboyApp.activate()
 
-              CapsuleNotificationWindow.shared.publish(scriptError.localizedDescription, state: .failure)
+              CapsuleNotificationWindow.shared.publish(scriptError.localizedDescription, id: command.id, state: .failure)
 
               alert.runModal()
             }
@@ -199,7 +200,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             case .bezel:
               await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
             case .capsule:
-              await CapsuleNotificationWindow.shared.publish(error.localizedDescription, state: .failure)
+              await CapsuleNotificationWindow.shared.publish(error.localizedDescription, id: command.id, state: .failure)
             case .commandPanel, .none: break
             }
           }
@@ -268,7 +269,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           case .bezel:
             await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
           case .capsule:
-            await CapsuleNotificationWindow.shared.publish(error.localizedDescription, state: .failure)
+            await CapsuleNotificationWindow.shared.publish(error.localizedDescription, id: command.id, state: .failure)
           case .commandPanel, .none: break
           }
         }
@@ -289,33 +290,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   func run(_ command: Command, workflowCommands: [Command], snapshot: UserSpace.Snapshot,
            machPortEvent: MachPortEvent, checkCancellation: Bool, repeatingEvent: Bool,
            runtimeDictionary: inout [String: String]) async throws {
-    switch command.notification {
-    case .bezel:
-      Task { @MainActor in
-        notchInfo.title = LocalizedStringKey(stringLiteral: command.name)
-        notchInfo.description = "Running…"
-        await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
-        try await Task.sleep(for: .seconds(10))
-        await notchInfo.hide()
-      }
-    case .capsule:
-      let capsule = await CapsuleNotificationWindow.shared
-      await capsule.open()
-      await capsule.publish("Running…", state: .running)
-    case .commandPanel:
-      switch command {
-      case .script(let scriptCommand):
-        await MainActor.run {
-          commandPanel.run(scriptCommand)
-        }
-      default:
-        assertionFailure("Not yet implemented.")
-        break
-      }
-      return
-    case .none:
-      break
-    }
+    await showRunningNotification(for: command)
 
     let output: String
     switch command {
@@ -440,24 +415,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       runtimeDictionary[variableName] = output
     }
 
-    switch command.notification {
-    case .bezel:
-      Task { @MainActor in
-        lastExecutedCommand = command
-        notchInfo.title = LocalizedStringKey(stringLiteral: output)
-        notchInfo.description = nil
-        await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
-        try await Task.sleep(for: .seconds(2))
-        await notchInfo.hide()
-      }
-    case .capsule:
-      let capsule = await CapsuleNotificationWindow.shared
-      await capsule.publish(output, state: .success)
-    case .commandPanel:
-      break // Add support for command windows
-    case .none:
-      break
-    }
+    await showFinishedNotification(for: command, output: output)
   }
 
   @MainActor
@@ -473,6 +431,71 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   // MARK: Private methods
+
+  private func showRunningNotification(for command: Command) async {
+    longRunningTask?.cancel()
+    longRunningTask = nil
+
+    switch command.notification {
+    case .bezel:
+      Task { @MainActor in
+        notchInfo.title = LocalizedStringKey(stringLiteral: command.name)
+        notchInfo.description = "Running…"
+        await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
+        try await Task.sleep(for: .seconds(10))
+        await notchInfo.hide()
+      }
+    case .capsule:
+      longRunningTask = Task.detached {
+        try await Task.sleep(for: .seconds(0.5))
+
+        let capsule = await CapsuleNotificationWindow.shared
+
+        await capsule.open()
+        await capsule.publish("Running…", id: command.id, state: .running)
+      }
+    case .commandPanel:
+      switch command {
+      case .script(let scriptCommand):
+        await MainActor.run {
+          commandPanel.run(scriptCommand)
+        }
+      default:
+        assertionFailure("Not yet implemented.")
+        break
+      }
+      return
+    case .none:
+      break
+    }
+  }
+
+  private func showFinishedNotification(for command: Command, output: String) async {
+    longRunningTask?.cancel()
+    longRunningTask = nil
+
+    switch command.notification {
+    case .bezel:
+      Task { @MainActor in
+        lastExecutedCommand = command
+        notchInfo.title = LocalizedStringKey(stringLiteral: output)
+        notchInfo.description = nil
+        await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
+        try await Task.sleep(for: .seconds(2))
+        await notchInfo.hide()
+      }
+    case .capsule:
+      Task.detached { @MainActor in
+        let capsule = CapsuleNotificationWindow.shared
+        if !capsule.isOpen { capsule.open() }
+        capsule.publish(output, id: command.id, state: .success)
+      }
+    case .commandPanel:
+      break // Add support for command windows
+    case .none:
+      break
+    }
+  }
 
   private func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
     subscription = publisher
