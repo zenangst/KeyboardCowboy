@@ -80,6 +80,10 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
   @MainActor
   func commands(_ applications: [Application], dynamicApps: [Application] = []) async throws -> [Command] {
+    guard !UserSettings.WindowManager.stageManagerEnabled else {
+      return whenStageManagerIsActive(applications)
+    }
+
     let bundleIdentifiers = dynamicApps.map { $0.bundleIdentifier } + bundleIdentifiers
 
     guard !bundleIdentifiers.isEmpty else {
@@ -244,6 +248,28 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   }
 
   // MARK: Private methods
+
+  private func whenStageManagerIsActive(_ applications: [Application]) -> [Command] {
+    var commands: [Command] = []
+    for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
+      guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
+        continue
+      }
+
+      let modifiers: [ApplicationCommand.Modifier]
+      if offset > 0 {
+        modifiers = [.background]
+      } else {
+        modifiers = [.waitForAppToLaunch]
+      }
+
+      let applicationCommand = ApplicationCommand(action: .open, application: application, meta: Command.MetaData(delay: nil), modifiers: modifiers)
+
+      commands.append(.application(applicationCommand))
+    }
+
+    return commands
+  }
 
   private func handleEmptyWorkspace() -> [Command] {
     [
