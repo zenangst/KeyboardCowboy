@@ -19,5 +19,9 @@ enum UserSettings {
     static var tiledWindowMarginsEnabled: Bool { userDefaults.bool(forKey: "EnableTiledWindowMargins") == true }
 
     static var tiledWindowBorder: Bool { userDefaults.bool(forKey: "ShowTiledWindowBorder") }
+
+    static var stageManagerEnabled: Bool {
+      userDefaults.bool(forKey: "GloballyEnabled")
+    }
   }
 }

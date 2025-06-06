@@ -9,7 +9,6 @@ final class WindowTilingRunner {
   nonisolated(unsafe) static var debug: Bool = false
   @MainActor private static var currentTask: Task<Void, any Error>?
   @MainActor private static var storage = [WindowModel.WindowNumber: TileStorage]()
-  private static let tilingWindowSpacingKey: String = "TiledWindowSpacing"
 
   static func index() {
     Task {

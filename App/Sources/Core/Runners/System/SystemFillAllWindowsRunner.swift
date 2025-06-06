@@ -8,8 +8,7 @@ final class SystemFillAllWindowsRunner {
     Task {
       guard let screen = NSScreen.main else { return }
 
-      let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager")
-      let spacing = max(CGFloat(userDefaults?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
+      let spacing = UserSettings.WindowManager.tiledWindowSpacing
       let windows = snapshot.windows.visibleWindowsInSpace.reversed()
       let windowCount = windows.count
 

@@ -352,25 +352,21 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         checkCancellation: checkCancellation
       )
 
-      if let result = result {
-        if scriptCommand.meta.variableName != nil {
-          output = result
-        } else {
-          let trimmedResult = result.trimmingCharacters(in: .newlines)
-          output = command.name + " " + trimmedResult
-        }
+      output = if let result {
+        scriptCommand.meta.variableName != nil
+        ? result
+        : command.name + " " + result.trimmingCharacters(in: .newlines)
       } else {
-        output = command.name
+        command.name
       }
     case .shortcut(let shortcutCommand):
       let result = try await runners.shortcut.run(shortcutCommand, 
                                                   environment: snapshot.terminalEnvironment(),
                                                   checkCancellation: checkCancellation)
-      if let result = result {
-        let trimmedResult = result.trimmingCharacters(in: .newlines)
-        output = command.name + " " + trimmedResult
+      output = if let result {
+        command.name + " " + result.trimmingCharacters(in: .newlines)
       } else {
-        output = command.name
+        command.name
       }
     case .text(let typeCommand):
       switch typeCommand.kind {
