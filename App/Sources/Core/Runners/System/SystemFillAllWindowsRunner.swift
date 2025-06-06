@@ -9,7 +9,7 @@ final class SystemFillAllWindowsRunner {
       guard let screen = NSScreen.main else { return }
 
       let spacing = UserSettings.WindowManager.tiledWindowSpacing
-      let windows = snapshot.windows.visibleWindowsInSpace.reversed()
+      let windows = snapshot.windows.visibleWindowsInStage.reversed()
       let windowCount = windows.count
 
       for (index, window) in windows.enumerated() {
