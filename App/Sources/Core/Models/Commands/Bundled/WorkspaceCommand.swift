@@ -251,22 +251,29 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
   private func whenStageManagerIsActive(_ applications: [Application]) -> [Command] {
     var commands: [Command] = []
+    let runningApplications = NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier }
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         continue
       }
 
       let modifiers: [ApplicationCommand.Modifier]
-      if offset > 0 {
-        modifiers = [.background]
-      } else {
+      if offset == bundleIdentifiers.count - 1 {
+
+
         modifiers = [.waitForAppToLaunch]
+      } else {
+        if runningApplications.contains(application.bundleIdentifier) {
+          continue
+        }
+        modifiers = [.background]
       }
 
       let applicationCommand = ApplicationCommand(action: .open, application: application, meta: Command.MetaData(delay: nil), modifiers: modifiers)
 
       commands.append(.application(applicationCommand))
     }
+
 
     return commands
   }
