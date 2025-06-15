@@ -23,7 +23,7 @@ final class WindowTilingRunner {
   }
 
   static func run(_ tiling: WindowTiling, toggleFill: Bool = true, snapshot: UserSpace.Snapshot) async throws {
-    guard let screen = NSScreen.main, let runningApplication = NSWorkspace.shared.frontmostApplication else {
+    guard let screen = NSScreen.main else {
       return
     }
 
@@ -39,16 +39,7 @@ final class WindowTilingRunner {
 
     guard let nextWindow = oldWindows.first else { return }
 
-    let app: AppAccessibilityElement
-    if nextWindow.ownerPid.rawValue != runningApplication.processIdentifier {
-      let pid = pid_t(nextWindow.ownerPid.rawValue)
-      app = AppAccessibilityElement(pid)
-      let nextApp = NSRunningApplication(processIdentifier: pid)
-      nextApp?.activate(options: .activateIgnoringOtherApps)
-    } else {
-      app = AppAccessibilityElement(runningApplication.processIdentifier)
-    }
-
+    let app: AppAccessibilityElement = AppAccessibilityElement(snapshot.frontMostApplication.ref.processIdentifier)
     let menuItems = try app
       .menuBar()
       .menuItems()

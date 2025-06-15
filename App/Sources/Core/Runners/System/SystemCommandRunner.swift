@@ -29,11 +29,12 @@ final class SystemCommandRunner: @unchecked Sendable {
       switch command.kind {
       case .activateLastApplication:
         Task {
+          var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
           if let previousApplication = applicationActivityMonitor.previousApplication() {
             try await applicationRunner.run(.init(application: previousApplication.asApplication()),
                                             machPortEvent: nil,
                                             checkCancellation: checkCancellation,
-                                            snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
+                                            snapshot: &snapshot)
           }
         }
       case .fillAllOpenWindows:

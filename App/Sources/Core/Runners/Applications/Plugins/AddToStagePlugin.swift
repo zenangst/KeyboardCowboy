@@ -105,9 +105,9 @@ final class AddToStagePlugin {
 
   static func activateCurrentApplication(_ snapshot: UserSpace.Snapshot) async throws {
     let configuration = NSWorkspace.OpenConfiguration()
-    let url = URL(fileURLWithPath: snapshot.frontmostApplication.asApplication().path)
+    let url = URL(fileURLWithPath: snapshot.frontMostApplication.asApplication().path)
     _ = try await NSWorkspace.shared.openApplication(at: url, configuration: configuration)
-    snapshot.frontmostApplication.ref.activate(options: .activateIgnoringOtherApps)
+    snapshot.frontMostApplication.ref.activate(options: .activateIgnoringOtherApps)
   }
 
   static func activateTargetApplication(_ command: ApplicationCommand) async throws {

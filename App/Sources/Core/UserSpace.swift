@@ -51,8 +51,7 @@ final class UserSpace: @unchecked Sendable {
     let name: String
     let path: String
 
-    @MainActor
-    static let current: UserSpace.Application = NSRunningApplication.currentAsApplication()
+    @MainActor static let current: UserSpace.Application = NSRunningApplication.currentAsApplication()
 
     static func ==(lhs: Application, rhs: Application) -> Bool {
       lhs.bundleIdentifier == rhs.bundleIdentifier &&
@@ -60,9 +59,10 @@ final class UserSpace: @unchecked Sendable {
       lhs.path == rhs.path
     }
   }
+
   struct Snapshot {
     let documentPath: String?
-    let frontmostApplication: Application
+    let frontMostApplication: Application
     let modes: [UserMode]
     let previousApplication: Application
     let selectedText: String
@@ -75,19 +75,32 @@ final class UserSpace: @unchecked Sendable {
          previousApplication: Application,
          selectedText: String = "",
          selections: [String] = [],
-         specialKeys: [Int] = [],
          windows: WindowStoreSnapshot = WindowStoreSnapshot(
           frontmostApplicationWindows: [],
           visibleWindowsInStage: [],
           visibleWindowsInSpace: []
          )) {
       self.documentPath = documentPath
-      self.frontmostApplication = frontmostApplication
+      self.frontMostApplication = frontmostApplication
       self.modes = modes
       self.previousApplication = previousApplication
       self.selectedText = selectedText
       self.selections = selections
       self.windows = windows
+    }
+
+    @MainActor
+    func updateFrontmostApplication() -> Snapshot {
+      let current = NSWorkspace.shared.frontmostApplication!.asApplication()!
+      return Snapshot(
+        documentPath: self.documentPath,
+        frontmostApplication: current,
+        modes: self.modes,
+        previousApplication: current != self.frontMostApplication ? self.frontMostApplication : self.previousApplication,
+        selectedText: self.selectedText,
+        selections: self.selections,
+        windows: self.windows
+      )
     }
 
     @MainActor

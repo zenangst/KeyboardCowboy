@@ -52,7 +52,7 @@ final class WindowFocusCenter: @unchecked Sendable {
     var windows = initialWindows
 
     let targetRect = targetRect(on: screen)
-    let frontmostApplication = snapshot.frontmostApplication
+    let frontmostApplication = snapshot.frontMostApplication
     let frontmostAppElement = AppAccessibilityElement(frontmostApplication.ref.processIdentifier)
 
     let focusedWindow = try? frontmostAppElement.focusedWindow()

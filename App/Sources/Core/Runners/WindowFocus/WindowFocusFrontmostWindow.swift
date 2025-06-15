@@ -8,7 +8,7 @@ enum WindowFocusFrontmostWindow {
   static func run(kind: WindowFocusCommand.Kind, snapshot: UserSpace.Snapshot) {
     var frontmostIndex = 0
     let windows = snapshot.windows.frontmostApplicationWindows
-    let frontmostApplication = snapshot.frontmostApplication
+    let frontmostApplication = snapshot.frontMostApplication
     let frontmostAppElement = AppAccessibilityElement(frontmostApplication.ref.processIdentifier)
     if let focusedWindow = try? frontmostAppElement.focusedWindow(),
        let index = windows.firstIndex(where: { $0.id == focusedWindow.id }){
@@ -16,8 +16,8 @@ enum WindowFocusFrontmostWindow {
     }
 
     guard !windows.isEmpty else {
-      CustomSystemRoutine(rawValue: snapshot.frontmostApplication.bundleIdentifier)?
-        .routine(snapshot.frontmostApplication)
+      CustomSystemRoutine(rawValue: snapshot.frontMostApplication.bundleIdentifier)?
+        .routine(snapshot.frontMostApplication)
         .run(kind)
       return
     }

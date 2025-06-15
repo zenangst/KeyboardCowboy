@@ -36,7 +36,7 @@ final class WindowFocusRelativeFocus {
     }
 
     let windows = indexWindowsInStage(getWindows())
-    let activeProcessIdentifier = Int(snapshot.frontmostApplication.ref.processIdentifier)
+    let activeProcessIdentifier = Int(snapshot.frontMostApplication.ref.processIdentifier)
     let firstFallback = windows.first
 
     guard let activeWindow = windows.first(where: { $0.ownerPid == activeProcessIdentifier }) ?? firstFallback else {

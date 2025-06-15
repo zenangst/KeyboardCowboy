@@ -94,10 +94,11 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
           if NSEvent.modifierFlags.contains(.command) {
             NSWorkspace.shared.reveal(application.path)
           } else {
+            var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
             try? await applicationRunner
               .run(.init(application: application), machPortEvent: nil,
                    checkCancellation: false,
-                   snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
+                   snapshot: &snapshot)
           }
         default: break
         }

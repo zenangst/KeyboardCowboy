@@ -40,7 +40,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     )
   }
 
-  func run(_ command: ApplicationCommand, machPortEvent: MachPortEvent?, checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws {
+  func run(_ command: ApplicationCommand, machPortEvent: MachPortEvent?, checkCancellation: Bool, snapshot: inout UserSpace.Snapshot) async throws {
     await delegate?.applicationCommandRunnerWillRunApplicationCommand(command)
     if command.modifiers.contains(.onlyIfNotRunning) {
       let bundleIdentifiers = self.workspace.applications.compactMap(\.bundleIdentifier)
@@ -57,8 +57,12 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     }
 
     switch command.action {
-    case .open:  try await openApplication(command, checkCancellation: checkCancellation)
-    case .close: try plugins.close.execute(command, checkCancellation: checkCancellation)
+    case .open:
+      try await openApplication(command, checkCancellation: checkCancellation)
+      snapshot = await snapshot.updateFrontmostApplication()
+    case .close:
+      try plugins.close.execute(command, checkCancellation: checkCancellation)
+      snapshot = await snapshot.updateFrontmostApplication()
     case .hide:  plugins.hide.execute(command, snapshot: snapshot)
     case .unhide: plugins.unhide.execute(command)
     case .peek:

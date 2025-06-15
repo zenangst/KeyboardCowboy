@@ -56,7 +56,7 @@ final class WindowFocusQuarter: @unchecked Sendable {
     var activeWindow: WindowModel?
     var windows = initialWindows
 
-    let frontmostApplication = snapshot.frontmostApplication
+    let frontmostApplication = snapshot.frontMostApplication
     let frontmostAppElement = AppAccessibilityElement(frontmostApplication.ref.processIdentifier)
 
     let focusedWindow = try? frontmostAppElement.focusedWindow()

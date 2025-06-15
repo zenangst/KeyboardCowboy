@@ -176,6 +176,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       case .window(let window, _):
         if event.modifierFlags.contains(.command) {
           Task {
+            var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
             let bundledCommand = BundledCommand(.appFocus(command: .init(bundleIdentifer: currentItem.app.bundleIdentifier, hideOtherApps: false, tiling: .arrangeDynamicQuarters)), meta: .init())
             let command = Command.bundled(bundledCommand)
             if let emptyEvent = MachPortEvent.empty() {
@@ -184,7 +185,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
                 bundledCommand: bundledCommand,
                 command: command,
                 commandRunner: commandRunner,
-                snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+                snapshot: &snapshot,
                 machPortEvent: emptyEvent,
                 checkCancellation: false,
                 repeatingEvent: false,

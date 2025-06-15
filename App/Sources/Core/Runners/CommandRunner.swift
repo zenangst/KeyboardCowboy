@@ -164,13 +164,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         })
 
         if shouldDismissMissionControl { await missionControl.dismissIfActive() }
-        let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: resolveUserEnvironment)
+        var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: resolveUserEnvironment)
         var runtimeDictionary = [String: String]()
 
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
-            try await self.run(command, workflowCommands: commands, snapshot: snapshot,
+            try await self.run(command, workflowCommands: commands, snapshot: &snapshot,
                                machPortEvent: machPortEvent,
                                checkCancellation: checkCancellation,
                                repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
@@ -256,12 +256,12 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
       if shouldDismissMissionControl { await missionControl.dismissIfActive() }
 
-      let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: resolveUserEnvironment)
+      var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: resolveUserEnvironment)
       var runtimeDictionary = [String: String]()
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }
-          try await self.run(command, workflowCommands: commands, snapshot: snapshot,
+          try await self.run(command, workflowCommands: commands, snapshot: &snapshot,
                              machPortEvent: machPortEvent, checkCancellation: checkCancellation,
                              repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
         } catch {
@@ -287,7 +287,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func run(_ command: Command, workflowCommands: [Command], snapshot: UserSpace.Snapshot,
+  func run(_ command: Command, workflowCommands: [Command], snapshot: inout UserSpace.Snapshot,
            machPortEvent: MachPortEvent, checkCancellation: Bool, repeatingEvent: Bool,
            runtimeDictionary: inout [String: String]) async throws {
     await showRunningNotification(for: command)
@@ -296,7 +296,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     switch command {
     case .application(let applicationCommand):
       try await runners.application.run(applicationCommand, machPortEvent: machPortEvent,
-                                        checkCancellation: checkCancellation, snapshot: snapshot)
+                                        checkCancellation: checkCancellation, snapshot: &snapshot)
       output = command.name
     case .builtIn(let builtInCommand):
       output = try await runners.builtIn.run(
@@ -309,12 +309,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         bundledCommand: bundledCommand,
         command: command,
         commandRunner: self,
-        snapshot: snapshot,
+        snapshot: &snapshot,
         machPortEvent: machPortEvent,
         checkCancellation: checkCancellation,
         repeatingEvent: repeatingEvent,
         runtimeDictionary: &runtimeDictionary
       )
+      snapshot = await snapshot.updateFrontmostApplication()
     case .keyboard(let command):
       switch command.kind {
       case .key(let keyboardCommand):
@@ -388,6 +389,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       output = ""
     case .windowFocus(let command):
       try await runners.windowFocus.run(command, snapshot: snapshot)
+      snapshot = await snapshot.updateFrontmostApplication()
       output = ""
     case .windowTiling(let command):
       output = ""

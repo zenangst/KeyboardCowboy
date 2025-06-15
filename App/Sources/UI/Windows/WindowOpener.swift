@@ -67,12 +67,12 @@ final class WindowOpener: ObservableObject {
         if case .systemCommand(let kind) = payload {
           payload = switch kind {
           case .activateLastApplication: .systemCommand(kind: .activateLastApplication)
-          case .applicationWindows: .systemCommand(kind: .applicationWindows)
-          case .minimizeAllOpenWindows: .systemCommand(kind: .minimizeAllOpenWindows)
-          case .hideAllApps: .systemCommand(kind: .hideAllApps)
-          case .fillAllOpenWindows: .systemCommand(kind: .fillAllOpenWindows)
-          case .missionControl: .systemCommand(kind: .missionControl)
-          case .showDesktop: .systemCommand(kind: .showDesktop)
+          case .applicationWindows:      .systemCommand(kind: .applicationWindows)
+          case .fillAllOpenWindows:      .systemCommand(kind: .fillAllOpenWindows)
+          case .hideAllApps:             .systemCommand(kind: .hideAllApps)
+          case .minimizeAllOpenWindows:  .systemCommand(kind: .minimizeAllOpenWindows)
+          case .missionControl:          .systemCommand(kind: .missionControl)
+          case .showDesktop:             .systemCommand(kind: .showDesktop)
           }
         }
 
