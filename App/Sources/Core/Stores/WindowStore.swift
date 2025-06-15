@@ -160,10 +160,7 @@ final class WindowStore: @unchecked Sendable {
     indexFrontmost()
   }
 
-  // MARK: - Private methods
-
-
-  private func indexFrontmost() {
+  func indexFrontmost() {
     do {
       let forbiddenSubroles = [
         NSAccessibility.Subrole.systemDialog.rawValue,
