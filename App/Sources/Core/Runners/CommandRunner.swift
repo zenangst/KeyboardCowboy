@@ -422,7 +422,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     runners.setMachPort(machPort)
     UserSpace.shared.machPort = machPort
     UserSpace.shared.subscribe(to: coordinator.$lastEventOrRebinding)
-    WindowStore.shared.subscribe(to: coordinator.$flagsChanged)
     subscribe(to: coordinator.$event)
     runners.windowFocus.subscribe(to: coordinator.$flagsChanged)
     runners.windowManagement.subscribe(to: coordinator.$event)

@@ -37,5 +37,4 @@ enum WindowFocusFrontmostWindow {
     let window = windows[frontmostIndex]
     window.performAction(.raise)
   }
-
 }

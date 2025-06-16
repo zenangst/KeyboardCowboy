@@ -79,25 +79,6 @@ final class WindowStore: @unchecked Sendable {
       }
   }
 
-  func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
-    subscriptions.subject = subscriptions.passthrough
-      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
-      .sink { [weak self, state] in
-        guard let self, state.interactive == false else { return }
-        self.index(state.frontmostApplication)
-      }
-    subscriptions.flagsChange = publisher
-      .compactMap { $0 }
-      .sink { [state, subscriptions] flags in
-        state.interactive = flags != CGEventFlags.maskNonCoalesced
-        if state.interactive == false {
-          state.frontmostIndex = 0
-          state.visibleMostIndex = 0
-          subscriptions.passthrough.send()
-        }
-      }
-  }
-
   func snapshot(refresh: Bool = false) -> WindowStoreSnapshot {
     if refresh {
       index(state.frontmostApplication)
