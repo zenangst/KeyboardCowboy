@@ -179,9 +179,9 @@ final class WindowStore: @unchecked Sendable {
 fileprivate extension WindowStore.State {
   func snapshot() -> WindowStoreSnapshot {
     WindowStoreSnapshot(
-      frontmostApplicationWindows: frontmostApplicationWindows,
-      visibleWindowsInStage: visibleWindowsInStage,
-      visibleWindowsInSpace: visibleWindowsInSpace
+      frontmostApplicationWindows: frontmostApplicationWindows.filter({ $0.id > 0 }),
+      visibleWindowsInStage: visibleWindowsInStage.filter({ $0.id > 0 }),
+      visibleWindowsInSpace: visibleWindowsInSpace.filter({ $0.id > 0 })
     )
   }
 }
