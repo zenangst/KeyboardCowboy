@@ -34,7 +34,6 @@ final class WindowStore: @unchecked Sendable {
     var frontmostApplication: UserSpace.Application
     var frontmostIndex: Int = 0
     var visibleMostIndex: Int = 0
-    var interactive: Bool = false
     var frontmostApplicationWindows: [WindowAccessibilityElement] = .init()
     var visibleWindowsInStage: [WindowModel] = .init()
     var visibleWindowsInSpace: [WindowModel] = .init()
@@ -71,11 +70,7 @@ final class WindowStore: @unchecked Sendable {
         state.appAccessibilityElement = AppAccessibilityElement(pid)
         state.frontmostApplication = application
         state.frontmostIndex = 0
-        if state.interactive == false {
-          self.index(application)
-        } else {
-          self.indexFrontmost()
-        }
+        self.indexFrontmost()
       }
   }
 

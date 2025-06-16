@@ -36,22 +36,6 @@ final class WindowCommandFocusRunner {
     relativeFocus.reset()
   }
 
-  func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
-    flagsChangedSubscription = publisher
-      .compactMap { $0 }
-      .sink { [weak self] flags in
-        guard let self else { return }
-        Task { @MainActor in
-          WindowStore.shared.state.interactive = flags != CGEventFlags.maskNonCoalesced
-          if WindowStore.shared.state.interactive == false {
-            self.frontmostIndex = 0
-            self.visibleMostIndex = 0
-            self.resetFocusComponents()
-          }
-        }
-      }
-  }
-
   func run(_ command: WindowFocusCommand, snapshot: UserSpace.Snapshot) async throws {
     switch command.kind {
     case .moveFocusToNextWindowUpwards:
