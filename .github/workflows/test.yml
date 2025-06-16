@@ -38,7 +38,7 @@ jobs:
           tuist generate
       - name: Run tests
         if: success()
-        uses: sersoft-gmbh/xcodebuild-action@v2@ea3e1f1b67864a609d9b6e4c097d92949e5788ed
+        uses: sersoft-gmbh/xcodebuild-action@v3
         with:
           workspace: "Keyboard Cowboy.xcworkspace"
           scheme: "Keyboard-Cowboy"
