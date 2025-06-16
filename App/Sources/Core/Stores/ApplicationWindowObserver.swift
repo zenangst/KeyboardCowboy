@@ -9,6 +9,7 @@ final class ApplicationWindowObserver {
   var observers = [AccessibilityObserver]()
 
   var frontMostApplicationDidCreateWindow: (() -> Void)?
+  var frontMostApplicationDidCloseWindow: (() -> Void)?
 
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     subscription = publisher.sink { [weak self] application in
@@ -38,6 +39,20 @@ final class ApplicationWindowObserver {
           controller.frontMostApplicationDidCreateWindow?()
         }
 
+      }) {
+        observers.append(observer)
+      }
+
+      if let observer = app.observe(.closed, element: app.reference, id: id, pointer: pointer, callback: { observer, element, notification, pointer in
+        guard let pointer else { return }
+        let controller = Unmanaged<ApplicationWindowObserver>
+          .fromOpaque(pointer)
+          .takeUnretainedValue()
+        let app = AppAccessibilityElement(element)
+
+        if app.pid == NSWorkspace.shared.frontmostApplication?.processIdentifier {
+          controller.frontMostApplicationDidCloseWindow?()
+        }
       }) {
         observers.append(observer)
       }

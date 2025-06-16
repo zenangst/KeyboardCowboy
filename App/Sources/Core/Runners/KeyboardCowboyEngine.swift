@@ -164,5 +164,9 @@ final class KeyboardCowboyEngine {
     applicationWindowObserver.frontMostApplicationDidCreateWindow = {
       WindowStore.shared.indexFrontmost()
     }
+
+    applicationWindowObserver.frontMostApplicationDidCloseWindow = {
+      WindowStore.shared.indexFrontmost()
+    }
   }
 }
