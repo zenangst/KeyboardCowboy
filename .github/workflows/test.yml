@@ -1,5 +1,8 @@
 on:
   pull_request: {}
+permissions:
+  contents: read
+  pull-requests: write
 name: Test
 jobs:
   test:
@@ -20,6 +23,8 @@ jobs:
           swift package --version
       - name: Checkout
         uses: actions/checkout@main
+        with:
+          persist-credentials: false
       - name: Install & Run tuist
         run: |
           touch .env
@@ -33,7 +38,7 @@ jobs:
           tuist generate
       - name: Run tests
         if: success()
-        uses: sersoft-gmbh/xcodebuild-action@v2
+        uses: sersoft-gmbh/xcodebuild-action@v2@ea3e1f1b67864a609d9b6e4c097d92949e5788ed
         with:
           workspace: "Keyboard Cowboy.xcworkspace"
           scheme: "Keyboard-Cowboy"
@@ -52,13 +57,20 @@ jobs:
         if: always()
         with:
           script: |
-            const name = '${{ github.workflow   }}';
-            const url = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
-            const success = '${{ job.status }}' === 'success';
-            const body = `${name}: ${success ? 'succeeded ✅' : 'failed ❌'}\n${url}\n\n@${{ github.event.pull_request.user.login }}`;
+            const name = process.env.WORKFLOW_NAME;
+            const runUrl = `${process.env.REPO_URL}/actions/runs/${process.env.RUN_ID}`;
+            const success = process.env.JOB_STATUS === 'success';
+            const user = process.env.USER;
+            const body = `${name}: ${success ? 'succeeded ✅' : 'failed ❌'}\n${runUrl}\n\n@${user}`;
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: body
-            })
+              body
+            });
+        env:
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          JOB_STATUS: ${{ job.status }}
+          USER: ${{ github.event.pull_request.user.login }}
