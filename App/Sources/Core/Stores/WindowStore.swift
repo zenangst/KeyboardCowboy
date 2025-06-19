@@ -70,7 +70,7 @@ final class WindowStore: @unchecked Sendable {
         state.appAccessibilityElement = AppAccessibilityElement(pid)
         state.frontmostApplication = application
         state.frontmostIndex = 0
-        self.indexFrontmost()
+        self.indexFrontMost()
       }
   }
 
@@ -133,10 +133,12 @@ final class WindowStore: @unchecked Sendable {
     self.windows = windows
     state.visibleWindowsInSpace = allApplicationsInSpace(windows, onScreen: true)
     state.visibleWindowsInStage = indexStage(windows)
-    indexFrontmost()
+    indexFrontMost()
   }
 
-  func indexFrontmost() {
+  // MARK: Private methods
+
+  private func indexFrontMost() {
     do {
       let forbiddenSubroles = [
         NSAccessibility.Subrole.systemDialog.rawValue,
