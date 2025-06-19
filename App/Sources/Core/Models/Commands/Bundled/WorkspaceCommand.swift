@@ -151,7 +151,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             action = .open
           } else if runningApplication.isHidden == true {
             action = .unhide
-          } else if runningApplication.isFinishedLaunching == true {
+          } else if runningApplication.isFinishedLaunching == true && !isLastItem {
             continue
           } else {
             action = runningApplication.action
@@ -171,12 +171,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
             modifiers: [.waitForAppToLaunch]
           )))
-
-        if hideOtherApps && !aerospaceIsRunning {
-          if !perfectBundleMatch {
-            commands.append(hideAllAppsCommand)
-          }
-        }
 
         let activationDelay: Double?
 
@@ -218,6 +212,12 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             application: application,
             meta: Command.MetaData(delay: 10, name: name), modifiers: [.waitForAppToLaunch]
           )))
+      }
+    }
+
+    if hideOtherApps && !aerospaceIsRunning {
+      if !perfectBundleMatch {
+        commands.insert(hideAllAppsCommand, at: max(commands.count - 2, 0))
       }
     }
 
