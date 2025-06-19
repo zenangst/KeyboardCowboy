@@ -22,13 +22,14 @@ final class SystemCommandRunner: @unchecked Sendable {
     self.workspace = workspace
   }
 
-  func run(_ command: SystemCommand, workflowCommands: [Command], applicationRunner: ApplicationCommandRunner,
+  func run(_ command: SystemCommand, workflowCommands: [Command], machPortEvent: MachPortEvent, applicationRunner: ApplicationCommandRunner,
            runtimeDictionary: [String: String],
            checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws {
     Task { @MainActor in
       switch command.kind {
       case .activateLastApplication:
         Task {
+          PeekApplicationPlugin.set(machPortEvent)
           var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
           if let previousApplication = applicationActivityMonitor.previousApplication() {
             try await applicationRunner.run(.init(application: previousApplication.asApplication()),

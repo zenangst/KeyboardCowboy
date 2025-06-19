@@ -379,6 +379,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       try await runners.system.run(
         systemCommand,
         workflowCommands: workflowCommands,
+        machPortEvent: machPortEvent,
         applicationRunner: runners.application,
         runtimeDictionary: runtimeDictionary,
         checkCancellation: checkCancellation, snapshot: snapshot

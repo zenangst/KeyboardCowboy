@@ -175,6 +175,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
             start: previousKeyDownMachPortEvent.event.timestamp,
             end: machPortEvent.event.timestamp
           )
+
           if pressDurtion > 0.5 {
             Task.detached { [workflowRunner] in
               await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)

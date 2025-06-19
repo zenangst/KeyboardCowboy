@@ -261,6 +261,15 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         switch command {
         case .application(let command):
           return command.action == .peek
+        case .systemCommand(let command):
+          return command.kind == .activateLastApplication
+        case .bundled(let command):
+          switch command.kind {
+          case .activatePreviousWorkspace:
+            return true
+          default:
+            return false
+          }
         default: return false
         }
       })

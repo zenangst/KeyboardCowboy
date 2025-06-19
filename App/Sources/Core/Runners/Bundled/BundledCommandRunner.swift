@@ -24,6 +24,7 @@ final class BundledCommandRunner: Sendable {
     switch bundledCommand.kind {
     case .activatePreviousWorkspace:
       if let previousWorkspace = await UserSpace.shared.previousWorkspace {
+        await PeekApplicationPlugin.set(machPortEvent)
         try await run(workspaceCommand: previousWorkspace,
                       forceDisableTiling: true,
                       onlyUnhide: true,
