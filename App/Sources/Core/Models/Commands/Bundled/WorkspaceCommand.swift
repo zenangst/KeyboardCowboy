@@ -141,19 +141,27 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       let name: String
 
       if let runningApplication, !windows.map(\.ownerPid.rawValue).contains(Int(runningApplication.processIdentifier)) {
-        action = .open
-        name = "Open \(application.displayName)"
-      } else {
+        action = runningApplication.action
+      } else if let runningApplication {
         if offset < runningApplications.count - 1,
-           let runningApplication,
            runningApplication.processIdentifier == windows[offset].ownerPid.rawValue {
           action = .unhide
-          name = "Fallback open/unhide \(application.displayName)"
         } else {
-          action = tiling == nil ? .open : .unhide
-          name = "Open \(application.displayName)"
+          if isLastItem && runningApplication.isActive == true {
+            action = .open
+          } else if runningApplication.isHidden == true {
+            action = .unhide
+          } else if runningApplication.isFinishedLaunching == true {
+            continue
+          } else {
+            action = runningApplication.action
+          }
         }
+      } else {
+        action = tiling == nil ? .open : .unhide
       }
+
+      name = action.displayName(for: application)
 
       if isLastItem {
         commands.append(
@@ -305,5 +313,27 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       }
 
     return windows
+  }
+}
+
+private extension NSRunningApplication {
+  var action: ApplicationCommand.Action {
+    return if isHidden {
+      .unhide
+    } else {
+      .open
+    }
+  }
+}
+
+private extension ApplicationCommand.Action {
+  func displayName(for application: Application) -> String {
+    switch self {
+    case .open:   "Open \(application.displayName)"
+    case .close:  "Close \(application.displayName)"
+    case .hide:   "Hide \(application.displayName)"
+    case .unhide: "Unhide \(application.displayName)"
+    case .peek:   "Peek \(application.displayName)"
+    }
   }
 }
