@@ -152,7 +152,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           } else if runningApplication.isHidden == true {
             action = .unhide
           } else if runningApplication.isFinishedLaunching == true && !isLastItem {
-            continue
+            action = .unhide
           } else {
             action = runningApplication.action
           }
@@ -217,7 +217,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
     if hideOtherApps && !aerospaceIsRunning {
       if !perfectBundleMatch {
-        commands.insert(hideAllAppsCommand, at: max(commands.count - 2, 0))
+        commands.insert(hideAllAppsCommand, at: max(commands.count - 1, 0))
       }
     }
 
