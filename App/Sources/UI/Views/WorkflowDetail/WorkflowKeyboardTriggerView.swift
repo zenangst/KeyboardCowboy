@@ -8,7 +8,7 @@ struct WorkflowKeyboardTriggerView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   @ObserveInjection var inject
-  @State private var holdDurationText = ""
+  @State private var holdForDuration: Double
   @State private var allowRepeat: Bool
   @State private var keepLastPartialMatch: Bool
   @State private var passthrough: Bool
@@ -29,7 +29,9 @@ struct WorkflowKeyboardTriggerView: View {
     _trigger = .init(initialValue: trigger)
 
     if let holdDuration = trigger.holdDuration {
-      _holdDurationText = .init(initialValue: String(Double(holdDuration)))
+      _holdForDuration = .init(initialValue: holdDuration)
+    } else {
+      _holdForDuration = .init(initialValue: 0)
     }
     _keepLastPartialMatch = .init(initialValue: trigger.keepLastPartialMatch)
     _passthrough = .init(initialValue: trigger.passthrough)
@@ -47,7 +49,7 @@ struct WorkflowKeyboardTriggerView: View {
               allowRepeat: allowRepeat,
               keepLastPartialMatch: keepLastPartialMatch,
               passthrough: passthrough,
-              holdDuration: Double(holdDurationText),
+              holdDuration: holdForDuration == 0 ? nil : holdForDuration,
               shortcuts: keyboardShortcuts))
         }
       }
@@ -61,7 +63,7 @@ struct WorkflowKeyboardTriggerView: View {
                   allowRepeat: newValue,
                   keepLastPartialMatch: keepLastPartialMatch,
                   passthrough: passthrough,
-                  holdDuration: Double(holdDurationText),
+                  holdDuration: holdForDuration == 0 ? nil : holdForDuration,
                   shortcuts: trigger.shortcuts))
             }
           })
@@ -69,17 +71,17 @@ struct WorkflowKeyboardTriggerView: View {
         Toggle(isOn: $keepLastPartialMatch, label: {
           Text("Keep Last Partial Match")
         })
-          .onChange(of: keepLastPartialMatch, perform: { newValue in
-            updater.modifyWorkflow(using: transaction) { workflow in
-              workflow.trigger = .keyboardShortcuts(
-                KeyboardShortcutTrigger(
-                  allowRepeat: allowRepeat,
-                  keepLastPartialMatch: newValue,
-                  passthrough: passthrough,
-                  holdDuration: Double(holdDurationText),
-                  shortcuts: trigger.shortcuts))
-            }
-          })
+        .onChange(of: keepLastPartialMatch, perform: { newValue in
+          updater.modifyWorkflow(using: transaction) { workflow in
+            workflow.trigger = .keyboardShortcuts(
+              KeyboardShortcutTrigger(
+                allowRepeat: allowRepeat,
+                keepLastPartialMatch: newValue,
+                passthrough: passthrough,
+                holdDuration: holdForDuration == 0 ? nil : holdForDuration,
+                shortcuts: trigger.shortcuts))
+          }
+        })
 
         Toggle(isOn: $passthrough, label: { Text("Passthrough") })
           .onChange(of: passthrough, perform: { newValue in
@@ -89,35 +91,39 @@ struct WorkflowKeyboardTriggerView: View {
                   allowRepeat: allowRepeat,
                   keepLastPartialMatch: keepLastPartialMatch,
                   passthrough: newValue,
-                  holdDuration: Double(holdDurationText),
+                  holdDuration: holdForDuration == 0 ? nil : holdForDuration,
                   shortcuts: trigger.shortcuts))
             }
           })
         Spacer()
-        HStack(spacing: 0) {
-          if trigger.shortcuts.count == 1 {
-            Text("Hold for")
-          } else {
-            Text("Become modifier after")
+
+        HStack {
+          Spacer()
+          if holdForDuration > 0 {
+            Text(trigger.shortcuts.count == 1
+                 ? "Hold for"
+                 : "Become modifier after")
+          }
+
+          DoubleSlider(
+            value: $holdForDuration,
+            placeholderText: trigger.shortcuts.count == 1 ? "Add Delay" : "Create Modifier",
+            min: 0.00, max: 1.00, step: 0.05)
+          .onChange(of: holdForDuration) { newValue in
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.trigger = .keyboardShortcuts(
+                KeyboardShortcutTrigger(
+                  allowRepeat: allowRepeat,
+                  keepLastPartialMatch: keepLastPartialMatch,
+                  passthrough: passthrough,
+                  holdDuration: newValue == 0 ? nil : newValue,
+                  shortcuts: trigger.shortcuts))
+            }
+          }
+          if holdForDuration > 0 {
+            Text("seconds")
           }
         }
-        NumberTextField(text: $holdDurationText) { newValue in
-          updater.modifyWorkflow(using: transaction) { workflow in
-            workflow.trigger = .keyboardShortcuts(
-              KeyboardShortcutTrigger(
-                allowRepeat: allowRepeat,
-                keepLastPartialMatch: keepLastPartialMatch,
-                passthrough: passthrough,
-                holdDuration: Double(newValue),
-                shortcuts: trigger.shortcuts))
-          }
-        }
-        .environment(\.textFieldCornerRadius, 4)
-        .environment(\.textFieldBackgroundColor, Color(nsColor: .controlColor).opacity(0.5))
-        .environment(\.textFieldFont, .caption)
-        .environment(\.textFieldPadding, .small)
-        .frame(minWidth: 32, maxWidth: min(32 + CGFloat(4 * holdDurationText.count), 64))
-        Text("seconds")
       }
       .font(.caption)
       .environment(\.toggleStyle, .small)
@@ -129,12 +135,7 @@ struct WorkflowKeyboardTriggerView: View {
 
       self.trigger = trigger
 
-      if let holdDuration = trigger.holdDuration {
-        holdDurationText = "\(holdDuration)"
-      } else {
-        holdDurationText = ""
-      }
-
+      holdForDuration = trigger.holdDuration ?? 0
       keepLastPartialMatch = trigger.keepLastPartialMatch
       passthrough = trigger.passthrough
       allowRepeat = trigger.allowRepeat
