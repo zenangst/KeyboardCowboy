@@ -18,7 +18,11 @@ extension KeyboardCowboyConfiguration {
   ) -> Bool {
     guard let groupIndex = resolveIndex(groupID: groupID) else { return false }
     var group = groups[groupIndex]
+    let oldGroup = group
     modify(&group)
+
+    guard group != oldGroup else { return false }
+
     groups[groupIndex] = group
     return true
   }

@@ -48,10 +48,13 @@ final class ConfigurationUpdater: ObservableObject {
 
   func modifyGroup(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout WorkflowGroup) -> Void) {
     guard case .configured(var configuration) = state else { return }
-    configuration.modify(
+
+    guard configuration.modify(
       groupID: transaction.groupID,
       modify: handler
-    )
+    ) else {
+      return
+    }
 
     onRender(configuration, transaction, animation)
     passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction))
@@ -59,11 +62,13 @@ final class ConfigurationUpdater: ObservableObject {
 
   func modifyWorkflow(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout Workflow) -> Void, postAction: ((Workflow.ID) -> Void)? = nil) {
     guard case .configured(var configuration) = state else { return }
-    configuration.modify(
+    guard configuration.modify(
       groupID: transaction.groupID,
       workflowID: transaction.workflowID,
       modify: handler
-    )
+    ) else {
+      return
+    }
 
     onRender(configuration, transaction, animation)
     passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction, postAction: {
@@ -73,12 +78,14 @@ final class ConfigurationUpdater: ObservableObject {
 
   func modifyCommand(withID commandID: Command.ID, withAnimation animation: Animation? = nil, using transaction: UpdateTransaction, handler: (inout Command) -> Void) {
     guard case .configured(var configuration) = state else { return }
-    configuration.modify(
+    guard configuration.modify(
       groupID: transaction.groupID,
       workflowID: transaction.workflowID,
       commandID: commandID,
       modify: handler
-    )
+    ) else {
+      return
+    }
 
     onRender(configuration, transaction, animation)
     passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction))

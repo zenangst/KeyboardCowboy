@@ -25,7 +25,12 @@ extension KeyboardCowboyConfiguration {
       return false
     }
     var command = groups[groupIndex].workflows[workflowIndex].commands[commandIndex]
+    let oldCommand = command
+
     modify(&command)
+
+    guard command != oldCommand else { return false }
+
     groups[groupIndex].workflows[workflowIndex].commands[commandIndex] = command
     return true
   }

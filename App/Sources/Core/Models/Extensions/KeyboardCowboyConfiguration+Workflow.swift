@@ -23,7 +23,11 @@ extension KeyboardCowboyConfiguration {
       return false
     }
     var workflow = groups[groupIndex].workflows[workflowIndex]
+    let oldWorkflow = workflow
     modify(&workflow)
+
+    guard workflow != oldWorkflow else { return false }
+
     groups[groupIndex].workflows[workflowIndex] = workflow
     return true
   }
