@@ -164,6 +164,13 @@ final class BundledCommandRunner: Sendable {
           continue
         }
       default:
+        var checkCancellation = checkCancellation
+        if case .application(let appCommand) = command {
+          if appCommand.modifiers.contains(.waitForAppToLaunch) {
+            checkCancellation = false
+          }
+        }
+
         try await commandRunner
           .run(command,
                workflowCommands: commands,
@@ -179,7 +186,9 @@ final class BundledCommandRunner: Sendable {
         try? await Task.sleep(for: .milliseconds(delay))
       }
     }
+
     await windowFocusRunner.resetFocusComponents()
+
     Task.detached {
       try await Task.sleep(for: .milliseconds(375))
       WindowTilingRunner.index()
