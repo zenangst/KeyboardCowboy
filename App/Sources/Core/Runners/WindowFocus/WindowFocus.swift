@@ -19,15 +19,9 @@ enum WindowFocus {
 
     switch kind {
     case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
-      visibleMostIndex += 1
-      if visibleMostIndex >= collectionCount {
-        visibleMostIndex = 0
-      }
+      visibleMostIndex = (visibleMostIndex + 1) % collectionCount
     default:
-      visibleMostIndex -= 1
-      if visibleMostIndex < 0 {
-        visibleMostIndex = collectionCount - 1
-      }
+      visibleMostIndex = (visibleMostIndex - 1 + collectionCount) % collectionCount
     }
 
     let window = collection[visibleMostIndex]
