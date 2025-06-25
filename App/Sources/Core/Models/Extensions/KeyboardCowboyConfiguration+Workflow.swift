@@ -29,6 +29,9 @@ extension KeyboardCowboyConfiguration {
     guard workflow != oldWorkflow else { return false }
 
     groups[groupIndex].workflows[workflowIndex] = workflow
+
+    updateHoldForOnMatchingSequences(workflow, groupIndex: groupIndex)
+
     return true
   }
 
@@ -69,5 +72,25 @@ extension KeyboardCowboyConfiguration {
       groups[groupIndex].workflows.insert(newWorkflow, at: safeIndex)
     }
     return true
+  }
+
+  private mutating func updateHoldForOnMatchingSequences(_ newWorkflow: Workflow, groupIndex: Int) {
+    if case .keyboardShortcuts(let trigger) = newWorkflow.trigger,
+       let holdDuration = trigger.holdDuration,
+       trigger.shortcuts.count > 1,
+       let targetShortcut = trigger.shortcuts.first {
+
+      for (index, workflow) in groups[groupIndex].workflows.enumerated() where workflow.id != newWorkflow.id {
+
+        guard case .keyboardShortcuts(var trigger) = workflow.trigger,
+              let firstShortcut = trigger.shortcuts.first,
+              firstShortcut.key == targetShortcut.key else { continue }
+
+        var workflow = workflow
+        trigger.holdDuration = holdDuration
+        workflow.trigger = .keyboardShortcuts(trigger)
+        groups[groupIndex].workflows[index] = workflow
+      }
+    }
   }
 }
