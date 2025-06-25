@@ -47,7 +47,8 @@ final class TextCommandRunner {
         try keyboardCommandRunner.machPort?.post(keyCode, type: .keyUp, flags: flags)
       }
     case .instant:
-      if let focusedElement = try? SystemAccessibilityElement().focusedUIElement() {
+      if let focusedElement = try? SystemAccessibilityElement().focusedUIElement(),
+         focusedElement.selectedText() != nil {
         focusedElement.setSelectedText(input)
       } else {
         let pasteboard = NSPasteboard.general
