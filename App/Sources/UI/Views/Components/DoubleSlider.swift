@@ -33,8 +33,8 @@ struct DoubleSlider<Label: View>: View {
             in: min...max,
             step: step,
             label: {  },
-            minimumValueLabel: { Text(String(format: "%.2f", min)) },
-            maximumValueLabel: { Text(String(format: "%.2f", max)) },
+            minimumValueLabel: { Text(String(format: "%.1f", min)) },
+            maximumValueLabel: { Text(String(format: "%.1f", max)) },
             onEditingChanged: { _ in }
           )
           .frame(minWidth: 200)

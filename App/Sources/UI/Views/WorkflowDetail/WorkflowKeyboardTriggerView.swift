@@ -108,7 +108,7 @@ struct WorkflowKeyboardTriggerView: View {
           DoubleSlider(
             value: $holdForDuration,
             placeholderText: trigger.shortcuts.count == 1 ? "Add Delay" : "Create Modifier",
-            min: 0.00, max: 1.00, step: 0.05, label: {
+            min: 0.0, max: 1.0, step: 0.075, label: {
               Text("Will update all related sequences with matching values.")
             })
           .onChange(of: holdForDuration) { newValue in

@@ -145,7 +145,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
 
     resetTime()
 
-    let delay = max(Int(holdDuration * 1_000), 115)
+    let delay = Int((holdDuration * 1.125) * 1_000)
     leaderKeyWorkItem?.cancel()
     leaderKeyWorkItem = startTimer(delay: delay) { [weak self] in
       guard self != nil else { return }
@@ -178,7 +178,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
       case .leader:
         let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
-        let threshold = CGFloat(max(Int(holdDuration * 2 * 1_000), 100))
+        let threshold = CGFloat(Int(holdDuration * 1 * 1_000))
 
         if threshold <= elapsedTime { } else  {
           postKeyDownAndUp(newEvent)
