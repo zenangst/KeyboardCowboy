@@ -1,3 +1,4 @@
+import AXEssibility
 import Carbon
 import Cocoa
 import KeyCodes
@@ -46,15 +47,20 @@ final class TextCommandRunner {
         try keyboardCommandRunner.machPort?.post(keyCode, type: .keyUp, flags: flags)
       }
     case .instant:
-      let pasteboard = NSPasteboard.general
-      pasteboard.clearContents()
-      pasteboard.setString(input, forType: .string)
+      if let focusedElement = try? SystemAccessibilityElement().focusedUIElement() {
+        focusedElement.setSelectedText(input)
+      } else {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(input, forType: .string)
 
-      await KeyViewer.instance.handleString(input)
+        await KeyViewer.instance.handleString(input)
 
-      try await Task.sleep(for: .milliseconds(100))
-      try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
-      try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyUp, flags: .maskCommand)
+        try await Task.sleep(for: .milliseconds(100))
+
+        try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
+        try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyUp, flags: .maskCommand)
+      }
     }
 
     if command.actions.contains(.insertEnter) {
