@@ -86,6 +86,7 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
     } else {
       windowSpacing = UserSettings.WindowManager.tiledWindowSpacing
     }
+
     let systemWindows = windows.systemWindows
       .sorted { $0.index < $1.index }
       .filter { $0.window != currentWindow }
@@ -138,7 +139,10 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
       }
     }
 
-    updateDebugWindow(fieldOfViewRect)
+    do {
+      let debugRect = fieldOfViewRect
+      updateDebugWindow(debugRect)
+    }
 
     while searching {
       try Task.checkCancellation()
@@ -199,6 +203,7 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
       let elementOrigin = CGPoint(x: fieldOfViewRect.midX, y: fieldOfViewRect.midY)
       if let accessWindow = systemElement.element(at: elementOrigin, as: AnyAccessibilityElement.self)?.window,
          let firstMatch = systemWindows.first(where: { $0.window.id == accessWindow.id }) {
+        updateDebugWindow(firstMatch.window.rect)
         return .init(firstMatch.window, axWindow: accessWindow)
       }
 
@@ -217,10 +222,15 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
         }
 
         searching = false
+        updateDebugWindow(systemWindow.window.rect)
         return .init(systemWindow.window)
       }
 
-      updateDebugWindow(fieldOfViewRect)
+      do {
+        let debugRect = fieldOfViewRect
+        updateDebugWindow(debugRect)
+      }
+
 
       if let screen = currentScreen(fieldOfViewRect).first {
         rerouteDirectionIfNeeded(&direction, frame: fieldOfViewRect, tiling: tiling, screen: screen)
@@ -256,14 +266,17 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
       fieldOfViewRect.origin.x = nextScreen.frame.midX - fieldOfViewRect.size.width / 2
       fieldOfViewRect.origin.y = nextScreen.frame.mainDisplayFlipped.midY - fieldOfViewRect.size.height / 2
 
-      updateDebugWindow(fieldOfViewRect)
+      do {
+        let debugRect = fieldOfViewRect
+        updateDebugWindow(debugRect)
+      }
 
       let paddedWindowRect = currentWindow.rect.insetBy(dx: -2, dy: -2)
 
       if let match = windows
         .sorted(by: {
           if initialDirection == .left {
-            return $0.rect.maxX > $1.rect.maxX
+            return $0.rect.minX < $1.rect.minX
           } else {
             return $1.rect.maxX < $1.rect.maxX
           }
@@ -279,16 +292,17 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
         case .left, .right:
           if currentWindow.rect.origin.x == match.rect.origin.x { return nil }
         }
+        updateDebugWindow(match.rect)
         return .init(match)
       }
     }
     return nil
   }
 
-  private func updateDebugWindow(_ frame: CGRect) {
+  private func updateDebugWindow(_ frame: @autoclosure @escaping @Sendable () -> CGRect) {
     if Self.debug {
       Task { @MainActor in
-        windowController.window?.animator().setFrame(frame.mainDisplayFlipped, display: true)
+        windowController.window?.animator().setFrame(frame().mainDisplayFlipped, display: true)
         window.orderFrontRegardless()
       }
     }
