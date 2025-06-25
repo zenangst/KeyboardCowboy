@@ -221,10 +221,12 @@ final class UserSpace: @unchecked Sendable {
     }
 
     func publishActiveModes(_ newModes: [UserMode]) {
+      guard self.activeModes != newModes else { return }
       self.activeModes = newModes
     }
 
     func publishUserModes(_ newModes: [UserMode]) {
+      guard self.userModes != newModes else { return }
       self.userModes = newModes
     }
   }
@@ -340,19 +342,29 @@ final class UserSpace: @unchecked Sendable {
       .sink { [weak self] configuration in
         guard let self = self else { return }
         Task { @MainActor in
+
+          let oldCopy = self.currentUserModes
           let newModes = configuration.userModes
             .sorted(by: { $0.name < $1.name })
           let currentModes = newModes
             .map { UserMode(id: $0.id, name: $0.name, isEnabled: false) }
-          self.userModesPublisher.publishUserModes(newModes)
-          self.currentUserModes = currentModes
+            .keepActive(from: oldCopy)
+
+          self.userModesPublisher.publishUserModes(currentModes)
+          setUserModes(currentModes, keepActive: false)
         }
       }
   }
 
   @MainActor
-  func setUserModes(_ userModes: [UserMode]) {
-    self.currentUserModes = userModes
+  func setUserModes(_ userModes: [UserMode], keepActive: Bool = false) {
+    let oldModes = self.currentUserModes
+
+    if keepActive {
+      self.currentUserModes = userModes.keepActive(from: oldModes)
+    } else {
+      self.currentUserModes = userModes
+    }
 
     let active = userModes.filter(\.isEnabled)
 
@@ -517,5 +529,28 @@ private extension Dictionary<String, String> {
 private extension String {
   func replacingOccurrences(of envKey: UserSpace.EnvironmentKey, with replacement: String) -> String {
     replacingOccurrences(of: envKey.asTextVariable, with: replacement)
+  }
+}
+
+extension [UserMode] {
+  private var activeDictionary: [String: Bool] {
+    reduce(into: [String: Bool]()) { result, mode in
+      if mode.isEnabled {
+        result[mode.id] = mode.isEnabled
+      }
+    }
+  }
+
+  func keepActive(from oldUserModes: [UserMode]) -> [UserMode] {
+    let activeDictionary = oldUserModes.activeDictionary
+    var copy = self
+    for (index, element) in self.enumerated() {
+      var element = element
+      if activeDictionary[element.id] != nil {
+        element.isEnabled = true
+      }
+      copy[index] = element
+    }
+    return copy
   }
 }

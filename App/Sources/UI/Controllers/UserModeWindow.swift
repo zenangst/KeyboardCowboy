@@ -25,6 +25,10 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
   }
 
   func show(_ userModes: [UserMode]) {
+    guard UserSpace.shared.userModesPublisher.activeModes != userModes else {
+      return
+    }
+
     cleanupUserModeWindows()
 
     if userModes.isEmpty {
