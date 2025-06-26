@@ -52,6 +52,9 @@ struct KeyboardCleanerIcon: View {
           isAnimating = true
         }
       }
+      .onDisappear {
+        isAnimating = false
+      }
   }
 }
 
