@@ -6,13 +6,13 @@ struct UIElementCommandView: View {
   @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
-  @State var model: UIElementCommand
+  @Binding var model: UIElementCommand
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
 
-  init(metaData: CommandViewModel.MetaData, model: UIElementCommand, iconSize: CGSize) {
+  init(metaData: CommandViewModel.MetaData, model: Binding<UIElementCommand>, iconSize: CGSize) {
     self.metaData = metaData
-    self.model = model
+    _model = model
     self.iconSize = iconSize
   }
 
@@ -118,14 +118,14 @@ struct UIElementCommandView: View {
 #Preview {
   UIElementCommandView(
     metaData: .init(name: "Some UI Element", namePlaceholder: ""),
-    model: .init(
+    model: .constant(.init(
       predicates: [
         .init(
           value: "issues",
           properties: [.identifier]
         )
       ]
-    ), iconSize: .init(width: 24, height: 24))
+    )), iconSize: .init(width: 24, height: 24))
   .designTime()
   .previewLayout(.sizeThatFits)
 }

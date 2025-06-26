@@ -57,6 +57,7 @@ struct CommandResolverView: View {
   @Binding private var command: CommandViewModel
   private let workflowId: DetailViewModel.ID
   private var focus: FocusState<AppFocus?>.Binding
+  private let iconSize = CGSize(width: 24, height: 24)
 
   init(_ focus: FocusState<AppFocus?>.Binding, command: Binding<CommandViewModel>, workflowId: String) {
     _command = command
@@ -65,7 +66,6 @@ struct CommandResolverView: View {
   }
 
   var body: some View {
-    let iconSize = CGSize(width: 24, height: 24)
     switch command.kind {
     case .application(let model):      ApplicationCommandView(command.meta, model: model, iconSize: iconSize)
     case .builtIn(let model):          BuiltInCommandView(command.meta, model: model, iconSize: iconSize)
@@ -79,7 +79,7 @@ struct CommandResolverView: View {
     case .shortcut(let model):         ShortcutCommandView(command.meta, model: model, iconSize: iconSize)
     case .systemCommand(let model):    SystemCommandView(command.meta, model: model, iconSize: iconSize)
     case .text(let textModel):         TextCommandView(kind: textModel.kind, metaData: command.meta, iconSize: iconSize)
-    case .uiElement(let model):        UIElementCommandView(metaData: command.meta, model: model, iconSize: iconSize)
+    case .uiElement(let model):        UIElementCommandView(metaData: command.meta, model: Binding<UIElementCommand>(get: { model }, set: { _ in }), iconSize: iconSize)
     case .windowFocus(let model):      WindowFocusCommandView(command.meta, model: model, iconSize: iconSize)
     case .windowManagement(let model): WindowManagementCommandView(command.meta, model: model, iconSize: iconSize)
     case .windowTiling(let model):     WindowTilingCommandView(command.meta, model: model, iconSize: iconSize)
