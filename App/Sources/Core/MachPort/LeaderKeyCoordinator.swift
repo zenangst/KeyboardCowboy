@@ -145,7 +145,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
 
     resetTime()
 
-    let delay = Int((holdDuration * 1.125) * 1_000)
+    let delay = Int((holdDuration * 1.15) * 1_000)
     leaderKeyWorkItem?.cancel()
     leaderKeyWorkItem = startTimer(delay: delay) { [weak self] in
       guard self != nil else { return }
