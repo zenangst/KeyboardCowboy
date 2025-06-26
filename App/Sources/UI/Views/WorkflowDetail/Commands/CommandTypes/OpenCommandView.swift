@@ -23,8 +23,15 @@ struct OpenCommandView: View {
     }, content: {
       ContentView(metaData: metaData, model: $model)
     }, subContent: {
-      SubContentView(model: $model) {
+      SubContentView(model: $model, onReveal: {
         NSWorkspace.shared.selectFile(model.path, inFileViewerRootedAtPath: "")
+      }) {
+        OpenPanelController().perform(.selectFile(types: [], handler: { path in
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            model.path = path
+            command = .open(OpenCommand(application: nil, path: path, meta: command.meta))
+          }
+        }))
       }
     })
     .enableInjection()
@@ -129,11 +136,15 @@ private struct ContentView: View {
 
 private struct SubContentView: View {
   @Binding var model: CommandViewModel.Kind.OpenModel
+  private let onEdit: () -> Void
   private let onReveal: () -> Void
 
-  init(model: Binding<CommandViewModel.Kind.OpenModel>, onReveal: @escaping () -> Void) {
+  init(model: Binding<CommandViewModel.Kind.OpenModel>,
+       onReveal: @escaping () -> Void,
+       onEdit: @escaping () -> Void) {
     _model = model
     self.onReveal = onReveal
+    self.onEdit = onEdit
   }
 
   var body: some View {
@@ -146,6 +157,13 @@ private struct SubContentView: View {
           onReveal()
         }, label: {
           Text("Reveal")
+            .font(.caption)
+        })
+
+        Button(action: {
+          onEdit()
+        }, label: {
+          Text("Edit")
             .font(.caption)
         })
       }
