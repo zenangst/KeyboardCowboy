@@ -49,6 +49,7 @@ struct TypeCommandView: View {
                 }
               }
             Text(TextCommand.TypeCommand.Action.insertEnter.displayValue)
+              .font(.caption)
           }
 
           TypeCommandModeView(mode: model.mode) { newMode in
@@ -121,6 +122,7 @@ fileprivate struct TypeCommandModeView: View {
     }, label: {
       Image(systemName: mode.symbol)
       Text(mode.rawValue)
+        .font(.caption)
     })
     .fixedSize()
   }

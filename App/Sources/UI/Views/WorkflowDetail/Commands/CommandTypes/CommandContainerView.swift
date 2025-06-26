@@ -34,13 +34,24 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
       ContentView(icon: icon, content: content)
 
+      let backgroundColor = Color.black.blended(withFraction: 0.3, of: .white)
+
       SubView($metaData, content: subContent)
         .textStyle {
           $0.font = .caption2
         }
-        .environment(\.menuCalm, true)
+        .environment(\.buttonCalm, false)
+        .environment(\.buttonBackgroundColor, backgroundColor)
+        .environment(\.buttonHoverEffect, true)
+        .environment(\.buttonPadding, .small)
+        .environment(\.buttonUnfocusedOpacity, 0.3)
+        .environment(\.buttonGrayscaleEffect, true)
+        .environment(\.menuBackgroundColor, backgroundColor)
+        .environment(\.menuHoverEffect, true)
+        .environment(\.menuCalm, false)
         .environment(\.menuPadding, .small)
-        .environment(\.menuUnfocusedOpacity, 0.5)
+        .environment(\.menuUnfocusedOpacity, 0.3)
+        .environment(\.menuGrayscaleEffect, true)
     }
     .roundedStyle()
     .enableInjection()
@@ -140,6 +151,7 @@ private struct SubView<Content>: View where Content: View {
           }
         }
       )
+
       Menu {
         Button(action: {
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
