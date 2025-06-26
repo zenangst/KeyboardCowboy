@@ -64,7 +64,6 @@ final class UIElementCaptureStore: ObservableObject {
         default:
           isCapturing = false
           machPortController?.stop(mode: .commonModes)
-          machPortController = nil
         }
       }
   }
