@@ -43,14 +43,25 @@ final class WindowFocusRelativeFocus {
       return
     }
 
-    let match = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction)
-    let nextWindow = match?.window ?? activeWindow
+    var axWindow: WindowAccessibilityElement?
+    let nextWindow: RelativeWindowModel
+    let processIdentifier: pid_t
 
-    consumedWindows.insert(nextWindow)
+    // If only two windows are present, simply toggle between them.
+    if windows.count == 2, let nextMatch = windows.first(where: { $0.id != activeWindow.id }), let resolvedWindow = resolveAXWindow(nextMatch) {
+      nextWindow = nextMatch
+      axWindow = resolvedWindow
+      processIdentifier = pid_t(nextWindow.ownerPid)
+    } else {
+      let match = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction)
+      nextWindow = match?.window ?? activeWindow
 
-    let processIdentifier = pid_t(nextWindow.ownerPid)
+      consumedWindows.insert(nextWindow)
 
-    let axWindow = match?.axWindow ?? resolveAXWindow(nextWindow)
+      processIdentifier = pid_t(nextWindow.ownerPid)
+
+      axWindow = match?.axWindow ?? resolveAXWindow(nextWindow)
+    }
 
     if let axWindow, let frame = axWindow.frame {
       try Task.checkCancellation()
