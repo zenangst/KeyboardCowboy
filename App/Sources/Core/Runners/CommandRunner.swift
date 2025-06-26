@@ -51,7 +51,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
   let runners: Runners
 
-  @MainActor private var notchInfo: DynamicNotchInfo = DynamicNotchInfo(icon: nil, title: "")
+  @MainActor private var notchInfo: DynamicNotchInfo?
 
   @MainActor
   var lastExecutedCommand: Command?
@@ -198,7 +198,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           } catch {
             switch command.notification {
             case .bezel:
-              await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
+              await showFinishedNotification(for: command, output: error.localizedDescription)
             case .capsule:
               await CapsuleNotificationWindow.shared.publish(error.localizedDescription, id: command.id, state: .failure)
             case .commandPanel, .none: break
@@ -267,7 +267,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         } catch {
           switch command.notification {
           case .bezel:
-            await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
+            await showFinishedNotification(for: command, output: error.localizedDescription)
           case .capsule:
             await CapsuleNotificationWindow.shared.publish(error.localizedDescription, id: command.id, state: .failure)
           case .commandPanel, .none: break
@@ -429,18 +429,28 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
   // MARK: Private methods
 
+  @MainActor
+  private func setNotchInfo(_ notchInfo: DynamicNotchInfo?) {
+    self.notchInfo = notchInfo
+  }
+
   private func showRunningNotification(for command: Command) async {
     longRunningTask?.cancel()
     longRunningTask = nil
 
     switch command.notification {
     case .bezel:
-      Task { @MainActor in
-        notchInfo.title = LocalizedStringKey(stringLiteral: command.name)
-        notchInfo.description = "Running…"
+      let notchInfo = await DynamicNotchInfo(
+        icon: nil,
+        title: LocalizedStringKey(stringLiteral: command.name),
+        description: "Running…",
+        style: NSScreen.main!.isMirrored() ? .floating(cornerRadius: 20) : .auto
+      )
+      await self.setNotchInfo(notchInfo)
+
+      longRunningTask = Task.detached { [notchInfo] in
         await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
         try await Task.sleep(for: .seconds(10))
-        await notchInfo.hide()
       }
     case .capsule:
       longRunningTask = Task.detached {
@@ -475,11 +485,14 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .bezel:
       Task { @MainActor in
         lastExecutedCommand = command
+        guard let notchInfo else { return }
+        print("dismiss notch")
         notchInfo.title = LocalizedStringKey(stringLiteral: output)
         notchInfo.description = nil
         await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
         try await Task.sleep(for: .seconds(2))
         await notchInfo.hide()
+        self.notchInfo = nil
       }
     case .capsule:
       Task.detached { @MainActor in

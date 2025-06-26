@@ -1,8 +1,17 @@
 import Cocoa
 
 extension NSScreen {
+  func isMirrored() -> Bool {
+    guard let screenNumber = deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else {
+      return false
+    }
+
+    return CGDisplayIsInMirrorSet(screenNumber) != 0
+  }
+
   private func findNextScreen(in direction: WindowTiling, cycling: Bool) -> NSScreen? {
     let screens = NSScreen.screens
+
 
     func screenMatches(_ candidate: NSScreen, direction: WindowTiling, relativeTo currentScreen: NSScreen) -> Bool {
       switch direction {
