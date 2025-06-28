@@ -16,7 +16,7 @@ struct PermissionsView: View {
   var body: some View {
     VStack(spacing: 0) {
       HStack(spacing: 16) {
-        KeyboardCowboyAsset.applicationIcon.swiftUIImage
+        Image(.applicationIcon)
           .resizable()
           .frame(width: 84, height: 84)
         Text("Accessibility Permissions are required for Keyboard Cowboy application to function properly.")
