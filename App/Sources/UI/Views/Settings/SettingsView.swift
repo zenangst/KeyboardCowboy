@@ -5,6 +5,8 @@ struct SettingsView: View {
   @ObserveInjection var inject
   var body: some View {
     TabView {
+      GeneralSettingsView()
+        .tabItem { Label("Applications", systemImage: "app") }
       ApplicationSettingsView()
         .tabItem { Label("Applications", systemImage: "appclip") }
       NotificationsSettingsView()

@@ -24,3 +24,4 @@ Sparkle/*
 .package.resolved
 Tuist/.build/workspace-state.json
 Tuist/Package.resolved
+Tuist/.build

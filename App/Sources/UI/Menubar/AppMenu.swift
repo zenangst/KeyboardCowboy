@@ -15,9 +15,8 @@ struct AppMenu: View {
 
   var body: some View {
     Button { appUpdater.checkForUpdates() } label: { Text("Check for updates…") }
-    Toggle(isOn: $loginItem.isEnabled, label: { Text("Open at Login") })
+    Toggle(isOn: $loginItem.isEnabled, label: { Text("Launch at Login") })
       .toggleStyle(.checkbox)
-
     Toggle(isOn: Binding<Bool>.init(get: { modePublisher.isEnabled },
                                     set: { newValue in onEnableToggle(newValue) }))
     { Text("Enabled") }
