@@ -1,6 +1,21 @@
-import Cocoa
+import AppKit
 
 extension KeyboardCowboyApp {
+#if DEBUG
+  static func env() -> AppEnvironment {
+    guard !isRunningPreview else { return .previews }
+
+    if let override = ProcessInfo.processInfo.environment["APP_ENVIRONMENT_OVERRIDE"],
+       let env = AppEnvironment(rawValue: override) {
+      return env
+    } else {
+      return .production
+    }
+  }
+#else
+  static func env() -> AppEnvironment { .production }
+#endif
+
   static let mainWindowIdentifier = "MainWindow"
   static let permissionsSettingsWindowIdentifier = "PermissionsSettingsWindow"
   static let emptyConfigurationWindowIdentifier = "EmptyConfigurationWindow"
@@ -41,5 +56,4 @@ extension KeyboardCowboyApp {
   // MARK: Private variables
 
   static private var app: NSApplication = .shared
-
 }

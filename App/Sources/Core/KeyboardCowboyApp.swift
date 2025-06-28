@@ -10,21 +10,6 @@ import InputSources
 
 @main
 struct KeyboardCowboyApp: App {
-#if DEBUG
-  static func env() -> AppEnvironment {
-    guard !isRunningPreview else { return .previews }
-
-    if let override = ProcessInfo.processInfo.environment["APP_ENVIRONMENT_OVERRIDE"],
-       let env = AppEnvironment(rawValue: override) {
-      return env
-    } else {
-      return .production
-    }
-  }
-#else
-  static func env() -> AppEnvironment { .production }
-#endif
-
   @FocusState var focus: AppFocus?
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
