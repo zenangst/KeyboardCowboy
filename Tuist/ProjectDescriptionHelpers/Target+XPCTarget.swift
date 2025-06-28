@@ -1,7 +1,7 @@
 import ProjectDescription
 
 public extension Target {
-  static func xpcTarget(_ env: EnvHelper) -> Target {
+  static func xpc(_ env: EnvHelper) -> Target {
     Target.target(
       name: "LassoService",
       destinations: .macOS,

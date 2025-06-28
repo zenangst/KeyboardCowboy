@@ -1,12 +1,46 @@
 import ProjectDescription
 
 public extension Scheme {
-  static func mainApp(_ mainAppTarget: Target, unitTestTarget: Target) -> Scheme {
+  enum Kind {
+    case production
+    case development
+
+    var appEnvironmentOverride: Bool {
+      switch self {
+      case .production: false
+      case .development: true
+      }
+    }
+
+    var disableMachPorts: Bool {
+      switch self {
+      case .production: false
+      case .development: true
+      }
+    }
+
+    var injection: Bool {
+      switch self {
+      case .production: false
+      case .development: true
+      }
+    }
+
+    var openWindowAtLaunch: Bool {
+      switch self {
+      case .production: false
+      case .development: true
+      }
+    }
+
+  }
+
+  static func app(_ kind: Kind, appTarget: Target, unitTestTarget: Target) -> Scheme {
     Scheme.scheme(
-      name: mainAppTarget.name,
+      name: appTarget.name,
       shared: true,
       hidden: false,
-      buildAction: .buildAction(targets: [.target(mainAppTarget.name)]),
+      buildAction: .buildAction(targets: [.target(appTarget.name)]),
       testAction: .targets(
         [.testableTarget(target: .target(unitTestTarget.name))],
         arguments: .arguments(
@@ -20,22 +54,22 @@ public extension Scheme {
         ,
         options: .options(
           coverage: true,
-          codeCoverageTargets: [.target(mainAppTarget.name)]
+          codeCoverageTargets: [.target(appTarget.name)]
         )
       ),
       runAction: .runAction(
-        executable: .target(mainAppTarget.name),
+        executable: .target(appTarget.name),
         arguments: .arguments(
           environmentVariables: [
-            "APP_ENVIRONMENT_OVERRIDE": .environmentVariable(value: "development", isEnabled: true),
+            "APP_ENVIRONMENT_OVERRIDE": .environmentVariable(value: "development", isEnabled: kind.appEnvironmentOverride),
             "SOURCE_ROOT": .environmentVariable(value: Router.sourceRoot, isEnabled: true),
           ],
           launchArguments: [
             .launchArgument(name: "-benchmark", isEnabled: false),
             .launchArgument(name: "-debugEditing", isEnabled: false),
-            .launchArgument(name: "-injection", isEnabled: false),
-            .launchArgument(name: "-disableMachPorts", isEnabled: false),
-            .launchArgument(name: "-openWindowAtLaunch", isEnabled: true)
+            .launchArgument(name: "-injection", isEnabled: kind.injection),
+            .launchArgument(name: "-disableMachPorts", isEnabled: kind.disableMachPorts),
+            .launchArgument(name: "-openWindowAtLaunch", isEnabled: kind.openWindowAtLaunch)
           ]
         )
       )
