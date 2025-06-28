@@ -20,6 +20,7 @@ struct AppMenuBarExtras: Scene {
     }
   }
 
+  @AppStorage("showMenuBarIcon") private var showMenuBarExtras: Bool = true
   @EnvironmentObject private var openWindow: WindowOpener
   @ObservedObject private var keyboardCleaner: KeyboardCleaner
 
@@ -37,7 +38,8 @@ struct AppMenuBarExtras: Scene {
   }
 
   var body: some Scene {
-    MenuBarExtra(content: {
+    let _ = print(showMenuBarExtras)
+    MenuBarExtra(isInserted: $showMenuBarExtras, content: {
       Button { onAction(.openMainWindow) } label: { Text("Open \(applicationName)") }
       AppMenu(modePublisher: KeyboardCowboyModePublisher(source: core.machPortCoordinator.$mode)) { newValue in
         if newValue {
@@ -80,18 +82,18 @@ struct AppMenuBarExtras: Scene {
         }
     }
   }
-}
 
-private struct _MenubarIcon: View {
-  var body: some View {
-    if isRunningPreview {
-      Image(systemName: "theatermask.and.paintbrush")
-    } else if launchArguments.isEnabled(.runningUnitTests) {
-      Image(systemName: "testtube.2")
-    } else if KeyboardCowboyApp.env() == .production {
-      Image(systemName: "command")
-    } else {
-      Image(systemName: "hammer.circle")
+  private struct _MenubarIcon: View {
+    var body: some View {
+      if isRunningPreview {
+        Image(systemName: "theatermask.and.paintbrush")
+      } else if launchArguments.isEnabled(.runningUnitTests) {
+        Image(systemName: "testtube.2")
+      } else if KeyboardCowboyApp.env() == .production {
+        Image(systemName: "command")
+      } else {
+        Image(systemName: "hammer.circle")
+      }
     }
   }
 }

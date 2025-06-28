@@ -13,9 +13,10 @@ struct KeyboardCowboyApp: App {
   @FocusState var focus: AppFocus?
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
+  private var open: Bool = true
+
   private let windowOpener: WindowOpener
   private let coordinator: AppExtraCoordinator
-  private var open: Bool = true
   private let core: Core
   @ObservedObject private var contentStore: ContentStore
 
@@ -38,8 +39,25 @@ struct KeyboardCowboyApp: App {
   }
 
   var body: some Scene {
+    menuBarExtras()
+    settings()
+  }
+
+  @SceneBuilder
+  private func menuBarExtras() -> some Scene {
     AppMenuBarExtras(core: core, contentStore: core.contentStore, keyboardCleaner: core.keyboardCleaner,
                      onAction: { action in coordinator.handle(action) })
+  }
+
+  private func settings() -> some Scene {
+    Settings {
+      SettingsView()
+        .defaultStyle()
+        .environmentObject(OpenPanelController())
+    }
+    .windowStyle(.hiddenTitleBar)
+    .windowResizability(.contentSize)
+    .windowToolbarStyle(.unified)
     .commands {
       CommandGroup(after: .appSettings) {
         AppMenu(modePublisher: KeyboardCowboyModePublisher(source: core.machPortCoordinator.$mode)) { newValue in
@@ -94,14 +112,11 @@ struct KeyboardCowboyApp: App {
         HelpMenu(onAction: coordinator.handleHelpMenu(_:))
       }
     }
+  }
+}
 
-    Settings {
-      SettingsView()
-        .defaultStyle()
-        .environmentObject(OpenPanelController())
-    }
-    .windowStyle(.hiddenTitleBar)
-    .windowResizability(.contentSize)
-    .windowToolbarStyle(.unified)
+struct EmptyScene: Scene {
+  var body: some Scene {
+    WindowGroup { EmptyView() }.windowStyle(.hiddenTitleBar)
   }
 }

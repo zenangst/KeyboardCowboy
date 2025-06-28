@@ -43,7 +43,7 @@ let project = Project(
   ],
   schemes: [
     Scheme.app(.production, appTarget: mainAppTarget, unitTestTarget: unitTestTarget),
-    Scheme.app(.development, appTarget: developmentAppTarget, unitTestTarget: unitTestTarget),
+    Scheme.app(.development, appTarget: developmentAppTarget),
     Scheme.assetGenerator(assetGeneratorTarget)
   ],
   additionalFiles: [

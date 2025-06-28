@@ -35,14 +35,22 @@ public extension Scheme {
 
   }
 
-  static func app(_ kind: Kind, appTarget: Target, unitTestTarget: Target) -> Scheme {
-    Scheme.scheme(
+  static func app(_ kind: Kind, appTarget: Target, unitTestTarget: Target? = nil) -> Scheme {
+    let testableTargets: [TestableTarget]
+
+    if let unitTestTarget {
+      testableTargets = [.testableTarget(target: .target(unitTestTarget.name))]
+    } else {
+      testableTargets = []
+    }
+
+    return Scheme.scheme(
       name: appTarget.name,
       shared: true,
       hidden: false,
       buildAction: .buildAction(targets: [.target(appTarget.name)]),
       testAction: .targets(
-        [.testableTarget(target: .target(unitTestTarget.name))],
+        testableTargets,
         arguments: .arguments(
           environmentVariables: [
             "ASSET_PATH": .environmentVariable(value: Router.assetPath, isEnabled: true),

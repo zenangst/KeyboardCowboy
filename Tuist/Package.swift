@@ -1,6 +1,5 @@
 // swift-tools-version: 6.0
 import PackageDescription
-import ProjectDescriptionHelpers
 
 #if TUIST
 import struct ProjectDescription.PackageSettings
