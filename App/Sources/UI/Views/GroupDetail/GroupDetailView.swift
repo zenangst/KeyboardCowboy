@@ -203,7 +203,6 @@ struct GroupDetailView: View {
       if publisher.data.isEmpty {
         EmptyWorkflowList(namespace, onAction: onAction)
           .frame(maxHeight: .infinity)
-          .toolbar(content: { toolbarContent() })
       }
 
       CompatList {
