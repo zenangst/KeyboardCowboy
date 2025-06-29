@@ -1,7 +1,7 @@
 import Cocoa
 
+@MainActor
 struct AppPreferences {
-  @MainActor
   static var config: AppPreferences {
     switch KeyboardCowboyApp.env() {
     case .development: .designTime()
@@ -25,13 +25,6 @@ struct AppPreferences {
       hideAppOnLaunch: true,
       machportIsEnabled: true,
       configLocation: .user)
-  }
-
-  static func legacy() -> AppPreferences {
-    AppPreferences(
-      hideAppOnLaunch: true,
-      machportIsEnabled: true,
-      configLocation: .legacy)
   }
 
   static func development() -> AppPreferences {
@@ -63,7 +56,6 @@ struct AppPreferences {
       machportIsEnabled: false,
       configLocation: ConfigurationLocation(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                                  filename: filename(for: #function)))
-
   }
 
   static func designTime() -> AppPreferences {
@@ -79,6 +71,5 @@ struct AppPreferences {
       machportIsEnabled: false,
       configLocation: ConfigurationLocation(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                                  filename: filename(for: #function)))
-
   }
 }
