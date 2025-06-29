@@ -14,14 +14,19 @@ struct ConfigurationLocation: Equatable {
 }
 
 extension ConfigurationLocation {
+  @MainActor
+  private static var fileName: String {
+    if KeyboardCowboyApp.bundleIdentifier == "com.zenangst.Keyboard-Cowboy" {
+      "config.json"
+    } else {
+      "config-dev.json"
+    }
+  }
   private static var jsonFixuresFolder: String { rootFolder.appending("/Fixtures/json") }
 
+  @MainActor
   static var user: ConfigurationLocation {
-    ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: "config.json")
-  }
-
-  static var legacy: ConfigurationLocation {
-    ConfigurationLocation(path: "~/", filename: ".keyboard-cowboy.json")
+    ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: Self.fileName)
   }
 
   static var designTime: ConfigurationLocation {
