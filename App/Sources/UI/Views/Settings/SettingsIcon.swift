@@ -21,12 +21,18 @@ struct SettingsIcon: View {
       .frame(width: 16, height: 16)
       .padding(4)
       .background {
-        color
+        LinearGradient(
+          stops: [
+            .init(color: color, location: 0),
+            .init(color: color.blended(withFraction: 0.25, of: .black), location: 1),
+          ],
+          startPoint: .top,
+          endPoint: .bottom
+        )
       }
-      .overlay {
-        iconOverlay()
-      }
-      .clipShape(RoundedRectangle(cornerRadius: 8))
+      .overlay { iconOverlay() }
+      .overlay { iconBorder(20) }
+      .iconShape(36)
   }
 }
 
