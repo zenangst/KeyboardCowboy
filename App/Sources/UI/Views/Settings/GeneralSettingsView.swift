@@ -10,7 +10,7 @@ struct GeneralSettingsView: View {
   var body: some View {
     VStack(spacing: 0) {
       Spacer()
-      Grid(alignment: .leading, verticalSpacing: 0) {
+      Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
         GridRow {
           SettingsIcon(NSColor.red, symbolName: "gearshape.2")
           Text("Launch at Login")
@@ -22,7 +22,7 @@ struct GeneralSettingsView: View {
         Divider()
 
         GridRow {
-          SettingsIcon(NSColor.orange, symbolName: "gear")
+          SettingsIcon(NSColor.orange, symbolName: "menubar.arrow.up.rectangle")
           Text("Show menu bar icon")
             .frame(maxWidth: .infinity, alignment: .leading)
           Toggle(isOn: $showMenuBarIcon) { }
