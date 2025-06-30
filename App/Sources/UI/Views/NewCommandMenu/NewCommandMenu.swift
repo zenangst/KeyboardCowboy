@@ -154,7 +154,11 @@ fileprivate struct ApplicationLabel: View {
 
   var body: some View {
     VStack {
-      Text(application.bundleName)
+      if application.metadata.isSafariWebApp {
+        Text("\(application.displayName) (Safari Web App)")
+      } else {
+        Text(application.displayName)
+      }
     }
     .truncationMode(.middle)
   }
