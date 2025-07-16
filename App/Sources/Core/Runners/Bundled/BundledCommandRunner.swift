@@ -59,7 +59,7 @@ final class BundledCommandRunner: Sendable {
                     runtimeDictionary: &runtimeDictionary)
 
       if movedToWorkspace {
-        if let runningApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == application.bundleIdentifier }) {
+        if let runningApp = NSRunningApplication.runningApplications(withBundleIdentifier: application.bundleIdentifier).first {
           if #available(macOS 14.0, *) {
             runningApp.activate(from: NSWorkspace.shared.frontmostApplication!,
                                 options: .activateIgnoringOtherApps
@@ -101,9 +101,18 @@ final class BundledCommandRunner: Sendable {
       }
       output = command.name
     case .workspace(let workspaceCommand):
+      let runningBundleIdentifiers = workspaceCommand.bundleIdentifiers.flatMap { bundleIdentifier in
+        NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier)
+          .compactMap(\.bundleIdentifier)
+      }
+      let onlyUnhide: Bool
+      let requiredBundleIdentifiers: Set<String> = Set(workspaceCommand.bundleIdentifiers)
+      let allRunning = requiredBundleIdentifiers.isSubset(of: runningBundleIdentifiers)
+      onlyUnhide = allRunning
+
       try await run(workspaceCommand: workspaceCommand,
                     forceDisableTiling: false,
-                    onlyUnhide: false,
+                    onlyUnhide: onlyUnhide,
                     commandRunner: commandRunner,
                     snapshot: &snapshot,
                     machPortEvent: machPortEvent,
