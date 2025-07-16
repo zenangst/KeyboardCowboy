@@ -21,7 +21,7 @@ enum AXHTMLResolver {
                                      snapshot: UserSpace.Snapshot,
                                      breadCrumb: inout String) throws -> AnyAccessibilityElement? {
     var resolvedElement: AnyAccessibilityElement?
-    let children = try element.value(.children, as: [AXUIElement].self)
+    let children: [AnyAccessibilityElement] = try element.value(.children, as: [AXUIElement].self)
       .map { AnyAccessibilityElement($0, messagingTimeout: element.messagingTimeout) }
 
     if children.isEmpty {
@@ -45,7 +45,7 @@ enum AXHTMLResolver {
     }
 
     for child in children {
-      if let result = try processElement(child, snapshot: snapshot, breadCrumb: &breadCrumb) {
+      if let result: AnyAccessibilityElement = try processElement(child, snapshot: snapshot, breadCrumb: &breadCrumb) {
         resolvedElement = result
         break
       }

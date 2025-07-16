@@ -8,7 +8,7 @@ enum AXTableResolverError: Error {
 
 enum AXTableResolver {
   static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> CGRect {
-    let children = try parent.value(.children, as: [AXUIElement].self)
+    let children: [AnyAccessibilityElement] = try parent.value(.children, as: [AXUIElement].self)
       .map { AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }
     var match: AnyAccessibilityElement?
 
@@ -25,5 +25,4 @@ enum AXTableResolver {
 
     return frame
   }
-
 }

@@ -9,7 +9,7 @@ enum AXTextEntryAreaResolverError: Error {
 enum AXTextEntryAreaResolver {
   static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> CGRect {
     var frame: CGRect?
-    if var textRange = try? parent.value(.selectedTextRange, as: CFRange.self),
+    if var textRange: CFRange = try? parent.value(.selectedTextRange, as: CFRange.self),
        let axValue = AXValueCreate(.cfRange, &textRange),
        let rect = try? parent.reference.parameterizedValue(
         key: kAXBoundsForRangeParameterizedAttribute,

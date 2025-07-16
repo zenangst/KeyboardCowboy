@@ -21,7 +21,7 @@ enum AXScrollAreaResolver {
 
   private static func processElement(_ element: AnyAccessibilityElement) throws -> AnyAccessibilityElement? {
     var resolvedElement: AnyAccessibilityElement?
-    let children = try element.value(.children, as: [AXUIElement].self)
+    let children: [AnyAccessibilityElement] = try element.value(.children, as: [AXUIElement].self)
       .map { AnyAccessibilityElement($0, messagingTimeout: element.messagingTimeout) }
 
     if (try? element.value(.focused, as: Bool.self)) == true {
