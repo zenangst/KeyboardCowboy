@@ -159,7 +159,7 @@ final class BundledCommandRunner: Sendable {
       }
     }
 
-    for command in commands {
+    for (offset, command) in commands.enumerated() {
       do {
         try Task.checkCancellation()
       } catch {
@@ -193,6 +193,33 @@ final class BundledCommandRunner: Sendable {
 
       if let delay = command.delay, delay > 0 {
         try? await Task.sleep(for: .milliseconds(delay))
+      }
+
+      if offset == commands.count - 1 {
+        let currentBundleIdentifier: Set<String> = [NSWorkspace.shared.frontmostApplication!.bundleIdentifier!]
+        let commmandBundleIdentifiers: Set<String> = Set(workspaceCommand.bundleIdentifiers)
+
+        if currentBundleIdentifier != commmandBundleIdentifiers {
+          await windowFocusRunner.resetFocusComponents()
+        }
+
+        let shouldActivateTopApp = !currentBundleIdentifier.isSubset(of: commmandBundleIdentifiers)
+        let validPids = Set(commmandBundleIdentifiers.flatMap {
+          NSRunningApplication.runningApplications(withBundleIdentifier: $0).map(\.processIdentifier)
+        })
+
+        let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
+        if shouldActivateTopApp, let firstWindow = newSnapshot.windows.visibleWindowsInStage.first(where: {
+          validPids.contains(pid_t($0.ownerPid.rawValue))
+        }),
+           let runningApp = NSRunningApplication(processIdentifier: pid_t(firstWindow.ownerPid.rawValue)) {
+
+          if #available(macOS 14.0, *) {
+            runningApp.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateIgnoringOtherApps)
+          } else {
+            runningApp.activate(options: .activateIgnoringOtherApps)
+          }
+        }
       }
     }
 
