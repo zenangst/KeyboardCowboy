@@ -12,7 +12,7 @@ final class OpenURLSafariWebAppPlugin {
 
 
   func execute(_ path: String, application: Application, checkCancellation: Bool) async throws {
-    guard let runningApplication = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == application.bundleIdentifier }),
+    guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: application.bundleIdentifier).first,
           let url = URL(string: path) else { return }
     let configuration = NSWorkspace.OpenConfiguration()
     configuration.activates = true

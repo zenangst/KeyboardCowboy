@@ -32,9 +32,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
   @MainActor
   func commands(_ applications: [Application], checkCancellation: Bool) async throws -> [Command] {
-    let aerospaceIsRunning = NSWorkspace.shared.runningApplications
-      .first(where: { $0.bundleIdentifier == "bobko.aerospace" })
-    != nil
+    let aerospaceIsRunning = !NSRunningApplication.runningApplications(withBundleIdentifier: "bobko.aerospace").isEmpty
 
     var commands = [Command]()
     let application: Application
@@ -57,9 +55,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     let allWindows = indexWindowsInStage(getWindows())
     var appWindows = allWindows.filter({ $0.ownerName == application.bundleName })
     var numberOfAppWindows = appWindows.count
-    var runningApplication = NSWorkspace.shared.runningApplications.first(where: {
-      $0.bundleIdentifier == bundleIdentifer
-    })
+    var runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifer).first
 
     if createNewWindow && isCurrentApp || numberOfAppWindows == 0 {
       NSWorkspace.shared.open(URL(fileURLWithPath: application.path))

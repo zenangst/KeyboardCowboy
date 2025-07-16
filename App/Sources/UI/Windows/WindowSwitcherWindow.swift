@@ -121,9 +121,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     case kVK_ANSI_Q:
       if event.modifierFlags.contains(.command) {
         if !event.isARepeat,
-            event.type == .keyDown, let currentSelection = getCurrentSelection(),
-           let runningApplication = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == currentSelection.app.bundleIdentifier }) {
-
+           event.type == .keyDown, let currentSelection = getCurrentSelection(),
+           let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: currentSelection.app.bundleIdentifier).first {
           if currentSelection.app.bundleIdentifier == NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
             shouldCloseOnResignKey = false
           }
@@ -133,7 +132,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
               var waiting = true
               var timeout = 5
               while waiting {
-                if NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == currentSelection.app.bundleIdentifier }) == false {
+                if NSRunningApplication.runningApplications(withBundleIdentifier: currentSelection.app.bundleIdentifier).isEmpty {
                   waiting = false
                   await self?.refreshWindows(updateSelection: false)
                   await MainActor.run { [weak self] in

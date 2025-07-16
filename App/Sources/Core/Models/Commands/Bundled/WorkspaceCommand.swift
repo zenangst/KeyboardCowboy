@@ -90,9 +90,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       return handleEmptyWorkspace()
     }
 
-    let aerospaceIsRunning = NSWorkspace.shared.runningApplications
-      .first(where: { $0.bundleIdentifier == "bobko.aerospace" })
-       != nil
+    let aerospaceIsRunning = !NSRunningApplication.runningApplications(withBundleIdentifier: "bobko.aerospace").isEmpty
 
     var commands = [Command]()
 
@@ -129,11 +127,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
         continue
       }
 
-      let runningApplication = NSWorkspace.shared.runningApplications.first(where: { app in
-        guard let bundleIdentifier = app.bundleIdentifier else { return false }
-        return application.bundleIdentifier == bundleIdentifier
-      })
-
+      let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first
       let appIsRunning = runningApplication != nil
       let isFrontmost = frontmostApplication?.bundleIdentifier == bundleIdentifier
       let isLastItem = bundleIdentifiersCount - 1 == offset

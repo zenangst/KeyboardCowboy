@@ -26,7 +26,7 @@ final class SystemHideAllAppsRunner {
 
     if let targetApplication, NSScreen.screens.count > 1 {
       // Find target application
-      if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == targetApplication.bundleIdentifier }) {
+      if let app = NSRunningApplication.runningApplications(withBundleIdentifier: targetApplication.bundleIdentifier).first {
         if !processIdentifiers.contains(Int(app.processIdentifier)) {
           for screen in NSScreen.screens where screen != currentScreen {
             let windows = indexWindowsInStage(getWindows(options: options), targetRect: screen.visibleFrame)
@@ -47,13 +47,13 @@ final class SystemHideAllAppsRunner {
 
     var validPids = Set<Int>()
     if let targetApplication {
-      if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == targetApplication.bundleIdentifier }) {
+      if let app = NSRunningApplication.runningApplications(withBundleIdentifier: targetApplication.bundleIdentifier).first {
         validPids.insert(Int(app.processIdentifier))
       }
     }
 
     for exceptBundleIdentifier in excludedBundleIdentifiers {
-      if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == exceptBundleIdentifier }) {
+      if let app = NSRunningApplication.runningApplications(withBundleIdentifier: exceptBundleIdentifier).first {
         validPids.insert(Int(app.processIdentifier))
       }
     }

@@ -30,9 +30,7 @@ final class OpenURLSwapTabsPlugin {
     let bundleIdentifier = bundleIdentifier ?? "com.apple.Safari"
 
     // Check if the target application is already running
-    if let runningApplication = NSWorkspace.shared.runningApplications
-      .first(where: { $0.bundleIdentifier == bundleIdentifier }) {
-
+    if let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first {
       let axApp = AppAccessibilityElement(runningApplication.processIdentifier)
       let windows = try axApp.windows()
 

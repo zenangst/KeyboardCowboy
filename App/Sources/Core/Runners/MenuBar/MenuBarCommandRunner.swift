@@ -24,7 +24,7 @@ final class MenuBarCommandRunner {
 
     var runningApplication: NSRunningApplication?
     if let application = command.application {
-      if let match = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == application.id }) {
+      if let match = NSRunningApplication.runningApplications(withBundleIdentifier: application.bundleIdentifier).first {
         runningApplication = match
       } else {
         NSWorkspace.shared.open(URL(filePath: application.path))
