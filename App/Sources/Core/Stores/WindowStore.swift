@@ -62,7 +62,6 @@ final class WindowStore: @unchecked Sendable {
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     subscriptions.frontmostApplication = publisher
       .compactMap { $0 }
-      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self, state] application in
         guard let self else { return }
 
@@ -70,13 +69,13 @@ final class WindowStore: @unchecked Sendable {
         state.appAccessibilityElement = AppAccessibilityElement(pid)
         state.frontmostApplication = application
         state.frontmostIndex = 0
-        self.indexFrontMost()
+        self.index()
       }
   }
 
   func snapshot(refresh: Bool = false) -> WindowStoreSnapshot {
     if refresh {
-      index(state.frontmostApplication)
+      index()
     }
     return state.snapshot()
   }
@@ -128,7 +127,7 @@ final class WindowStore: @unchecked Sendable {
     return windowModels
   }
   
-  func index(_ runningApplication: UserSpace.Application) {
+  func index() {
     let windows = getWindows()
     self.windows = windows
     state.visibleWindowsInSpace = allApplicationsInSpace(windows, onScreen: true)
@@ -136,13 +135,13 @@ final class WindowStore: @unchecked Sendable {
     indexFrontMost()
   }
 
-  // MARK: Private methods
-
-  private func indexFrontMost() {
+  func indexFrontMost() {
     do {
       let forbiddenSubroles = [
+        NSAccessibility.Subrole.dialog.rawValue,
+        NSAccessibility.Subrole.floatingWindow.rawValue,
         NSAccessibility.Subrole.systemDialog.rawValue,
-        NSAccessibility.Subrole.dialog.rawValue
+        NSAccessibility.Subrole.systemFloatingWindow.rawValue,
       ]
       state.frontmostApplicationWindows = try state.appAccessibilityElement.windows()
         .filter({

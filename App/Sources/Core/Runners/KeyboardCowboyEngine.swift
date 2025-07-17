@@ -162,11 +162,11 @@ final class KeyboardCowboyEngine {
     WindowTilingRunner.index()
 
     applicationWindowObserver.frontMostApplicationDidCreateWindow = {
-      WindowStore.shared.index(UserSpace.shared.frontmostApplication)
+      WindowStore.shared.indexFrontMost()
     }
 
     applicationWindowObserver.frontMostApplicationDidCloseWindow = {
-      WindowStore.shared.index(UserSpace.shared.frontmostApplication)
+      WindowStore.shared.indexFrontMost()
     }
   }
 }
