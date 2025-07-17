@@ -197,7 +197,7 @@ final class BundledCommandRunner: Sendable {
 
       if offset == commands.count - 1 {
         let currentBundleIdentifier: Set<String> = [NSWorkspace.shared.frontmostApplication!.bundleIdentifier!]
-        let commmandBundleIdentifiers: Set<String> = Set(workspaceCommand.bundleIdentifiers)
+        let commmandBundleIdentifiers: Set<String> = Set(workspaceCommand.bundleIdentifiers + dynamicApps.map(\.bundleIdentifier))
 
         if currentBundleIdentifier != commmandBundleIdentifiers {
           await windowFocusRunner.resetFocusComponents()
