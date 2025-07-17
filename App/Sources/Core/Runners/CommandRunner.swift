@@ -486,7 +486,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       Task { @MainActor in
         lastExecutedCommand = command
         guard let notchInfo else { return }
-        print("dismiss notch")
         notchInfo.title = LocalizedStringKey(stringLiteral: output)
         notchInfo.description = nil
         await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])

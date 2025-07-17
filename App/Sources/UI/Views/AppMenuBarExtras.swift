@@ -38,7 +38,6 @@ struct AppMenuBarExtras: Scene {
   }
 
   var body: some Scene {
-    let _ = print(showMenuBarExtras)
     MenuBarExtra(isInserted: $showMenuBarExtras, content: {
       Button { onAction(.openMainWindow) } label: { Text("Open \(applicationName)") }
       AppMenu(modePublisher: KeyboardCowboyModePublisher(source: core.machPortCoordinator.$mode)) { newValue in
