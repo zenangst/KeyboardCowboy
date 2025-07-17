@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct ConfigurationView: View {
@@ -7,6 +8,7 @@ struct ConfigurationView: View {
     case updateName(name: String)
     case selectConfiguration(ConfigurationViewModel.ID)
   }
+  @ObserveInjection private var inject
   @EnvironmentObject private var publisher: ConfigurationsPublisher
   @ObservedObject var selectionManager: SelectionManager<ConfigurationViewModel>
   @State var configurationName: String = ""
@@ -22,7 +24,7 @@ struct ConfigurationView: View {
   }
 
   var body: some View {
-    HStack {
+    HStack(spacing: 0) {
       Menu {
         ForEach(publisher.data) { configuration in
           Button(action: {
@@ -37,7 +39,10 @@ struct ConfigurationView: View {
           .fixedSize(horizontal: false, vertical: true)
           .allowsTightening(true)
           .contentShape(Rectangle())
+          .frame(maxWidth: .infinity)
       }
+
+      Spacer()
 
       Menu(content: {
         Button("New Configuration", action: {
@@ -81,6 +86,7 @@ struct ConfigurationView: View {
       }
     }
     .padding(.top, 4)
+    .enableInjection()
   }
 }
 
