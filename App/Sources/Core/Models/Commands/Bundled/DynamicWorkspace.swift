@@ -11,8 +11,6 @@ final class DynamicWorkspace {
   static let shared = DynamicWorkspace()
 
   private init() {
-    let terminationPublisher = NSWorkspace.shared.notificationCenter
-      .publisher(for: NSWorkspace.didTerminateApplicationNotification)
     let launchPublisher = NSWorkspace.shared.notificationCenter
       .publisher(for: NSWorkspace.didLaunchApplicationNotification)
 
@@ -38,18 +36,11 @@ final class DynamicWorkspace {
 
     NSWorkspace.shared.publisher(for: \.frontmostApplication)
       .sink { [weak self] runningApplication in
-        guard let bundleIdentifier = runningApplication?.bundleIdentifier else { return }
-        self?.reorderCurrentWorkspace(bundleIdentifier)
+        guard let self, let bundleIdentifier = runningApplication?.bundleIdentifier else { return }
+        self.removeClosedApps()
+        self.reorderCurrentWorkspace(bundleIdentifier)
       }
       .store(in: &subscriptions)
-
-    terminationPublisher
-      .sink { [weak self] notification in
-      guard let self,
-            let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
-      self.remove(app)
-    }
-    .store(in: &subscriptions)
   }
 
   func applications(for workspace: WorkspaceCommand.ID) -> [Application] {
@@ -186,6 +177,22 @@ final class DynamicWorkspace {
     }
   }
 
+  private func removeClosedApps() {
+    for (_, applications) in self.assigned {
+      for app in applications {
+        let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier)
+        if runningApps.isEmpty {
+          remove(app)
+          continue
+        }
+
+        for runningApp in runningApps where runningApp.isTerminated {
+          remove(app)
+        }
+      }
+    } 
+  }
+
   private func reorderCurrentWorkspace(_ bundleIdentifier: String) {
     guard
       let currentWorkspaceId = UserSpace.shared.currentWorkspace?.id,
@@ -199,6 +206,13 @@ final class DynamicWorkspace {
   }
 
   private func remove(_ app: RunningApplication) {
+    for (id, applications) in self.assigned {
+      let newApplications = applications.filter { $0.bundleIdentifier != app.bundleIdentifier }
+      self.assigned[id] = newApplications.isEmpty ? nil : newApplications
+    }
+  }
+
+  private func remove(_ app: Application) {
     for (id, applications) in self.assigned {
       let newApplications = applications.filter { $0.bundleIdentifier != app.bundleIdentifier }
       self.assigned[id] = newApplications.isEmpty ? nil : newApplications
