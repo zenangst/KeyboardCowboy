@@ -10,6 +10,7 @@ enum KeyboardCommandRunnerError: Error {
   case failedToCreateEvent
 }
 
+@MainActor
 final class KeyboardCommandRunner: @unchecked Sendable {
   var machPort: MachPortEventController?
   let store: KeyCodesStore
@@ -35,27 +36,15 @@ final class KeyboardCommandRunner: @unchecked Sendable {
     }
 
     let isRepeat = originalEvent?.getIntegerValueField(.keyboardEventAutorepeat) == 1
-
     let iterations = max(1, iterations)
     var events = [CGEvent]()
     let count = keyboardShortcuts.count
 
     for _ in 1...iterations {
       for keyboardShortcut in keyboardShortcuts {
-        let key = try await resolveKey(for: keyboardShortcut.key)
-        let flags =  keyboardShortcut.cgFlags
         do {
-          var flags = flags
-          if keyboardShortcut.key.hasPrefix("F") {
-            flags.insert(.maskSecondaryFn)
-            // NX_DEVICELCMDKEYMASK
-            flags.insert(CGEventFlags(rawValue: 8))
-          }
-
-          let arrowKeys =  123...126
-          if arrowKeys.contains(key) {
-            flags.insert(.maskNumericPad)
-          }
+          let key = try resolveKey(for: keyboardShortcut.key)
+          let flags = resolveFlags(for: keyboardShortcut, keyCode: key)
           let configureEvent: (CGEvent) -> Void = { newEvent in
             if let originalEvent {
               let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
@@ -86,18 +75,31 @@ final class KeyboardCommandRunner: @unchecked Sendable {
     return events
   }
 
-  // MARK: Private methods
-
-  private func resolveKey(for string: String) async throws -> Int {
+  func resolveKey(for string: String) throws -> Int {
     let uppercased = string.uppercased()
 
-    if let uppercasedResult = await store.keyCode(for: uppercased, matchDisplayValue: true) {
+    if let uppercasedResult = store.keyCode(for: uppercased, matchDisplayValue: true) {
       return uppercasedResult
     }
-    if let stringResult = await store.keyCode(for: string, matchDisplayValue: true) {
+    if let stringResult = store.keyCode(for: string, matchDisplayValue: true) {
       return stringResult
     }
 
     throw KeyboardCommandRunnerError.failedToResolveKey(string)
+  }
+
+  func resolveFlags(for keyboardShortcut: KeyShortcut, keyCode: Int) -> CGEventFlags {
+    var flags = keyboardShortcut.cgFlags
+    if keyboardShortcut.key.hasPrefix("F") {
+      flags.insert(.maskSecondaryFn)
+      // NX_DEVICELCMDKEYMASK
+      flags.insert(CGEventFlags(rawValue: 8))
+    }
+
+    let arrowKeys: ClosedRange<Int> = 123...126
+    if arrowKeys.contains(keyCode) {
+      flags.insert(.maskNumericPad)
+    }
+    return flags
   }
 }

@@ -169,22 +169,21 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
 
       if handleRepeatingKeyEvent(machPortEvent) { return }
     case .keyUp:
-      if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp {
-        if let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent {
+      if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp,
+         let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent {
           let pressDurtion = timeElapsedInSeconds(
-            start: previousKeyDownMachPortEvent.event.timestamp,
-            end: machPortEvent.event.timestamp
-          )
+              start: previousKeyDownMachPortEvent.event.timestamp,
+              end: machPortEvent.event.timestamp
+              )
 
-          if pressDurtion > 0.5 {
-            Task.detached { [workflowRunner] in
-              await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
+            if pressDurtion > 0.5 {
+              Task.detached { [workflowRunner] in
+                await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
+              }
             }
-          }
           PeekApplicationPlugin.peekEvent = nil
           return
         }
-      }
 
       handleKeyUp(machPortEvent)
       scheduledWorkItem?.cancel()
@@ -296,13 +295,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       repeatingMatch = nil
       machPortEvent.result = nil
     } else {
-      if let partialWorkflow = partialMatch.workflow {
-        if partialWorkflow.machPortConditions.isPassthrough == false {
+      if let partialWorkflow = partialMatch.workflow,
+        !partialWorkflow.machPortConditions.isPassthrough {
+          machPortEvent.result = nil
+        } else {
           machPortEvent.result = nil
         }
-      } else {
-        machPortEvent.result = nil
-      }
       previousPartialMatch = partialMatch
     }
 
@@ -318,11 +316,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
 
   @MainActor
   private func handleExtactMatch(_ workflow: Workflow, machPortEvent: MachPortEvent) {
-    if workflow.machPortConditions.isPassthrough != true {
-      machPortEvent.result = nil
-    }
-
     let execution: @MainActor @Sendable (MachPortEvent, Bool) async -> Void
+    let handlePassthroughIfNeeded = {
+      if !workflow.machPortConditions.isPassthrough {
+        machPortEvent.result = nil
+      }
+    }
 
     // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
     if workflow.machPortConditions.enabledCommandsCount == 1,
@@ -352,17 +351,32 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
         }
       }
 
-      Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
+      if command.keyboardShortcuts.count == 1 {
+        let keyShortcut = command.keyboardShortcuts[0]
+        do {
+          let keyCode = try keyboardCommandRunner.resolveKey(for: keyShortcut.key)
+          let flags = keyboardCommandRunner.resolveFlags(for: keyShortcut, keyCode: keyCode)
+          let result = machPortEvent.result?.takeUnretainedValue()
+          result?.setIntegerValueField(.keyboardEventKeycode, value: Int64(keyCode))
+          result?.flags = flags
+        } catch {
+          handlePassthroughIfNeeded()
+          Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
+        }
+      } else {
+        handlePassthroughIfNeeded()
+        Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
+      }
 
       if workflow.machPortConditions.allowRepeat {
         setRepeatExecution(execution)
       } else {
         setRepeatExecution(nil)
       }
-      
       repeatingKeyCode = machPortEvent.keyCode
       notifications.reset()
     } else if !workflow.machPortConditions.isEmpty && workflow.machPortConditions.isValidForRepeat {
+      handlePassthroughIfNeeded()
       execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
         guard let self, machPortEvent.type != .keyUp else { return }
         self.coordinatorEvent = machPortEvent.event
@@ -382,6 +396,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
 
       repeatingKeyCode = machPortEvent.keyCode
     } else if !machPortEvent.isRepeat || workflow.machPortConditions.isValidForRepeat {
+      handlePassthroughIfNeeded()
       KeyViewer.instance.handleInput(machPortEvent.event, store: store)
       if let delay = workflow.machPortConditions.scheduleDuration {
         scheduledWorkItem = schedule(workflow, machPortEvent: machPortEvent, after: delay)

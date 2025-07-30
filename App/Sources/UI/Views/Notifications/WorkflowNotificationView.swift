@@ -191,9 +191,10 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
 extension Workflow {
   @MainActor @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
-    let enabledCommands = Array(commands.filter(\.isEnabled).prefix(3).reversed())
+    
+    let enabledCommands = Array(machPortConditions.enabledCommands.prefix(3).reversed())
     ZStack {
-      ForEach(Array(zip(enabledCommands.indices, enabledCommands)), id: \.1.id) { offset, command in
+      ForEach(Array(enabledCommands.enumerated()), id: \.element.id) { offset, command in
         command.iconView(size)
           .id(command.id)
       }

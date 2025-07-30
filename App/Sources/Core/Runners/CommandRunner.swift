@@ -32,6 +32,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let windowManagement: WindowManagementCommandRunner
     let windowTiling: WindowTilingCommandRunner
 
+    @MainActor
     func setMachPort(_ machPort: MachPortEventController?) {
       keyboard.machPort = machPort
       system.machPort = machPort
@@ -234,8 +235,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
                                             ? NSPasteboard.general.string(forType: .string)
                                             : nil
-
-    if commands.filter({ $0.isEnabled }).count == 1 {
+    if commands.count == 1 {
       modifiedCheckCancellation = false
     }
 
