@@ -22,7 +22,7 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
   }
 
   func runCommands(in workflow: Workflow) {
-    let commands = workflow.commands.filter(\.isEnabled)
+    let commands = workflow.machPortConditions.enabledCommands
     guard let machPortEvent = MachPortEvent.empty() else { return }
 
     switch workflow.execution {
@@ -47,8 +47,10 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
 
   func run(_ workflow: Workflow, executionOverride: Workflow.Execution? = nil,
            machPortEvent: MachPortEvent, repeatingEvent: Bool) async {
-    await notifications.notifyRunningWorkflow(workflow)
-    let commands = workflow.commands.filter(\.isEnabled)
+    Task.detached { @MainActor [weak notifications] in
+      notifications?.notifyRunningWorkflow(workflow)
+    }
+    let commands = workflow.machPortConditions.enabledCommands
 
     /// Determines whether the command runner should check for cancellation.
     /// If the workflow is triggered by a keyboard shortcut that is a passthrough and consists of only one shortcut,
