@@ -2,10 +2,17 @@ import Foundation
 import AppKit
 import MachPort
 
-final class BundledCommandRunner: Sendable {
+actor BundledCommandRunner: Sendable {
+  static let slowApps: Set<String> = [
+    "com.apple.news",
+    "com.apple.maps"
+  ]
+
   let applicationStore: ApplicationStore
   let windowFocusRunner: WindowCommandFocusRunner
   let windowTidy: WindowTidyRunner
+
+  var detachedTask: Task<Void, any Error>?
 
   init(applicationStore: ApplicationStore, windowFocusRunner: WindowCommandFocusRunner, windowTidy: WindowTidyRunner) {
     self.applicationStore = applicationStore
@@ -20,6 +27,8 @@ final class BundledCommandRunner: Sendable {
            machPortEvent: MachPortEvent,
            checkCancellation: Bool, repeatingEvent: Bool,
            runtimeDictionary: inout [String: String]) async throws -> String {
+    detachedTask?.cancel()
+
     let output: String
     switch bundledCommand.kind {
     case .activatePreviousWorkspace:
@@ -180,15 +189,36 @@ final class BundledCommandRunner: Sendable {
           }
         }
 
-        try await commandRunner
-          .run(command,
-               workflowCommands: commands,
-               snapshot: &snapshot,
-               machPortEvent: machPortEvent,
-               checkCancellation: checkCancellation,
-               repeatingEvent: repeatingEvent,
-               runtimeDictionary: &runtimeDictionary
-          )
+        if case .application(let applicationCommand) = command,
+           applicationCommand.action == .open,
+           offset == 0,
+           Self.slowApps.contains(applicationCommand.application.bundleIdentifier.lowercased()) {
+          detachedTask = Task.detached { [commandRunner, snapshot, runtimeDictionary] in
+            var snapshot = snapshot
+            var runtimeDictionary = runtimeDictionary
+            try await commandRunner
+              .run(command,
+                   workflowCommands: commands,
+                   snapshot: &snapshot,
+                   machPortEvent: machPortEvent,
+                   checkCancellation: true,
+                   repeatingEvent: repeatingEvent,
+                   runtimeDictionary: &runtimeDictionary
+              )
+          }
+        } else {
+          var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
+          var runtimeDictionary = [String: String]()
+          try await commandRunner
+            .run(command,
+                 workflowCommands: commands,
+                 snapshot: &snapshot,
+                 machPortEvent: machPortEvent,
+                 checkCancellation: checkCancellation,
+                 repeatingEvent: repeatingEvent,
+                 runtimeDictionary: &runtimeDictionary
+            )
+        }
       }
 
       if let delay = command.delay, delay > 0 {

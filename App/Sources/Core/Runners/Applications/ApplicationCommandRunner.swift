@@ -88,7 +88,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
 
     if isBackgroundOrElectron {
       try await plugins.launch.execute(command, checkCancellation: checkCancellation)
-      try await plugins.wait.run(for: bundleIdentifier)
+      try await plugins.wait.run(for: bundleIdentifier, checkCancellation: checkCancellation)
       return
     }
 
@@ -123,10 +123,10 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     if command.modifiers.contains(.waitForAppToLaunch) {
       if let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first {
         if runningApplication.isFinishedLaunching == false {
-          try await plugins.wait.run(for: bundleIdentifier)
+          try await plugins.wait.run(for: bundleIdentifier, checkCancellation: checkCancellation)
         }
       } else {
-        try await plugins.wait.run(for: bundleIdentifier)
+        try await plugins.wait.run(for: bundleIdentifier, checkCancellation: checkCancellation)
       }
     }
   }
