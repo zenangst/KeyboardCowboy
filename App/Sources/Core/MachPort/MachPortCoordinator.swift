@@ -351,19 +351,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
         }
       }
 
-      if command.keyboardShortcuts.count == 1 {
-        let keyShortcut = command.keyboardShortcuts[0]
-        do {
-          let keyCode = try keyboardCommandRunner.resolveKey(for: keyShortcut.key)
-          let flags = keyboardCommandRunner.resolveFlags(for: keyShortcut, keyCode: keyCode)
-          let result = machPortEvent.result?.takeUnretainedValue()
-          result?.setIntegerValueField(.keyboardEventKeycode, value: Int64(keyCode))
-          result?.flags = flags
-        } catch {
-          handlePassthroughIfNeeded()
-          Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
-        }
-      } else {
+      if !handleSingleKeyRebinding(workflow, machPortEvent: machPortEvent) {
         handlePassthroughIfNeeded()
         Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
       }
@@ -454,6 +442,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
   /// - Parameter machPortEvent: The MachPortEvent representing the key event.
   @MainActor private func handleKeyUp(_ machPortEvent: MachPortEvent) {
     if let repeatExecution {
+      if handleSingleKeyRebinding(previousExactMatch, machPortEvent: machPortEvent) {
+        self.previousExactMatch = nil
+        return
+      }
+
       Task.detached { await repeatExecution(machPortEvent, false) }
       if let previousExactMatch, previousExactMatch.machPortConditions.isPassthrough == true {
         self.previousExactMatch = nil
@@ -466,7 +459,21 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
               kind == .fallback {
       leaderState = nil
       previousPartialMatch = .default()
+    } else if handleSingleKeyRebinding(previousExactMatch, machPortEvent: machPortEvent) {
+      self.previousExactMatch = nil
     }
+  }
+
+  private func handleSingleKeyRebinding(_ workflow: Workflow?, machPortEvent: MachPortEvent) -> Bool {
+    guard let workflow,
+          let keyboardShortcut = workflow.machPortConditions.rebinding,
+          let keyCode = try? keyboardCommandRunner.resolveKey(for: keyboardShortcut.key) else { return false }
+
+    let flags = keyboardCommandRunner.resolveFlags(for: keyboardShortcut, keyCode: keyCode)
+    let result = machPortEvent.result?.takeUnretainedValue()
+    result?.setIntegerValueField(.keyboardEventKeycode, value: Int64(keyCode))
+    result?.flags = flags
+    return true
   }
 
   /// Handles repeating key events.
