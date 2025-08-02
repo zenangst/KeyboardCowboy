@@ -3,18 +3,22 @@ import Foundation
 struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
   var passthrough: Bool
   var allowRepeat: Bool = true
+  var leaderKey: Bool = false
   var keepLastPartialMatch: Bool = false
   var holdDuration: Double?
+
   let shortcuts: [KeyShortcut]
 
   init(allowRepeat: Bool = true,
        keepLastPartialMatch: Bool = false,
        passthrough: Bool = false,
+       leaderKey: Bool = false,
        holdDuration: Double? = nil,
        shortcuts: [KeyShortcut]) {
     self.allowRepeat = allowRepeat
     self.holdDuration = holdDuration
     self.keepLastPartialMatch = keepLastPartialMatch
+    self.leaderKey = leaderKey
     self.passthrough = passthrough
     self.shortcuts = shortcuts
   }
@@ -24,6 +28,7 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
       allowRepeat: allowRepeat,
       keepLastPartialMatch: keepLastPartialMatch,
       passthrough: passthrough,
+      leaderKey: leaderKey,
       holdDuration: holdDuration,
       shortcuts: shortcuts.map { $0.copy() })
   }

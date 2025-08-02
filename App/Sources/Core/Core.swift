@@ -72,23 +72,26 @@ final class Core {
   lazy private(set) var groupStore = GroupStore()
   lazy private(set) var keyCodeStore = KeyCodesStore(InputSourceController())
   lazy private(set) var notifications = MachPortUINotifications(shortcutResolver: shortcutResolver)
-  lazy private(set) var leaderKeyCoordinator = LeaderKeyCoordinator(defaultPartialMatch: .default())
-  lazy private(set) var machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
-                                                                  leaderKeyCoordinator: leaderKeyCoordinator,
-                                                                  keyboardCleaner: keyboardCleaner,
-                                                                  keyboardCommandRunner: keyboardCommandRunner,
-                                                                  shortcutResolver: shortcutResolver,
-                                                                  macroCoordinator: macroCoordinator,
-                                                                  mode: .intercept,
-                                                                  notifications: notifications,
-                                                                  workflowRunner: workflowRunner)
+  lazy private(set) var tapHeldCoordinator = TapHeldCoordinator(defaultPartialMatch: .default())
+  lazy private(set) var machPortCoordinator = MachPortCoordinator(
+    store: keyboardCommandRunner.store,
+    keyboardCleaner: keyboardCleaner,
+    keyboardCommandRunner: keyboardCommandRunner,
+    macroCoordinator: macroCoordinator,
+    mode: .intercept,
+    notifications: notifications,
+    shortcutResolver: shortcutResolver,
+    tapHeldCoordinator: tapHeldCoordinator,
+    workflowRunner: workflowRunner,
+  )
+
   lazy private(set) var engine = KeyboardCowboyEngine(
     contentStore,
     applicationActivityMonitor: applicationActivityMonitor,
     applicationTriggerController: applicationTriggerController,
     applicationWindowObserver: applicationWindowObserver,
     commandRunner: commandRunner,
-    leaderKey: leaderKeyCoordinator,
+    tapHeld: tapHeldCoordinator,
     keyboardCommandRunner: keyboardCommandRunner,
     keyCodeStore: keyCodeStore,
     machPortCoordinator: machPortCoordinator,
