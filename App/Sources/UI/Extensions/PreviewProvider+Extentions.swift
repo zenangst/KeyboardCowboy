@@ -9,7 +9,7 @@ extension PreviewProvider {
                  configurationStore: Self.configurationStore, groupStore: GroupStore(),
                  shortcutResolver: ShortcutResolver(keyCodes: KeyCodesStore(InputSourceController())),
                  recorderStore: KeyShortcutRecorderStore(),
-                 shortcutStore: ShortcutStore.shared)
+                 shortcutStore: ShortcutStore(.init()))
   }
   static var groupStore: GroupStore { contentStore.groupStore }
   static func autoCompletionStore(_ completions: [String],

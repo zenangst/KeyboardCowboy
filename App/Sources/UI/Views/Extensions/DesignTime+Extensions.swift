@@ -15,7 +15,7 @@ extension View {
       .environmentObject(DesignTime.commandsPublisher)
       .environmentObject(KeyShortcutRecorderStore())
       .environmentObject(ApplicationStore.shared)
-      .environmentObject(ShortcutStore.shared)
+      .environmentObject(ShortcutStore(ScriptCommandRunner()))
       .defaultStyle()
   }
 }

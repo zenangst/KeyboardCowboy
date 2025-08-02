@@ -100,7 +100,7 @@ final class Core {
     workspace: .shared)
   lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
   lazy private(set) var recorderStore = KeyShortcutRecorderStore()
-  lazy private(set) var shortcutStore = ShortcutStore.shared
+  lazy private(set) var shortcutStore = ShortcutStore(scriptCommandRunner)
   lazy private(set) var commandLine = CommandLineCoordinator.shared
   lazy private(set) var applicationActivityMonitor = ApplicationActivityMonitor<UserSpace.Application>()
   lazy private(set) var applicationWindowObserver = ApplicationWindowObserver()
