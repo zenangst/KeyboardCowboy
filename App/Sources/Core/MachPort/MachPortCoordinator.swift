@@ -8,7 +8,7 @@ import KeyCodes
 import os
 
 @MainActor
-final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKeyCoordinatorDelegate {
+final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldCoordinatorDelegate {
   @Published private(set) var lastEventOrRebinding: CGEvent?
   @Published private(set) var event: MachPortEvent?
   @MainActor @Published private(set) var coordinatorEvent: CGEvent?
@@ -19,12 +19,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
   @MainActor var machPort: MachPortEventController? {
     didSet {
       keyboardCommandRunner.machPort = machPort
-      leaderKeyCoordinator.machPort = machPort
+      tapHeldCoordinator.machPort = machPort
     }
   }
 
   private var keyboardCowboyModeSubscription: AnyCancellable?
-  private var leaderState: LeaderKeyCoordinator.State?
+  private var tapHeldState: TapHeldCoordinator.State?
   private var previousPartialMatch: PartialMatch = .default()
   private var previousExactMatch: Workflow?
   private var repeatingKeyCode: Int64 = -1
@@ -40,20 +40,21 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
   private let shortcutResolver: ShortcutResolver
   private let macroCoordinator: MacroCoordinator
   private let notifications: MachPortUINotifications
-  private let leaderKeyCoordinator: LeaderKeyCoordinator
+  private let tapHeldCoordinator: TapHeldCoordinator
   private let recordValidator: MachPortRecordValidator
   private let store: KeyCodesStore
   private let workflowRunner: WorkflowRunner
 
   internal init(store: KeyCodesStore,
-                leaderKeyCoordinator: LeaderKeyCoordinator,
                 keyboardCleaner: KeyboardCleaner,
                 keyboardCommandRunner: KeyboardCommandRunner,
-                shortcutResolver: ShortcutResolver,
                 macroCoordinator: MacroCoordinator,
                 mode: KeyboardCowboyMode,
                 notifications: MachPortUINotifications,
-                workflowRunner: WorkflowRunner) {
+                shortcutResolver: ShortcutResolver,
+                tapHeldCoordinator: TapHeldCoordinator,
+                workflowRunner: WorkflowRunner,
+  ) {
     self.keyboardCleaner = keyboardCleaner
     self.macroCoordinator = macroCoordinator
     self.store = store
@@ -64,8 +65,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     self.specialKeys = Array(store.specialKeys().keys)
     self.workflowRunner = workflowRunner
     self.recordValidator = MachPortRecordValidator(store: store)
-    self.leaderKeyCoordinator = leaderKeyCoordinator
-    self.leaderKeyCoordinator.delegate = self
+    self.tapHeldCoordinator = tapHeldCoordinator
+    self.tapHeldCoordinator.delegate = self
   }
 
   func captureUIElement() {
@@ -249,7 +250,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       }
 
       lastEventOrRebinding = machPortEvent.event
-      leaderState = nil
+      tapHeldState = nil
       previousPartialMatch = PartialMatch.default()
     case .partialMatch(let partialMatch):
       lastEventOrRebinding = machPortEvent.event
@@ -258,12 +259,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     case .exact(let workflow):
       previousExactMatch = workflow
 
-      if case .event(let kind, _) = leaderState {
+      if case .event(let kind, _) = tapHeldState {
         switch kind {
-        case .leader:
+        case .held:
           break
-        case .fallback:
-          leaderState = nil
+        case .tap:
+          tapHeldState = nil
           previousPartialMatch = PartialMatch.default()
           intercept(machPortEvent, tryGlobals: true, runningMacro: false)
           return
@@ -290,7 +291,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
                               kind: .event(machPortEvent),
                               machPortEvent: machPortEvent)
-    } else if leaderKeyCoordinator.handlePartialMatchIfApplicable(partialMatch, machPortEvent: machPortEvent) {
+    } else if tapHeldCoordinator.handlePartialMatchIfApplicable(partialMatch, machPortEvent: machPortEvent) {
       previousPartialMatch = partialMatch
       repeatingMatch = nil
       machPortEvent.result = nil
@@ -429,8 +430,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       if previousPartialMatch.rawValue != PartialMatch.default().rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
         machPortEvent.result = nil
         reset()
-        leaderState = nil
-        leaderKeyCoordinator.reset()
+        tapHeldState = nil
+        tapHeldCoordinator.reset()
         return true
       }
     }
@@ -455,9 +456,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
         self.previousExactMatch = nil
         machPortEvent.result = nil
       }
-    } else if case .event(let kind, _) = leaderState,
-              kind == .fallback {
-      leaderState = nil
+    } else if case .event(let kind, _) = tapHeldState,
+              kind == .tap {
+      tapHeldState = nil
       previousPartialMatch = .default()
     } else if handleSingleKeyRebinding(previousExactMatch, machPortEvent: machPortEvent) {
       self.previousExactMatch = nil
@@ -505,7 +506,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     } else if previousExactMatch != nil, machPortEvent.isRepeat {
       machPortEvent.result = nil
       return true
-    } else if leaderKeyCoordinator.isLeader(machPortEvent) {
+    } else if tapHeldCoordinator.isLeader(machPortEvent) {
       machPortEvent.result = nil
       return machPortEvent.isRepeat
     } else {
@@ -541,10 +542,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     self.repeatExecution = repeatExecution
   }
 
-  // MARK: LeaderKeyCoordinatorDelegate
+  // MARK: TapHeldCoordinatorDelegate
 
-  func changedState(_ state: LeaderKeyCoordinator.State?) {
-    leaderState = state
+  func changedState(_ state: TapHeldCoordinator.State?) {
+    tapHeldState = state
   }
 
   func didResignLeader() {

@@ -12,7 +12,7 @@ final class KeyboardCowboyEngine {
   private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
   private let commandRunner: CommandRunner
   private let contentStore: ContentStore
-  private let leaderKey: LeaderKeyCoordinator
+  private let tapHeld: TapHeldCoordinator
   private let keyCodeStore: KeyCodesStore
   private let machPortCoordinator: MachPortCoordinator
   private let modifierTriggerController: ModifierTriggerController
@@ -33,7 +33,7 @@ final class KeyboardCowboyEngine {
        applicationTriggerController: ApplicationTriggerController,
        applicationWindowObserver: ApplicationWindowObserver,
        commandRunner: CommandRunner,
-       leaderKey: LeaderKeyCoordinator,
+       tapHeld: TapHeldCoordinator,
        keyboardCommandRunner: KeyboardCommandRunner,
        keyCodeStore: KeyCodesStore,
        machPortCoordinator: MachPortCoordinator,
@@ -46,7 +46,7 @@ final class KeyboardCowboyEngine {
        workspace: NSWorkspace = .shared) {
     self.applicationActivityMonitor = applicationActivityMonitor
     self.contentStore = contentStore
-    self.leaderKey = leaderKey
+    self.tapHeld = tapHeld
     self.keyCodeStore = keyCodeStore
     self.commandRunner = commandRunner
     self.machPortCoordinator = machPortCoordinator
@@ -88,7 +88,7 @@ final class KeyboardCowboyEngine {
         eventsOfInterest: keyboardEvents,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
-        onFlagsChanged: { [machPortCoordinator, leaderKey] in
+        onFlagsChanged: { [machPortCoordinator, tapHeld] in
 //          let allowsEscapeFallback: Bool
 //          if machPortCoordinator.mode == .intercept ||
 //             machPortCoordinator.mode == .recordMacro {
@@ -97,11 +97,11 @@ final class KeyboardCowboyEngine {
 //            allowsEscapeFallback = true
 //          }
 
-          _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
+          _ = tapHeld.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
           machPortCoordinator.receiveFlagsChanged($0, allowsEscapeFallback: true)
           keyCache.handle($0.event)
         },
-        onEventChange: { [machPortCoordinator, leaderKey] in
+        onEventChange: { [machPortCoordinator, tapHeld] in
 //          let allowsEscapeFallback: Bool
 //          if machPortCoordinator.mode == .intercept ||
 //             machPortCoordinator.mode == .recordMacro {
@@ -110,7 +110,7 @@ final class KeyboardCowboyEngine {
 //            allowsEscapeFallback = false
 //          }
 
-          _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
+          _ = tapHeld.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
 
           if $0.event.type == .flagsChanged {
             if $0.isRepeat { return }
@@ -122,7 +122,7 @@ final class KeyboardCowboyEngine {
           keyCache.handle($0.event)
 
           if !$0.isRepeat && keyCache.noKeysPressed() {
-            leaderKey.reset()
+            tapHeld.reset()
           }
         })
       commandRunner.eventSource = newMachPortController.eventSource
