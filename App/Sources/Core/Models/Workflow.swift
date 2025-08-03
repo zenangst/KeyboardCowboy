@@ -223,6 +223,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     let keyboardShortcutsTriggerCount: Int?
     let isEmpty: Bool
     let isPassthrough: Bool
+    let isLeaderKey: Bool
     let isValidForRepeat: Bool
     let rebinding: KeyShortcut?
     let scheduleDuration: Double?
@@ -243,6 +244,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         self.keyboardShortcutsTriggerCount = trigger.shortcuts.count
         self.allowRepeat = trigger.allowRepeat
         self.keepLastPartialMatch = trigger.keepLastPartialMatch
+        self.isLeaderKey = trigger.leaderKey
 
         if let holdDuration = trigger.holdDuration, trigger.shortcuts.count == 1, holdDuration > 0 {
           self.scheduleDuration = holdDuration
@@ -250,6 +252,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
           self.scheduleDuration = nil
         }
       } else {
+        self.isLeaderKey = false
         self.allowRepeat = true
         self.keepLastPartialMatch = false
         self.keyboardShortcutsTriggerCount = nil

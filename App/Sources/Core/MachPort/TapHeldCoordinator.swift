@@ -4,8 +4,8 @@ import MachPort
 
 @MainActor
 protocol TapHeldCoordinatorDelegate: AnyObject {
-  func changedState(_ state: TapHeldCoordinator.State?)
-  func didResignLeader()
+  func tapHeldChangedState(_ state: TapHeldCoordinator.State?)
+  func tapHeldDidResign()
 }
 
 @MainActor
@@ -19,21 +19,25 @@ final class TapHeldCoordinator: @unchecked Sendable {
 
     enum Kind: Equatable {
       case tap
+      case leader
       case held
     }
   }
 
   private let defaultPartialMatch: PartialMatch
   private var workItem: DispatchWorkItem?
+  private var leaderItem: DispatchWorkItem?
   private(set) var state: State = .idle {
     willSet {
       if case .idle = newValue,
          case .event(let kind, _) = state,
          kind == .held {
-        delegate?.didResignLeader()
+        delegate?.tapHeldDidResign()
       }
     }
   }
+  private var lastKeyDownTime: Double
+  private var leaderIsActive: Bool = false
   private var lastEventTime: Double
   private var switchedEvents: [Int64: Int64] = [Int64: Int64]()
 
@@ -47,6 +51,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
   init(defaultPartialMatch: PartialMatch = .default()) {
     self.state = .idle
     self.defaultPartialMatch = defaultPartialMatch
+    self.lastKeyDownTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
     self.lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
  }
 
@@ -64,12 +69,16 @@ final class TapHeldCoordinator: @unchecked Sendable {
   func handlePartialMatchIfApplicable(_ partialMatch: PartialMatch?, machPortEvent: MachPortEvent) -> Bool {
     workItem?.cancel()
 
+    if machPortEvent.event.type == .keyDown {
+      lastKeyDownTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+    }
+
     switch state {
     case .idle:
       return handleIdle(partialMatch, machPortEvent: machPortEvent)
     case .event(let kind, let holdDuration):
       guard let leaderEvent else {
-        delegate?.changedState(nil)
+        delegate?.tapHeldChangedState(nil)
         reset()
         return false
       }
@@ -97,29 +106,68 @@ final class TapHeldCoordinator: @unchecked Sendable {
   // MARK: Private methods
 
   private func handleIdle(_ partialMatch: PartialMatch?, machPortEvent: MachPortEvent) -> Bool {
-    guard machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged,
-          let partialMatch, let (_, holdDuration) = condition(partialMatch) else {
+    leaderItem?.cancel()
+    if machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged,
+       let partialMatch, let workflow = partialMatch.workflow {
+      if let (_, holdDuration) = condition(partialMatch) {
+        self.leaderEvent = machPortEvent
+        state = .event(.tap, holdDuration: holdDuration)
+        handleKeyDown(.tap, newEvent: machPortEvent,
+                      leaderEvent: machPortEvent,
+                      holdDuration: holdDuration)
+        machPortEvent.result = nil
+        return true
+      } else if workflow.machPortConditions.isLeaderKey {
+        let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+        let elapsedTime = currentTimestamp - lastKeyDownTime
+
+        lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+
+        // Handle rapid succession.
+        if elapsedTime < 0.006 {
+          if let keyCode = switchedEvents[machPortEvent.keyCode] {
+            machPortEvent.set(keyCode, type: .keyDown)
+            postKeyDownAndUp(machPortEvent)
+            switchedEvents[machPortEvent.keyCode] = nil
+          } else {
+            // Ignore the previous event and set up a new one to maintain consistency.
+            machPortEvent.result = nil
+            postKeyDownAndUp(machPortEvent)
+          }
+          delegate?.tapHeldDidResign()
+          return false
+        }
+
+        self.leaderEvent = machPortEvent
+        state = .event(.leader, holdDuration: 0)
+        leaderIsActive = true
+        machPortEvent.result = nil
+
+        leaderItem = startTimer(delay: 250) { [weak self] in
+          guard let self else { return }
+          state = .idle
+        }
+
+        return true
+      } else {
+        return false
+      }
+    } else {
       if !machPortEvent.isRepeat {
         state = .idle
         leaderEvent = nil
       }
       return false
     }
-
-    self.leaderEvent = machPortEvent
-    state = .event(.tap, holdDuration: holdDuration)
-    handleKeyDown(.tap, newEvent: machPortEvent,
-                  leaderEvent: machPortEvent,
-                  holdDuration: holdDuration)
-    machPortEvent.result = nil
-    return true
   }
 
   private func handleKeyDown(_ kind: State.Kind,
                              newEvent: MachPortEvent,
                              leaderEvent: MachPortEvent,
                              holdDuration: Double) {
-    guard !newEvent.isRepeat else { return }
+    guard !newEvent.isRepeat else {
+      return
+    }
 
     // Opt-out if the leader key is interrupted by a flags change.
     if leaderEvent.flags.rawValue != newEvent.flags.rawValue,
@@ -127,6 +175,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
        kind == .tap {
       self.state = .idle
       newEvent.result = nil
+      leaderIsActive = false
       resetTime()
       return
     }
@@ -138,7 +187,8 @@ final class TapHeldCoordinator: @unchecked Sendable {
         newEvent.set(leaderEvent.keyCode, type: .keyUp)
         newEvent.result = nil
         workItem?.cancel()
-        delegate?.didResignLeader()
+        delegate?.tapHeldDidResign()
+        leaderIsActive = false
       }
       return
     }
@@ -148,12 +198,14 @@ final class TapHeldCoordinator: @unchecked Sendable {
     let delay = Int((holdDuration * 1.15) * 1_000)
     workItem?.cancel()
     workItem = startTimer(delay: delay) { [weak self] in
-      guard self != nil else { return }
+      guard let self else { return }
       let newState = State.event(.held, holdDuration: holdDuration)
-      self?.state = newState
-      self?.delegate?.changedState(newState)
+      state = newState
+      delegate?.tapHeldChangedState(newState)
+      leaderIsActive = false
     }
 
+    leaderIsActive = false
     newEvent.result = nil
   }
 
@@ -173,8 +225,26 @@ final class TapHeldCoordinator: @unchecked Sendable {
           newEvent.result = nil
           postKeyDownAndUp(newEvent)
         }
-        delegate?.changedState(state)
+        delegate?.tapHeldChangedState(state)
         self.reset()
+      case .leader:
+        guard leaderIsActive else {
+          return
+        }
+
+        leaderItem = startTimer(delay: 150, completion: { [weak self] in
+          guard let self else { return }
+          if let keyCode = switchedEvents[leaderEvent.keyCode] {
+            newEvent.set(keyCode, type: .keyDown)
+            postKeyDownAndUp(newEvent)
+            switchedEvents[leaderEvent.keyCode] = nil
+          } else {
+            // Ignore the previous event and set up a new one to maintain consistency.
+            newEvent.result = nil
+            postKeyDownAndUp(newEvent)
+          }
+          delegate?.tapHeldDidResign()
+        })
       case .held:
         let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
@@ -185,7 +255,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
         }
 
         reset()
-        delegate?.changedState(nil)
+        delegate?.tapHeldChangedState(nil)
       }
     }
   }
@@ -202,6 +272,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
   }
 
   func reset() {
+    self.leaderIsActive = false
     self.state = .idle
     self.workItem?.cancel()
     self.workItem = nil
