@@ -96,6 +96,7 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
   struct KeyboardTrigger: Codable, Hashable, Equatable {
     var allowRepeat: Bool
     var keepLastPartialMatch: Bool
+    var leaderKey: Bool
     var passthrough: Bool
     var holdDuration: Double?
     var shortcuts: [KeyShortcut]

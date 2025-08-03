@@ -11,8 +11,8 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
 
   init(allowRepeat: Bool = true,
        keepLastPartialMatch: Bool = false,
-       passthrough: Bool = false,
        leaderKey: Bool = false,
+       passthrough: Bool = false,
        holdDuration: Double? = nil,
        shortcuts: [KeyShortcut]) {
     self.allowRepeat = allowRepeat
@@ -27,8 +27,8 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
     KeyboardShortcutTrigger(
       allowRepeat: allowRepeat,
       keepLastPartialMatch: keepLastPartialMatch,
-      passthrough: passthrough,
       leaderKey: leaderKey,
+      passthrough: passthrough,
       holdDuration: holdDuration,
       shortcuts: shortcuts.map { $0.copy() })
   }
@@ -40,6 +40,7 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
     self.keepLastPartialMatch = try container.decodeIfPresent(Bool.self, forKey: .keepLastPartialMatch) ?? false
     self.holdDuration = try container.decodeIfPresent(Double.self, forKey: .holdDuration)
     self.shortcuts = try container.decode([KeyShortcut].self, forKey: .shortcuts)
+    self.leaderKey = try container.decodeIfPresent(Bool.self, forKey: .leaderKey) ?? false
   }
 
   enum CodingKeys: CodingKey {
@@ -48,6 +49,7 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
     case holdDuration
     case shortcuts
     case keepLastPartialMatch
+    case leaderKey
   }
 
   func encode(to encoder: any Encoder) throws {
@@ -62,6 +64,10 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
 
     if keepLastPartialMatch == true {
       try container.encode(self.keepLastPartialMatch, forKey: .keepLastPartialMatch)
+    }
+
+    if leaderKey == true {
+      try container.encode(self.leaderKey, forKey: .leaderKey)
     }
 
     try container.encodeIfPresent(self.holdDuration, forKey: .holdDuration)

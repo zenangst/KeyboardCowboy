@@ -91,16 +91,17 @@ final class Core {
     applicationTriggerController: applicationTriggerController,
     applicationWindowObserver: applicationWindowObserver,
     commandRunner: commandRunner,
-    tapHeld: tapHeldCoordinator,
-    keyboardCommandRunner: keyboardCommandRunner,
     keyCodeStore: keyCodeStore,
+    keyboardCommandRunner: keyboardCommandRunner,
     machPortCoordinator: machPortCoordinator,
     modifierTriggerController: modifierTriggerController,
     scriptCommandRunner: scriptCommandRunner,
     shortcutStore: shortcutStore,
     snippetController: snippetController,
+    tapHeld: tapHeldCoordinator,
     uiElementCaptureStore: uiElementCaptureStore,
-    workspace: .shared)
+    workspace: .shared,
+  )
   lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
   lazy private(set) var recorderStore = KeyShortcutRecorderStore()
   lazy private(set) var shortcutStore = ShortcutStore(scriptCommandRunner)

@@ -33,32 +33,33 @@ final class KeyboardCowboyEngine {
        applicationTriggerController: ApplicationTriggerController,
        applicationWindowObserver: ApplicationWindowObserver,
        commandRunner: CommandRunner,
-       tapHeld: TapHeldCoordinator,
-       keyboardCommandRunner: KeyboardCommandRunner,
        keyCodeStore: KeyCodesStore,
+       keyboardCommandRunner: KeyboardCommandRunner,
        machPortCoordinator: MachPortCoordinator,
        modifierTriggerController: ModifierTriggerController,
        notificationCenter: NotificationCenter = .default,
        scriptCommandRunner: ScriptCommandRunner,
        shortcutStore: ShortcutStore,
        snippetController: SnippetController,
+       tapHeld: TapHeldCoordinator,
        uiElementCaptureStore: UIElementCaptureStore,
-       workspace: NSWorkspace = .shared) {
+       workspace: NSWorkspace = .shared,
+  ) {
     self.applicationActivityMonitor = applicationActivityMonitor
-    self.contentStore = contentStore
-    self.tapHeld = tapHeld
-    self.keyCodeStore = keyCodeStore
-    self.commandRunner = commandRunner
-    self.machPortCoordinator = machPortCoordinator
-    self.modifierTriggerController = modifierTriggerController
-    self.shortcutStore = shortcutStore
-    self.uiElementCaptureStore = uiElementCaptureStore
     self.applicationTriggerController = applicationTriggerController
     self.applicationWindowObserver = applicationWindowObserver
+    self.commandRunner = commandRunner
+    self.contentStore = contentStore
+    self.keyCodeStore = keyCodeStore
+    self.machPortCoordinator = machPortCoordinator
+    self.modifierTriggerController = modifierTriggerController
+    self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
+    self.shortcutStore = shortcutStore
     self.snippetController = snippetController
+    self.tapHeld = tapHeld
+    self.uiElementCaptureStore = uiElementCaptureStore
     self.workspace = workspace
     self.workspacePublisher = WorkspacePublisher(workspace)
-    self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
 
     guard KeyboardCowboyApp.env() != .previews else { return }
 

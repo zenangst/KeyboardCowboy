@@ -42,7 +42,7 @@ enum DesignTime {
 
   static let groupPublisher = GroupPublisher(GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", bundleIdentifiers: [], userModes: [], count: 10))
   static let infoPublisher: InfoPublisher = .init(.init(id: "empty", name: "", isEnabled: false))
-  static let triggerPublisher: TriggerPublisher = .init(.keyboardShortcuts(.init(allowRepeat: true, keepLastPartialMatch: false, passthrough: false, holdDuration: nil, shortcuts: [
+  static let triggerPublisher: TriggerPublisher = .init(.keyboardShortcuts(.init(allowRepeat: true, keepLastPartialMatch: false, leaderKey: false, passthrough: false, holdDuration: nil, shortcuts: [
     .init(key: "a", modifiers: [.leftCommand])
   ])))
   static let commandsPublisher: CommandsPublisher = .init(.init(id: "empty", commands: [
@@ -296,6 +296,7 @@ enum DesignTime {
         .init(
           allowRepeat: true,
           keepLastPartialMatch: false,
+          leaderKey: false,
           passthrough: false,
           shortcuts: [.init(
             key: "f",

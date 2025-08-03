@@ -75,16 +75,19 @@ extension KeyboardCowboyConfiguration {
   }
 
   private mutating func updateHoldForOnMatchingSequences(_ newWorkflow: Workflow, groupIndex: Int) {
-    if case .keyboardShortcuts(let trigger) = newWorkflow.trigger,
-       let holdDuration = trigger.holdDuration,
-       trigger.shortcuts.count > 1,
-       let targetShortcut = trigger.shortcuts.first {
+    if case .keyboardShortcuts(let newTrigger) = newWorkflow.trigger,
+       let holdDuration = newTrigger.holdDuration,
+       holdDuration > 0,
+       newTrigger.shortcuts.count > 1,
+       let targetShortcut = newTrigger.shortcuts.first {
 
       for (index, workflow) in groups[groupIndex].workflows.enumerated() where workflow.id != newWorkflow.id {
 
         guard case .keyboardShortcuts(var trigger) = workflow.trigger,
+              !workflow.machPortConditions.isLeaderKey,
               let firstShortcut = trigger.shortcuts.first,
-              firstShortcut.key == targetShortcut.key else { continue }
+              firstShortcut.key == targetShortcut.key,
+              !newTrigger.leaderKey else { continue }
 
         var workflow = workflow
         trigger.holdDuration = holdDuration

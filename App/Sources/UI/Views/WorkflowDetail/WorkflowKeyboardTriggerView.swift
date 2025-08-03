@@ -12,6 +12,7 @@ struct WorkflowKeyboardTriggerView: View {
   @State private var allowRepeat: Bool
   @State private var keepLastPartialMatch: Bool
   @State private var passthrough: Bool
+  @State private var leaderKey: Bool
   @State private var trigger: DetailViewModel.KeyboardTrigger
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let namespace: Namespace.ID
@@ -36,6 +37,7 @@ struct WorkflowKeyboardTriggerView: View {
     _keepLastPartialMatch = .init(initialValue: trigger.keepLastPartialMatch)
     _passthrough = .init(initialValue: trigger.passthrough)
     _allowRepeat = .init(initialValue: trigger.allowRepeat)
+    _leaderKey = .init(initialValue: trigger.leaderKey)
 
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
   }
@@ -48,6 +50,7 @@ struct WorkflowKeyboardTriggerView: View {
             KeyboardShortcutTrigger(
               allowRepeat: allowRepeat,
               keepLastPartialMatch: keepLastPartialMatch,
+              leaderKey: leaderKey,
               passthrough: passthrough,
               holdDuration: holdForDuration == 0 ? nil : holdForDuration,
               shortcuts: keyboardShortcuts))
@@ -62,6 +65,7 @@ struct WorkflowKeyboardTriggerView: View {
                 KeyboardShortcutTrigger(
                   allowRepeat: newValue,
                   keepLastPartialMatch: keepLastPartialMatch,
+                  leaderKey: leaderKey,
                   passthrough: passthrough,
                   holdDuration: holdForDuration == 0 ? nil : holdForDuration,
                   shortcuts: trigger.shortcuts))
@@ -77,6 +81,7 @@ struct WorkflowKeyboardTriggerView: View {
               KeyboardShortcutTrigger(
                 allowRepeat: allowRepeat,
                 keepLastPartialMatch: newValue,
+                leaderKey: leaderKey,
                 passthrough: passthrough,
                 holdDuration: holdForDuration == 0 ? nil : holdForDuration,
                 shortcuts: trigger.shortcuts))
@@ -90,8 +95,23 @@ struct WorkflowKeyboardTriggerView: View {
                 KeyboardShortcutTrigger(
                   allowRepeat: allowRepeat,
                   keepLastPartialMatch: keepLastPartialMatch,
+                  leaderKey: leaderKey,
                   passthrough: newValue,
                   holdDuration: holdForDuration == 0 ? nil : holdForDuration,
+                  shortcuts: trigger.shortcuts))
+            }
+          })
+
+        Toggle(isOn: $leaderKey, label: { Text("Leader Key") })
+          .onChange(of: leaderKey, perform: { newValue in
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.trigger = .keyboardShortcuts(
+                KeyboardShortcutTrigger(
+                  allowRepeat: allowRepeat,
+                  keepLastPartialMatch: keepLastPartialMatch,
+                  leaderKey: newValue,
+                  passthrough: passthrough,
+                  holdDuration: newValue ? nil : holdForDuration,
                   shortcuts: trigger.shortcuts))
             }
           })
@@ -117,6 +137,7 @@ struct WorkflowKeyboardTriggerView: View {
                 KeyboardShortcutTrigger(
                   allowRepeat: allowRepeat,
                   keepLastPartialMatch: keepLastPartialMatch,
+                  leaderKey: leaderKey,
                   passthrough: passthrough,
                   holdDuration: newValue == 0 ? nil : newValue,
                   shortcuts: trigger.shortcuts))
@@ -133,7 +154,7 @@ struct WorkflowKeyboardTriggerView: View {
     }
     .onChange(of: publisher.data, perform: { newValue in
       guard case .keyboardShortcuts(let trigger) = newValue,
-         trigger != self.trigger else { return }
+            trigger != self.trigger else { return }
 
       self.trigger = trigger
 
@@ -141,6 +162,7 @@ struct WorkflowKeyboardTriggerView: View {
       keepLastPartialMatch = trigger.keepLastPartialMatch
       passthrough = trigger.passthrough
       allowRepeat = trigger.allowRepeat
+      leaderKey = trigger.leaderKey
     })
     .textStyle { text in
       text.font = .caption
@@ -163,6 +185,7 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
       trigger: DetailViewModel.KeyboardTrigger(
         allowRepeat: true,
         keepLastPartialMatch: false,
+        leaderKey: false,
         passthrough: false,
         shortcuts: [
           .empty()

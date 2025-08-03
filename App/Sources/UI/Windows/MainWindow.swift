@@ -34,8 +34,8 @@ final class MainWindow: NSObject, NSWindowDelegate {
     ]
 
     let window = ZenSwiftUIWindow(styleMask: styleMask, content: content)
-    window.titlebarAppearsTransparent = true
-    window.titleVisibility = .visible
+    window.titlebarAppearsTransparent = false
+    window.titleVisibility = .hidden
     window.identifier = .init(rawValue: KeyboardCowboyApp.mainWindowIdentifier)
     window.delegate = self
     if let frameDescriptor = UserDefaults.standard.string(forKey: "MainWindowFrame") {
