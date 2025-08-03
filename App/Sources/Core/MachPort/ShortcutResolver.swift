@@ -247,7 +247,11 @@ final class ShortcutResolver {
                 }
                 newCache[key] = .exact(workflow)
               } else {
-                newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
+                if case .partialMatch(let match) = newCache[key],
+                   let workflow = match.workflow, workflow.machPortConditions.isLeaderKey  {
+                } else {
+                  newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
+                }
               }
             } else {
               // Only set the previous key once per iteration, otherwise
@@ -282,7 +286,11 @@ final class ShortcutResolver {
                   }
                   newCache[key] = .exact(workflow)
                 } else {
-                  newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
+                  if case .partialMatch(let match) = newCache[key],
+                     let workflow = match.workflow, workflow.machPortConditions.isLeaderKey  {
+                  } else {
+                    newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
+                  }
                 }
               }
             }
