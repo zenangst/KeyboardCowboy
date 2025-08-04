@@ -126,7 +126,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
         lastEventTime = currentTimestamp
 
         // Handle rapid succession.
-        if elapsedTime < 120 || machPortEvent.isRepeat {
+        if elapsedTime < 300 || machPortEvent.isRepeat {
           leaderItem?.cancel()
           delegate?.tapHeldChangedState(nil)
           delegate?.tapHeldDidResign()
@@ -140,7 +140,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
             postKeyDownAndUp(machPortEvent)
           }
 
-          leaderItem = startTimer(delay: 10, completion: { [weak self] in
+          leaderItem = startTimer(delay: 1, completion: { [weak self] in
             guard let self else { return }
             delegate?.tapHeldChangedState(nil)
             delegate?.tapHeldDidResign()
