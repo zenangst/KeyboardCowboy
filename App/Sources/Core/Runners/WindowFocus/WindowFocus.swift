@@ -15,13 +15,19 @@ enum WindowFocus {
       if .moveFocusToNextWindowFront == kind || .moveFocusToPreviousWindowFront == kind {
         newCollection = snapshot.visibleWindowsInSpace
           .filter { $0.ownerPid.rawValue == UserSpace.shared.frontmostApplication.ref.processIdentifier }
+
+        if newCollection.isEmpty {
+          CustomSystemRoutine(rawValue: UserSpace.shared.frontmostApplication.bundleIdentifier)?
+            .routine(UserSpace.shared.frontmostApplication)
+            .run(kind)
+        }
       } else if kind == .moveFocusToNextWindow || kind == .moveFocusToPreviousWindow {
         newCollection = snapshot.visibleWindowsInStage
       } else {
         newCollection = kind == .moveFocusToNextWindowGlobal ||
           kind == .moveFocusToPreviousWindowGlobal
           ? snapshot.visibleWindowsInSpace
-          : snapshot.visibleWindowsInStage 
+          : snapshot.visibleWindowsInStage
    }
 
    if !Self.windowSnapshot.isEqual(to: newCollection) {
