@@ -16,9 +16,25 @@ enum WindowFocus {
                         ? snapshot.visibleWindowsInSpace
                         : snapshot.visibleWindowsInStage
 
-    if !Self.windowSnapshot.isEqual(to: newCollection) {
-      Self.windowSnapshot = newCollection
-    }
+   if !Self.windowSnapshot.isEqual(to: newCollection) {
+
+     for window in Self.windowSnapshot {
+       if !newCollection.contains(where: { $0.id == window.id }) {
+         // If the window is no longer in the new collection, we need to remove it from
+         // the snapshot to avoid stale references.
+         if let index = Self.windowSnapshot.firstIndex(where: { $0.id == window.id }) {
+           Self.windowSnapshot.remove(at: index)
+         }
+       }
+     }
+
+     for newWindow in newCollection {
+       if !Self.windowSnapshot.contains(where: { $0.id == newWindow.id }) {
+         // If the new window is not in the snapshot, we add it.
+         Self.windowSnapshot.append(newWindow)
+       }
+     }
+   }
 
     let collection: [WindowModel] = Self.windowSnapshot
     let collectionCount = collection.count
