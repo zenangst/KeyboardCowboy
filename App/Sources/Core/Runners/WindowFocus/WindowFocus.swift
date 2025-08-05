@@ -11,10 +11,18 @@ enum WindowFocus {
   static func run(_ visibleMostIndex: inout Int, kind: WindowFocusCommand.Kind,
                   snapshot: WindowStoreSnapshot, applicationStore: ApplicationStore,
                   workspace: WorkspaceProviding) throws {
-    let newCollection = kind == .moveFocusToNextWindowGlobal ||
-                        kind == .moveFocusToPreviousWindowGlobal
-                        ? snapshot.visibleWindowsInSpace
-                        : snapshot.visibleWindowsInStage
+    let newCollection: [WindowModel]
+      if .moveFocusToNextWindowFront == kind || .moveFocusToPreviousWindowFront == kind {
+        newCollection = snapshot.visibleWindowsInSpace
+          .filter { $0.ownerPid.rawValue == UserSpace.shared.frontmostApplication.ref.processIdentifier }
+      } else if kind == .moveFocusToNextWindow || kind == .moveFocusToPreviousWindow {
+        newCollection = snapshot.visibleWindowsInStage
+      } else {
+        newCollection = kind == .moveFocusToNextWindowGlobal ||
+          kind == .moveFocusToPreviousWindowGlobal
+          ? snapshot.visibleWindowsInSpace
+          : snapshot.visibleWindowsInStage 
+   }
 
    if !Self.windowSnapshot.isEqual(to: newCollection) {
 

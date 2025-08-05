@@ -61,7 +61,8 @@ final class WindowCommandFocusRunner {
     case .moveFocusToNextWindowCenter:
       try await centerFocus.run(snapshot: snapshot)
     case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
-        .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:
+        .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal,
+        .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
       try WindowFocus.run(
         &visibleMostIndex,
         kind: command.kind,
@@ -69,8 +70,6 @@ final class WindowCommandFocusRunner {
         applicationStore: applicationStore,
         workspace: workspace
       )
-    case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
-      WindowFocusFrontmostWindow.run(kind: command.kind, snapshot: snapshot)
     }
   }
 }
