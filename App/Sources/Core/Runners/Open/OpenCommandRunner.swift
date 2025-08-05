@@ -33,6 +33,9 @@ final class OpenCommandRunner {
         if let application, application.bundleIdentifier.hasPrefix("com.apple.Safari.WebApp") {
           try await plugins.webApp.execute(path, application: application, checkCancellation: checkCancellation)
           return
+        } else if let application, application.bundleIdentifier.hasPrefix("com.kagi.kagimacOS.WebApp") {
+          try await plugins.webApp.execute(path, application: application, checkCancellation: checkCancellation)
+          return
         } else {
           try await plugins.swapTab.execute(path,
                                             appName: application?.displayName ?? "Safari",

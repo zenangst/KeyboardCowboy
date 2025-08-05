@@ -34,7 +34,11 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
       .compactMap { application(at: $0) }
 
     if url.isWebURL {
-      let webApps = ApplicationStore.shared.applications.filter({ $0.bundleIdentifier.contains("com.apple.Safari.WebApp") })
+      let webApps = ApplicationStore.shared.applications.filter({ 
+        $0.bundleIdentifier.contains("com.apple.Safari.WebApp") ||
+        $0.bundleIdentifier.contains("com.kagi.kagimacOS.WebApp")
+        })
+
       applications.append(contentsOf: webApps)
     }
 
