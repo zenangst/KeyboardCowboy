@@ -81,7 +81,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   @MainActor
   func commands(_ applications: [Application], dynamicApps: [Application] = []) async throws -> [Command] {
     guard !UserSettings.WindowManager.stageManagerEnabled else {
-      return whenStageManagerIsActive(applications)
+      return whenStageManagerIsActive(applications, dynamicApps: dynamicApps)
     }
 
     let bundleIdentifiers = dynamicApps.map { $0.bundleIdentifier } + bundleIdentifiers
@@ -251,9 +251,15 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
   // MARK: Private methods
 
-  private func whenStageManagerIsActive(_ applications: [Application]) -> [Command] {
+  private func whenStageManagerIsActive(_ applications: [Application], dynamicApps: [Application]) -> [Command] {
     var commands: [Command] = []
     let runningApplications = NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier }
+
+    var bundleIdentifiers: [String] = self.bundleIdentifiers
+    for dynamicApp in dynamicApps {
+      bundleIdentifiers.append(dynamicApp.bundleIdentifier)
+    }
+
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         continue
