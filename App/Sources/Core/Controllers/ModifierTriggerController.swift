@@ -77,7 +77,6 @@ final class ModifierTriggerController: @unchecked Sendable {
     if NSUserName() == "christofferwinterkvist" {
       // MARK: Demo modifiers
 
-
       do {
         let variation: [CGEventFlags] = [
           [.maskNonCoalesced],
@@ -247,11 +246,11 @@ final class ModifierTriggerController: @unchecked Sendable {
           case .key(let key):
             coordinator
               .post(key)
-              .postMaskNonCoalesced()
+              .discardSystemEvent(on: machPortEvent)
 
             KeyViewer.instance.handleInput(key)
           case .modifiers:
-            coordinator.postMaskNonCoalesced()
+          break
           }
           machPortEvent.event.type = .flagsChanged
           machPortEvent.event.flags = .maskNonCoalesced
@@ -263,8 +262,6 @@ final class ModifierTriggerController: @unchecked Sendable {
         if machPortEvent.keyCode == currentTrigger.keyCode! {
           machPortEvent.event.type = .flagsChanged
           machPortEvent.event.flags = .maskNonCoalesced
-
-          coordinator.postMaskNonCoalesced()
 
           if hasDecoratedEvent {
             coordinator.discardSystemEvent(on: machPortEvent)
