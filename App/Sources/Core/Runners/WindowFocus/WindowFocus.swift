@@ -60,7 +60,7 @@ enum WindowFocus {
     let currentId = try? currentApplication.focusedWindow()?.id
 
     switch kind {
-    case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
+    case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal, .moveFocusToNextWindowFront:
       visibleMostIndex = (visibleMostIndex + 1) % collectionCount
     default:
       visibleMostIndex = (visibleMostIndex - 1 + collectionCount) % collectionCount
@@ -70,7 +70,7 @@ enum WindowFocus {
 
     if let currentId, currentId == window.id {
       switch kind {
-      case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
+      case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal, .moveFocusToNextWindowFront:
         visibleMostIndex = (visibleMostIndex - 1 + collectionCount) % collectionCount
       default:
         visibleMostIndex = (visibleMostIndex + 1) % collectionCount
