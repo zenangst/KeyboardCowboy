@@ -68,7 +68,6 @@ final class WindowStore: @unchecked Sendable {
         let pid = application.ref.processIdentifier
         state.appAccessibilityElement = AppAccessibilityElement(pid)
         state.frontmostApplication = application
-        state.frontmostIndex = 0
         self.index()
       }
   }
