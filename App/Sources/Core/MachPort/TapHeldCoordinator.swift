@@ -249,6 +249,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
           }
         })
       case .held:
+        leaderItem?.cancel()
         let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
         let threshold = CGFloat(Int(holdDuration * 1 * 1_000))
