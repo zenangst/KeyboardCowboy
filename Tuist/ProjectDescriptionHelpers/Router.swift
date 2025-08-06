@@ -5,6 +5,7 @@ public struct Router {
     .deletingLastPathComponent()
     .deletingLastPathComponent()
     .deletingLastPathComponent()
+    .deletingLastPathComponent()
     .absoluteString
     .replacingOccurrences(of: "file://", with: "")
   public static let assetPath = sourceRoot.appending("Assets")
