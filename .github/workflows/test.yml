@@ -35,6 +35,8 @@ jobs:
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
           brew tap tuist/tuist
           brew install --formula tuist
+          tuist clean
+          tuist install
           tuist generate
       - name: Run tests
         if: success()
