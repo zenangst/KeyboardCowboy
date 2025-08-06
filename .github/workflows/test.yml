@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@main
         with:
           persist-credentials: false
-      - name: Install & Run tuist
+      - name: Set up environment
         run: |
           touch .env
           echo -e "APP_NAME=Keyboard Cowboy" >> .env
@@ -33,8 +33,12 @@ jobs:
           echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
+      - name: Install dependencies
+        run: |
           brew tap tuist/tuist
           brew install --formula tuist
+      - name: Install & Run tuist
+        run: |
           tuist clean
           tuist install
           tuist generate
