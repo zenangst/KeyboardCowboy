@@ -28,6 +28,7 @@ jobs:
       - name: Set up environment
         run: |
            cp -n .env-example .env || true
+           chmod 644 .env
       - name: "Debug"
         run: |
            pwd
