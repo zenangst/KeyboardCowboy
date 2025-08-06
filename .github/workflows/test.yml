@@ -35,6 +35,7 @@ jobs:
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
       - name: "Debug"
         run: |
+           pwd
            ls -la
       - name: Install dependencies
         run: |
