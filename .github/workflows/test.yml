@@ -33,6 +33,8 @@ jobs:
           echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
+          chmod 600 .env
+          cat .env 
       - name: "Debug"
         run: |
            pwd
