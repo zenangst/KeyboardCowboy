@@ -2,6 +2,7 @@
 *.xcworkspace
 .DS_Store
 .env
+Build/
 Build/*.xcarchive
 Build/Releases/*
 Derived
