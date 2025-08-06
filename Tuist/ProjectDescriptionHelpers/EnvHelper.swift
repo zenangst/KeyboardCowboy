@@ -10,8 +10,7 @@ public struct EnvHelper: Sendable {
     let fileManager = FileManager.default
     var env = [String: String]()
 
-    if fileManager.fileExists(atPath: path) {
-      guard let data = fileManager.contents(atPath: path) else { fatalError("🌈 unable to read .env: \(path)") }
+    if fileManager.fileExists(atPath: path), let data = fileManager.contents(atPath: path) {
       guard let contents = String(data: data, encoding: .utf8) else { fatalError("🌈 Unable to read data at path: \(path)") }
 
       let lines = contents
