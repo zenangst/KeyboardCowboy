@@ -9,7 +9,7 @@ public struct EnvHelper: Sendable {
   public init(_ path: String) {
     let fileManager = FileManager.default
     guard fileManager.fileExists(atPath: path) else { fatalError("🌈 \(path) does not exist") }
-    guard let data = fileManager.contents(atPath: path) else { fatalError("🌈 .env files is missing at path: \(path)") }
+    guard let data = fileManager.contents(atPath: path) else { fatalError("🌈 unable to read .env: \(path)") }
     guard let contents = String(data: data, encoding: .utf8) else { fatalError("🌈 Unable to read data at path: \(path)") }
 
     var env = [String: String]()
