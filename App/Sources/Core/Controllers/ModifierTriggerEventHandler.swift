@@ -2,7 +2,7 @@ import Cocoa
 import MachPort
 
 final class ModifierTriggerMachPortCoordinator: Sendable {
-  nonisolated(unsafe) static fileprivate var debug: Bool = false
+  fileprivate nonisolated(unsafe) static var debug: Bool = false
   private let functionKeyRemap: [Int64: Int64] = [
     // Arrow Keys
     126: 116, // Up Arrow -> Page Up
@@ -11,16 +11,16 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
     123: 115, // Left Arrow -> Home
 
     // Enter/Return Key
-    36: 76,   // Return -> Keypad Enter
+    36: 76, // Return -> Keypad Enter
 
     // Function Keys (F1–F12)
     145: 122, // Brightness Down -> F1
     144: 120, // Brightness Up -> F2
-    160: 99,  // Mission Control -> F3
+    160: 99, // Mission Control -> F3
     131: 118, // Launchpad -> F4
-    153: 96,  // Keyboard Light ↓ -> F5
-    150: 97,  // Keyboard Light ↑ -> F6
-    114: 98,  // Previous Track -> F7
+    153: 96, // Keyboard Light ↓ -> F5
+    150: 97, // Keyboard Light ↑ -> F6
+    114: 98, // Previous Track -> F7
     176: 100, // Play/Pause -> F8
     115: 101, // Next Track -> F9
     113: 109, // Mute -> F10
@@ -28,26 +28,26 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
     110: 111, // Volume Up -> F12
 
     // Delete/Backspace
-    51: 117,  // Delete -> Forward Delete
+    51: 117, // Delete -> Forward Delete
 
     // Escape Key
-    53: 126,  // Escape -> Special Fn Behavior (if applicable, can vary)
+    53: 126, // Escape -> Special Fn Behavior (if applicable, can vary)
 
     // Numeric Keypad Emulation
-    82: 92,   // Keypad 0
-    83: 93,   // Keypad 1
-    84: 94,   // Keypad 2
-    85: 95,   // Keypad 3
-    86: 96,   // Keypad 4
-    87: 97,   // Keypad 5
-    88: 98,   // Keypad 6
-    89: 99,   // Keypad 7
-    90: 100,  // Keypad 8
-    91: 101,  // Keypad 9
+    82: 92, // Keypad 0
+    83: 93, // Keypad 1
+    84: 94, // Keypad 2
+    85: 95, // Keypad 3
+    86: 96, // Keypad 4
+    87: 97, // Keypad 5
+    88: 98, // Keypad 6
+    89: 99, // Keypad 7
+    90: 100, // Keypad 8
+    91: 101, // Keypad 9
 
     // Other Keys (Power, Eject, etc.)
-    96: 0,    // Power Key (mapped to system behavior)
-    71: 0,    // Eject Key (mapped to system behavior)
+    96: 0, // Power Key (mapped to system behavior)
+    71: 0, // Eject Key (mapped to system behavior)
   ]
   private let machPort: MachPortEventController
 
@@ -64,8 +64,8 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
 
   @discardableResult
   func decorateEvent(_ machPortEvent: MachPortEvent, with modifiers: [ModifierKey]) -> Self {
-    var cgEventFlags: CGEventFlags = CGEventFlags()
-    modifiers.forEach { modifier in
+    var cgEventFlags = CGEventFlags()
+    for modifier in modifiers {
       machPortEvent.event.flags.insert(modifier.cgEventFlags)
       machPortEvent.result?.takeUnretainedValue().flags.insert(modifier.cgEventFlags)
       cgEventFlags.insert(modifier.cgEventFlags)
@@ -124,7 +124,7 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
   @discardableResult
   func post(_ key: KeyShortcut, modifiers: [ModifierKey], flags: CGEventFlags? = nil) -> Self {
     var flags = flags ?? CGEventFlags.maskNonCoalesced
-    modifiers.forEach { modifier in
+    for modifier in modifiers {
       flags.insert(modifier.cgEventFlags)
     }
 
@@ -141,13 +141,15 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
   @discardableResult
   func postFlagsChanged(modifiers: [ModifierKey]) -> Self {
     var flags = CGEventFlags.maskNonCoalesced
-    modifiers.forEach { modifier in
+    for modifier in modifiers {
       flags.insert(modifier.cgEventFlags)
     }
 
-    modifiers.forEach { modifier in
-      _ = try? machPort.post(modifier.key, type: .flagsChanged, flags: flags)
+    guard let firstModifier = modifiers.first else {
+      return self
     }
+
+    _ = try? machPort.post(firstModifier.key, type: .flagsChanged, flags: flags)
     return self
   }
 
@@ -167,7 +169,7 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
   }
 }
 
-fileprivate func debugModifier(_ handler: @autoclosure @escaping () -> String, function: StaticString = #function, line: UInt = #line) {
+private func debugModifier(_ handler: @autoclosure @escaping () -> String, function: StaticString = #function, line: UInt = #line) {
   guard ModifierTriggerMachPortCoordinator.debug else { return }
 
   let dateFormatter = DateFormatter()
