@@ -9,11 +9,13 @@ final class CapsuleNotificationPublisher: ObservableObject {
     case running
     case failure
     case success
+    case warning
 
     var foregroundColor: Color {
       switch self {
       case .running, .idle: .white
       case .failure: Color(.systemRed.withSystemEffect(.deepPressed))
+      case .warning: Color(.systemOrange.withSystemEffect(.deepPressed))
       case .success: Color(.controlAccentColor.withSystemEffect(.deepPressed))
       }
     }
@@ -22,6 +24,7 @@ final class CapsuleNotificationPublisher: ObservableObject {
       switch self {
       case .running, .idle: .gray
       case .failure: Color(.systemRed.withSystemEffect(.deepPressed))
+      case .warning: Color(.systemOrange.withSystemEffect(.deepPressed))
       case .success: Color(.controlAccentColor.withSystemEffect(.deepPressed))
       }
     }
@@ -30,6 +33,7 @@ final class CapsuleNotificationPublisher: ObservableObject {
       switch self {
       case .running, .idle: .black
       case .failure: Color.systemRed.blended(withFraction: 0.85, of: .black)
+      case .warning: Color.systemOrange.blended(withFraction: 0.85, of: .black)
       case .success: Color(nsColor: .controlAccentColor).blended(withFraction: 0.45, of: .black)
       }
     }
@@ -66,7 +70,7 @@ struct CapsuleNotificationView: View {
     TextContainerView(publisher: publisher)
       .animation(.none, value: publisher.state)
       .font(.system(.title2, design: .rounded, weight: .regular))
-      .padding(.leading, publisher.state == .running ?  24 : 0)
+      .padding(.leading, publisher.state == .running ? 24 : 0)
       .overlay(alignment: .leading) {
         ProgressView()
           .progressViewStyle(CustomProgressViewStyle())
@@ -86,8 +90,8 @@ struct CapsuleNotificationView: View {
           Capsule(style: .continuous)
             .stroke(publisher.state.borderColor.opacity(0.05), lineWidth: 2)
         }
-          .opacity(publisher.state == .idle ? 0 : 1)
-          .animation(.smooth(duration: 0.1), value: publisher.state)
+        .opacity(publisher.state == .idle ? 0 : 1)
+        .animation(.smooth(duration: 0.1), value: publisher.state)
       )
       .background(
         Capsule(style: .continuous)
@@ -106,7 +110,7 @@ struct CapsuleNotificationView: View {
   }
 }
 
-fileprivate struct TextContainerView: View {
+private struct TextContainerView: View {
   @ObservedObject var publisher: CapsuleNotificationPublisher
 
   var body: some View {
@@ -120,7 +124,7 @@ fileprivate struct TextContainerView: View {
   }
 }
 
-fileprivate struct AnimatedText: View {
+private struct AnimatedText: View {
   let text: String
 
   @State private var previousText: String = ""
@@ -143,7 +147,7 @@ fileprivate struct AnimatedText: View {
 
       var changed = Set<Int>()
       let count = max(newChars.count, oldChars.count)
-      for i in 0..<count {
+      for i in 0 ..< count {
         let oldChar = i < oldChars.count ? oldChars[i] : nil
         let newChar = i < newChars.count ? newChars[i] : nil
         if oldChar != newChar {
@@ -164,7 +168,7 @@ fileprivate struct AnimatedText: View {
   }
 }
 
-fileprivate struct AnimatedCharacterView: View {
+private struct AnimatedCharacterView: View {
   let char: Character
   let index: Int
   let shouldAnimate: Bool
@@ -194,17 +198,18 @@ fileprivate struct AnimatedCharacterView: View {
   }
 }
 
-fileprivate struct CustomProgressViewStyle: ProgressViewStyle {
+private struct CustomProgressViewStyle: ProgressViewStyle {
   @State private var isSpinning: Bool = false
 
-  func makeBody(configuration: Configuration) -> some View {
+  func makeBody(configuration _: Configuration) -> some View {
     Circle()
       .trim(from: 0.2, to: 1.0)
       .stroke(
         AngularGradient(
           gradient: Gradient(colors: [
             Color(.controlAccentColor.withSystemEffect(.disabled)),
-            .accentColor]),
+            .accentColor,
+          ]),
           center: .center
         ),
         style: StrokeStyle(lineWidth: 2.5, lineCap: .round)

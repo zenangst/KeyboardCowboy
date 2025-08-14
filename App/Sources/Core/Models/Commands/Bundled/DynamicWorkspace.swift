@@ -1,6 +1,6 @@
 import Apps
-import Combine
 import Cocoa
+import Combine
 import Windows
 
 @MainActor
@@ -11,7 +11,8 @@ final class DynamicWorkspace {
   static let shared = DynamicWorkspace()
 
   private init() {
-    let launchPublisher = NSWorkspace.shared.notificationCenter
+    let launchPublisher = NSWorkspace.shared
+      .notificationCenter
       .publisher(for: NSWorkspace.didLaunchApplicationNotification)
 
     launchPublisher
@@ -29,14 +30,17 @@ final class DynamicWorkspace {
 
           guard isDynamicWorkspace else { return }
 
-          await self.assign(application: application, using: .init(id: UUID().uuidString, workspaceID: currentWorkspace.id))
+          let newCommand = AssignWorkspaceCommand(id: UUID().uuidString, workspaceID: currentWorkspace.id)
+          await self.assign(application: application, using: newCommand)
         }
       }
       .store(in: &subscriptions)
 
-    NSWorkspace.shared.publisher(for: \.frontmostApplication)
+    NSWorkspace.shared
+      .publisher(for: \.frontmostApplication)
       .sink { [weak self] runningApplication in
         guard let self, let bundleIdentifier = runningApplication?.bundleIdentifier else { return }
+
         self.removeClosedApps()
         self.reorderCurrentWorkspace(bundleIdentifier)
       }
@@ -48,7 +52,7 @@ final class DynamicWorkspace {
   }
 
   func assign(application: Application, using command: AssignWorkspaceCommand) async {
-    if var copy = assigned[command.workspaceID] {
+    if !UserSettings.WindowManager.stageManagerEnabled, var copy = assigned[command.workspaceID] {
       copy.insert(application, at: 0)
       assigned[command.workspaceID] = copy
     } else {
@@ -62,7 +66,7 @@ final class DynamicWorkspace {
   ///   - command: The in-memory command
   /// - Returns: `true` if the `Application` was added to the Workspace, `false` if it was removed.
   func moveOrRemove(application: Application, using command: MoveToWorkspaceCommand) async -> Bool {
-    var wasAlreadyMember: Bool = false
+    var wasAlreadyMember = false
     for (id, applications) in assigned {
       var newApplications = applications
       if newApplications.contains(where: { $0.bundleIdentifier == application.bundleIdentifier }) {
@@ -70,13 +74,17 @@ final class DynamicWorkspace {
           wasAlreadyMember = true
         }
 
-        newApplications.removeAll(where: { $0.bundleIdentifier == application.bundleIdentifier })
+        // Disable removing dynamic workspace applications when stage manager is enabled.
+        if !UserSettings.WindowManager.stageManagerEnabled, newApplications.count > 1 {
+          newApplications.removeAll(where: { $0.bundleIdentifier == application.bundleIdentifier })
+        }
+
         assigned[id] = newApplications
       }
     }
 
     if !wasAlreadyMember {
-      await assign(application: application, using: AssignWorkspaceCommand(id: command.id, workspaceID: command.workspace.id))
+      await assign(application: application, using: AssignWorkspaceCommand(command))
       return true
     } else {
       return false
@@ -86,16 +94,18 @@ final class DynamicWorkspace {
   // MARK: - Static methods
 
   static func createDynamicWorkflows(for workflow: Workflow,
-                                      keyCode: Int64,
-                                      flags: CGEventFlags,
-                                      bundleIdentifier: String,
-                                      userModeKey: String,
-                                      previousKey: String,
-                                      onCreate: (_ key: String, _ match: KeyboardShortcutResult) -> Void) {
+                                     keyCode: Int64,
+                                     flags: CGEventFlags,
+                                     bundleIdentifier: String,
+                                     userModeKey: String,
+                                     previousKey: String,
+                                     onCreate: (_ key: String, _ match: KeyboardShortcutResult) -> Void)
+  {
     let workspaces = workflow.commands.compactMap {
-      if case .bundled(let command) = $0,
-         case .workspace(let workspace) = command.kind {
-        if UserSpace.shared.currentWorkspace == nil && workspace.defaultForDynamicWorkspace {
+      if case let .bundled(command) = $0,
+         case let .workspace(workspace) = command.kind
+      {
+        if UserSpace.shared.currentWorkspace == nil, workspace.defaultForDynamicWorkspace {
           assignAppsToDefaultDynamicWorkspace(workspace)
         }
         return workspace
@@ -128,7 +138,7 @@ final class DynamicWorkspace {
                 ),
                 meta: Command.MetaData()
               )
-            )
+            ),
           ]
         )
         onCreate(key, .exact(workflow))
@@ -146,7 +156,8 @@ final class DynamicWorkspace {
         .map { pid_t($0.ownerPid.rawValue) }
     )
     let excludedBundleIdentifiers: Set<String> = ["com.apple.finder"]
-    let bundleUrls = NSWorkspace.shared.runningApplications
+    let bundleUrls = NSWorkspace.shared
+      .runningApplications
       .filter {
         guard let bundleIdentifier = $0.bundleIdentifier else {
           return false
@@ -158,7 +169,6 @@ final class DynamicWorkspace {
         return pids.contains($0.processIdentifier)
       }
       .compactMap(\.bundleURL)
-
 
     for bundleUrl in bundleUrls {
       guard let application = ApplicationStore.shared.application(at: bundleUrl) else {
@@ -178,7 +188,7 @@ final class DynamicWorkspace {
   }
 
   private func removeClosedApps() {
-    for (_, applications) in self.assigned {
+    for (_, applications) in assigned {
       for app in applications {
         let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier)
         if runningApps.isEmpty {
@@ -190,32 +200,32 @@ final class DynamicWorkspace {
           remove(app)
         }
       }
-    } 
+    }
   }
 
   private func reorderCurrentWorkspace(_ bundleIdentifier: String) {
     guard
       let currentWorkspaceId = UserSpace.shared.currentWorkspace?.id,
-      var applications = self.assigned[currentWorkspaceId],
+      var applications = assigned[currentWorkspaceId],
       !applications.isEmpty,
       let index = applications.firstIndex(where: { $0.bundleIdentifier == bundleIdentifier }) else { return }
 
     applications.append(applications.remove(at: index))
 
-    self.assigned[currentWorkspaceId] = applications
+    assigned[currentWorkspaceId] = applications
   }
 
   private func remove(_ app: RunningApplication) {
-    for (id, applications) in self.assigned {
+    for (id, applications) in assigned {
       let newApplications = applications.filter { $0.bundleIdentifier != app.bundleIdentifier }
-      self.assigned[id] = newApplications.isEmpty ? nil : newApplications
+      assigned[id] = newApplications.isEmpty ? nil : newApplications
     }
   }
 
   private func remove(_ app: Application) {
-    for (id, applications) in self.assigned {
+    for (id, applications) in assigned {
       let newApplications = applications.filter { $0.bundleIdentifier != app.bundleIdentifier }
-      self.assigned[id] = newApplications.isEmpty ? nil : newApplications
+      assigned[id] = newApplications.isEmpty ? nil : newApplications
     }
   }
 
@@ -230,14 +240,20 @@ final class DynamicWorkspace {
     let windows: [WindowModel] = models
       .filter {
         $0.id > 0 &&
-        $0.ownerName != "borders" &&
-        $0.rect.size.width > minimumSize.width &&
-        $0.rect.size.height > minimumSize.height &&
-        $0.alpha == 1 &&
-        !excluded.contains($0.ownerName)
+          $0.ownerName != "borders" &&
+          $0.rect.size.width > minimumSize.width &&
+          $0.rect.size.height > minimumSize.height &&
+          $0.alpha == 1 &&
+          !excluded.contains($0.ownerName)
       }
 
     return windows
   }
+}
 
+extension AssignWorkspaceCommand {
+  init(_ moveToWorkspace: MoveToWorkspaceCommand) {
+    id = moveToWorkspace.id
+    workspaceID = moveToWorkspace.workspace.id
+  }
 }

@@ -16,20 +16,24 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate, Sendable {
   private var dismiss: DispatchWorkItem?
   private var subscription: AnyCancellable?
 
-  private override init() {
+  override private init() {
     super.init()
 
     subscription = NotificationCenter.default
       .publisher(for: NSApplication.didChangeScreenParametersNotification)
       .sink { [weak self] _ in
         guard let window = self?.window, let screen = NSScreen.main else { return }
+
         let size = window.sizeThatFits(in: CGSize(width: screen.frame.width / 2,
                                                   height: screen.frame.height / 2))
         window.setSize(size, to: screen)
       }
   }
 
-  func publish(_ text: String, id: String, state: CapsuleNotificationPublisher.State) {
+  func publish(_ text: String,
+               successDeadline: TimeInterval = 0.35,
+               failureDeadline: TimeInterval = 1.5,
+               id: String, state: CapsuleNotificationPublisher.State) {
     if publisher.id == id {
       switch (state, publisher.state) {
       case (.running, .failure), (.running, .success):
@@ -43,7 +47,7 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate, Sendable {
 
     let dismiss = DispatchWorkItem { [weak self] in
       self?.publisher.publish("", id: UUID().uuidString, state: .idle)
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [window=self?.window] in
+      DispatchQueue.main.asyncAfter(deadline: .now() + successDeadline) { [window = self?.window] in
         window?.close()
       }
     }
@@ -51,16 +55,15 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate, Sendable {
     switch state {
     case .running, .idle:
       break
-    case .failure, .success:
+    case .failure, .success, .warning:
       self.dismiss = dismiss
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: dismiss)
+      DispatchQueue.main.asyncAfter(deadline: .now() + failureDeadline, execute: dismiss)
     }
   }
 
-  func open() {
-    guard !isOpen else { return }
-
-    guard let screen = NSScreen.main else { return }
+  func open() -> Self {
+    guard !isOpen else { return self }
+    guard let screen = NSScreen.main else { return self }
 
     window?.close()
 
@@ -86,10 +89,12 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate, Sendable {
 
     self.window = window
     isOpen = true
+
+    return self
   }
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
     isOpen = false
   }
 }
