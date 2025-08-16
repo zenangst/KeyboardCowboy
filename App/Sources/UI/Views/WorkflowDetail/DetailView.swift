@@ -3,21 +3,23 @@ import SwiftUI
 
 struct DetailView: View {
   @EnvironmentObject var statePublisher: DetailStatePublisher
-  private let applicationTriggerSelection: SelectionManager<DetailViewModel.ApplicationTrigger>
-  private let commandPublisher: CommandsPublisher
-  private let commandSelection: SelectionManager<CommandViewModel>
-  private let infoPublisher: InfoPublisher
-  private let keyboardShortcutSelection: SelectionManager<KeyShortcut>
-  private let triggerPublisher: TriggerPublisher
+  let applicationTriggerSelection: SelectionManager<DetailViewModel.ApplicationTrigger>
+  let commandPublisher: CommandsPublisher
+  let commandSelection: SelectionManager<CommandViewModel>
+  let infoPublisher: InfoPublisher
+  let keyboardShortcutSelection: SelectionManager<KeyShortcut>
+  let triggerPublisher: TriggerPublisher
   private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
-       applicationTriggerSelection: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       commandSelection: SelectionManager<CommandViewModel>,
-       keyboardShortcutSelection: SelectionManager<KeyShortcut>,
-       triggerPublisher: TriggerPublisher,
-       infoPublisher: InfoPublisher,
-       commandPublisher: CommandsPublisher) {
+  init(
+    _ focus: FocusState<AppFocus?>.Binding,
+    applicationTriggerSelection: SelectionManager<DetailViewModel.ApplicationTrigger>,
+    commandSelection: SelectionManager<CommandViewModel>,
+    keyboardShortcutSelection: SelectionManager<KeyShortcut>,
+    triggerPublisher: TriggerPublisher,
+    infoPublisher: InfoPublisher,
+    commandPublisher: CommandsPublisher
+  ) {
     self.focus = focus
     self.commandSelection = commandSelection
     self.applicationTriggerSelection = applicationTriggerSelection
@@ -33,7 +35,7 @@ struct DetailView: View {
       DetailEmptyView()
         .allowsHitTesting(false)
         .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
-        .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
+        .ignoresSafeArea(isRunningPreview ? [] : .container)
     case .single(let viewModel):
       SingleDetailView(
         viewModel,
@@ -43,16 +45,19 @@ struct DetailView: View {
         keyboardShortcutSelectionManager: keyboardShortcutSelection,
         triggerPublisher: triggerPublisher,
         infoPublisher: infoPublisher,
-        commandPublisher: commandPublisher)
-      .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
-      .overlay(alignment: .topTrailing, content: {
+        commandPublisher: commandPublisher
+      )
+      .overlay(alignment: .topTrailing) {
         DevTagView()
-      })
+      }
     case .multiple(let viewModels):
       let limit = 5
       let count = viewModels.count
-      MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
-        .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
+      MultiDetailView(
+        count > limit ? Array(viewModels[0...limit-1]) : viewModels,
+        count: count
+      )
+      .ignoresSafeArea(isRunningPreview ? [] : .container)
     }
   }
 }
@@ -61,10 +66,12 @@ private struct DevTagView: View {
   var body: some View {
     if KeyboardCowboyApp.env() != .production {
       Rectangle()
-        .fill(Gradient(colors: [
-          Color(.systemYellow),
-          Color(nsColor: NSColor.systemYellow.blended(withFraction: 0.3, of: NSColor.black)!)
-        ]))
+        .fill(
+          Gradient(colors: [
+            Color.yellow,
+            Color.yellow.opacity(0.3)
+          ])
+        )
         .frame(width: 75, height: 20)
         .overlay {
           Text("Develop")
@@ -82,16 +89,17 @@ private struct DevTagView: View {
   }
 }
 
-struct DetailView_Previews: PreviewProvider {
-  @FocusState static var focus: AppFocus?
-  static var previews: some View {
-    DetailView($focus, applicationTriggerSelection: .init(),
-               commandSelection: .init(),
-               keyboardShortcutSelection: .init(),
-               triggerPublisher: DesignTime.triggerPublisher,
-               infoPublisher: DesignTime.infoPublisher,
-               commandPublisher: DesignTime.commandsPublisher) 
-      .designTime()
-      .frame(height: 650)
-  }
+#Preview {
+  @FocusState var focus: AppFocus?
+  DetailView(
+    $focus,
+    applicationTriggerSelection: .init(),
+    commandSelection: .init(),
+    keyboardShortcutSelection: .init(),
+    triggerPublisher: DesignTime.triggerPublisher,
+    infoPublisher: DesignTime.infoPublisher,
+    commandPublisher: DesignTime.commandsPublisher
+  )
+  .designTime()
+  .frame(height: 650)
 }
