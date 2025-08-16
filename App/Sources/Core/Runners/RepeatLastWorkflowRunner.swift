@@ -5,13 +5,14 @@ enum RepeatLastWorkflowRunnerError: Error {
   case noWorkflowRunner
 }
 
+@MainActor
 final class RepeatLastWorkflowRunner {
   weak var workflowRunner: WorkflowRunner?
   @MainActor
   static var previousWorkflow: Workflow?
 
   func run() async throws -> String {
-    guard let workflow = await Self.previousWorkflow else {
+    guard let workflow = Self.previousWorkflow else {
       throw RepeatLastWorkflowRunnerError.noPreviousWorkflow
     }
 
@@ -22,6 +23,10 @@ final class RepeatLastWorkflowRunner {
     workflowRunner.runCommands(in: workflow)
 
     return ""
+  }
+
+  func setWorkflowRunner(_ newRunner: WorkflowRunner) {
+    self.workflowRunner = newRunner
   }
 }
 

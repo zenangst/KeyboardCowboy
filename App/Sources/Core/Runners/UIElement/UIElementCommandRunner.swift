@@ -8,6 +8,7 @@ enum UIElementCommandRunnerError: Error {
   case unableToFindWindow
 }
 
+@MainActor
 final class UIElementCommandRunner {
   var machPort: MachPortEventController?
   let systemElement: SystemAccessibilityElement = .init()

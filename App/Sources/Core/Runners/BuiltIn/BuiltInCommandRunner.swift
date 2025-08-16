@@ -1,7 +1,7 @@
 import Foundation
 import MachPort
 
-final class BuiltInCommandRunner {
+final class BuiltInCommandRunner: Sendable {
   let commandLine: CommandLineCoordinator
   let configurationStore: ConfigurationStore
   let macroRunner: MacroRunner

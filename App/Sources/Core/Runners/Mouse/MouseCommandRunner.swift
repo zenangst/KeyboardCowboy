@@ -7,6 +7,7 @@ enum MouseCommandRunnerError: Error {
   case unableToResolveFrame
 }
 
+@MainActor
 class MouseCommandRunner {
   func run(_ command: MouseCommand, snapshot: UserSpace.Snapshot) async throws {
     let source = CGEventSource(stateID: .hidSystemState)

@@ -2,7 +2,7 @@ import Foundation
 import KeyCodes
 import MachPort
 
-final class MacroRunner {
+final class MacroRunner: Sendable {
   private let bezelId = "com.zenangst.Keyboard-Cowboy.MacroRunner"
   private let coordinator: MacroCoordinator
 

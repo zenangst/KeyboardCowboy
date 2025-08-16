@@ -1,7 +1,7 @@
 import Foundation
 import Intents
 
-final class ShortcutsCommandRunner {
+final class ShortcutsCommandRunner: Sendable {
   private let commandRunner: ScriptCommandRunner
 
   internal init(_ commandRunner: ScriptCommandRunner) {

@@ -1,7 +1,7 @@
 import Foundation
 
-enum UserSettings {
-  enum WindowManager {
+enum UserSettings: Sendable {
+  enum WindowManager: Sendable {
     private static let userDefaults: UserDefaults = .init(suiteName: "com.apple.WindowManager")!
 
     static var tiledWindowSpacing: CGFloat {

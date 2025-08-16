@@ -60,7 +60,7 @@ final class UserSpace: @unchecked Sendable {
     }
   }
 
-  struct Snapshot {
+  struct Snapshot: Sendable {
     let documentPath: String?
     let frontMostApplication: Application
     let modes: [UserMode]

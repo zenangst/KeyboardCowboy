@@ -3,7 +3,7 @@ import AXEssibility
 import Windows
 import Cocoa
 
-final class OpenURLSwapTabsPlugin {
+final class OpenURLSwapTabsPlugin: Sendable {
   enum OpenURLSwapToPluginError: Error {
     case failedToCreate
     case failedToCompile

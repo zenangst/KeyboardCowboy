@@ -1,6 +1,6 @@
 import Cocoa
 
-final class OpenURLParser {
+final class OpenURLParser: Sendable {
   func parse(_ path: String) -> URL {
     let targetUrl: URL
 

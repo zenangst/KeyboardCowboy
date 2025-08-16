@@ -3,7 +3,7 @@ import Apps
 import Cocoa
 import Foundation
 
-final class OpenURLSafariWebAppPlugin {
+final class OpenURLSafariWebAppPlugin: Sendable {
   private let commandRunner: ScriptCommandRunner
 
   init(_ commandRunner: ScriptCommandRunner) {

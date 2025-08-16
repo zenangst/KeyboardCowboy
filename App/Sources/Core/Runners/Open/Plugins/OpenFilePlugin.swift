@@ -1,7 +1,7 @@
 import Apps
 import Cocoa
 
-final class OpenFilePlugin {
+final class OpenFilePlugin: Sendable {
   let workspace: WorkspaceProviding
 
   init(workspace: WorkspaceProviding) {

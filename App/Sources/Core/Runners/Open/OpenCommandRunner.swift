@@ -3,8 +3,8 @@ import AXEssibility
 import Cocoa
 import Foundation
 
-final class OpenCommandRunner {
-  struct Plugins {
+final class OpenCommandRunner: Sendable {
+  struct Plugins: Sendable {
     let finderFolder: OpenFolderInFinder
     let parser = OpenURLParser()
     let open: OpenFilePlugin

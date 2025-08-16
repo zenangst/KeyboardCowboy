@@ -1,4 +1,4 @@
-final class WindowSwitcherRunner {
+final class WindowSwitcherRunner: Sendable {
   private let windowOpener: WindowOpener
 
   init(_ windowOpener: WindowOpener) {

@@ -13,8 +13,8 @@ protocol CommandRunning {
                      machPortEvent: MachPortEvent, repeatingEvent: Bool)
 }
 
-final class CommandRunner: CommandRunning, @unchecked Sendable {
-  struct Runners {
+class CommandRunner: CommandRunning, @unchecked Sendable {
+  struct Runners: Sendable {
     let application: ApplicationCommandRunner
     let builtIn: BuiltInCommandRunner
     let bundled: BundledCommandRunner
@@ -53,10 +53,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   let runners: Runners
 
   @MainActor private var notchInfo: DynamicNotchInfo?
-
-  @MainActor
-  var lastExecutedCommand: Command?
-  var eventSource: CGEventSource?
+  @MainActor var lastExecutedCommand: Command?
+  @MainActor var eventSource: CGEventSource?
 
   @MainActor
   init(_ workspace: WorkspaceProviding = NSWorkspace.shared,
@@ -556,3 +554,5 @@ extension Collection where Element == Command {
     })
   }
 }
+
+extension CGEventSource: @unchecked @retroactive Sendable { }

@@ -1,7 +1,7 @@
 import Apps
 import Cocoa
 
-final class OpenFolderInFinder {
+final class OpenFolderInFinder: Sendable {
   private let finderBundleIdentifier = "com.apple.finder"
   private let commandRunner: ScriptCommandRunner
   private let workspace: WorkspaceProviding

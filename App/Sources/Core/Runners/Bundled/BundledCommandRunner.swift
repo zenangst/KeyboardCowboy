@@ -159,16 +159,14 @@ actor BundledCommandRunner: Sendable {
       UserSpace.shared.currentWorkspace = workspaceCommand
     }
 
-    var commands = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
+    let result = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
+    var commands = result
 
-    guard UserSettings.WindowManager.stageManagerEnabled, !commands.isEmpty else {
-      await MainActor.run {
-        let capsule = CapsuleNotificationWindow
-          .shared
-        capsule
-          .open()
-          .publish("No application assigned to workspace", id: UUID().uuidString, state: .warning)
-      }
+    if UserSettings.WindowManager.stageManagerEnabled && result.isEmpty {
+      await CapsuleNotificationWindow.shared
+        .open()
+        .publish("No application assigned to workspace", id: UUID().uuidString, state: .warning)
+
       return
     }
 

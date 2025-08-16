@@ -9,7 +9,7 @@ protocol WorkflowRunning {
            machPortEvent: MachPortEvent, repeatingEvent: Bool) async
 }
 
-final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
+final class WorkflowRunner: WorkflowRunning, Sendable {
   private let commandRunner: CommandRunner
   private let store: KeyCodesStore
   private let notifications: MachPortUINotifications
@@ -83,8 +83,8 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
       return
     }
 
-    if commandRunner.runners.builtIn.repeatLastWorkflowRunner.workflowRunner == nil {
-      commandRunner.runners.builtIn.repeatLastWorkflowRunner.workflowRunner = self
+    if await commandRunner.runners.builtIn.repeatLastWorkflowRunner.workflowRunner == nil {
+      await commandRunner.runners.builtIn.repeatLastWorkflowRunner.setWorkflowRunner(self)
     }
 
     Task { @MainActor in
