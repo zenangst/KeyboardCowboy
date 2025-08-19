@@ -5,9 +5,10 @@ import Foundation
 import SwiftUI
 import Windows
 
-final class WindowTilingRunner {
+enum WindowTilingRunner {
   nonisolated(unsafe) static var debug: Bool = false
   @MainActor private static var currentTask: Task<Void, any Error>?
+  @MainActor private static var saveTask: Task<Void, any Error>?
   @MainActor private static var storage = [WindowModel.WindowNumber: TileStorage]()
 
   static func index() {
@@ -15,8 +16,9 @@ final class WindowTilingRunner {
       let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
       for screen in NSScreen.screens {
         let visibleScreenFrame = screen.visibleFrame.mainDisplayFlipped
-        let newWindows = snapshot.windows.visibleWindowsInStage
-          .filter({ visibleScreenFrame.contains($0.rect) })
+        let newWindows = snapshot.windows
+          .visibleWindowsInStage
+          .filter { visibleScreenFrame.contains($0.rect) }
         await determineTiling(for: newWindows, in: visibleScreenFrame, newWindows: newWindows)
       }
     }
@@ -32,14 +34,16 @@ final class WindowTilingRunner {
     let visibleScreenFrame = screen.visibleFrame.mainDisplayFlipped
 
     await currentTask?.cancel()
+    await saveTask?.cancel()
 
     let oldSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
-    let oldWindows = oldSnapshot.windows.visibleWindowsInStage
+    let oldWindows = oldSnapshot.windows
+      .visibleWindowsInStage
       .filter { $0.rect.intersects(visibleScreenFrame) }
 
     guard let nextWindow = oldWindows.first else { return }
 
-    let app: AppAccessibilityElement = AppAccessibilityElement(snapshot.frontMostApplication.ref.processIdentifier)
+    let app = AppAccessibilityElement(snapshot.frontMostApplication.ref.processIdentifier)
     let menuItems = try app
       .menuBar()
       .menuItems()
@@ -48,9 +52,12 @@ final class WindowTilingRunner {
     let updateSubjects: [WindowModel]
 
     // Pre-cache window tiling for new windows.
+    let currentTiling: WindowTiling?
     if await storage[nextWindow.windowNumber] == nil {
-      let currentTiling = await calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
+      currentTiling = await calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
       await store(currentTiling, for: nextWindow)
+    } else {
+      currentTiling = await getTiling(for: nextWindow)
     }
 
     switch tiling {
@@ -88,7 +95,7 @@ final class WindowTilingRunner {
       updateSubjects = []
     case .center:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      updateSubjects = []
     case .fill:
       activatedTiling = tiling
       updateSubjects = []
@@ -236,16 +243,28 @@ final class WindowTilingRunner {
             }
             let isFullScreen = nextTiling == .fill
             let isCentered = nextTiling == .center
-            updateStore(isFullScreen: isFullScreen, isCentered: isCentered, in: visibleScreenFrame, for: nextWindow)
+            updateStore(currentTiling, isFullScreen: isFullScreen, isCentered: isCentered, in: visibleScreenFrame, for: nextWindow)
           } else {
             nextTiling = activatedTiling
             let isFullScreen = nextTiling == .fill
             let isCentered = nextTiling == .center
-            updateStore(isFullScreen: isFullScreen, isCentered: isCentered, in: visibleScreenFrame, for: nextWindow)
+            updateStore(currentTiling, isFullScreen: isFullScreen, isCentered: isCentered, in: visibleScreenFrame, for: nextWindow)
           }
         default:
           nextTiling = activatedTiling
-          updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
+          let isFullScreen = nextTiling == .fill
+          let isCentered = nextTiling == .center
+          let storedTiling: WindowTiling
+
+          if isFullScreen == false && isCentered == false {
+            storedTiling = currentStorage?.tiling ?? nextTiling
+          } else if isFullScreen == false && isCentered == true {
+            storedTiling = nextTiling
+          } else {
+            storedTiling = nextTiling
+          }
+
+          updateStore(storedTiling, isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
         }
 
         guard let match = WindowTilingMenuItemFinder.find(nextTiling, in: menuItems) else { return }
@@ -264,7 +283,8 @@ final class WindowTilingRunner {
 
         if matchingScreen != NSScreen.main {
           if let axWindow = try? app.windows().first(where: { $0.id == nextWindow.id }),
-             let windowFrame = axWindow.frame {
+             let windowFrame = axWindow.frame
+          {
             let midPoint = CGPoint(x: windowFrame.midX,
                                    y: windowFrame.midY)
             NSCursor.moveCursor(to: midPoint)
@@ -276,7 +296,8 @@ final class WindowTilingRunner {
 
           let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
           let windowNumbers = updateSubjects.map { $0.windowNumber }
-          let newWindows = newSnapshot.windows.visibleWindowsInStage
+          let newWindows = newSnapshot.windows
+            .visibleWindowsInStage
             .filter { $0.rect.intersects(visibleScreenFrame) && windowNumbers.contains($0.windowNumber) }
 
           determineTiling(for: updateSubjects, in: visibleScreenFrame, newWindows: newWindows)
@@ -285,8 +306,11 @@ final class WindowTilingRunner {
     }
   }
 
-  @MainActor
-  private static func store(_ tiling: WindowTiling?, for window: WindowModel) {
+  @MainActor private static func getTiling(for window: WindowModel) -> WindowTiling? {
+    storage[window.windowNumber]?.tiling
+  }
+
+  @MainActor private static func store(_ tiling: WindowTiling?, for window: WindowModel) {
     guard let tiling else {
       storage[window.windowNumber] = nil
       return
@@ -307,19 +331,21 @@ final class WindowTilingRunner {
     storage[window.windowNumber] = TileStorage(
       tiling: tiling,
       isFullScreen: isFullScreen,
-      isCentered: isCentered)
+      isCentered: isCentered
+    )
   }
 
   @MainActor
-  private static func updateStore(isFullScreen: Bool, isCentered: Bool, in screenFrame: CGRect, for window: WindowModel) {
-    let currentTiling = calculateTiling(for: window.rect, ownerName: window.ownerName, in: screenFrame)
+  private static func updateStore(_ tiling: WindowTiling?, isFullScreen: Bool, isCentered: Bool, in screenFrame: CGRect, for window: WindowModel) {
+    let currentTiling = tiling ?? calculateTiling(for: window.rect, ownerName: window.ownerName, in: screenFrame)
     storage[window.windowNumber] = TileStorage(tiling: currentTiling, isFullScreen: isFullScreen, isCentered: isCentered)
   }
 
   @MainActor
   private static func determineTiling(for subjects: [WindowModel],
                                       in screenFrame: CGRect,
-                                      newWindows: [WindowModel]) {
+                                      newWindows: [WindowModel])
+  {
     guard subjects.isEmpty == false else { return }
 
     for (oldWindow, newWindow) in zip(subjects, newWindows) {
@@ -337,7 +363,7 @@ final class WindowTilingRunner {
   }
 
   @MainActor
-  static func calculateTiling(for rect: CGRect, ownerName: String? = nil, in screenFrame: CGRect) -> WindowTiling {
+  static func calculateTiling(for rect: CGRect, ownerName _: String? = nil, in screenFrame: CGRect) -> WindowTiling {
     let windowSpacing: CGFloat = UserSettings.WindowManager.tiledWindowSpacing
     let currentScreen = NSScreen.main!
     let offset = currentScreen.frame.maxY - currentScreen.visibleFrame.maxY
@@ -376,8 +402,7 @@ final class WindowTilingRunner {
 
     let result: WindowTiling = if isFillZeroDelta {
       .fill
-    }
-    else if isCenter { .center }
+    } else if isCenter { .center }
     else if isLeft { .left }
     else if isRight { .right }
     else if isTop { .top }
@@ -405,7 +430,7 @@ final class WindowTilingRunner {
 
 extension UserDefaults: @unchecked @retroactive Sendable { }
 
-fileprivate struct TileStorage {
+private struct TileStorage {
   let tiling: WindowTiling
   let isFullScreen: Bool
   let isCentered: Bool
