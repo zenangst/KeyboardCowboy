@@ -17,12 +17,12 @@ final class WindowCommandFocusRunner {
 
   private var flagsChangedSubscription: AnyCancellable?
   private var frontmostIndex: Int = 0
-  private var visibleMostIndex: Int = 0
 
   init(applicationStore: ApplicationStore = .shared,
        centerFocus: WindowFocusCenter, relativeFocus: WindowFocusRelativeFocus,
        quarterFocus: WindowFocusQuarter,
-       workspace: WorkspaceProviding = NSWorkspace.shared) {
+       workspace: WorkspaceProviding = NSWorkspace.shared)
+  {
     self.applicationStore = applicationStore
     self.centerFocus = centerFocus
     self.relativeFocus = relativeFocus
@@ -61,10 +61,9 @@ final class WindowCommandFocusRunner {
     case .moveFocusToNextWindowCenter:
       try await centerFocus.run(snapshot: snapshot)
     case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
-        .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal,
-        .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
+         .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal,
+         .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
       try WindowFocus.run(
-        &visibleMostIndex,
         kind: command.kind,
         snapshot: snapshot.windows,
         applicationStore: applicationStore,

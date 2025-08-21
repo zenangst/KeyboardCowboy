@@ -14,7 +14,7 @@ extension UserSpace.Application: ActivityApplication {
 @MainActor
 final class ApplicationActivityMonitor<T: ActivityApplication> {
   // Used for testing.
-  internal var bundleIdentifiers: [String] {
+  var bundleIdentifiers: [String] {
     storage.compactMap { $0.bundleIdentifier }
   }
 
@@ -28,6 +28,7 @@ final class ApplicationActivityMonitor<T: ActivityApplication> {
     subscription = publisher
       .sink { [weak self] application in
         guard let self else { return }
+
         self.store(application)
       }
   }
@@ -44,6 +45,7 @@ final class ApplicationActivityMonitor<T: ActivityApplication> {
   // MARK: Private methods
 
   private func store(_ application: T) {
+    WindowFocus.frontMostApplicationChanged()
     storage.removeAll(where: { $0.bundleIdentifier == application.bundleIdentifier })
     storage.append(application)
     removeTerminatedApplications()

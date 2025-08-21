@@ -1,6 +1,6 @@
 import AXEssibility
-import Combine
 import Cocoa
+import Combine
 import CoreGraphics
 import Foundation
 import MachPort
@@ -34,17 +34,17 @@ final class KeyboardCowboyEngine {
        applicationWindowObserver: ApplicationWindowObserver,
        commandRunner: CommandRunner,
        keyCodeStore: KeyCodesStore,
-       keyboardCommandRunner: KeyboardCommandRunner,
+       keyboardCommandRunner _: KeyboardCommandRunner,
        machPortCoordinator: MachPortCoordinator,
        modifierTriggerController: ModifierTriggerController,
        notificationCenter: NotificationCenter = .default,
-       scriptCommandRunner: ScriptCommandRunner,
+       scriptCommandRunner _: ScriptCommandRunner,
        shortcutStore: ShortcutStore,
        snippetController: SnippetController,
        tapHeld: TapHeldCoordinator,
        uiElementCaptureStore: UIElementCaptureStore,
-       workspace: NSWorkspace = .shared,
-  ) {
+       workspace: NSWorkspace = .shared)
+  {
     self.applicationActivityMonitor = applicationActivityMonitor
     self.applicationTriggerController = applicationTriggerController
     self.applicationWindowObserver = applicationWindowObserver
@@ -53,13 +53,13 @@ final class KeyboardCowboyEngine {
     self.keyCodeStore = keyCodeStore
     self.machPortCoordinator = machPortCoordinator
     self.modifierTriggerController = modifierTriggerController
-    self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
+    notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
     self.shortcutStore = shortcutStore
     self.snippetController = snippetController
     self.tapHeld = tapHeld
     self.uiElementCaptureStore = uiElementCaptureStore
     self.workspace = workspace
-    self.workspacePublisher = WorkspacePublisher(workspace)
+    workspacePublisher = WorkspacePublisher(workspace)
 
     guard KeyboardCowboyApp.env() != .previews else { return }
 
@@ -81,8 +81,8 @@ final class KeyboardCowboyEngine {
 
     do {
       let keyboardEvents: CGEventMask = (1 << CGEventType.keyDown.rawValue)
-                                      | (1 << CGEventType.keyUp.rawValue)
-                                      | (1 << CGEventType.flagsChanged.rawValue)
+        | (1 << CGEventType.keyUp.rawValue)
+        | (1 << CGEventType.flagsChanged.rawValue)
       let keyCache = KeyPressCache()
       let newMachPortController = try MachPortEventController(
         .privateState,
@@ -108,10 +108,11 @@ final class KeyboardCowboyEngine {
 
           keyCache.handle($0.event)
 
-          if !$0.isRepeat && keyCache.noKeysPressed() {
+          if !$0.isRepeat, keyCache.noKeysPressed() {
             tapHeld.reset()
           }
-        })
+        }
+      )
       commandRunner.eventSource = newMachPortController.eventSource
       subscribe(to: workspace)
       contentStore.recorderStore.subscribe(to: machPortCoordinator.$recording)
@@ -124,14 +125,14 @@ final class KeyboardCowboyEngine {
       uiElementCaptureStore.subscribe(to: machPortCoordinator)
       snippetController.subscribe(to: machPortCoordinator.$coordinatorEvent)
       SystemHideAllAppsRunner.machPort = newMachPortController
-    } catch let error {
+    } catch {
       NSAlert(error: error).runModal()
     }
   }
 
   // MARK: Private methods
 
-  private func subscribe(to workspace: NSWorkspace) {
+  private func subscribe(to _: NSWorkspace) {
     WindowStore.shared.subscribe(to: UserSpace.shared.$frontmostApplication)
 
     snippetController.subscribe(to: contentStore.groupStore.$groups)

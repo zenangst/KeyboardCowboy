@@ -1,7 +1,7 @@
 import ApplicationServices
 import AXEssibility
-import Combine
 import Cocoa
+import Combine
 
 final class ApplicationWindowObserver {
   nonisolated(unsafe) static var isEnabled: Bool = true
@@ -14,6 +14,7 @@ final class ApplicationWindowObserver {
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     subscription = publisher.sink { [weak self] application in
       guard let self, Self.isEnabled else { return }
+
       self.process(application)
     }
   }
@@ -28,8 +29,9 @@ final class ApplicationWindowObserver {
     do {
       let pointer = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
 
-      if let observer = app.observe(.windowCreated, element: app.reference, id: id, pointer: pointer, callback: { observer, element, notification, pointer in
+      if let observer = app.observe(.windowCreated, element: app.reference, id: id, pointer: pointer, callback: { _, element, _, pointer in
         guard let pointer else { return }
+
         let controller = Unmanaged<ApplicationWindowObserver>
           .fromOpaque(pointer)
           .takeUnretainedValue()
@@ -43,8 +45,9 @@ final class ApplicationWindowObserver {
         observers.append(observer)
       }
 
-      if let observer = app.observe(.closed, element: app.reference, id: id, pointer: pointer, callback: { observer, element, notification, pointer in
+      if let observer = app.observe(.closed, element: app.reference, id: id, pointer: pointer, callback: { _, element, _, pointer in
         guard let pointer else { return }
+
         let controller = Unmanaged<ApplicationWindowObserver>
           .fromOpaque(pointer)
           .takeUnretainedValue()

@@ -74,10 +74,7 @@ final class DynamicWorkspace {
           wasAlreadyMember = true
         }
 
-        // Disable removing dynamic workspace applications when stage manager is enabled.
-        if !UserSettings.WindowManager.stageManagerEnabled, newApplications.count > 1 {
-          newApplications.removeAll(where: { $0.bundleIdentifier == application.bundleIdentifier })
-        }
+        newApplications.removeAll(where: { $0.bundleIdentifier == application.bundleIdentifier })
 
         assigned[id] = newApplications
       }
