@@ -50,7 +50,7 @@ struct BundledCommandView: View {
           onAppToggleModifiers:  { performWorkspaceUpdate(set: \.appToggleModifiers, to: $0) },
           onDefaultForDynamicWorkspace: { performWorkspaceUpdate(set: \.defaultForDynamicWorkspace, to: $0) },
           onHideOtherAppsChange: { performWorkspaceUpdate(set: \.hideOtherApps, to: $0) },
-          onSelectedAppsChange:  { performWorkspaceUpdate(set: \.bundleIdentifiers, to: $0.map(\.bundleIdentifier)) },
+          onSelectedAppsChange:  { performWorkspaceUpdate(set: \.applications, to: $0.map { .init(bundleIdentifier: $0.bundleIdentifier, options: $0.options) } ) },
           onTilingChange:        { performWorkspaceUpdate(set: \.tiling, to: $0) },
         )
         .id(metaData.id)

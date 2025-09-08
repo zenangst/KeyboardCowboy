@@ -18,37 +18,79 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     case fill
     case center
 
-    var id: String { self.rawValue }
+    var id: String { rawValue }
   }
 
   enum CodingKeys: CodingKey {
     case id
     case appToggleModifiers
     case bundleIdentifiers
+    case applications
     case defaultForDynamicWorkspace
     case hideOtherApps
     case tiling
   }
 
+  struct WorkspaceApplication: Codable, Hashable, Identifiable {
+    enum Option: String, Codable {
+      case onlyWhenRunning
+    }
+
+    var id: String { bundleIdentifier }
+
+    let bundleIdentifier: String
+    let options: [Option]
+
+    init(bundleIdentifier: String, options: [Option] = []) {
+      self.bundleIdentifier = bundleIdentifier
+      self.options = options
+    }
+
+    func encode(to encoder: any Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+
+      try container.encode(bundleIdentifier, forKey: .bundleIdentifier)
+      if !options.isEmpty {
+        try container.encode(options, forKey: .options)
+      }
+    }
+
+    enum CodingKeys: CodingKey {
+      case bundleIdentifier
+      case options
+    }
+
+    init(from decoder: any Decoder) throws {
+      let container: KeyedDecodingContainer<WorkspaceCommand.WorkspaceApplication.CodingKeys> = try decoder.container(keyedBy: WorkspaceCommand.WorkspaceApplication.CodingKeys.self)
+      self.bundleIdentifier = try container.decode(String.self, forKey: WorkspaceCommand.WorkspaceApplication.CodingKeys.bundleIdentifier)
+      if let options = try? container.decodeIfPresent([WorkspaceCommand.WorkspaceApplication.Option].self, forKey: WorkspaceCommand.WorkspaceApplication.CodingKeys.options) {
+        self.options = options
+      } else {
+        self.options = []
+      }
+    }
+  }
+
   var id: String
-  var bundleIdentifiers: [String]
+  var applications: [WorkspaceApplication]
   var tiling: Tiling?
   var hideOtherApps: Bool
   var appToggleModifiers: [ModifierKey]
 
   var defaultForDynamicWorkspace: Bool
-  var isDynamic: Bool { bundleIdentifiers.isEmpty }
+  var isDynamic: Bool { applications.isEmpty }
 
   init(id: String = UUID().uuidString,
-       assignmentModifierS: [ModifierKey] = [],
+       assignmentModifierS _: [ModifierKey] = [],
        appToggleModifiers: [ModifierKey] = [],
-       bundleIdentifiers: [String],
+       applications: [WorkspaceApplication] = [],
        defaultForDynamicWorkspace: Bool,
        hideOtherApps: Bool,
-       tiling: Tiling?) {
+       tiling: Tiling?)
+  {
     self.id = id
     self.appToggleModifiers = appToggleModifiers
-    self.bundleIdentifiers = bundleIdentifiers
+    self.applications = applications
     self.defaultForDynamicWorkspace = defaultForDynamicWorkspace
     self.hideOtherApps = hideOtherApps
     self.tiling = tiling
@@ -56,26 +98,36 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.id, forKey: .id)
-    try container.encode(self.bundleIdentifiers, forKey: .bundleIdentifiers)
-    try container.encodeIfPresent(self.tiling, forKey: .tiling)
-    try container.encode(self.hideOtherApps, forKey: .hideOtherApps)
-    if !self.appToggleModifiers.isEmpty {
-      try container.encode(self.appToggleModifiers, forKey: .appToggleModifiers)
+    try container.encode(id, forKey: .id)
+
+    if !applications.isEmpty {
+      try container.encode(applications, forKey: .applications)
     }
-    if self.defaultForDynamicWorkspace {
-      try container.encode(self.defaultForDynamicWorkspace, forKey: .defaultForDynamicWorkspace)
+
+    try container.encodeIfPresent(tiling, forKey: .tiling)
+    try container.encode(hideOtherApps, forKey: .hideOtherApps)
+    if !appToggleModifiers.isEmpty {
+      try container.encode(appToggleModifiers, forKey: .appToggleModifiers)
+    }
+    if defaultForDynamicWorkspace {
+      try container.encode(defaultForDynamicWorkspace, forKey: .defaultForDynamicWorkspace)
     }
   }
 
   init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.id = try container.decode(String.self, forKey: .id)
-    self.bundleIdentifiers = try container.decode([String].self, forKey: .bundleIdentifiers)
-    self.tiling = try container.decodeIfPresent(WorkspaceCommand.Tiling.self, forKey: .tiling)
-    self.hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
-    self.appToggleModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .appToggleModifiers) ?? []
-    self.defaultForDynamicWorkspace = try container.decodeIfPresent(Bool.self, forKey: .defaultForDynamicWorkspace) ?? false
+    id = try container.decode(String.self, forKey: .id)
+
+    if let bundleIdentifiers = try? container.decodeIfPresent([String].self, forKey: .bundleIdentifiers) {
+      applications = bundleIdentifiers.map { WorkspaceApplication(bundleIdentifier: $0, options: []) }
+    } else {
+      applications = try container.decodeIfPresent([WorkspaceApplication].self, forKey: .applications) ?? []
+    }
+
+    tiling = try container.decodeIfPresent(WorkspaceCommand.Tiling.self, forKey: .tiling)
+    hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
+    appToggleModifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .appToggleModifiers) ?? []
+    defaultForDynamicWorkspace = try container.decodeIfPresent(Bool.self, forKey: .defaultForDynamicWorkspace) ?? false
   }
 
   @MainActor
@@ -84,7 +136,17 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       return whenStageManagerIsActive(applications, dynamicApps: dynamicApps)
     }
 
-    let bundleIdentifiers = dynamicApps.map { $0.bundleIdentifier } + bundleIdentifiers
+    let bundleIdentifiers = dynamicApps.map { $0.bundleIdentifier } + self.applications.compactMap { app in
+      if app.options.contains(.onlyWhenRunning) {
+        if !NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier).isEmpty {
+          return app.bundleIdentifier
+        } else {
+          return nil
+        }
+      } else {
+        return app.bundleIdentifier
+      }
+    }
 
     guard !bundleIdentifiers.isEmpty else {
       return handleEmptyWorkspace()
@@ -94,19 +156,20 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
     var commands = [Command]()
 
-    let slowBundles = Set(["com.tinyspeck.slackmacgap"])
+    let slowBundles = Set(["com.tinyspeck.slackmacgap", "com.apple.news"])
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
     let windows = indexWindowsInStage(getWindows([.optionOnScreenOnly, .excludeDesktopElements]))
 
     let pids = windows.map(\.ownerPid.rawValue).map(Int32.init)
-    let runningApplications = NSWorkspace.shared.runningApplications.filter({
+    let runningApplications = NSWorkspace.shared.runningApplications.filter {
       pids.contains($0.processIdentifier)
-    })
+    }
     let runningTargetApps: [Int] = runningApplications
       .compactMap {
         guard let bundleIdentifier = $0.bundleIdentifier,
               bundleIdentifiers.contains(bundleIdentifier) else { return nil }
+
         return Int($0.processIdentifier)
       }
     let windowPids = windows
@@ -115,13 +178,15 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let runningTargetAppsSet = Set(runningTargetApps)
     let windowPidsSet = Set(windowPids)
     let perfectBundleMatch = runningTargetAppsSet == windowPidsSet
-                          && !runningApplications.isEmpty
-                          && !windowPids.isEmpty
+      && !runningApplications.isEmpty
+      && !windowPids.isEmpty
 
     let hideAllAppsCommand = Command.systemCommand(SystemCommand(
       kind: .hideAllApps,
-      meta: Command.MetaData(delay: tiling != nil ? 40 : nil, name: "Hide All Apps")))
+      meta: Command.MetaData(delay: tiling != nil ? 40 : nil, name: "Hide All Apps")
+    ))
 
+    var containsSlowApps = false
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         continue
@@ -131,21 +196,22 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       let appIsRunning = runningApplication != nil
       let isFrontmost = frontmostApplication?.bundleIdentifier == bundleIdentifier
       let isLastItem = bundleIdentifiersCount - 1 == offset
-      let action: ApplicationCommand.Action
+      var action: ApplicationCommand.Action
       let name: String
 
       if let runningApplication, !windows.map(\.ownerPid.rawValue).contains(Int(runningApplication.processIdentifier)) {
         action = runningApplication.action
       } else if let runningApplication {
         if offset < runningApplications.count - 1,
-           runningApplication.processIdentifier == windows[offset].ownerPid.rawValue {
+           runningApplication.processIdentifier == windows[offset].ownerPid.rawValue
+        {
           action = .unhide
         } else {
-          if isLastItem && runningApplication.isActive == true {
+          if isLastItem, runningApplication.isActive == true {
             action = .open
           } else if runningApplication.isHidden == true {
             action = .unhide
-          } else if runningApplication.isFinishedLaunching == true && !isLastItem {
+          } else if runningApplication.isFinishedLaunching == true, !isLastItem {
             action = .unhide
           } else {
             action = runningApplication.action
@@ -158,22 +224,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       name = action.displayName(for: application)
 
       if isLastItem {
-        commands.append(
-          .application(ApplicationCommand(
-            action: .open,
-            application: application,
-            meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
-            modifiers: [.waitForAppToLaunch]
-          )))
-
-        let activationDelay: Double?
+        let activationDelay: Double? = nil
 
         if slowBundles.contains(application.bundleIdentifier) || application.metadata.isElectron {
-          activationDelay = 225
-        } else if perfectBundleMatch {
-          activationDelay = 15
-        } else {
-          activationDelay = 40
+          containsSlowApps = true
+          action = .unhide
         }
 
         commands.append(
@@ -196,7 +251,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           .application(ApplicationCommand(
             action: .open,
             application: application,
-            meta: Command.MetaData(delay: 250, name: "Open \(application.displayName)"),
+            meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
             modifiers: [.waitForAppToLaunch]
           )))
       } else {
@@ -204,35 +259,39 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           .application(ApplicationCommand(
             action: action,
             application: application,
-            meta: Command.MetaData(delay: 10, name: name), modifiers: [.waitForAppToLaunch]
+            meta: Command.MetaData(delay: nil, name: name), modifiers: [.waitForAppToLaunch]
           )))
       }
     }
 
-    if hideOtherApps && !aerospaceIsRunning {
-      if !perfectBundleMatch {
-        commands.insert(hideAllAppsCommand, at: max(commands.count - 1, 0))
-      }
-    }
-
     let windowTiling: WindowTiling? = switch tiling {
-    case .arrangeLeftRight:       .arrangeLeftRight
-    case .arrangeRightLeft:       .arrangeRightLeft
-    case .arrangeTopBottom:       .arrangeTopBottom
-    case .arrangeBottomTop:       .arrangeBottomTop
-    case .arrangeLeftQuarters:    .arrangeLeftQuarters
-    case .arrangeRightQuarters:   .arrangeRightQuarters
-    case .arrangeTopQuarters:     .arrangeTopQuarters
-    case .arrangeBottomQuarters:  .arrangeBottomQuarters
+    case .arrangeLeftRight: .arrangeLeftRight
+    case .arrangeRightLeft: .arrangeRightLeft
+    case .arrangeTopBottom: .arrangeTopBottom
+    case .arrangeBottomTop: .arrangeBottomTop
+    case .arrangeLeftQuarters: .arrangeLeftQuarters
+    case .arrangeRightQuarters: .arrangeRightQuarters
+    case .arrangeTopQuarters: .arrangeTopQuarters
+    case .arrangeBottomQuarters: .arrangeBottomQuarters
     case .arrangeDynamicQuarters: .arrangeDynamicQuarters
-    case .arrangeQuarters:        .arrangeQuarters
-    case .fill:                   .fill
-    case .center:                 .center
-    case nil:                     nil
+    case .arrangeQuarters: .arrangeQuarters
+    case .fill: .fill
+    case .center: .center
+    case nil: nil
     }
 
     if let windowTiling, !aerospaceIsRunning {
       commands.append(.windowTiling(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling"))))
+    }
+
+    if hideOtherApps, !aerospaceIsRunning {
+      if !perfectBundleMatch {
+        if containsSlowApps {
+          commands.insert(hideAllAppsCommand, at: max(commands.count - 1, 0))
+        } else {
+          commands.append(hideAllAppsCommand)
+        }
+      }
     }
 
     return commands
@@ -242,7 +301,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     WorkspaceCommand(
       id: UUID().uuidString,
       appToggleModifiers: appToggleModifiers,
-      bundleIdentifiers: bundleIdentifiers,
+      applications: applications,
       defaultForDynamicWorkspace: defaultForDynamicWorkspace,
       hideOtherApps: hideOtherApps,
       tiling: tiling
@@ -255,7 +314,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     var commands: [Command] = []
     let runningApplications = NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier }
 
-    var bundleIdentifiers: [String] = self.bundleIdentifiers
+    var bundleIdentifiers: [String] = self.applications.map(\.bundleIdentifier)
     for dynamicApp in dynamicApps {
       bundleIdentifiers.append(dynamicApp.bundleIdentifier)
     }
@@ -267,8 +326,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
       let modifiers: [ApplicationCommand.Modifier]
       if offset == bundleIdentifiers.count - 1 {
-
-
         modifiers = [.waitForAppToLaunch]
       } else {
         if runningApplications.contains(application.bundleIdentifier) {
@@ -282,7 +339,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       commands.append(.application(applicationCommand))
     }
 
-
     return commands
   }
 
@@ -290,7 +346,8 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     [
       Command.systemCommand(SystemCommand(
         kind: .hideAllApps,
-        meta: Command.MetaData(delay: nil, name: "Clean Workspace")))
+        meta: Command.MetaData(delay: nil, name: "Clean Workspace")
+      )),
     ]
   }
 
@@ -305,11 +362,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let windows: [WindowModel] = models
       .filter {
         $0.id > 0 &&
-        $0.ownerName != "borders" &&
-        $0.rect.size.width > minimumSize.width &&
-        $0.rect.size.height > minimumSize.height &&
-        $0.alpha == 1 &&
-        !excluded.contains($0.ownerName)
+          $0.ownerName != "borders" &&
+          $0.rect.size.width > minimumSize.width &&
+          $0.rect.size.height > minimumSize.height &&
+          $0.alpha == 1 &&
+          !excluded.contains($0.ownerName)
       }
 
     return windows
@@ -329,11 +386,11 @@ private extension NSRunningApplication {
 private extension ApplicationCommand.Action {
   func displayName(for application: Application) -> String {
     switch self {
-    case .open:   "Open \(application.displayName)"
-    case .close:  "Close \(application.displayName)"
-    case .hide:   "Hide \(application.displayName)"
+    case .open: "Open \(application.displayName)"
+    case .close: "Close \(application.displayName)"
+    case .hide: "Hide \(application.displayName)"
     case .unhide: "Unhide \(application.displayName)"
-    case .peek:   "Peek \(application.displayName)"
+    case .peek: "Peek \(application.displayName)"
     }
   }
 }

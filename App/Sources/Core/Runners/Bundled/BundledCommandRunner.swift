@@ -59,6 +59,13 @@ actor BundledCommandRunner: Sendable {
         application: application.asApplication(),
         using: workspaceCommand
       )
+
+      // Don't active the same workspace if the app was just moved there.
+      // This reduces flickering.
+      if await UserSpace.shared.currentWorkspace?.id == workspaceCommand.workspace.id, movedToWorkspace {
+        return ""
+      }
+
       try await run(workspaceCommand: workspaceCommand.workspace,
                     forceDisableTiling: false,
                     onlyUnhide: false,
@@ -110,12 +117,12 @@ actor BundledCommandRunner: Sendable {
       }
       output = command.name
     case let .workspace(workspaceCommand):
-      let runningBundleIdentifiers = workspaceCommand.bundleIdentifiers.flatMap { bundleIdentifier in
-        NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier)
+      let runningBundleIdentifiers = workspaceCommand.applications.flatMap { application in
+        NSRunningApplication.runningApplications(withBundleIdentifier: application.bundleIdentifier)
           .compactMap(\.bundleIdentifier)
       }
       let onlyUnhide: Bool
-      let requiredBundleIdentifiers: Set<String> = Set(workspaceCommand.bundleIdentifiers)
+      let requiredBundleIdentifiers: Set<String> = Set(workspaceCommand.applications.map(\.bundleIdentifier))
       let allRunning = requiredBundleIdentifiers.isSubset(of: runningBundleIdentifiers)
       onlyUnhide = allRunning
 
@@ -148,7 +155,7 @@ actor BundledCommandRunner: Sendable {
     let applications = applicationStore.applications
     let dynamicApps = await DynamicWorkspace.shared
       .applications(for: workspaceCommand.id)
-      .filter { !workspaceCommand.bundleIdentifiers.contains($0.bundleIdentifier) }
+      .filter { !workspaceCommand.applications.map(\.bundleIdentifier).contains($0.bundleIdentifier) }
     await MainActor.run {
       let previousWorkspace = UserSpace.shared.currentWorkspace
       if let previousWorkspace, previousWorkspace.id != workspaceCommand.id {
@@ -175,7 +182,7 @@ actor BundledCommandRunner: Sendable {
     // workspace was previously active.
     let dynamicWorkspaceWithoutTiling = (workspaceCommand.isDynamic && workspaceCommand.tiling == nil)
     if onlyUnhide || dynamicWorkspaceWithoutTiling {
-      if workspaceCommand.bundleIdentifiers.count > 1 {
+      if workspaceCommand.applications.map(\.bundleIdentifier).count > 1 {
         commands = handleOnlyUnhide(commands, dynamicWorkspaceWithoutTiling: dynamicWorkspaceWithoutTiling)
       }
     }
@@ -238,7 +245,7 @@ actor BundledCommandRunner: Sendable {
 
       if offset == commands.count - 1 {
         let currentBundleIdentifier: Set<String> = [NSWorkspace.shared.frontmostApplication!.bundleIdentifier!]
-        let commmandBundleIdentifiers: Set<String> = Set(workspaceCommand.bundleIdentifiers + dynamicApps.map(\.bundleIdentifier))
+        let commmandBundleIdentifiers: Set<String> = Set(workspaceCommand.applications.map(\.bundleIdentifier) + dynamicApps.map(\.bundleIdentifier))
 
         if currentBundleIdentifier != commmandBundleIdentifiers {
           await windowFocusRunner.resetFocusComponents()

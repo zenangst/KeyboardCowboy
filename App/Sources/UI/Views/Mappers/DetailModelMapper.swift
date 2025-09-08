@@ -125,12 +125,16 @@ private extension Command {
           )
         )
       case .workspace(let workspaceCommand):
-        var applications = [Application]()
-        for bundleIdentifier in workspaceCommand.bundleIdentifiers {
+        var applications = [CommandViewModel.Kind.WorkspaceModel.WorkspaceApplication]()
+        for bundleIdentifier in workspaceCommand.applications.map(\.bundleIdentifier) {
           guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
             continue
           }
-          applications.append(match)
+          let options = workspaceCommand.applications.first(where: { $0.bundleIdentifier == bundleIdentifier })?.options ?? []
+          applications.append(.init(name: match.displayName,
+                                    bundleIdentifier: match.bundleIdentifier,
+                                    path: match.path,
+                                    options: options))
         }
 
         let model = CommandViewModel.Kind.WorkspaceModel(

@@ -11,14 +11,14 @@ struct WorkspaceCommandView: View {
   private let onAppToggleModifiers: ([ModifierKey]) -> Void
   private let onDefaultForDynamicWorkspace: (Bool) -> Void
   private let onHideOtherAppsChange: (Bool) -> Void
-  private let onSelectedAppsChange: ([Application]) -> Void
+  private let onSelectedAppsChange: ([CommandViewModel.Kind.WorkspaceModel.WorkspaceApplication]) -> Void
   private let onTilingChange: (WorkspaceCommand.Tiling?) -> Void
 
   init(_ model: CommandViewModel.Kind.WorkspaceModel,
        onAppToggleModifiers: @escaping ([ModifierKey]) -> Void,
        onDefaultForDynamicWorkspace: @escaping (Bool) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void,
-       onSelectedAppsChange: @escaping ([Application]) -> Void,
+       onSelectedAppsChange: @escaping ([CommandViewModel.Kind.WorkspaceModel.WorkspaceApplication]) -> Void,
        onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        ) {
     self.model = model
@@ -37,7 +37,10 @@ struct WorkspaceCommandView: View {
         Menu {
           ForEach(applicationStore.applications) { application in
             Button(action: {
-              model.applications.append(application)
+              model.applications.append(.init(name: application.displayName,
+                                              bundleIdentifier: application.bundleIdentifier,
+                                              path: application.path,
+                                              options: []))
               onSelectedAppsChange(model.applications)
             },
                    label: { Text(application.displayName) })
@@ -61,10 +64,27 @@ struct WorkspaceCommandView: View {
       CompatList {
         ForEach(Array(zip(model.applications.indices, model.applications)), id: \.0) { offset, application in
           HStack(spacing: 8) {
-            IconView(icon: Icon(application), size: .init(width: 24, height: 24))
-            Text(application.displayName)
+            IconView(icon: Icon(Application(bundleIdentifier: application.bundleIdentifier, bundleName: application.name, path: application.path)), size: .init(width: 24, height: 24))
+            Text(application.name)
               .font(.caption)
             Spacer()
+
+            Toggle(isOn: Binding<Bool>(get: {
+              application.options.contains(.onlyWhenRunning)
+            }, set: { newValue in
+              if offset <= model.applications.count - 1 {
+                var selectedApp = model.applications[offset]
+                if selectedApp == application {
+                  selectedApp.options = newValue ? [.onlyWhenRunning] : []
+                  model.applications[offset] = selectedApp
+                  onSelectedAppsChange(model.applications)
+                }
+              }
+            })) {
+              Text("Only when open")
+                .font(.caption)
+            }
+
             Button {
               if offset <= model.applications.count - 1 {
                 let selectedApp = model.applications[offset]

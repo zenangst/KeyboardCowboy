@@ -26,7 +26,7 @@ final class DynamicWorkspace {
             let application = ApplicationStore.shared.application(for: bundleIdentifier) else { return }
 
           let hasAssignmentKeys = !currentWorkspace.appToggleModifiers.isEmpty
-          let isDynamicWorkspace = hasAssignmentKeys && currentWorkspace.bundleIdentifiers.isEmpty
+          let isDynamicWorkspace = hasAssignmentKeys && currentWorkspace.applications.map(\.bundleIdentifier).isEmpty
 
           guard isDynamicWorkspace else { return }
 

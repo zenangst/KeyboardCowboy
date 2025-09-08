@@ -122,12 +122,19 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     }
 
     struct WorkspaceModel: Codable, Hashable, Sendable {
-      var applications: [Application]
+      var applications: [WorkspaceApplication]
       var appToggleModifiers: [ModifierKey]
       var defaultForDynamicWorkspace: Bool
       var tiling: WorkspaceCommand.Tiling?
       var hideOtherApps: Bool
       var isDynamic: Bool
+
+      struct WorkspaceApplication: Codable, Hashable, Sendable {
+        let name: String
+        let bundleIdentifier: String
+        let path: String
+        var options: [WorkspaceCommand.WorkspaceApplication.Option]
+      }
     }
 
     struct AppFocusModel: Codable, Hashable, Sendable {
