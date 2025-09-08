@@ -19,9 +19,7 @@ final class HideApplicationPlugin {
       return
     }
 
-    guard let runningApplication = workspace
-      .applications
-      .first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }),
+    guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: command.application.bundleIdentifier).first,
           !runningApplication.isHidden else {
       return
     }

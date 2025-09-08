@@ -11,10 +11,8 @@ final class UnhideApplicationPlugin {
   }
 
   func execute(_ command: ApplicationCommand) {
-    guard let runningApplication = workspace
-      .applications
-      .first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }),
-      runningApplication.isHidden else {
+    guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: command.application.bundleIdentifier).first,
+    runningApplication.isHidden else {
       return
     }
 
