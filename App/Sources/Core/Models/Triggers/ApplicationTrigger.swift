@@ -8,7 +8,8 @@ struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Sendable 
 
   init(id: String = UUID().uuidString,
        application: Application,
-       contexts: [Context] = []) {
+       contexts: [Context] = [])
+  {
     self.id = id
     self.application = application
     self.contexts = Set(contexts)
@@ -16,11 +17,10 @@ struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Sendable 
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    #warning("Make this into an extension on RawRepresentable?")
-    let sortedContexts = self.contexts.sorted(by: { $0.rawValue < $1.rawValue  })
+    let sortedContexts = contexts.sorted(by: { $0.rawValue < $1.rawValue })
 
-    try container.encode(self.id, forKey: .id)
-    try container.encode(self.application, forKey: .application)
+    try container.encode(id, forKey: .id)
+    try container.encode(application, forKey: .application)
     try container.encode(sortedContexts, forKey: .contexts)
   }
 
@@ -30,16 +30,16 @@ struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Sendable 
     return clone
   }
 
-  public enum Context: String, Hashable, Codable, CaseIterable, Sendable {
-    public var id: String { rawValue }
+  enum Context: String, Hashable, Codable, CaseIterable, Sendable {
+    var id: String { rawValue }
 
     case closed, launched, frontMost, resignFrontMost
 
-    public var displayValue: String {
+    var displayValue: String {
       switch self {
-      case .launched:        "Launched"
-      case .closed:          "Closed"
-      case .frontMost:       "When in front most"
+      case .launched: "Launched"
+      case .closed: "Closed"
+      case .frontMost: "When in front most"
       case .resignFrontMost: "When backgrounded"
       }
     }

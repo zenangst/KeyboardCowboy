@@ -25,10 +25,11 @@ final class ApplicationCommandRunner: @unchecked Sendable {
 
   @MainActor
   init(scriptCommandRunner: ScriptCommandRunner = .init(),
-       keyboard: KeyboardCommandRunner,
-       workspace: WorkspaceProviding = NSWorkspace.shared) {
+       keyboard _: KeyboardCommandRunner,
+       workspace: WorkspaceProviding = NSWorkspace.shared)
+  {
     self.workspace = workspace
-    self.plugins = Plugins(
+    plugins = Plugins(
       activate: ActivateApplicationPlugin(),
       addToStage: AddToStagePlugin(),
       bringToFront: BringToFrontApplicationPlugin(scriptCommandRunner),
@@ -43,8 +44,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
   func run(_ command: ApplicationCommand, machPortEvent: MachPortEvent?, checkCancellation: Bool, snapshot: inout UserSpace.Snapshot) async throws {
     await delegate?.applicationCommandRunnerWillRunApplicationCommand(command)
     if command.modifiers.contains(.onlyIfNotRunning) {
-      let bundleIdentifiers = self.workspace.applications.compactMap(\.bundleIdentifier)
-      if bundleIdentifiers.contains(command.application.bundleIdentifier) {
+      if NSRunningApplication.runningApplications(withBundleIdentifier: command.application.bundleIdentifier).first != nil {
         return
       }
     }
@@ -63,8 +63,10 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     case .close:
       try plugins.close.execute(command, checkCancellation: checkCancellation)
       snapshot = await snapshot.updateFrontmostApplication()
-    case .hide:  plugins.hide.execute(command, snapshot: snapshot)
-    case .unhide: plugins.unhide.execute(command)
+    case .hide:
+      plugins.hide.execute(command, snapshot: snapshot)
+    case .unhide:
+      plugins.unhide.execute(command)
     case .peek:
       guard let machPortEvent else { return }
 

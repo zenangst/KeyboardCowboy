@@ -35,8 +35,7 @@ struct DetailView: View {
       DetailEmptyView()
         .allowsHitTesting(false)
         .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
-        .ignoresSafeArea(isRunningPreview ? [] : .container)
-    case .single(let viewModel):
+    case let .single(viewModel):
       SingleDetailView(
         viewModel,
         focus: focus,
@@ -50,14 +49,13 @@ struct DetailView: View {
       .overlay(alignment: .topTrailing) {
         DevTagView()
       }
-    case .multiple(let viewModels):
+    case let .multiple(viewModels):
       let limit = 5
       let count = viewModels.count
       MultiDetailView(
-        count > limit ? Array(viewModels[0...limit-1]) : viewModels,
+        count > limit ? Array(viewModels[0 ... limit - 1]) : viewModels,
         count: count
       )
-      .ignoresSafeArea(isRunningPreview ? [] : .container)
     }
   }
 }
@@ -69,7 +67,7 @@ private struct DevTagView: View {
         .fill(
           Gradient(colors: [
             Color.yellow,
-            Color.yellow.opacity(0.3)
+            Color.yellow.opacity(0.3),
           ])
         )
         .frame(width: 75, height: 20)

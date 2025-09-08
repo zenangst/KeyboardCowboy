@@ -63,20 +63,20 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
        scriptCommandRunner: ScriptCommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
        systemCommandRunner: SystemCommandRunner,
-       uiElementCommandRunner: UIElementCommandRunner
-  ) {
+       uiElementCommandRunner: UIElementCommandRunner)
+  {
     let windowTidy = WindowTidyRunner()
 
     self.applicationStore = applicationStore
-    self.missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
-    self.commandPanel = CommandPanelCoordinator()
+    missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
+    commandPanel = CommandPanelCoordinator()
 
     let windowCenter = WindowFocusCenter()
     let relativeFocus = WindowFocusRelativeFocus()
     let quarterFocus = WindowFocusQuarter()
-    let windowFocus =  WindowCommandFocusRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus)
+    let windowFocus = WindowCommandFocusRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus)
 
-    self.runners = .init(
+    runners = .init(
       application: ApplicationCommandRunner(
         scriptCommandRunner: scriptCommandRunner,
         keyboard: keyboardCommandRunner,
@@ -111,15 +111,15 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
     }
     for command in commands {
       switch command {
-      case .application(let applicationCommand):
+      case let .application(applicationCommand):
         workspace.reveal(applicationCommand.application.path)
-      case .open(let openCommand):
+      case let .open(openCommand):
         workspace.reveal(openCommand.path)
-      case .script(let scriptCommand):
-        if case .path(let path) = scriptCommand.source {
+      case let .script(scriptCommand):
+        if case let .path(path) = scriptCommand.source {
           workspace.reveal(path)
         }
-      case .shortcut(let shortcut):
+      case let .shortcut(shortcut):
         Task(priority: .userInitiated) {
           let source = """
           shortcuts view "\(shortcut.shortcutIdentifier)"
@@ -131,8 +131,8 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
                                            runtimeDictionary: [:], checkCancellation: false)
         }
       case .builtIn, .keyboard, .text,
-          .systemCommand, .menuBar, .windowManagement, 
-          .mouse, .uiElement, .bundled, .windowFocus, .windowTiling:
+           .systemCommand, .menuBar, .windowManagement,
+           .mouse, .uiElement, .bundled, .windowFocus, .windowTiling:
         break
       }
     }
@@ -141,10 +141,11 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
   @discardableResult
   func serialRun(_ commands: [Command], checkCancellation: Bool,
                  resolveUserEnvironment: Bool, machPortEvent: MachPortEvent,
-                 repeatingEvent: Bool) -> Task<Void, any Error> {
+                 repeatingEvent: Bool) -> Task<Void, any Error>
+  {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
-    ? NSPasteboard.general.string(forType: .string)
-    : nil
+      ? NSPasteboard.general.string(forType: .string)
+      : nil
 
     if commands.shouldAutoCancelledPreviousCommands {
       concurrentTask?.cancel()
@@ -154,6 +155,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
     let serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       Benchmark.shared.start("CommandRunner.serialRun")
       guard let self else { return }
+
       do {
         let shouldDismissMissionControl = commands.contains(where: {
           switch $0 {
@@ -182,7 +184,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
               switch scriptError {
               case .noData:
                 alert.messageText = "No Data"
-              case .scriptError(let string):
+              case let .scriptError(string):
                 alert.messageText = string
               }
 
@@ -228,11 +230,12 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
   func concurrentRun(_ commands: [Command], checkCancellation: Bool,
                      resolveUserEnvironment: Bool, machPortEvent: MachPortEvent,
-                     repeatingEvent: Bool) {
+                     repeatingEvent: Bool)
+  {
     var modifiedCheckCancellation = checkCancellation
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
-                                            ? NSPasteboard.general.string(forType: .string)
-                                            : nil
+      ? NSPasteboard.general.string(forType: .string)
+      : nil
     if commands.count == 1 {
       modifiedCheckCancellation = false
     }
@@ -246,6 +249,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self, originalPasteboardContents] in
       guard let self else { return }
+
       let shouldDismissMissionControl = commands.contains(where: {
         switch $0 {
         case .builtIn: false default: true
@@ -287,22 +291,23 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
   func run(_ command: Command, workflowCommands: [Command], snapshot: inout UserSpace.Snapshot,
            machPortEvent: MachPortEvent, checkCancellation: Bool, repeatingEvent: Bool,
-           runtimeDictionary: inout [String: String]) async throws {
+           runtimeDictionary: inout [String: String]) async throws
+  {
     await showRunningNotification(for: command)
 
     let output: String
     switch command {
-    case .application(let applicationCommand):
+    case let .application(applicationCommand):
       try await runners.application.run(applicationCommand, machPortEvent: machPortEvent,
                                         checkCancellation: checkCancellation, snapshot: &snapshot)
       output = command.name
-    case .builtIn(let builtInCommand):
+    case let .builtIn(builtInCommand):
       output = try await runners.builtIn.run(
         builtInCommand,
         snapshot: snapshot,
         machPortEvent: machPortEvent
       )
-    case .bundled(let bundledCommand):
+    case let .bundled(bundledCommand):
       output = try await runners.bundled.run(
         bundledCommand: bundledCommand,
         command: command,
@@ -314,9 +319,9 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         runtimeDictionary: &runtimeDictionary
       )
       snapshot = await snapshot.updateFrontmostApplication()
-    case .keyboard(let command):
+    case let .keyboard(command):
       switch command.kind {
-      case .key(let keyboardCommand):
+      case let .key(keyboardCommand):
         try await runners.keyboard.run(
           keyboardCommand.keyboardShortcuts,
           originalEvent: nil,
@@ -325,17 +330,17 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         )
         try await Task.sleep(for: .milliseconds(1))
         output = command.name
-      case .inputSource(let command):
+      case let .inputSource(command):
         try await runners.inputSource.run(command)
         output = command.name
       }
-    case .menuBar(let menuBarCommand):
+    case let .menuBar(menuBarCommand):
       try await runners.menubar.execute(menuBarCommand, repeatingEvent: repeatingEvent)
       output = command.name
-    case .mouse(let command):
+    case let .mouse(command):
       try await runners.mouse.run(command, snapshot: snapshot)
       output = command.name
-    case .open(let openCommand):
+    case let .open(openCommand):
       let path = await snapshot.interpolateUserSpaceVariables(openCommand.path, runtimeDictionary: runtimeDictionary)
       try await runners.open.run(path, checkCancellation: checkCancellation, application: openCommand.application)
       if !openCommand.name.isEmpty {
@@ -343,8 +348,8 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       } else {
         output = path
       }
-    case .script(let scriptCommand):
-      let result = try await self.runners.script.run(
+    case let .script(scriptCommand):
+      let result = try await runners.script.run(
         scriptCommand,
         snapshot: snapshot,
         runtimeDictionary: runtimeDictionary,
@@ -353,13 +358,13 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
       output = if let result {
         scriptCommand.meta.variableName != nil
-        ? result
-        : command.name + " " + result.trimmingCharacters(in: .newlines)
+          ? result
+          : command.name + " " + result.trimmingCharacters(in: .newlines)
       } else {
         command.name
       }
-    case .shortcut(let shortcutCommand):
-      let result = try await runners.shortcut.run(shortcutCommand, 
+    case let .shortcut(shortcutCommand):
+      let result = try await runners.shortcut.run(shortcutCommand,
                                                   environment: snapshot.terminalEnvironment(),
                                                   checkCancellation: checkCancellation)
       output = if let result {
@@ -367,13 +372,13 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       } else {
         command.name
       }
-    case .text(let typeCommand):
+    case let .text(typeCommand):
       switch typeCommand.kind {
-      case .insertText(let typeCommand):
+      case let .insertText(typeCommand):
         try await runners.text.run(typeCommand, snapshot: snapshot, runtimeDictionary: runtimeDictionary)
         output = command.name
       }
-    case .systemCommand(let systemCommand):
+    case let .systemCommand(systemCommand):
       try await runners.system.run(
         systemCommand,
         workflowCommands: workflowCommands,
@@ -383,23 +388,24 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         checkCancellation: checkCancellation, snapshot: snapshot
       )
       output = command.name
-    case .uiElement(let uiElementCommand):
+    case let .uiElement(uiElementCommand):
       try await runners.uiElement.run(uiElementCommand, checkCancellation: checkCancellation)
       output = ""
-    case .windowFocus(let command):
+    case let .windowFocus(command):
       try await runners.windowFocus.run(command, snapshot: snapshot)
       snapshot = await snapshot.updateFrontmostApplication()
       output = ""
-    case .windowTiling(let command):
+    case let .windowTiling(command):
       output = ""
       try await runners.windowTiling.run(command, snapshot: snapshot)
-    case .windowManagement(let windowCommand):
+    case let .windowManagement(windowCommand):
       try await runners.windowManagement.run(windowCommand)
 
-      if case .moveToNextDisplay(let mode) = windowCommand.kind,
-         case .center = mode {
+      if case let .moveToNextDisplay(mode) = windowCommand.kind,
+         case .center = mode
+      {
         let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
-        Task.detached { [windowTiling=runners.windowTiling] in
+        Task.detached { [windowTiling = runners.windowTiling] in
           try await Task.sleep(for: .milliseconds(200))
           try await windowTiling.run(.init(kind: .center, meta: .init()), snapshot: snapshot)
         }
@@ -444,7 +450,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         description: "Running…",
         style: NSScreen.main!.isMirrored() ? .floating(cornerRadius: 20) : .auto
       )
-      await self.setNotchInfo(notchInfo)
+      await setNotchInfo(notchInfo)
 
       longRunningTask = Task.detached { [notchInfo] in
         await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
@@ -461,13 +467,12 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       }
     case .commandPanel:
       switch command {
-      case .script(let scriptCommand):
+      case let .script(scriptCommand):
         await MainActor.run {
           commandPanel.run(scriptCommand)
         }
       default:
         assertionFailure("Not yet implemented.")
-        break
       }
       return
     case .none:
@@ -484,6 +489,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       Task { @MainActor in
         lastExecutedCommand = command
         guard let notchInfo else { return }
+
         notchInfo.title = LocalizedStringKey(stringLiteral: output)
         notchInfo.description = nil
         await notchInfo.expand(on: NSScreen.main ?? NSScreen.screens[0])
@@ -512,7 +518,8 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
         guard machPortEvent.keyCode == kVK_Escape,
               machPortEvent.type == .keyDown,
-              emptyFlags else {
+              emptyFlags
+        else {
           return
         }
 
@@ -526,7 +533,7 @@ extension Collection where Element == Command {
   var shouldAutoCancelledPreviousCommands: Bool {
     contains(where: { command in
       switch command {
-      case .bundled(let bundledCommand):
+      case let .bundled(bundledCommand):
         switch bundledCommand.kind {
         case .assignToWorkspace, .moveToWorkspace: return false
         case .activatePreviousWorkspace, .appFocus, .workspace, .tidy:
@@ -540,8 +547,9 @@ extension Collection where Element == Command {
 
   var shouldRestorePasteboard: Bool {
     contains(where: { command in
-      if case .text(let textCommand) = command,
-         case .insertText(let typeCommand) = textCommand.kind {
+      if case let .text(textCommand) = command,
+         case let .insertText(typeCommand) = textCommand.kind
+      {
         switch typeCommand.mode {
         case .instant:
           return true

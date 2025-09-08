@@ -1,5 +1,5 @@
-import Inject
 import Bonzai
+import Inject
 import SwiftUI
 
 struct GroupDetailHeaderView: View {
@@ -35,11 +35,11 @@ struct GroupDetailHeaderView: View {
           updater.modifyGroup(using: transaction) { group in
             group.isDisabled = !newValue
           }
-        }), label: {})
-        .switchStyle()
-        .environment(\.switchForegroundColor, Color(hex: groupPublisher.data.color))
-        .environment(\.switchBackgroundColor, Color(hex: groupPublisher.data.color))
-        .id("group.toggle.\(groupPublisher.data.id)")
+        }), label: { })
+          .switchStyle()
+          .environment(\.switchForegroundColor, Color(hex: groupPublisher.data.color))
+          .environment(\.switchBackgroundColor, Color(hex: groupPublisher.data.color))
+          .id("group.toggle.\(groupPublisher.data.id)")
       }
     }
     .enableInjection()

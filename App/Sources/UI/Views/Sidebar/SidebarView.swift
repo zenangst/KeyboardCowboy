@@ -1,5 +1,5 @@
-import Inject
 import Bonzai
+import Inject
 import SwiftUI
 
 struct SidebarView: View {
@@ -31,7 +31,8 @@ struct SidebarView: View {
        configSelection: SelectionManager<ConfigurationViewModel>,
        groupSelection: SelectionManager<GroupViewModel>,
        workflowSelection: SelectionManager<GroupDetailViewModel>,
-       onAction: @escaping (Action) -> Void) {
+       onAction: @escaping (Action) -> Void)
+  {
     self.focus = focus
     self.configSelection = configSelection
     self.groupSelection = groupSelection
@@ -43,7 +44,8 @@ struct SidebarView: View {
     VStack(alignment: .leading, spacing: 0) {
       ConfigurationContainerView(
         configSelection: configSelection,
-        onAction: onAction)
+        onAction: onAction
+      )
       .style(.derived)
 
       ZenDivider()

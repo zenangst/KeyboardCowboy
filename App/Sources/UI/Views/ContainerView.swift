@@ -42,14 +42,15 @@ struct ContainerView: View {
        triggerPublisher: TriggerPublisher,
        infoPublisher: InfoPublisher,
        commandPublisher: CommandsPublisher,
-       onAction: @escaping (Action, UndoManager?) -> Void) {
+       onAction: @escaping (Action, UndoManager?) -> Void)
+  {
     _contentState = contentState
     self.focus = focus
     self.publisher = publisher
     self.applicationTriggerSelection = applicationTriggerSelection
     self.commandSelection = commandSelection
     self.configSelection = configSelection
-    self.workflowSelection = contentSelection
+    workflowSelection = contentSelection
     self.groupsSelection = groupsSelection
     self.keyboardShortcutSelection = keyboardShortcutSelection
     self.triggerPublisher = triggerPublisher
@@ -68,14 +69,17 @@ struct ContainerView: View {
           configSelection: configSelection,
           groupSelection: groupsSelection,
           workflowSelection: workflowSelection,
-          onAction: { onAction(.sidebar($0), undoManager) })
+          onAction: { onAction(.sidebar($0), undoManager) }
+        )
         .onChange(of: contentState, perform: { newValue in
           guard newValue == .initialized else { return }
           guard let groupId = groupsSelection.lastSelection else { return }
+
           onAction(.sidebar(.selectGroups([groupId])), undoManager)
         })
         .style(.section(.sidebar))
         .navigationSplitViewColumnWidth(ideal: 250)
+        .edgesIgnoringSafeArea(.top)
       },
       content: {
         GroupDetailView(
@@ -89,10 +93,12 @@ struct ContainerView: View {
             if case .addWorkflow = $0 {
               Task { @MainActor in focus.wrappedValue = .detail(.name) }
             }
-          })
+          }
+        )
         .style(.section(.content))
         .environmentObject(detailUpdateTransaction)
-        .navigationSplitViewColumnWidth(min: 180, ideal: 250)
+        .navigationSplitViewColumnWidth(min: 200, ideal: 250)
+        .edgesIgnoringSafeArea(.top)
       },
       detail: {
         DetailView(
@@ -102,13 +108,15 @@ struct ContainerView: View {
           keyboardShortcutSelection: keyboardShortcutSelection,
           triggerPublisher: triggerPublisher,
           infoPublisher: infoPublisher,
-          commandPublisher: commandPublisher)
+          commandPublisher: commandPublisher
+        )
         .frame(minHeight: 400)
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
         .style(.section(.detail))
-        .background()
         .environmentObject(detailUpdateTransaction)
-      })
+        .edgesIgnoringSafeArea(.all)
+      }
+    )
     .navigationSplitViewStyle(.balanced)
     .enableInjection()
   }

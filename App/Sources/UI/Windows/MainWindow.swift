@@ -29,12 +29,13 @@ final class MainWindow: NSObject, NSWindowDelegate {
       .environmentObject(windowOpener)
       .environmentObject(core.configurationUpdater)
       .environmentObject(core.raycast)
+
     let styleMask: NSWindow.StyleMask = [
-      .titled, .closable, .resizable, .fullSizeContentView
+      .titled, .closable, .resizable, .fullSizeContentView,
     ]
 
     let window = ZenSwiftUIWindow(styleMask: styleMask, content: content)
-    window.titlebarAppearsTransparent = false
+    window.titlebarAppearsTransparent = true
     window.titleVisibility = .hidden
     window.identifier = .init(rawValue: KeyboardCowboyApp.mainWindowIdentifier)
     window.delegate = self
@@ -43,25 +44,25 @@ final class MainWindow: NSObject, NSWindowDelegate {
     } else {
       window.center()
     }
-    window.toolbarStyle = .unifiedCompact
-    window.standardWindowButton(.miniaturizeButton)?.isHidden = true
-    window.standardWindowButton(.zoomButton)?.isHidden = true
+
     window.orderFrontRegardless()
     window.makeKeyAndOrderFront(nil)
+
     KeyboardCowboyApp.activate(setActivationPolicy: true)
     self.window = window
   }
 
-  func windowWillClose(_ notification: Notification) {
+  func windowWillClose(_: Notification) {
     if let mainWindow = window {
       UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
     }
     KeyboardCowboyApp.deactivate()
-    self.window = nil
+    window = nil
   }
 
   func onSceneAction(_ scene: AppScene) {
     guard KeyboardCowboyApp.env() != .previews else { return }
+
     switch scene {
     case .permissions:
       windowOpener.openPermissions()
@@ -75,14 +76,18 @@ final class MainWindow: NSObject, NSWindowDelegate {
       KeyboardCowboyApp.activate()
     case .addGroup:
       windowOpener.openGroup(.add(WorkflowGroup.empty()))
-    case .editGroup(let groupId):
+    case let .editGroup(groupId):
       if let workflowGroup = core.groupStore.group(withId: groupId) {
         windowOpener.openGroup(.edit(workflowGroup))
       } else {
         assertionFailure("Unable to find workflow group")
       }
-    case .addCommand(let workflowId):
+    case let .addCommand(workflowId):
       windowOpener.openNewCommandWindow(.newCommand(workflowId: workflowId))
     }
   }
+}
+
+final class ClickThroughTitlebarOverlay: NSView {
+  override func hitTest(_: NSPoint) -> NSView? { nil } // fully click-through
 }

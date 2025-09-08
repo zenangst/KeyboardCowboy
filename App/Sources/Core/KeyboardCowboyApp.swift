@@ -1,12 +1,12 @@
 import ApplicationServices
 import AXEssibility
 import Bonzai
-import Combine
 import Cocoa
-import SwiftUI
-import LaunchArguments
-import InputSources
+import Combine
 @_exported import Inject
+import InputSources
+import LaunchArguments
+import SwiftUI
 
 @main
 struct KeyboardCowboyApp: App {
@@ -24,8 +24,8 @@ struct KeyboardCowboyApp: App {
     let core = Core()
     contentStore = core.contentStore
     self.core = core
-    self.windowOpener = WindowOpener(core: core)
-    self.coordinator = AppExtraCoordinator(core: core, windowOpener: windowOpener)
+    windowOpener = WindowOpener(core: core)
+    coordinator = AppExtraCoordinator(core: core, windowOpener: windowOpener)
 
     guard !isRunningPreview else { return }
 

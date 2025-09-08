@@ -28,12 +28,10 @@ final class ActivateApplicationPlugin {
   ///           a `.failedToFindRunningApplication` will be thrown.
   ///           If `.activate` should fail, then another error will be thrown: `.failedToActivate`
   func execute(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
-    guard
-      let runningApplication = userSpace
-        .runningApplications
-        .first(where:
-                { $0.bundleIdentifier.lowercased() == command.application.bundleIdentifier.lowercased() }
-        ) else {
+    guard let runningApplication = NSRunningApplication
+      .runningApplications(withBundleIdentifier: command.application.bundleIdentifier)
+      .first
+    else {
       throw ActivateApplicationPlugin.failedToFindRunningApplication
     }
 
@@ -45,7 +43,7 @@ final class ActivateApplicationPlugin {
 
     if checkCancellation { try Task.checkCancellation() }
 
-    if !runningApplication.ref.activate(options: options) {
+    if !runningApplication.activate(options: options) {
       throw ActivateApplicationPlugin.failedToActivate
     }
   }

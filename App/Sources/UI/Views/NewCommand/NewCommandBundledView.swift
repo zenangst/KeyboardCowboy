@@ -9,7 +9,7 @@ struct NewCommandBundledView: View {
                                 tiling: nil, createNewWindow: true)),
       .workspace(
         command: WorkspaceCommand(
-          bundleIdentifiers: [],
+          applications: [],
           defaultForDynamicWorkspace: false,
           hideOtherApps: true,
           tiling: nil
@@ -94,7 +94,7 @@ struct NewCommandBundledView: View {
       case .workspace(let workspaceCommand):
         NewCommandWorkspaceView(validation: $validation) { tiling in
           currentSelection = .workspace(command: WorkspaceCommand(
-            bundleIdentifiers: workspaceCommand.bundleIdentifiers,
+            applications: workspaceCommand.applications,
             defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: workspaceCommand.hideOtherApps,
             tiling: tiling
@@ -102,7 +102,7 @@ struct NewCommandBundledView: View {
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onSelectedAppsChange: { selectedApps in
           currentSelection = .workspace(command: WorkspaceCommand(
-            bundleIdentifiers: selectedApps.map(\.application.bundleIdentifier),
+            applications: selectedApps.map { WorkspaceCommand.WorkspaceApplication(bundleIdentifier: $0.application.bundleIdentifier, options: []) },
             defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: workspaceCommand.hideOtherApps,
             tiling: workspaceCommand.tiling
@@ -111,7 +111,7 @@ struct NewCommandBundledView: View {
           validation = updateAndValidatePayload()
         } onHideOtherAppsChange: { hideOtherApps in
           currentSelection = .workspace(command: WorkspaceCommand(
-            bundleIdentifiers: workspaceCommand.bundleIdentifiers,
+            applications: workspaceCommand.applications,
             defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: hideOtherApps,
             tiling: workspaceCommand.tiling
@@ -141,7 +141,7 @@ struct NewCommandBundledView: View {
     switch currentSelection {
     case .assignToWorkspace, .moveToWorkspace, .activatePreviousWorkspace: fatalError()
     case .workspace(let workspaceCommand):
-      if workspaceCommand.bundleIdentifiers.isEmpty {
+      if workspaceCommand.applications.isEmpty {
         return .invalid(reason: "Pick at least one application.")
       }
     case .appFocus(let appFocusCommand):

@@ -8,7 +8,8 @@ struct ConfigurationContainerView: View {
   private let onAction: (SidebarView.Action) -> Void
 
   init(configSelection: SelectionManager<ConfigurationViewModel>,
-       onAction: @escaping (SidebarView.Action) -> Void) {
+       onAction: @escaping (SidebarView.Action) -> Void)
+  {
     self.configSelection = configSelection
     self.onAction = onAction
   }
@@ -16,21 +17,20 @@ struct ConfigurationContainerView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       ZenLabel(.sidebar) { Text("Configuration") }
-        .padding(.top, topPadding())
-        .padding(.bottom, bottomPadding())
       ConfigurationView(configSelection) { action in
         switch action {
-        case .deleteConfiguration(let id):
+        case let .deleteConfiguration(id):
           onAction(.deleteConfiguration(id: id))
-        case .updateName(let newName):
+        case let .updateName(newName):
           onAction(.updateConfiguration(name: newName))
-        case .addConfiguration(let name):
+        case let .addConfiguration(name):
           onAction(.addConfiguration(name: name))
-        case .selectConfiguration(let id):
+        case let .selectConfiguration(id):
           onAction(.selectConfiguration(id))
         }
       }
     }
+    .padding(.top, topPadding())
     .enableInjection()
   }
 

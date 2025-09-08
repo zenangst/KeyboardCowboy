@@ -16,23 +16,23 @@ struct GroupDetailView: View {
 
     enum Kind: String, CaseIterable {
       case application = "app"
-      case builtIn = "builtIn"
-      case bundled = "bundled"
-      case inputSource = "inputSource"
-      case keyboard = "keyboard"
+      case builtIn
+      case bundled
+      case inputSource
+      case keyboard
       case menuBar = "menubar"
-      case mouse = "mouse"
-      case open = "open"
-      case plain = "plain"
-      case script = "script"
-      case shortcut = "shortcut"
-      case snippet = "snippet"
-      case systemCommand = "system" 
-      case text = "text"
+      case mouse
+      case open
+      case plain
+      case script
+      case shortcut
+      case snippet
+      case systemCommand = "system"
+      case text
       case uiElement = "ui"
-      case windowFocus = "windowFocus"
+      case windowFocus
       case windowManagement = "window"
-      case windowTiling = "windowTiling"
+      case windowTiling
     }
   }
 
@@ -65,14 +65,15 @@ struct GroupDetailView: View {
   init(_ appFocus: FocusState<AppFocus?>.Binding, groupId: String,
        workflowSelection: SelectionManager<GroupDetailViewModel>,
        commandSelection: SelectionManager<CommandViewModel>,
-       onAction: @escaping (Action) -> Void) {
+       onAction: @escaping (Action) -> Void)
+  {
     self.appFocus = appFocus
     self.workflowSelection = workflowSelection
     self.commandSelection = commandSelection
     self.groupId = groupId
     self.onAction = onAction
     let initialDebounce = ContentDebounce(workflows: workflowSelection.selections)
-    self.debounce = .init(initialDebounce, milliseconds: 150, onUpdate: { snapshot in
+    debounce = .init(initialDebounce, milliseconds: 150, onUpdate: { snapshot in
       onAction(.selectWorkflow(workflowIds: snapshot.workflows))
     })
   }
@@ -95,12 +96,10 @@ struct GroupDetailView: View {
 
     for searchTerm in searchTerms {
       switch workflow.trigger {
-      case .application(let app):
+      case let .application(app):
         match = app.lowercased().contains(searchTerm) ? .typeMatch(.application) : .unmatched
-      case .keyboard(let string):
+      case let .keyboard(string):
         if searchTerm.contains("function") {
-          match = string.contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
-        } else if searchTerm.contains("function") {
           match = string.contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("command") {
           match = string.contains(ModifierKey.leftCommand.pretty) ? .typeMatch(.keyboard) : .unmatched
@@ -113,7 +112,7 @@ struct GroupDetailView: View {
         } else {
           match = string.lowercased().contains(searchTerm) ? .typeMatch(.keyboard) : .unmatched
         }
-      case .snippet(let snippet):
+      case let .snippet(snippet):
         if enabledKeywords.contains(searchTerm) { continue }
 
         if snippet.lowercased().contains(searchTerm) {
@@ -126,7 +125,7 @@ struct GroupDetailView: View {
 
       for image in workflow.images {
         switch image.kind {
-        case .icon(let icon):
+        case let .icon(icon):
           if searchTerm.contains("app") && icon.path.contains("app") {
             match = .typeMatch(.application)
             break
@@ -163,8 +162,6 @@ struct GroupDetailView: View {
       GroupDetailHeaderView()
         .style(.derived)
 
-      ZenDivider()
-
       HStack {
         ZenLabel("Workflows", style: .content)
           .frame(maxWidth: .infinity, alignment: .leading)
@@ -174,7 +171,7 @@ struct GroupDetailView: View {
         }
       }
       .style(.derived)
-      
+
       WorkflowsFilterView(
         appFocus,
         namespace: namespace,
@@ -189,7 +186,8 @@ struct GroupDetailView: View {
           withAnimation(.smooth(duration: 0.2)) {
             searchTerm = newValue
           }
-        })
+        }
+      )
       .style(.derived)
 
       if groupsPublisher.data.isEmpty {
@@ -206,7 +204,7 @@ struct GroupDetailView: View {
       }
 
       CompatList {
-        let items = publisher.data.filter({ search($0) })
+        let items = publisher.data.filter { search($0) }
         ForEach(items.lazy, id: \.id) { element in
           WorkflowView(
             workflow: element,
@@ -224,7 +222,8 @@ struct GroupDetailView: View {
           .focusable($focus, as: .element(element.id)) {
             if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
                let lastSelection = workflowSelection.lastSelection,
-               let match = publisher.data.first(where: { $0.id == lastSelection }) {
+               let match = publisher.data.first(where: { $0.id == lastSelection })
+            {
               focus = .element(match.id)
             } else {
               onTap(element)
@@ -236,6 +235,7 @@ struct GroupDetailView: View {
           var indexSet = IndexSet()
           for item in collection {
             guard let index = publisher.data.firstIndex(of: item) else { continue }
+
             indexSet.insert(index)
           }
           onAction(.reorderWorkflows(source: indexSet, destination: destination))
@@ -253,20 +253,22 @@ struct GroupDetailView: View {
         })
         .onCommand(#selector(NSResponder.selectAll(_:)),
                    perform: {
-          let newSelections = Set(publisher.data.map(\.id))
-          workflowSelection.publish(newSelections)
-          if let elementID = publisher.data.first?.id,
-             let lastSelection = workflowSelection.lastSelection {
-            focus = .element(elementID)
-            focus = .element(lastSelection)
-          }
-        })
+                     let newSelections = Set(publisher.data.map(\.id))
+                     workflowSelection.publish(newSelections)
+                     if let elementID = publisher.data.first?.id,
+                        let lastSelection = workflowSelection.lastSelection
+                     {
+                       focus = .element(elementID)
+                       focus = .element(lastSelection)
+                     }
+                   })
         .onMoveCommand(perform: { direction in
           if let elementID = workflowSelection.handle(
             direction,
-            publisher.data.filter({ search($0) }),
+            publisher.data.filter { search($0) },
             proxy: proxy,
-            vertical: true) {
+            vertical: true
+          ) {
             focus = .element(elementID)
           }
         })
@@ -295,7 +297,6 @@ struct GroupDetailView: View {
         Color(.clear)
           .id("bottom")
           .padding(.bottom, 24)
-
       }
       .opacity(!publisher.data.isEmpty ? 1 : 0)
       .onChange(of: workflowSelection.selections) { newValue in
@@ -308,11 +309,12 @@ struct GroupDetailView: View {
       }
       .onAppear {
         guard let initialSelection = workflowSelection.initialSelection else { return }
+
         focus = .element(initialSelection)
         proxy.scrollTo(initialSelection)
       }
       .focused(appFocus, equals: .workflows)
-      .onChange(of: searchTerm, perform: { newValue in
+      .onChange(of: searchTerm, perform: { _ in
         if !searchTerm.isEmpty {
           if let firstSelection = publisher.data.filter({ search($0) }).first {
             workflowSelection.publish([firstSelection.id])
@@ -323,29 +325,29 @@ struct GroupDetailView: View {
           debounce.process(.init(workflows: workflowSelection.selections))
         }
       })
-      .toolbar(content: { toolbarContent() })
       .onReceive(NotificationCenter.default.publisher(for: .newWorkflow), perform: { _ in
         proxy.scrollTo("bottom")
       })
+      .enableInjection()
     }
   }
 
   private func toolbarContent() -> some ToolbarContent {
     ToolbarItemGroup(placement: .navigation) {
       Button(action: {
-        searchTerm = ""
-        onAction(.addWorkflow(workflowId: UUID().uuidString))
-      },
+               searchTerm = ""
+               onAction(.addWorkflow(workflowId: UUID().uuidString))
+             },
              label: {
-        Label(title: {
-          Text("Add Workflow")
-        }, icon: {
-          Image(systemName: "rectangle.stack.badge.plus")
-            .renderingMode(.template)
-            .foregroundColor(Color(.systemGray))
-        })
-      })
-      .help("Add Workflow")
+               Label(title: {
+                 Text("Add Workflow")
+               }, icon: {
+                 Image(systemName: "rectangle.stack.badge.plus")
+                   .renderingMode(.template)
+                   .foregroundColor(Color(.systemGray))
+               })
+             })
+             .help("Add Workflow")
     }
   }
 
@@ -388,7 +390,8 @@ struct GroupDetailView: View {
         Button(newGroup.name) {
           updater.getConfiguration { configuration in
             guard let oldGroup = configuration.groups.first(where: { $0.id == transaction.groupID }),
-                  let newGroup = configuration.groups.first(where: { $0.id == newGroup.id }) else {
+                  let newGroup = configuration.groups.first(where: { $0.id == newGroup.id })
+            else {
               return
             }
 
@@ -418,7 +421,7 @@ struct WorkflowsView_Previews: PreviewProvider {
   }
 }
 
-fileprivate extension CommandViewModel.Kind {
+private extension CommandViewModel.Kind {
   var match: GroupDetailView.Match.Kind {
     switch self {
     case .application: .application
@@ -441,12 +444,12 @@ fileprivate extension CommandViewModel.Kind {
   }
 }
 
-fileprivate extension String {
+private extension String {
   func replacingFirstOccurrence(of target: String, with replacement: String) -> String {
-    guard let range = self.range(of: target) else {
+    guard let range = range(of: target) else {
       return self
     }
 
-    return self.replacingCharacters(in: range, with: replacement)
+    return replacingCharacters(in: range, with: replacement)
   }
 }

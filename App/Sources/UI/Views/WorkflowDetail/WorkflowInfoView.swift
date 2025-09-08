@@ -1,6 +1,6 @@
 import Bonzai
-import Inject
 import Carbon
+import Inject
 import SwiftUI
 
 struct WorkflowInfoView: View {
@@ -22,6 +22,7 @@ struct WorkflowInfoView: View {
   var body: some View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $name)
+        .frame(maxWidth: .infinity)
         .focused(focus, equals: .detail(.name))
         .fontWeight(.semibold)
         .environment(\.textFieldCalm, true)
@@ -30,13 +31,14 @@ struct WorkflowInfoView: View {
         .environment(\.textFieldUnfocusedOpacity, 0)
         .onChange(of: name) { newName in
           guard newName != publisher.data.name else { return }
+
           publisher.data.name = newName
           updater.modifyWorkflow(using: transaction) { workflow in
             workflow.name = newName
           }
         }
       Spacer()
-      Toggle(isOn: $publisher.data.isEnabled, label: {})
+      Toggle(isOn: $publisher.data.isEnabled, label: { })
         .onChange(of: publisher.data.isEnabled) { newValue in
           updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
             workflow.isDisabled = !newValue
@@ -47,6 +49,7 @@ struct WorkflowInfoView: View {
     }
     .onChange(of: publisher.data.name) { newValue in
       guard newValue != name else { return }
+
       name = newValue
     }
   }

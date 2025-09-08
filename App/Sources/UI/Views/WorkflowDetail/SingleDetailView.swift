@@ -1,7 +1,7 @@
+import Apps
 import Bonzai
 import Inject
 import SwiftUI
-import Apps
 
 struct SingleDetailView: View {
   @Namespace var namespace
@@ -22,9 +22,10 @@ struct SingleDetailView: View {
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
-       triggerPublisher: TriggerPublisher,
-       infoPublisher: InfoPublisher,
-       commandPublisher: CommandsPublisher) {
+       triggerPublisher _: TriggerPublisher,
+       infoPublisher _: InfoPublisher,
+       commandPublisher _: CommandsPublisher)
+  {
     self.viewModel = viewModel
     self.focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
@@ -35,56 +36,56 @@ struct SingleDetailView: View {
   var body: some View {
     ScrollViewReader { proxy in
       VStack(alignment: .leading, spacing: 0) {
-          WorkflowInfoView(focus, publisher: infoPublisher, onInsertTab: {
-              switch triggerPublisher.data {
-              case .applications:      focus.wrappedValue = .detail(.applicationTriggers)
-              case .keyboardShortcuts: focus.wrappedValue = .detail(.keyboardShortcuts)
-              case .snippet:           focus.wrappedValue = .detail(.addSnippetTrigger)
-              case .empty:             focus.wrappedValue = .detail(.addAppTrigger)
-              case .modifier: break
-              }
-            })
-          .style(.derived)
-          .environmentObject(commandSelectionManager)
-
-          ZenDivider()
-
-          WorkflowTriggerListView(
-            focus,
-            workflowId: infoPublisher.data.id,
-            publisher: triggerPublisher,
-            applicationTriggerSelectionManager: applicationTriggerSelectionManager,
-            keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
-            onTab: {
-              if commandPublisher.data.commands.isEmpty {
-                focus.wrappedValue = .detail(.addCommand)
-              } else {
-                focus.wrappedValue = .detail(.commands)
-              }
-            })
-        }
-        .padding(.top, 12)
-        .padding(.bottom, 24)
-        .background(alignment: .bottom, content: {
-          SingleDetailBackgroundView()
+        WorkflowInfoView(focus, publisher: infoPublisher, onInsertTab: {
+          switch triggerPublisher.data {
+          case .applications: focus.wrappedValue = .detail(.applicationTriggers)
+          case .keyboardShortcuts: focus.wrappedValue = .detail(.keyboardShortcuts)
+          case .snippet: focus.wrappedValue = .detail(.addSnippetTrigger)
+          case .empty: focus.wrappedValue = .detail(.addAppTrigger)
+          case .modifier: break
+          }
         })
+        .style(.derived)
+        .environmentObject(commandSelectionManager)
+
+        WorkflowTriggerListView(
+          focus,
+          workflowId: infoPublisher.data.id,
+          publisher: triggerPublisher,
+          applicationTriggerSelectionManager: applicationTriggerSelectionManager,
+          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+          onTab: {
+            if commandPublisher.data.commands.isEmpty {
+              focus.wrappedValue = .detail(.addCommand)
+            } else {
+              focus.wrappedValue = .detail(.commands)
+            }
+          }
+        )
+      }
+      .padding(.top, 12)
+      .padding(.bottom, 24)
+      .background(alignment: .bottom, content: {
+        SingleDetailBackgroundView()
+      })
 
       CommandList(
         focus,
         namespace: namespace,
         workflowId: infoPublisher.data.id,
-        isPrimary: Binding<Bool>.init(get: {
+        isPrimary: Binding<Bool>(get: {
           switch triggerPublisher.data {
-          case .applications(let array): !array.isEmpty
-          case .keyboardShortcuts(let keyboardTrigger): !keyboardTrigger.shortcuts.isEmpty
-          case .snippet(let snippet): !snippet.text.isEmpty
+          case let .applications(array): !array.isEmpty
+          case let .keyboardShortcuts(keyboardTrigger): !keyboardTrigger.shortcuts.isEmpty
+          case let .snippet(snippet): !snippet.text.isEmpty
           case .empty, .modifier: false
           }
         }, set: { _ in }),
         publisher: commandPublisher,
         triggerPublisher: triggerPublisher,
         selectionManager: commandSelectionManager,
-        scrollViewProxy: proxy)
+        scrollViewProxy: proxy
+      )
     }
     .focusScope(namespace)
     .frame(maxHeight: .infinity, alignment: .top)
@@ -104,7 +105,7 @@ struct SingleDetailView_Previews: PreviewProvider {
                          keyboardShortcutSelectionManager: .init(),
                          triggerPublisher: DesignTime.triggerPublisher,
                          infoPublisher: DesignTime.infoPublisher,
-                         commandPublisher: DesignTime.commandsPublisher) 
+                         commandPublisher: DesignTime.commandsPublisher)
           .background()
           .environment(\.colorScheme, colorScheme)
           .style(.section(.detail))
