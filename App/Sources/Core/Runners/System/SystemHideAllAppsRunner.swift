@@ -5,7 +5,7 @@ import Cocoa
 import MachPort
 import Windows
 
-final class SystemHideAllAppsRunner {
+enum SystemHideAllAppsRunner {
   @MainActor static var machPort: MachPortEventController?
 
   static func run(targetApplication: Application? = nil, checkCancellation: Bool, workflowCommands: [Command]) async throws {
@@ -13,7 +13,7 @@ final class SystemHideAllAppsRunner {
 
     var targetScreenFrame: CGRect = currentScreen.visibleFrame
     var excludedBundleIdentifiers = workflowCommands.compactMap {
-      if case .application(let command) = $0, (command.action == .open || command.action == .unhide) { return command.application.bundleIdentifier }
+      if case let .application(command) = $0, command.action == .open || command.action == .unhide { return command.application.bundleIdentifier }
       return nil
     }
 
@@ -65,7 +65,6 @@ final class SystemHideAllAppsRunner {
     // Fix Podcasts app not hiding when calling `NSRunningApplication.hide()`
     let misbehavingBundles = Set(arrayLiteral: "com.apple.podcasts")
     for app in apps where misbehavingBundles.contains(app.bundleIdentifier ?? "") {
-
       if #available(macOS 14.0, *) {
         app.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateAllWindows)
       } else {
@@ -84,9 +83,9 @@ final class SystemHideAllAppsRunner {
       processIdentifiers.insert(Int(app.processIdentifier))
     }
 
-    var timeout: Int = 0
-    let limit: Int = 100
-    var waitingForWindowsToDisappear: Bool = true
+    var timeout = 0
+    let limit = 100
+    var waitingForWindowsToDisappear = true
 
     while waitingForWindowsToDisappear {
       if checkCancellation { try Task.checkCancellation() }
@@ -107,18 +106,19 @@ final class SystemHideAllAppsRunner {
 
   private static func runningApplications(in targetRect: CGRect, targetApplication: Application? = nil,
                                           targetPid: Int?, options: CGWindowListOption,
-                                          exceptBundleIdentifiers: [String]) -> (Set<Int>, [NSRunningApplication]) {
+                                          exceptBundleIdentifiers: [String]) -> (Set<Int>, [NSRunningApplication])
+  {
     let processIdentifiers = Set(indexWindowsInStage(getWindows(options: options), targetRect: targetRect)
       .map(\.ownerPid.rawValue))
-      .filter({ $0 != targetPid })
+      .filter { $0 != targetPid }
 
-    let applications = NSWorkspace.shared.runningApplications
+    let applications = NSWorkspace.shared
+      .runningApplications
       .filter {
         guard $0.bundleIdentifier != targetApplication?.bundleIdentifier else { return false }
 
         let processIdentifier = Int($0.processIdentifier)
         guard processIdentifiers.contains(processIdentifier) else { return false }
-
         guard !exceptBundleIdentifiers.contains($0.bundleIdentifier ?? "") else { return false }
         guard let bundleURL = $0.bundleURL else { return false }
 
@@ -138,7 +138,7 @@ final class SystemHideAllAppsRunner {
   // MARK: Private methods
 
   private static func getWindows(options: CGWindowListOption) -> [WindowModel] {
-    ((try? WindowsInfo.getWindows(options)) ?? [])
+    (try? WindowsInfo.getWindows(options)) ?? []
   }
 
   private static func indexWindowsInStage(_ models: [WindowModel], targetRect: CGRect) -> [WindowModel] {
@@ -147,12 +147,12 @@ final class SystemHideAllAppsRunner {
     let windows: [WindowModel] = models
       .filter {
         $0.id > 0 &&
-        $0.ownerName != "borders" &&
-        $0.rect.size.width > minimumSize.width &&
-        $0.rect.size.height > minimumSize.height &&
-        $0.alpha == 1 &&
-        !excluded.contains($0.ownerName) &&
-        $0.rect.intersects(targetRect)
+          $0.ownerName != "borders" &&
+          $0.rect.size.width > minimumSize.width &&
+          $0.rect.size.height > minimumSize.height &&
+          $0.alpha == 1 &&
+          !excluded.contains($0.ownerName) &&
+          $0.rect.intersects(targetRect)
       }
 
     return windows

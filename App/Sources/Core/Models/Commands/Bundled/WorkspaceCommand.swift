@@ -62,11 +62,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
     init(from decoder: any Decoder) throws {
       let container: KeyedDecodingContainer<WorkspaceCommand.WorkspaceApplication.CodingKeys> = try decoder.container(keyedBy: WorkspaceCommand.WorkspaceApplication.CodingKeys.self)
-      self.bundleIdentifier = try container.decode(String.self, forKey: WorkspaceCommand.WorkspaceApplication.CodingKeys.bundleIdentifier)
+      bundleIdentifier = try container.decode(String.self, forKey: WorkspaceCommand.WorkspaceApplication.CodingKeys.bundleIdentifier)
       if let options = try? container.decodeIfPresent([WorkspaceCommand.WorkspaceApplication.Option].self, forKey: WorkspaceCommand.WorkspaceApplication.CodingKeys.options) {
         self.options = options
       } else {
-        self.options = []
+        options = []
       }
     }
   }
@@ -130,8 +130,10 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     defaultForDynamicWorkspace = try container.decodeIfPresent(Bool.self, forKey: .defaultForDynamicWorkspace) ?? false
   }
 
-  @MainActor
-  func commands(_ applications: [Application], dynamicApps: [Application] = []) async throws -> [Command] {
+  func commands(_ applications: [Application],
+                snapshot _: inout UserSpace.Snapshot,
+                dynamicApps: [Application] = []) throws -> [Command]
+  {
     guard !UserSettings.WindowManager.stageManagerEnabled else {
       return whenStageManagerIsActive(applications, dynamicApps: dynamicApps)
     }
@@ -160,11 +162,9 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
     let windows = indexWindowsInStage(getWindows([.optionOnScreenOnly, .excludeDesktopElements]))
+    let runningApplications = windows
+      .compactMap { NSRunningApplication(processIdentifier: Int32($0.ownerPid.rawValue)) }
 
-    let pids = windows.map(\.ownerPid.rawValue).map(Int32.init)
-    let runningApplications = NSWorkspace.shared.runningApplications.filter {
-      pids.contains($0.processIdentifier)
-    }
     let runningTargetApps: [Int] = runningApplications
       .compactMap {
         guard let bundleIdentifier = $0.bundleIdentifier,
@@ -172,9 +172,8 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
         return Int($0.processIdentifier)
       }
-    let windowPids = windows
-      .map { $0.ownerPid.rawValue }
 
+    let windowPids = windows.map { $0.ownerPid.rawValue }
     let runningTargetAppsSet = Set(runningTargetApps)
     let windowPidsSet = Set(windowPids)
     let perfectBundleMatch = runningTargetAppsSet == windowPidsSet
@@ -228,7 +227,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
         if slowBundles.contains(application.bundleIdentifier) || application.metadata.isElectron {
           containsSlowApps = true
-          action = .unhide
         }
 
         commands.append(

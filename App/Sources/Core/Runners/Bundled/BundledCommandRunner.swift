@@ -156,6 +156,7 @@ actor BundledCommandRunner: Sendable {
     let dynamicApps = await DynamicWorkspace.shared
       .applications(for: workspaceCommand.id)
       .filter { !workspaceCommand.applications.map(\.bundleIdentifier).contains($0.bundleIdentifier) }
+
     await MainActor.run {
       let previousWorkspace = UserSpace.shared.currentWorkspace
       if let previousWorkspace, previousWorkspace.id != workspaceCommand.id {
@@ -166,14 +167,13 @@ actor BundledCommandRunner: Sendable {
       UserSpace.shared.currentWorkspace = workspaceCommand
     }
 
-    let result = try await workspaceCommand.commands(applications, dynamicApps: dynamicApps)
+    let result = try workspaceCommand.commands(applications, snapshot: &snapshot, dynamicApps: dynamicApps)
     var commands = result
 
     if UserSettings.WindowManager.stageManagerEnabled && result.isEmpty {
       await CapsuleNotificationWindow.shared
         .open()
         .publish("No application assigned to workspace", id: UUID().uuidString, state: .warning)
-
       return
     }
 
@@ -245,7 +245,9 @@ actor BundledCommandRunner: Sendable {
 
       if offset == commands.count - 1 {
         let currentBundleIdentifier: Set<String> = [NSWorkspace.shared.frontmostApplication!.bundleIdentifier!]
-        let commmandBundleIdentifiers: Set<String> = Set(workspaceCommand.applications.map(\.bundleIdentifier) + dynamicApps.map(\.bundleIdentifier))
+        let commmandBundleIdentifiers: Set<String> = Set(workspaceCommand.applications.compactMap {
+          $0.options.contains(.onlyWhenRunning) ? nil : $0.bundleIdentifier
+        } + dynamicApps.map(\.bundleIdentifier))
 
         if currentBundleIdentifier != commmandBundleIdentifiers {
           await windowFocusRunner.resetFocusComponents()
@@ -256,8 +258,11 @@ actor BundledCommandRunner: Sendable {
           NSRunningApplication.runningApplications(withBundleIdentifier: $0).map(\.processIdentifier)
         })
 
+        try await Task.sleep(for: .milliseconds(25))
         let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
-        if shouldActivateTopApp, let firstWindow = newSnapshot.windows.visibleWindowsInStage.first(where: {
+        let windows = newSnapshot.windows.visibleWindowsInStage
+
+        if shouldActivateTopApp, let firstWindow = windows.first(where: {
           validPids.contains(pid_t($0.ownerPid.rawValue))
         }),
           let runningApp = NSRunningApplication(processIdentifier: pid_t(firstWindow.ownerPid.rawValue))
