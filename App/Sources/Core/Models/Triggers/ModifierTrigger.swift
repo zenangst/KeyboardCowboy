@@ -8,8 +8,15 @@ struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
 
     var keyCode: Int? {
       switch self {
-      case .modifiers(let modifiers): modifiers.keyCode
-      case .key(let key): key.keyCode
+      case let .modifiers(modifiers): modifiers.keyCode
+      case let .key(key): key.keyCode
+      }
+    }
+
+    var cgModifiers: CGEventFlags {
+      switch self {
+      case let .modifiers(modifiers): modifiers.cgModifiers
+      case .key: [] // No modifiers for a single key
       }
     }
   }

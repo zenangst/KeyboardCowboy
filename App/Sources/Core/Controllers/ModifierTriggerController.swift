@@ -33,9 +33,7 @@ final class ModifierTriggerController: @unchecked Sendable {
   private var workflowGroupsSubscription: AnyCancellable?
   private var cache: [String: ModifierTrigger] = [:]
   private var state: State = .idle
-//  { willSet { print("🍒 state: ", state.debugId, newValue.debugId) } }
   private var currentTrigger: ModifierTrigger?
-//  { willSet { print("🔫 currentTrigger:", currentTrigger?.id, "==", newValue?.id) } }
   private var workItem: DispatchWorkItem?
 
   func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
@@ -49,6 +47,15 @@ final class ModifierTriggerController: @unchecked Sendable {
   @MainActor
   func handleIfApplicable(_ machPortEvent: MachPortEvent) -> Bool {
     guard let coordinator, !cache.isEmpty else { return false }
+
+    // Verify that all modifiers have been released, then to a proper reset.
+    if !machPortEvent.isRepeat, machPortEvent.event.type == .keyUp, machPortEvent.flags == .maskNonCoalesced,
+       let currentTrigger, Int(machPortEvent.keyCode) == currentTrigger.alone.kind.keyCode
+    {
+      coordinator
+        .discardSystemEvent(on: machPortEvent)
+        .postMaskNonCoalesced()
+    }
 
     workItem?.cancel()
 
@@ -103,7 +110,7 @@ final class ModifierTriggerController: @unchecked Sendable {
 
         cache[keySignature] = ModifierTrigger(
           id: keySignature,
-          alone: .init(kind: .key(key), threshold: 125),
+          alone: .init(kind: .key(key), threshold: 100),
           heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75)
         )
       }
@@ -131,7 +138,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
         cache[keySignature] = ModifierTrigger(
           id: keySignature,
-          alone: .init(kind: .key(key), threshold: 125),
+          alone: .init(kind: .key(key), threshold: 100),
           heldDown: .init(kind: .modifiers([.function]), threshold: 75)
         )
       }
@@ -245,6 +252,8 @@ final class ModifierTriggerController: @unchecked Sendable {
   }
 
   private func onKeyUp(_ machPortEvent: MachPortEvent, coordinator: ModifierTriggerMachPortCoordinator, currentTrigger: ModifierTrigger) {
+    workItem?.cancel()
+
     switch state {
     case let .keyDown(kind, held):
       switch kind {
