@@ -258,7 +258,9 @@ actor BundledCommandRunner: Sendable {
           NSRunningApplication.runningApplications(withBundleIdentifier: $0).map(\.processIdentifier)
         })
 
-        try await Task.sleep(for: .milliseconds(25))
+        if commands.count > 1 {
+          try await Task.sleep(for: .milliseconds(25))
+        }
         let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
         let windows = newSnapshot.windows.visibleWindowsInStage
 
