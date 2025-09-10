@@ -104,7 +104,9 @@ final class ApplicationCommandRunner: @unchecked Sendable {
         if await !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
           try await plugins.launch.execute(command, checkCancellation: checkCancellation)
         } else {
-          try await plugins.bringToFront.execute(checkCancellation: checkCancellation)
+          Task.detached { [bringToFront = plugins.bringToFront] in
+            try await bringToFront.execute(checkCancellation: checkCancellation)
+          }
         }
       } catch {
         try await plugins.bringToFront.execute(checkCancellation: checkCancellation)
