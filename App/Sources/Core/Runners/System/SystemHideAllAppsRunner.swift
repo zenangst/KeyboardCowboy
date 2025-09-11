@@ -11,6 +11,22 @@ enum SystemHideAllAppsRunner {
   static func run(targetApplication: Application? = nil, checkCancellation: Bool, workflowCommands: [Command]) async throws {
     guard let currentScreen = NSScreen.main else { return }
 
+    var bundleIdentifiers = [String]()
+    let applicationCommands = workflowCommands.compactMap {
+      if case let .application(command) = $0, command.action == .open || command.action == .unhide {
+        bundleIdentifiers.append(command.application.bundleIdentifier)
+        return command
+      }
+      return nil
+    }
+
+    if !bundleIdentifiers.isEmpty,
+       !bundleIdentifiers.contains(where: { $0 == "com.apple.finder" }),
+       applicationCommands.allSatisfy({ $0.action == .unhide })
+    {
+      NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.finder").first?.hide()
+    }
+
     var targetScreenFrame: CGRect = currentScreen.visibleFrame
     var excludedBundleIdentifiers = workflowCommands.compactMap {
       if case let .application(command) = $0, command.action == .open || command.action == .unhide { return command.application.bundleIdentifier }

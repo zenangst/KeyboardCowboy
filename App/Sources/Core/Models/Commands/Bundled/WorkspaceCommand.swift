@@ -130,10 +130,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     defaultForDynamicWorkspace = try container.decodeIfPresent(Bool.self, forKey: .defaultForDynamicWorkspace) ?? false
   }
 
-  func commands(_ applications: [Application],
-                snapshot _: inout UserSpace.Snapshot,
-                dynamicApps: [Application] = []) throws -> [Command]
-  {
+  @MainActor func commands(_ applications: [Application], snapshot _: inout UserSpace.Snapshot, dynamicApps: [Application] = []) throws -> [Command] {
     guard !UserSettings.WindowManager.stageManagerEnabled else {
       return whenStageManagerIsActive(applications, dynamicApps: dynamicApps)
     }
@@ -186,6 +183,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     ))
 
     var containsSlowApps = false
+
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         continue
@@ -201,8 +199,10 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       if let runningApplication, !windows.map(\.ownerPid.rawValue).contains(Int(runningApplication.processIdentifier)) {
         action = runningApplication.action
       } else if let runningApplication {
-        if offset < runningApplications.count - 1,
-           runningApplication.processIdentifier == windows[offset].ownerPid.rawValue
+        if bundleIdentifiers.count == 1 {
+          action = .open
+        } else if offset < runningApplications.count - 1,
+                  runningApplication.processIdentifier == windows[offset].ownerPid.rawValue
         {
           action = .unhide
         } else {
@@ -257,7 +257,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           .application(ApplicationCommand(
             action: action,
             application: application,
-            meta: Command.MetaData(delay: nil, name: name), modifiers: [.waitForAppToLaunch]
+            meta: Command.MetaData(delay: nil, name: name), modifiers: [.waitForAppToLaunch, .background]
           )))
       }
     }

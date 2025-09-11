@@ -13,7 +13,8 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
   init(id: String = UUID().uuidString, bundleIdentifer: String,
        hideOtherApps: Bool, tiling: Tiling?,
-       createNewWindow: Bool = true) {
+       createNewWindow: Bool = true)
+  {
     self.id = id
     self.bundleIdentifer = bundleIdentifer
     self.hideOtherApps = hideOtherApps
@@ -23,11 +24,11 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
   init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.id = try container.decode(String.self, forKey: .id)
-    self.bundleIdentifer = try container.decode(String.self, forKey: .bundleIdentifer)
-    self.hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
-    self.createNewWindow = try container.decodeIfPresent(Bool.self, forKey: .createNewWindow) ?? true
-    self.tiling = try container.decodeIfPresent(AppFocusCommand.Tiling.self, forKey: .tiling)
+    id = try container.decode(String.self, forKey: .id)
+    bundleIdentifer = try container.decode(String.self, forKey: .bundleIdentifer)
+    hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
+    createNewWindow = try container.decodeIfPresent(Bool.self, forKey: .createNewWindow) ?? true
+    tiling = try container.decodeIfPresent(AppFocusCommand.Tiling.self, forKey: .tiling)
   }
 
   @MainActor
@@ -53,7 +54,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     }
 
     let allWindows = indexWindowsInStage(getWindows())
-    var appWindows = allWindows.filter({ $0.ownerName == application.bundleName })
+    var appWindows = allWindows.filter { $0.ownerName == application.bundleName }
     var numberOfAppWindows = appWindows.count
     var runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifer).first
 
@@ -63,7 +64,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
     runningApplication?.activate(options: .activateAllWindows)
 
-    var waitingForActivation: Bool = true
+    var waitingForActivation = true
     var timeout: TimeInterval = 0
 
     if !isCurrentApp {
@@ -83,12 +84,12 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
     runningApplication = NSWorkspace.shared.frontmostApplication
 
-    var waitingForWindow: Bool = true
+    var waitingForWindow = true
     timeout = 0
     while waitingForWindow {
       try Task.checkCancellation()
       let allWindows = indexWindowsInStage(getWindows())
-      appWindows = allWindows.filter({ Int32($0.ownerPid.rawValue) == runningApplication?.processIdentifier })
+      appWindows = allWindows.filter { Int32($0.ownerPid.rawValue) == runningApplication?.processIdentifier }
       numberOfAppWindows = appWindows.count
 
       if numberOfAppWindows > 0 {
@@ -96,7 +97,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
         break
       }
 
-      // Set the sleep to at least 50ms to make sure that the application has a window. 
+      // Set the sleep to at least 50ms to make sure that the application has a window.
       try? await Task.sleep(for: .milliseconds(50))
       timeout += 1
 
@@ -107,13 +108,14 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
     if numberOfAppWindows == 0 { return [] }
 
-    if hideOtherApps && !aerospaceIsRunning {
+    if hideOtherApps, !aerospaceIsRunning {
       try await SystemHideAllAppsRunner.run(
         targetApplication: application,
         checkCancellation: checkCancellation,
         workflowCommands: [
-          Command.application(.init(action: .open, application: application, meta: Command.MetaData(delay: nil, name: "Hide All Apps"), modifiers: []))
-        ])
+          Command.application(.init(action: .open, application: application, meta: Command.MetaData(delay: nil, name: "Hide All Apps"), modifiers: [])),
+        ]
+      )
     }
 
     let windowTiling: WindowTiling?
@@ -170,7 +172,8 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       }
     case .arrangeDynamicQuarters:
       if let window = appWindows.first,
-         let screen = NSScreen.screens.first(where: { $0.visibleFrame.mainDisplayFlipped.intersects(window.rect) }) {
+         let screen = NSScreen.screens.first(where: { $0.visibleFrame.mainDisplayFlipped.intersects(window.rect) })
+      {
         let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft, .fill]
         let currentTiling = WindowTilingRunner.calculateTiling(for: window.rect, in: screen.visibleFrame.mainDisplayFlipped)
 
@@ -219,12 +222,12 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     let windows: [WindowModel] = models
       .filter {
         $0.id > 0 &&
-        $0.ownerName != "borders" &&
-        $0.isOnScreen &&
-        $0.rect.size.width > minimumSize.width &&
-        $0.rect.size.height > minimumSize.height &&
-        $0.alpha == 1 &&
-        !excluded.contains($0.ownerName)
+          $0.ownerName != "borders" &&
+          $0.isOnScreen &&
+          $0.rect.size.width > minimumSize.width &&
+          $0.rect.size.height > minimumSize.height &&
+          $0.alpha == 1 &&
+          !excluded.contains($0.ownerName)
       }
 
     return windows
@@ -233,10 +236,10 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
   func copy() -> Self {
     AppFocusCommand(
       id: UUID().uuidString,
-      bundleIdentifer: self.bundleIdentifer,
-      hideOtherApps: self.hideOtherApps,
-      tiling: self.tiling,
-      createNewWindow: self.createNewWindow
+      bundleIdentifer: bundleIdentifer,
+      hideOtherApps: hideOtherApps,
+      tiling: tiling,
+      createNewWindow: createNewWindow
     )
   }
 }

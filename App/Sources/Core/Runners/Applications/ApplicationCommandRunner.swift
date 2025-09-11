@@ -96,12 +96,13 @@ final class ApplicationCommandRunner: @unchecked Sendable {
 
     if checkCancellation { try Task.checkCancellation() }
 
+    let ownerNames = await WindowStore.shared.windows.map(\.ownerName)
     let isFrontMostApplication = bundleIdentifier == workspace.frontApplication?.bundleIdentifier
 
     if isFrontMostApplication {
       do {
         try await plugins.activate.execute(command, checkCancellation: checkCancellation)
-        if await !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
+        if ownerNames.contains(bundleName) {
           try await plugins.launch.execute(command, checkCancellation: checkCancellation)
         } else {
           Task.detached { [bringToFront = plugins.bringToFront] in
@@ -119,7 +120,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       }
 
       try await plugins.launch.execute(command, checkCancellation: checkCancellation)
-      if await !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
+      if ownerNames.contains(bundleName) {
         try? await plugins.activate.execute(command, checkCancellation: checkCancellation)
       }
     }

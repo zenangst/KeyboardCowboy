@@ -122,7 +122,11 @@ actor BundledCommandRunner: Sendable {
           .compactMap(\.bundleIdentifier)
       }
       let onlyUnhide: Bool
-      let requiredBundleIdentifiers: Set<String> = Set(workspaceCommand.applications.map(\.bundleIdentifier))
+      let requiredBundleIdentifiers: Set<String> = Set(workspaceCommand.applications.compactMap {
+        guard !$0.options.contains(.onlyWhenRunning) else { return nil }
+
+        return $0.bundleIdentifier
+      })
       let allRunning = requiredBundleIdentifiers.isSubset(of: runningBundleIdentifiers)
       onlyUnhide = allRunning
 
@@ -167,7 +171,7 @@ actor BundledCommandRunner: Sendable {
       UserSpace.shared.currentWorkspace = workspaceCommand
     }
 
-    let result = try workspaceCommand.commands(applications, snapshot: &snapshot, dynamicApps: dynamicApps)
+    let result = try await workspaceCommand.commands(applications, snapshot: &snapshot, dynamicApps: dynamicApps)
     var commands = result
 
     if UserSettings.WindowManager.stageManagerEnabled && result.isEmpty {
@@ -182,7 +186,17 @@ actor BundledCommandRunner: Sendable {
     // workspace was previously active.
     let dynamicWorkspaceWithoutTiling = (workspaceCommand.isDynamic && workspaceCommand.tiling == nil)
     if onlyUnhide || dynamicWorkspaceWithoutTiling {
-      if workspaceCommand.applications.map(\.bundleIdentifier).count > 1 {
+      if workspaceCommand.applications
+        .compactMap({ app -> String? in
+          if app.options.contains(.onlyWhenRunning),
+             NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier).isEmpty
+          {
+            return nil
+          }
+          return app.bundleIdentifier
+        })
+        .count > 1
+      {
         commands = handleOnlyUnhide(commands, dynamicWorkspaceWithoutTiling: dynamicWorkspaceWithoutTiling)
       }
     }
@@ -242,40 +256,6 @@ actor BundledCommandRunner: Sendable {
       if let delay = command.delay, delay > 0 {
         try? await Task.sleep(for: .milliseconds(delay))
       }
-
-      if offset == commands.count - 1 {
-        let currentBundleIdentifier: Set<String> = [NSWorkspace.shared.frontmostApplication!.bundleIdentifier!]
-        let commmandBundleIdentifiers: Set<String> = Set(workspaceCommand.applications.compactMap {
-          $0.options.contains(.onlyWhenRunning) ? nil : $0.bundleIdentifier
-        } + dynamicApps.map(\.bundleIdentifier))
-
-        if currentBundleIdentifier != commmandBundleIdentifiers {
-          await windowFocusRunner.resetFocusComponents()
-        }
-
-        let shouldActivateTopApp = !currentBundleIdentifier.isSubset(of: commmandBundleIdentifiers)
-        let validPids = Set(commmandBundleIdentifiers.flatMap {
-          NSRunningApplication.runningApplications(withBundleIdentifier: $0).map(\.processIdentifier)
-        })
-
-        if commands.count > 1 {
-          try await Task.sleep(for: .milliseconds(25))
-        }
-        let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
-        let windows = newSnapshot.windows.visibleWindowsInStage
-
-        if shouldActivateTopApp, let firstWindow = windows.first(where: {
-          validPids.contains(pid_t($0.ownerPid.rawValue))
-        }),
-          let runningApp = NSRunningApplication(processIdentifier: pid_t(firstWindow.ownerPid.rawValue))
-        {
-          if #available(macOS 14.0, *) {
-            runningApp.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateIgnoringOtherApps)
-          } else {
-            runningApp.activate(options: .activateIgnoringOtherApps)
-          }
-        }
-      }
     }
 
     await windowFocusRunner.resetFocusComponents()
@@ -288,16 +268,11 @@ actor BundledCommandRunner: Sendable {
 
   private func handleOnlyUnhide(_ commands: [Command], dynamicWorkspaceWithoutTiling: Bool) -> [Command] {
     var commands = commands
-    let indexOfLast = commands.lastIndex(where: {
-      if case .application = $0 { return true }
-      return false
-    })
-
     for (offset, command) in commands.enumerated() {
       if case var .application(applicationCommand) = command {
         if dynamicWorkspaceWithoutTiling {
           applicationCommand.delay = nil
-          applicationCommand.action = offset == indexOfLast ? .open : .unhide
+          applicationCommand.action = .unhide
         } else {
           applicationCommand.action = .unhide
         }

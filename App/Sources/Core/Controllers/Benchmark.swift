@@ -24,14 +24,14 @@ final class Benchmark {
   @discardableResult
   func lap(_ identifier: @autoclosure @Sendable () -> String,
            value: @autoclosure @Sendable () -> String = "",
-           forceEnable: Bool = false, function _: StaticString = #function, line: Int = #line) -> String
+           forceEnable: Bool = false, function: StaticString = #function, line: Int = #line) -> String
   {
     guard isEnabled || forceEnable, let startTime = storage[identifier()] else {
       return "Unknown identifier: \(identifier())"
     }
 
-    Swift.print("⏱️ (\(identifier())):\(line) (\(value()) = \(CACurrentMediaTime() - startTime) \n")
-    return "⏱ Benchmark(\(identifier()))-(\(value())):\(line) = \(CACurrentMediaTime() - startTime) "
+    Swift.print("⏱️ (\(identifier())):\(function)\(line) (\(value()) = \(CACurrentMediaTime() - startTime) \n")
+    return "⏱ Benchmark(\(identifier()))-(\(value())):\(function)\(line) = \(CACurrentMediaTime() - startTime) "
   }
 
   @discardableResult
