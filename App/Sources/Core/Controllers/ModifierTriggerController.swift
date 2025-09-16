@@ -110,7 +110,7 @@ final class ModifierTriggerController: @unchecked Sendable {
 
         cache[keySignature] = ModifierTrigger(
           id: keySignature,
-          alone: .init(kind: .key(key), threshold: 100),
+          alone: .init(kind: .key(key), threshold: 125),
           heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75)
         )
       }
@@ -138,7 +138,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
         cache[keySignature] = ModifierTrigger(
           id: keySignature,
-          alone: .init(kind: .key(key), threshold: 100),
+          alone: .init(kind: .key(key), threshold: 125),
           heldDown: .init(kind: .modifiers([.function]), threshold: 75)
         )
       }
@@ -254,6 +254,8 @@ final class ModifierTriggerController: @unchecked Sendable {
   private func onKeyUp(_ machPortEvent: MachPortEvent, coordinator: ModifierTriggerMachPortCoordinator, currentTrigger: ModifierTrigger) {
     workItem?.cancel()
 
+    defer { coordinator.setMaskNonCoalesced(on: machPortEvent) }
+
     switch state {
     case let .keyDown(kind, held):
       switch kind {
@@ -297,8 +299,6 @@ final class ModifierTriggerController: @unchecked Sendable {
           hasDecoratedEvent = true
           return
         }
-
-        coordinator.setMaskNonCoalesced(on: machPortEvent)
       }
     case .idle:
       break
