@@ -79,27 +79,27 @@ private struct HeaderView: View {
   var body: some View {
     HStack(alignment: .bottom, spacing: -16) {
       let iconSize: CGFloat = 96
-      WindowSwitcherIconView(size: iconSize)
+      WorkspaceIcon(.regular, size: iconSize)
         .rotation3DEffect(.degrees(10), axis: (x: 1, y: 1, z: -1))
         .zIndex(9)
-      InputSourceIcon(size: iconSize)
+      MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize)
         .rotation3DEffect(.degrees(7.5), axis: (x: 1, y: 1, z: -1))
         .zIndex(9)
 
-      ImprovementIconView(size: iconSize)
+      WindowTilingIcon(kind: .arrangeLeftQuarters, size: iconSize)
         .rotation3DEffect(.degrees(2.5), axis: (x: 1, y: 0, z: 1))
         .shadow(radius: 30)
         .zIndex(10)
-      ScriptIconView(size: iconSize)
+      ImprovementIconView(size: iconSize)
         .rotation3DEffect(.degrees(2.5), axis: (x: 1, y: 0, z: -1))
         .shadow(radius: 30)
         .zIndex(10)
 
-      WindowTidyIcon(size: iconSize)
+      ActivateLastApplicationIconView(size: iconSize)
         .rotation3DEffect(.degrees(2.5), axis: (x: 1, y: 0, z: 1))
         .shadow(radius: 30)
         .zIndex(10)
-      WorkspaceIcon(.regular, size: iconSize)
+      BugFixIconView(size: iconSize)
         .rotation3DEffect(.degrees(10), axis: (x: 1, y: 0, z: 1))
         .zIndex(9)
     }
@@ -163,8 +163,60 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { WorkspaceIcon(.regular, size: 24).anyView },
+           text: "Performance improvements when switching workspaces.",
+           version: .v3280),
+
+    Change(icon: { WorkspaceIcon(.regular, size: 24).anyView },
+           text: "Adds support for \"only when open\" option for applications attached to a workspace",
+           version: .v3280),
+
+    Change(icon: { WorkspaceIcon(.regular, size: 24).anyView },
+           text: "Improve workspaces when Stage Manager is enabled.",
+           version: .v3280),
+
+    Change(icon: { WorkspaceIcon(.regular, size: 24).anyView },
+           text: "Add support for peek when using activate last application or workspace.",
+           version: .v3280),
+
+    Change(icon: { MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: 24).anyView },
+           text: "Improve the algorithm to make it more stable when windows are created or closed.",
+           version: .v3280),
+
+    Change(icon: { WindowTilingIcon(kind: .arrangeLeftQuarters, size: 24).anyView },
+           text: "Toggling fill is now more reliable.",
+           version: .v3280),
+
     Change(icon: { ImprovementIconView(size: 24).anyView },
-           text: "Loads of changes",
+           text: "Add support for hiding the menu bar icon.",
+           version: .v3280),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "Under-the-hood performance improvements for common tasks.",
+           version: .v3280),
+
+    Change(icon: { ActivateLastApplicationIconView(size: 24).anyView },
+           text: "Add support for Orion Web Apps",
+           version: .v3280),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes a window focus bug",
+           version: .v3280),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes a bug where shortcuts wouldnt show up.",
+           version: .v3280),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes a crash related to window focus.",
+           version: .v3280),
+
+    Change(icon: {
+             RegularKeyIcon(letter: "l", width: 24, height: 24)
+               .fixedSize()
+               .anyView
+           },
+           text: "Add support for leader keys.",
            version: .v3280),
   ]
 
@@ -173,7 +225,7 @@ private struct ChangesView: View {
       Text("Changes")
         .font(Font.system(.headline, weight: .bold))
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding([.top, .leading] ,8)
+        .padding([.top, .leading], 8)
       ScrollView(.vertical) {
         Grid(verticalSpacing: 16) {
           ForEach(changes, id: \.text) { change in
@@ -181,11 +233,11 @@ private struct ChangesView: View {
               change.icon
               ZenDivider(.vertical)
                 .padding(.vertical, 4)
-              let markdown: LocalizedStringKey = LocalizedStringKey(change.text)
+              let markdown = LocalizedStringKey(change.text)
               Text(markdown)
                 .tint(Color.accentColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
-              Button(action: {  }, label: {
+              Button(action: { }, label: {
                 Text(change.version.rawValue)
                   .font(.caption)
               })
@@ -210,47 +262,56 @@ private struct SupportersView: View {
     Supporter(
       index: 0,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/2284279?v=4"),
-      githubHandle: "onmyway133"),
+      githubHandle: "onmyway133"
+    ),
 
     Supporter(
       index: 1,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/4262050?v=4"),
-      githubHandle: "bjrmatos"),
+      githubHandle: "bjrmatos"
+    ),
 
     Supporter(
       index: 2,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/1260095?s=52&v=4")!,
-      githubHandle: "andreasoverland"),
+      githubHandle: "andreasoverland"
+    ),
 
     Supporter(
       index: 3,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/68963405?v=4"),
-      githubHandle: "MrKai77"),
+      githubHandle: "MrKai77"
+    ),
 
     Supporter(
       index: 4,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/4584594?s=96&v=4"),
-      githubHandle: "murdahl"),
+      githubHandle: "murdahl"
+    ),
 
     Supporter(
       index: 5,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/620789?s=96&v=4"),
-      githubHandle: "hansoln"),
+      githubHandle: "hansoln"
+    ),
 
     Supporter(
       index: 6,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/47497819?v=4"),
-      githubHandle: "Moelfarri"),
+      githubHandle: "Moelfarri"
+    ),
 
     Supporter(
       index: 7,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/555305?s=96&v=4"),
-      githubHandle: "t0ggah"),
+      githubHandle: "t0ggah"
+    ),
 
     Supporter(
       index: 8,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/32518292?s=96&v=4"),
-      githubHandle: "Abenayan"),
+      githubHandle: "Abenayan"
+    ),
 
     Supporter(index: 9, imageUrl: URL(string: "https://avatars.githubusercontent.com/u/1581077?v=4"), githubHandle: "fushugaku"),
 
@@ -258,41 +319,47 @@ private struct SupportersView: View {
 
     Supporter(index: 11, imageUrl: URL(string: "https://avatars.githubusercontent.com/u/177531206?v=4"), githubHandle: "StianFlatby"),
 
-
     Supporter(
       index: 12,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/378235?v=4"),
-      githubHandle: "timkurvers"),
+      githubHandle: "timkurvers"
+    ),
 
     Supporter(
       index: 13,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/386122?v=4"),
-      githubHandle: "sindrenm"),
+      githubHandle: "sindrenm"
+    ),
 
     Supporter(
       index: 14,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/10261662?v=4"),
-      githubHandle: "FischLu"),
+      githubHandle: "FischLu"
+    ),
 
     Supporter(
       index: 15,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/146323001?s=200&v=4"),
-      githubHandle: "lo-cafe"),
+      githubHandle: "lo-cafe"
+    ),
 
     Supporter(
       index: 16,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/45841003?v=4"),
-      githubHandle: "TaylorJKing"),
+      githubHandle: "TaylorJKing"
+    ),
 
     Supporter(
       index: 16,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/227768?v=4"),
-      githubHandle: "brunns"),
+      githubHandle: "brunns"
+    ),
 
     Supporter(
       index: 17,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/2263015?v=4"),
-      githubHandle: "hakonk"),
+      githubHandle: "hakonk"
+    ),
   ]
 
   var body: some View {
@@ -300,7 +367,7 @@ private struct SupportersView: View {
       Text("Special thanks to")
         .font(Font.system(.headline, weight: .bold))
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding([.top, .leading] ,8)
+        .padding([.top, .leading], 8)
 
       ZenDivider(.horizontal)
 
@@ -329,7 +396,7 @@ private struct SupporterView: View {
   var body: some View {
     Button(action: { }) {
       HStack {
-        AsyncImage.init(url: imageUrl) { image in
+        AsyncImage(url: imageUrl) { image in
           image
             .resizable()
             .aspectRatio(contentMode: .fit)
