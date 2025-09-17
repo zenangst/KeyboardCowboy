@@ -21,11 +21,11 @@ struct BundledCommandView: View {
       case .activatePreviousWorkspace: WorkspaceIcon(.activatePrevious, size: iconSize.width)
       case .appFocus: AppFocusIcon(size: iconSize.width)
       case .tidy: WindowTidyIcon(size: iconSize.width)
-      case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: iconSize.width)
+      case let .workspace(workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: iconSize.width)
       }
     } content: {
       switch model.kind {
-      case .appFocus(let model):
+      case let .appFocus(model):
         AppFocusCommandView(model: model) { tiling in
           performAppFocusUpdate(set: \.tiling, to: tiling)
         } onSelectedAppsChange: { application in
@@ -37,21 +37,21 @@ struct BundledCommandView: View {
         }
       case .activatePreviousWorkspace:
         ActivatePreviousWorkspaceCommandView()
-      case .tidy(let model):
+      case let .tidy(model):
         WindowTidyCommandView(model) { rules in
           let newRules = rules.map {
             WindowTidyCommand.Rule(bundleIdentifier: $0.application.bundleIdentifier, tiling: $0.tiling)
           }
           performTidyUpdate(set: \.rules, to: newRules)
         }
-      case .workspace(let model):
+      case let .workspace(model):
         WorkspaceCommandView(
           model,
-          onAppToggleModifiers:  { performWorkspaceUpdate(set: \.appToggleModifiers, to: $0) },
+          onAppToggleModifiers: { performWorkspaceUpdate(set: \.appToggleModifiers, to: $0) },
           onDefaultForDynamicWorkspace: { performWorkspaceUpdate(set: \.defaultForDynamicWorkspace, to: $0) },
           onHideOtherAppsChange: { performWorkspaceUpdate(set: \.hideOtherApps, to: $0) },
-          onSelectedAppsChange:  { performWorkspaceUpdate(set: \.applications, to: $0.map { .init(bundleIdentifier: $0.bundleIdentifier, options: $0.options) } ) },
-          onTilingChange:        { performWorkspaceUpdate(set: \.tiling, to: $0) },
+          onSelectedAppsChange: { performWorkspaceUpdate(set: \.applications, to: $0.map { .init(bundleIdentifier: $0.bundleIdentifier, options: $0.options) }) },
+          onTilingChange: { performWorkspaceUpdate(set: \.tiling, to: $0) },
         )
         .id(metaData.id)
       }
@@ -63,10 +63,11 @@ struct BundledCommandView: View {
       workflow.execution = .serial
 
       guard let index = workflow.commands.firstIndex(where: { $0.meta.id == metaData.id }),
-            case .bundled(let bundledCommand) = workflow.commands[index],
-            case .appFocus(var appFocusCommand) = bundledCommand.kind else { return }
+            case let .bundled(bundledCommand) = workflow.commands[index],
+            case var .appFocus(appFocusCommand) = bundledCommand.kind else { return }
+
       appFocusCommand[keyPath: keyPath] = value
-      workflow.commands[index] = .bundled(BundledCommand(.appFocus(command: appFocusCommand), meta:  workflow.commands[index].meta))
+      workflow.commands[index] = .bundled(BundledCommand(.appFocus(command: appFocusCommand), meta: workflow.commands[index].meta))
     }
   }
 
@@ -74,8 +75,9 @@ struct BundledCommandView: View {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.execution = .serial
       guard let index = workflow.commands.firstIndex(where: { $0.meta.id == metaData.id }),
-            case .bundled(let bundledCommand) = workflow.commands[index],
-            case .workspace(var workspaceCommand) = bundledCommand.kind else { return }
+            case let .bundled(bundledCommand) = workflow.commands[index],
+            case var .workspace(workspaceCommand) = bundledCommand.kind else { return }
+
       workspaceCommand[keyPath: keyPath] = value
       workflow.commands[index] = .bundled(BundledCommand(.workspace(command: workspaceCommand), meta: workflow.commands[index].meta))
     }
@@ -85,11 +87,11 @@ struct BundledCommandView: View {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.execution = .serial
       guard let index = workflow.commands.firstIndex(where: { $0.meta.id == metaData.id }),
-            case .bundled(let bundledCommand) = workflow.commands[index],
-            case .tidy(var tidyCommand) = bundledCommand.kind else { return }
+            case let .bundled(bundledCommand) = workflow.commands[index],
+            case var .tidy(tidyCommand) = bundledCommand.kind else { return }
+
       tidyCommand[keyPath: keyPath] = value
       workflow.commands[index] = .bundled(BundledCommand(.tidy(command: tidyCommand), meta: workflow.commands[index].meta))
     }
   }
-
 }

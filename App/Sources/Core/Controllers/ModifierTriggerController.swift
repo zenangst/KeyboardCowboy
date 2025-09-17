@@ -147,7 +147,7 @@ final class ModifierTriggerController: @unchecked Sendable {
     for group in groups where !group.isDisabled {
       let bundleIdentifiers: [String]
       if let rule = group.rule {
-        bundleIdentifiers = rule.bundleIdentifiers
+        bundleIdentifiers = rule.allowedBundleIdentifiers
       } else {
         bundleIdentifiers = ["*"]
       }

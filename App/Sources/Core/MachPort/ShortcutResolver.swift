@@ -1,6 +1,6 @@
-import Foundation
 import Carbon
 import Cocoa
+import Foundation
 import KeyCodes
 import MachPort
 
@@ -35,6 +35,7 @@ final class ShortcutResolver {
     case functionKey
     case remainder(originalFlags: UInt64)
   }
+
   private static let debug: Bool = false
   private var cache = [String: KeyboardShortcutResult]()
 
@@ -52,7 +53,8 @@ final class ShortcutResolver {
               bundleIdentifier: String,
               userModes: [UserMode] = [],
               partialMatch: PartialMatch = .init(rawValue: "."),
-              fallback: Fallback? = .functionKey) -> KeyboardShortcutResult? {
+              fallback: Fallback? = .functionKey) -> KeyboardShortcutResult?
+  {
     let eventSignature = token.signature
     if !userModes.isEmpty {
       for userMode in userModes {
@@ -80,8 +82,6 @@ final class ShortcutResolver {
     let scopedKey = Self.createKey(eventSignature: eventSignature,
                                    bundleIdentifier: bundleIdentifier, userModeKey: "", previousKey: partialMatch.rawValue)
 
-
-
     if let result = cache[scopedKey] {
       if Self.debug { print("scopeKey: \(scopedKey)") }
       return result
@@ -105,7 +105,7 @@ final class ShortcutResolver {
           newFlags.insert(.maskSecondaryFn)
         }
         newFallback = .remainder(originalFlags: token.flags.remainingFlags)
-      case .remainder(let originalFlags):
+      case let .remainder(originalFlags):
         newFlags = CGEventFlags(rawValue: originalFlags)
         newFallback = nil
       }
@@ -144,17 +144,18 @@ final class ShortcutResolver {
 
     var workflows = results.compactMap { result in
       switch result {
-      case .partialMatch(let partialMatch):
+      case let .partialMatch(partialMatch):
         partialMatch.workflow
-      case .exact(let workflow):
+      case let .exact(workflow):
         workflow
       }
     }
 
     for (offset, workflow) in workflows.enumerated() {
-      guard case .keyboardShortcuts(let trigger) = workflow.trigger else {
+      guard case let .keyboardShortcuts(trigger) = workflow.trigger else {
         continue
       }
+
       let shortcuts = Array(trigger.shortcuts.suffix(max(trigger.shortcuts.count - shortcutIndexPrefix, 0)))
       workflows[offset].trigger = .keyboardShortcuts(.init(
         shortcuts: shortcuts
@@ -169,27 +170,26 @@ final class ShortcutResolver {
     for group in groups where !group.isDisabled {
       let bundleIdentifiers: [String]
       if let rule = group.rule {
-        bundleIdentifiers = rule.bundleIdentifiers
+        bundleIdentifiers = rule.allowedBundleIdentifiers
       } else {
         bundleIdentifiers = ["*"]
       }
 
-      bundleIdentifiers.forEach { bundleIdentifier in
-        group.workflows.forEach { workflow in
-          guard workflow.isEnabled else { return }
-          guard case .keyboardShortcuts(let trigger) = workflow.trigger else { return }
+      for bundleIdentifier in bundleIdentifiers {
+        for workflow in group.workflows {
+          guard workflow.isEnabled else { continue }
+          guard case let .keyboardShortcuts(trigger) = workflow.trigger else { continue }
 
           let count = trigger.shortcuts.count - 1
-          var previousKey: String = "."
+          var previousKey = "."
           var offset = 0
-          trigger.shortcuts.forEach { keyboardShortcut in
-
+          for keyboardShortcut in trigger.shortcuts {
             guard let keyCode = keyCodes.keyCode(for: keyboardShortcut.key, matchDisplayValue: true)
-                   ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: true)
-                   ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: false)
-                   ?? resolveAnyKeyCode(keyboardShortcut)
+              ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: true)
+              ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: false)
+              ?? resolveAnyKeyCode(keyboardShortcut)
             else {
-              return
+              continue
             }
 
             var flags = keyboardShortcut.cgFlags
@@ -228,9 +228,9 @@ final class ShortcutResolver {
 
             if group.userModes.isEmpty {
               let key = Self.createKey(eventSignature: eventSignature,
-                                  bundleIdentifier: bundleIdentifier,
-                                  userModeKey: "",
-                                  previousKey: previousKey)
+                                       bundleIdentifier: bundleIdentifier,
+                                       userModeKey: "",
+                                       previousKey: previousKey)
               let currentPreviousKey = previousKey
               previousKey += "\(eventSignature.id)+"
 
@@ -247,8 +247,9 @@ final class ShortcutResolver {
                 }
                 newCache[key] = .exact(workflow)
               } else {
-                if case .partialMatch(let match) = newCache[key],
-                   let workflow = match.workflow, workflow.machPortConditions.isLeaderKey  {
+                if case let .partialMatch(match) = newCache[key],
+                   let workflow = match.workflow, workflow.machPortConditions.isLeaderKey
+                {
                 } else {
                   newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
                 }
@@ -256,7 +257,7 @@ final class ShortcutResolver {
             } else {
               // Only set the previous key once per iteration, otherwise
               // the depth will increase for each iteration over user modes.
-              var didSetPreviousKey: Bool = false
+              var didSetPreviousKey = false
               for userMode in group.userModes {
                 let userModeKey = userMode.dictionaryKey(true)
                 let currentPreviousKey = previousKey
@@ -286,8 +287,9 @@ final class ShortcutResolver {
                   }
                   newCache[key] = .exact(workflow)
                 } else {
-                  if case .partialMatch(let match) = newCache[key],
-                     let workflow = match.workflow, workflow.machPortConditions.isLeaderKey  {
+                  if case let .partialMatch(match) = newCache[key],
+                     let workflow = match.workflow, workflow.machPortConditions.isLeaderKey
+                  {
                   } else {
                     newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
                   }
@@ -307,7 +309,8 @@ final class ShortcutResolver {
 
   static func createKey(eventSignature: CGEventSignature,
                         bundleIdentifier: String, userModeKey: String,
-                        previousKey: String) -> String {
+                        previousKey: String) -> String
+  {
     "\(bundleIdentifier)\(previousKey)\(eventSignature.id)\(userModeKey)"
   }
 
@@ -315,10 +318,9 @@ final class ShortcutResolver {
 
   private func resolveAnyKeyCode(_ keyShortcut: KeyShortcut) -> Int? {
     keyShortcut.key == KeyShortcut.anyKey.key
-    ? KeyShortcut.anyKeyCode
-    : nil
+      ? KeyShortcut.anyKeyCode
+      : nil
   }
-
 }
 
 private struct FallbackLookupToken: LookupToken {

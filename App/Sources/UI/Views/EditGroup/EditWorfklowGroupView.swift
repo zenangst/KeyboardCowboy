@@ -6,18 +6,21 @@ struct EditWorfklowGroupView: View {
   enum Context: Identifiable, Hashable, Codable {
     var id: String {
       switch self {
-      case .add(let group):
+      case let .add(group):
         return group.id
-      case .edit(let group):
+      case let .edit(group):
         return group.id
       }
     }
+
     case add(WorkflowGroup)
     case edit(WorkflowGroup)
   }
+
   enum Focus {
     case name
   }
+
   enum Action {
     case ok(WorkflowGroup)
     case cancel
@@ -52,7 +55,7 @@ struct EditWorfklowGroupView: View {
           .prefersDefaultFocus(in: namespace)
           .focused($focus, equals: .name)
 
-        Toggle(isOn: Binding<Bool>(get: { !group.isDisabled }, set: { group.isDisabled = !$0 }), label: {})
+        Toggle(isOn: Binding<Bool>(get: { !group.isDisabled }, set: { group.isDisabled = !$0 }), label: { })
           .switchStyle()
       }
       .padding(.top, 24)
@@ -85,6 +88,7 @@ struct EditWorfklowGroupView: View {
               ForEach(publisher.data.userModes) { userMode in
                 Button(action: {
                   guard !group.userModes.contains(userMode) else { return }
+
                   group.userModes.append(userMode)
                 }, label: {
                   Text(userMode.name)
@@ -117,19 +121,17 @@ struct EditWorfklowGroupView: View {
         .roundedStyle(padding: 0)
 
         VStack(alignment: .center, spacing: 0) {
-          RuleHeaderView(applicationStore: applicationStore, group: $group)
+          AllowedApplicationsHeaderView(applicationStore: applicationStore, group: $group)
           ScrollView {
-            RuleListView(applicationStore: applicationStore,
-                         group: $group)
-            .focusSection()
+            AllowedApplicationsListView(applicationStore: applicationStore, group: $group)
+              .focusSection()
           }
 
-          VStack(alignment: .leading) {
-            Text("Workflows in this group are only activated when the following applications are the frontmost app.\n") +
-            Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")
+          DisallowedApplicationsHeaderView(applicationStore: applicationStore, group: $group)
+          ScrollView {
+            DisallowedApplicationsListView(applicationStore: applicationStore, group: $group)
+              .focusSection()
           }
-          .roundedSubStyle(padding: EdgeInsets(top: 12, leading: 8, bottom: 12, trailing: 8))
-          .style(.subItem)
         }
         .buttonStyle(.destructive)
         .roundedStyle(padding: 0)
@@ -169,7 +171,7 @@ struct EditWorfklowGroupView: View {
   }
 }
 
-fileprivate struct Background: View {
+private struct Background: View {
   @Environment(\.colorScheme) var colorScheme
   var body: some View {
     Rectangle()
@@ -180,24 +182,24 @@ fileprivate struct Background: View {
 
   func gradientStops() -> [Gradient.Stop] {
     colorScheme == .dark
-    ?
-    [
-      .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.3, of: .white)!), location: 0.0),
-      .init(color: Color(nsColor: .windowBackgroundColor), location: 0.01),
-      .init(color: Color(nsColor: .windowBackgroundColor), location: 1.0),
-    ]
-    :
-    [
-      .init(color: Color(nsColor: .systemGray), location: 0.0),
-      .init(color: Color(nsColor: .white), location: 0.01),
-      .init(color: Color(nsColor: .windowBackgroundColor), location: 1.0),
-    ]
+      ?
+      [
+        .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.3, of: .white)!), location: 0.0),
+        .init(color: Color(nsColor: .windowBackgroundColor), location: 0.01),
+        .init(color: Color(nsColor: .windowBackgroundColor), location: 1.0),
+      ]
+      :
+      [
+        .init(color: Color(nsColor: .systemGray), location: 0.0),
+        .init(color: Color(nsColor: .white), location: 0.01),
+        .init(color: Color(nsColor: .windowBackgroundColor), location: 1.0),
+      ]
   }
 
   func shadowColor() -> Color {
     colorScheme == .dark
-    ? Color(.sRGBLinear, white: 0, opacity: 0.33)
-    : Color(.sRGBLinear, white: 0, opacity: 0.15)
+      ? Color(.sRGBLinear, white: 0, opacity: 0.33)
+      : Color(.sRGBLinear, white: 0, opacity: 0.15)
   }
 }
 
@@ -207,7 +209,8 @@ struct EditWorfklowGroupView_Previews: PreviewProvider {
     EditWorfklowGroupView(
       applicationStore: ApplicationStore.shared,
       group: group,
-      action: { _ in })
+      action: { _ in }
+    )
     .designTime()
   }
 }
