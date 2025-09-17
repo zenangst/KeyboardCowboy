@@ -1,6 +1,6 @@
-import AXEssibility
 import AppKit
 import Apps
+import AXEssibility
 import Carbon
 import Cocoa
 import Combine
@@ -53,10 +53,10 @@ final class UserSpace: @unchecked Sendable {
 
     @MainActor static let current: UserSpace.Application = NSRunningApplication.currentAsApplication()
 
-    static func ==(lhs: Application, rhs: Application) -> Bool {
+    static func == (lhs: Application, rhs: Application) -> Bool {
       lhs.bundleIdentifier == rhs.bundleIdentifier &&
-      lhs.name == rhs.name &&
-      lhs.path == rhs.path
+        lhs.name == rhs.name &&
+        lhs.path == rhs.path
     }
   }
 
@@ -76,12 +76,13 @@ final class UserSpace: @unchecked Sendable {
          selectedText: String = "",
          selections: [String] = [],
          windows: WindowStoreSnapshot = WindowStoreSnapshot(
-          frontmostApplicationWindows: [],
-          visibleWindowsInStage: [],
-          visibleWindowsInSpace: []
-         )) {
+           frontmostApplicationWindows: [],
+           visibleWindowsInStage: [],
+           visibleWindowsInSpace: []
+         ))
+    {
       self.documentPath = documentPath
-      self.frontMostApplication = frontmostApplication
+      frontMostApplication = frontmostApplication
       self.modes = modes
       self.previousApplication = previousApplication
       self.selectedText = selectedText
@@ -93,13 +94,13 @@ final class UserSpace: @unchecked Sendable {
     func updateFrontmostApplication() -> Snapshot {
       let current = NSWorkspace.shared.frontmostApplication!.asApplication()!
       return Snapshot(
-        documentPath: self.documentPath,
+        documentPath: documentPath,
         frontmostApplication: current,
-        modes: self.modes,
-        previousApplication: current != self.frontMostApplication ? self.frontMostApplication : self.previousApplication,
-        selectedText: self.selectedText,
-        selections: self.selections,
-        windows: self.windows
+        modes: modes,
+        previousApplication: current != frontMostApplication ? frontMostApplication : previousApplication,
+        selectedText: selectedText,
+        selections: selections,
+        windows: windows
       )
     }
 
@@ -116,8 +117,8 @@ final class UserSpace: @unchecked Sendable {
           // Replace placeholders in the interpolated string with actual values
           let lastPathComponent = (url.lastPathComponent as NSString)
           let cwd = lastPathComponent.contains(".")
-              ? (directory as NSString).deletingLastPathComponent
-              : directory
+            ? (directory as NSString).deletingLastPathComponent
+            : directory
 
           interpolatedString = interpolatedString
             .replacingOccurrences(of: .currentWorkingDirectory, with: cwd)
@@ -135,7 +136,7 @@ final class UserSpace: @unchecked Sendable {
       }
 
       for (key, value) in runtimeDictionary {
-        interpolatedString = interpolatedString.replacingOccurrences(of: "$"+key, with: value)
+        interpolatedString = interpolatedString.replacingOccurrences(of: "$" + key, with: value)
       }
 
       if let cgEvent = UserSpace.shared.cgEvent {
@@ -165,8 +166,8 @@ final class UserSpace: @unchecked Sendable {
             .replacingOccurrences(of: "%20", with: " ")
           let lastPathComponent = (url.lastPathComponent as NSString)
           let cwd = lastPathComponent.contains(".")
-          ? (directory as NSString).deletingLastPathComponent
-          : directory
+            ? (directory as NSString).deletingLastPathComponent
+            : directory
 
           environment[.currentWorkingDirectory] = cwd
           environment[.directory] = (directory as NSString).deletingLastPathComponent
@@ -174,7 +175,6 @@ final class UserSpace: @unchecked Sendable {
           environment[.filepath] = components.path.replacingOccurrences(of: "%20", with: " ")
           environment[.filename] = (url.lastPathComponent as NSString).deletingPathExtension
           environment[.extension] = (url.lastPathComponent as NSString).pathExtension
-
         }
       }
 
@@ -221,13 +221,15 @@ final class UserSpace: @unchecked Sendable {
     }
 
     func publishActiveModes(_ newModes: [UserMode]) {
-      guard self.activeModes != newModes else { return }
-      self.activeModes = newModes
+      guard activeModes != newModes else { return }
+
+      activeModes = newModes
     }
 
     func publishUserModes(_ newModes: [UserMode]) {
-      guard self.userModes != newModes else { return }
-      self.userModes = newModes
+      guard userModes != newModes else { return }
+
+      userModes = newModes
     }
   }
 
@@ -240,7 +242,7 @@ final class UserSpace: @unchecked Sendable {
   @Published private(set) var previousApplication: Application
   @Published private(set) var runningApplications: [Application]
 
-  public let userModesPublisher = UserModesPublisher([])
+  let userModesPublisher = UserModesPublisher([])
   private(set) var currentUserModes: [UserMode] = []
 
   @MainActor fileprivate let keyCodes: KeycodeLocating
@@ -264,8 +266,10 @@ final class UserSpace: @unchecked Sendable {
       .compactMap { $0 }
       .sink { [weak self] runningApplication in
         guard let self else { return }
+
         Task { @MainActor in
           guard let newApplication = runningApplication.asApplication() else { return }
+
           self.previousApplication = self.frontmostApplication
           self.frontmostApplication = newApplication
         }
@@ -273,6 +277,7 @@ final class UserSpace: @unchecked Sendable {
     runningApplicationsSubscription = workspace.publisher(for: \.runningApplications)
       .sink { [weak self] applications in
         guard let self else { return }
+
         Task { @MainActor in
           let newApplications = applications.compactMap { $0.asApplication() }
           self.runningApplications = newApplications
@@ -288,15 +293,15 @@ final class UserSpace: @unchecked Sendable {
       }
   }
 
-#if DEBUG
-  func injectRunningApplications(_ runningApplications: [Application]) {
-    self.runningApplications = runningApplications
-  }
+  #if DEBUG
+    func injectRunningApplications(_ runningApplications: [Application]) {
+      self.runningApplications = runningApplications
+    }
 
-  func injectFrontmostApplication(_ frontmostApplication: Application) {
-    self.frontmostApplication = frontmostApplication
-  }
-#endif
+    func injectFrontmostApplication(_ frontmostApplication: Application) {
+      self.frontmostApplication = frontmostApplication
+    }
+  #endif
 
   @MainActor
   func snapshot(resolveUserEnvironment: Bool, refreshWindows: Bool = false) async -> Snapshot {
@@ -304,10 +309,11 @@ final class UserSpace: @unchecked Sendable {
     defer { Benchmark.shared.stop("snapshot: \(resolveUserEnvironment)") }
     var selections = [String]()
     var documentPath: String?
-    var selectedText: String = ""
+    var selectedText = ""
 
     if resolveUserEnvironment,
-       let frontmostApplication = try? frontmostRunningApplication() {
+       let frontmostApplication = try? frontmostRunningApplication()
+    {
       if let documentPathFromAX = try? self.documentPath(for: frontmostApplication) {
         documentPath = documentPathFromAX
       } else if let bundleIdentifier = frontmostApplication.bundleIdentifier {
@@ -341,8 +347,8 @@ final class UserSpace: @unchecked Sendable {
     configurationSubscription = publisher
       .sink { [weak self] configuration in
         guard let self = self else { return }
-        Task { @MainActor in
 
+        Task { @MainActor in
           let oldCopy = self.currentUserModes
           let newModes = configuration.userModes
             .sorted(by: { $0.name < $1.name })
@@ -358,12 +364,12 @@ final class UserSpace: @unchecked Sendable {
 
   @MainActor
   func setUserModes(_ userModes: [UserMode], keepActive: Bool = false) {
-    let oldModes = self.currentUserModes
+    let oldModes = currentUserModes
 
     if keepActive {
-      self.currentUserModes = userModes.keepActive(from: oldModes)
+      currentUserModes = userModes.keepActive(from: oldModes)
     } else {
-      self.currentUserModes = userModes
+      currentUserModes = userModes
     }
 
     let active = userModes.filter(\.isEnabled)
@@ -398,7 +404,7 @@ final class UserSpace: @unchecked Sendable {
       var selectedText = focusedElement.selectedText()
 
       let clipboardValidGroups = [
-        "AXWebArea", "AXGroup"
+        "AXWebArea", "AXGroup",
       ]
 
       if selectedText == nil && clipboardValidGroups.contains(focusedElement.role ?? "") {
@@ -440,12 +446,12 @@ final class UserSpace: @unchecked Sendable {
   }
 }
 
-fileprivate extension UserSpace {
+private extension UserSpace {
   @MainActor
   static var cache: [String: RunningApplicationCache] = [:]
 }
 
-fileprivate struct RunningApplicationCache {
+private struct RunningApplicationCache {
   let name: String
   let path: String
   let bundleIdentifier: String
@@ -456,7 +462,7 @@ extension RunningApplication {
   static func currentAsApplication() -> UserSpace.Application {
     if let entry = UserSpace.cache[Bundle.main.bundleIdentifier!] {
       return UserSpace.Application(
-        ref: Self.currentApp,
+        ref: currentApp,
         bundleIdentifier: Bundle.main.bundleIdentifier!,
         name: entry.name,
         path: entry.path
@@ -490,8 +496,8 @@ extension RunningApplication {
           path: userSpaceApplication.path
         )
       } else if let name = localizedName,
-                let path = bundleURL?.path().removingPercentEncoding {
-
+                let path = bundleURL?.path().removingPercentEncoding
+      {
         UserSpace.cache[bundleIdentifier] = RunningApplicationCache(
           name: name,
           path: path,
@@ -519,7 +525,7 @@ extension UserSpace.Application {
   }
 }
 
-private extension Dictionary<String, String> {
+private extension [String: String] {
   subscript(_ key: UserSpace.EnvironmentKey) -> String? {
     get { self[key.rawValue] }
     set { self[key.rawValue] = newValue }
@@ -544,7 +550,7 @@ extension [UserMode] {
   func keepActive(from oldUserModes: [UserMode]) -> [UserMode] {
     let activeDictionary = oldUserModes.activeDictionary
     var copy = self
-    for (index, element) in self.enumerated() {
+    for (index, element) in enumerated() {
       var element = element
       if activeDictionary[element.id] != nil {
         element.isEnabled = true
