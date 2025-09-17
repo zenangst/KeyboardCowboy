@@ -31,7 +31,8 @@ final class DetailModelMapper {
       let viewModel = DetailViewModel(
         info: DetailViewModel.Info(id: workflow.id, name: workflow.name, isEnabled: workflow.isEnabled),
         commandsInfo: DetailViewModel.CommandsInfo(id: workflow.id, commands: workflowCommands, execution: execution),
-        trigger: workflow.trigger?.asViewModel() ?? .empty)
+        trigger: workflow.trigger?.asViewModel() ?? .empty
+      )
       viewModels.append(viewModel)
     }
 
@@ -62,7 +63,7 @@ private extension Command {
   func viewModel(_ applicationStore: ApplicationStore, execution: Workflow.Execution) -> CommandViewModel.Kind {
     let kind: CommandViewModel.Kind
     switch self {
-    case .application(let applicationCommand):
+    case let .application(applicationCommand):
       kind = .application(
         CommandViewModel.Kind.ApplicationModel(
           id: applicationCommand.id,
@@ -74,26 +75,26 @@ private extension Command {
           waitForAppToLaunch: applicationCommand.modifiers.contains(.waitForAppToLaunch)
         )
       )
-    case .builtIn(let builtInCommand):
+    case let .builtIn(builtInCommand):
       kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))
-    case .bundled(let bundledCommand):
+    case let .bundled(bundledCommand):
       switch bundledCommand.kind {
       case .assignToWorkspace, .moveToWorkspace: fatalError()
-      case .activatePreviousWorkspace(let command):
+      case let .activatePreviousWorkspace(command):
         kind = .bundled(CommandViewModel.Kind.BundledModel(id: command.id, name: "Focus on last Workspace", kind: .activatePreviousWorkspace))
-      case .appFocus(let appFocusCommand):
+      case let .appFocus(appFocusCommand):
         let match: Application?
 
         if appFocusCommand.bundleIdentifer == Application.currentAppBundleIdentifier() {
           match = Application.currentApplication()
-        } else if appFocusCommand.bundleIdentifer == Application.previousAppBundleIdentifier(){
+        } else if appFocusCommand.bundleIdentifer == Application.previousAppBundleIdentifier() {
           match = Application.previousApplication()
         } else {
           match = applicationStore.applications.first(where: { $0.bundleIdentifier == appFocusCommand.bundleIdentifer })
         }
 
         kind = .bundled(
-          CommandViewModel.Kind.BundledModel.init(
+          CommandViewModel.Kind.BundledModel(
             id: appFocusCommand.id,
             name: bundledCommand.name,
             kind: .appFocus(
@@ -106,13 +107,13 @@ private extension Command {
             )
           )
         )
-        break
-      case .tidy(let tidyCommand):
+      case let .tidy(tidyCommand):
         var rules = [CommandViewModel.Kind.WindowTidyModel.Rule]()
         for rule in tidyCommand.rules {
           guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == rule.bundleIdentifier }) else {
             continue
           }
+
           rules.append(CommandViewModel.Kind.WindowTidyModel.Rule(application: match, tiling: rule.tiling))
         }
         let tidyModel = CommandViewModel.Kind.WindowTidyModel(rules: rules)
@@ -124,12 +125,13 @@ private extension Command {
             kind: .tidy(tidyModel)
           )
         )
-      case .workspace(let workspaceCommand):
+      case let .workspace(workspaceCommand):
         var applications = [CommandViewModel.Kind.WorkspaceModel.WorkspaceApplication]()
         for bundleIdentifier in workspaceCommand.applications.map(\.bundleIdentifier) {
           guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
             continue
           }
+
           let options = workspaceCommand.applications.first(where: { $0.bundleIdentifier == bundleIdentifier })?.options ?? []
           applications.append(.init(name: match.displayName,
                                     bundleIdentifier: match.bundleIdentifier,
@@ -143,7 +145,8 @@ private extension Command {
           defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
           tiling: workspaceCommand.tiling,
           hideOtherApps: workspaceCommand.hideOtherApps,
-          isDynamic: workspaceCommand.isDynamic)
+          isDynamic: workspaceCommand.isDynamic
+        )
         kind = .bundled(
           .init(
             id: bundledCommand.id,
@@ -152,52 +155,52 @@ private extension Command {
           )
         )
       }
-    case .keyboard(let keyboardCommand):
+    case let .keyboard(keyboardCommand):
       switch keyboardCommand.kind {
-      case .key(let model):
+      case let .key(model):
         kind = .keyboard(.init(id: keyboardCommand.id, command: model))
-      case .inputSource(let source):
+      case let .inputSource(source):
         kind = .inputSource(.init(id: source.id, inputId: source.id, name: source.name))
       }
-    case .menuBar(let menubarCommand):
+    case let .menuBar(menubarCommand):
       kind = .menuBar(.init(id: menubarCommand.id, application: menubarCommand.application, tokens: menubarCommand.tokens))
-    case .mouse(let mouseCommand):
+    case let .mouse(mouseCommand):
       kind = .mouse(.init(id: mouseCommand.id, kind: mouseCommand.kind))
-    case .open(let openCommand):
+    case let .open(openCommand):
       let applications = applicationStore.applicationsToOpen(openCommand.path)
       kind = .open(.init(id: openCommand.id,
                          path: openCommand.path,
                          applicationPath: openCommand.application?.path,
                          appName: openCommand.application?.displayName,
                          applications: applications))
-    case .shortcut(let shortcut):
+    case let .shortcut(shortcut):
       kind = .shortcut(.init(id: shortcut.id, shortcutIdentifier: shortcut.shortcutIdentifier))
-    case .script(let script):
+    case let .script(script):
       switch script.source {
-      case .path(let source):
+      case let .path(source):
         kind = .script(.init(id: script.id, source: .path(source), scriptExtension: script.kind,
                              variableName: script.meta.variableName ?? "",
                              execution: execution))
-      case .inline(let source):
+      case let .inline(source):
         kind = .script(.init(id: script.id, source: .inline(source),
                              scriptExtension: script.kind,
                              variableName: script.meta.variableName ?? "",
                              execution: execution))
       }
-    case .text(let text):
+    case let .text(text):
       switch text.kind {
-      case .insertText(let typeCommand):
+      case let .insertText(typeCommand):
         kind = .text(.init(kind: .type(.init(id: typeCommand.input, mode: typeCommand.mode, input: typeCommand.input, actions: typeCommand.actions))))
       }
-    case .systemCommand(let systemCommand):
+    case let .systemCommand(systemCommand):
       kind = .systemCommand(.init(id: systemCommand.id, kind: systemCommand.kind))
-    case .uiElement(let uiElementCommand):
+    case let .uiElement(uiElementCommand):
       kind = .uiElement(uiElementCommand)
-    case .windowFocus(let command):
+    case let .windowFocus(command):
       kind = .windowFocus(.init(id: command.id, kind: command.kind))
-    case .windowManagement(let windowCommand):
+    case let .windowManagement(windowCommand):
       kind = .windowManagement(.init(id: windowCommand.id, kind: windowCommand.kind, animationDuration: windowCommand.animationDuration))
-    case .windowTiling(let command):
+    case let .windowTiling(command):
       kind = .windowTiling(.init(id: command.id, kind: command.kind))
     }
 
@@ -208,13 +211,13 @@ private extension Command {
 private extension Command {
   var icon: Icon? {
     switch self {
-    case .application(let command):
+    case let .application(command):
       return .init(bundleIdentifier: command.application.bundleIdentifier,
                    path: command.application.path)
     case .builtIn:
       let path = Bundle.main.bundleURL.path
       return .init(bundleIdentifier: path, path: path)
-    case .open(let command):
+    case let .open(command):
       let path: String
       if command.isUrl {
         path = "/System/Library/SyncServices/Schemas/Bookmarks.syncschema/Contents/Resources/com.apple.Bookmarks.icns"
@@ -222,17 +225,17 @@ private extension Command {
         path = command.path
       }
       return .init(bundleIdentifier: path, path: path)
-    case .script(let scriptCommand):
+    case let .script(scriptCommand):
       let path: String
       switch scriptCommand.source {
-      case .path(let sourcePath):
+      case let .path(sourcePath):
         path = sourcePath
       case .inline:
         path = ""
       }
 
       return .init(bundleIdentifier: path, path: path)
-    case .systemCommand(let command):
+    case let .systemCommand(command):
       return .init(bundleIdentifier: command.kind.iconPath, path: command.kind.iconPath)
     default:
       return nil
@@ -243,33 +246,33 @@ private extension Command {
 extension Workflow.Trigger {
   func asViewModel() -> DetailViewModel.Trigger {
     switch self {
-    case .application(let triggers):
-        .applications(
-          triggers.map { trigger in
-            DetailViewModel.ApplicationTrigger(id: trigger.id,
-                                               name: trigger.application.displayName,
-                                               application: trigger.application,
-                                               contexts: trigger.contexts.map {
-              switch $0 {
-              case .closed:          .closed
-              case .frontMost:       .frontMost
-              case .launched:        .launched
-              case .resignFrontMost: .resignFrontMost
-              }
-            })
-          }
-        )
-    case .keyboardShortcuts(let trigger):
-        .keyboardShortcuts(.init(allowRepeat: trigger.allowRepeat,
-                                 keepLastPartialMatch: trigger.keepLastPartialMatch,
-                                 leaderKey: trigger.leaderKey,
-                                 passthrough: trigger.passthrough,
-                                 holdDuration: trigger.holdDuration,
-                                 shortcuts: trigger.shortcuts))
-    case .snippet(let trigger):
-        .snippet(.init(id: trigger.id, text: trigger.text))
-    case .modifier(let modifier):
-        .modifier(.init(id: modifier.id))
+    case let .application(triggers):
+      .applications(
+        triggers.map { trigger in
+          DetailViewModel.ApplicationTrigger(id: trigger.id,
+                                             name: trigger.application.displayName,
+                                             application: trigger.application,
+                                             contexts: trigger.contexts.map {
+                                               switch $0 {
+                                               case .closed: .closed
+                                               case .frontMost: .frontMost
+                                               case .launched: .launched
+                                               case .resignFrontMost: .resignFrontMost
+                                               }
+                                             })
+        }
+      )
+    case let .keyboardShortcuts(trigger):
+      .keyboardShortcuts(.init(allowRepeat: trigger.allowRepeat,
+                               keepLastPartialMatch: trigger.keepLastPartialMatch,
+                               leaderKey: trigger.leaderKey,
+                               passthrough: trigger.passthrough,
+                               holdDuration: trigger.holdDuration,
+                               shortcuts: trigger.shortcuts))
+    case let .snippet(trigger):
+      .snippet(.init(id: trigger.id, text: trigger.text))
+    case let .modifier(modifier):
+      .modifier(.init(id: modifier.id))
     }
   }
 }

@@ -6,7 +6,7 @@ struct NewCommandBundledView: View {
   private static var kinds: [BundledCommand.Kind] {
     [
       .appFocus(command: AppFocusCommand(bundleIdentifer: "", hideOtherApps: false,
-                                tiling: nil, createNewWindow: true)),
+                                         tiling: nil, createNewWindow: true)),
       .workspace(
         command: WorkspaceCommand(
           applications: [],
@@ -15,9 +15,10 @@ struct NewCommandBundledView: View {
           tiling: nil
         )
       ),
-      .tidy(command: WindowTidyCommand(rules: []))
+      .tidy(command: WindowTidyCommand(rules: [])),
     ]
   }
+
   private let kinds: [BundledCommand.Kind]
 
   @Binding private var payload: NewCommandPayload
@@ -27,8 +28,8 @@ struct NewCommandBundledView: View {
   init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
     _validation = validation
-    self.kinds = Self.kinds
-    self.currentSelection = Self.kinds.first!
+    kinds = Self.kinds
+    currentSelection = Self.kinds.first!
   }
 
   var body: some View {
@@ -56,42 +57,42 @@ struct NewCommandBundledView: View {
 
       switch currentSelection {
       case .assignToWorkspace, .moveToWorkspace, .activatePreviousWorkspace: fatalError()
-      case .appFocus(let command):
+      case let .appFocus(command):
         NewCommandAppFocusView(validation: $validation) { tiling in
           currentSelection = .appFocus(
             command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
-                              hideOtherApps: command.hideOtherApps,
-                              tiling: tiling,
-                              createNewWindow: command.createNewWindow)
+                                     hideOtherApps: command.hideOtherApps,
+                                     tiling: tiling,
+                                     createNewWindow: command.createNewWindow)
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onSelectedAppsChange: { bundleIdentifier in
           currentSelection = .appFocus(
             command: AppFocusCommand(bundleIdentifer: bundleIdentifier,
-                              hideOtherApps: command.hideOtherApps,
-                              tiling: command.tiling,
-                              createNewWindow: command.createNewWindow)
+                                     hideOtherApps: command.hideOtherApps,
+                                     tiling: command.tiling,
+                                     createNewWindow: command.createNewWindow)
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
           validation = updateAndValidatePayload()
         } onHideOtherAppsChange: { hideOtherApps in
           currentSelection = .appFocus(
             command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
-                              hideOtherApps: hideOtherApps,
-                              tiling: command.tiling,
-                              createNewWindow: command.createNewWindow)
+                                     hideOtherApps: hideOtherApps,
+                                     tiling: command.tiling,
+                                     createNewWindow: command.createNewWindow)
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onCreateNewWindowChange: { createWindow in
           currentSelection = .appFocus(
             command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
-                              hideOtherApps: command.hideOtherApps,
-                              tiling: command.tiling,
-                              createNewWindow: createWindow)
+                                     hideOtherApps: command.hideOtherApps,
+                                     tiling: command.tiling,
+                                     createNewWindow: createWindow)
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         }
-      case .workspace(let workspaceCommand):
+      case let .workspace(workspaceCommand):
         NewCommandWorkspaceView(validation: $validation) { tiling in
           currentSelection = .workspace(command: WorkspaceCommand(
             applications: workspaceCommand.applications,
@@ -120,7 +121,8 @@ struct NewCommandBundledView: View {
         }
       case .tidy:
         NewCommandTidyView(validation: $validation) { rules in
-          let rules = rules.map { WindowTidyCommand.Rule(bundleIdentifier: $0.application.bundleIdentifier, tiling: $0.tiling) }
+          let rules = rules.map { WindowTidyCommand.Rule(bundleIdentifier: $0.application.bundleIdentifier,
+                                                         tiling: $0.tiling) }
           currentSelection = .tidy(command: WindowTidyCommand(id: UUID().uuidString, rules: rules))
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         }
@@ -129,6 +131,7 @@ struct NewCommandBundledView: View {
     .roundedStyle(padding: 0)
     .onChange(of: validation) { newValue in
       guard newValue == .needsValidation else { return }
+
       validation = updateAndValidatePayload()
     }
     .onAppear {
@@ -140,11 +143,11 @@ struct NewCommandBundledView: View {
   private func updateAndValidatePayload() -> NewCommandValidation {
     switch currentSelection {
     case .assignToWorkspace, .moveToWorkspace, .activatePreviousWorkspace: fatalError()
-    case .workspace(let workspaceCommand):
+    case let .workspace(workspaceCommand):
       if workspaceCommand.applications.isEmpty {
         return .invalid(reason: "Pick at least one application.")
       }
-    case .appFocus(let appFocusCommand):
+    case let .appFocus(appFocusCommand):
       if appFocusCommand.bundleIdentifer.isEmpty {
         return .invalid(reason: "Pick an application.")
       }
@@ -156,14 +159,13 @@ struct NewCommandBundledView: View {
   }
 }
 
-
-fileprivate extension BundledCommand.Kind {
+private extension BundledCommand.Kind {
   @ViewBuilder
   var icon: some View {
     switch self {
     case .activatePreviousWorkspace: WorkspaceIcon(.activatePrevious, size: 24)
     case .appFocus: AppFocusIcon(size: 24)
-    case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: 24)
+    case let .workspace(workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: 24)
     case .tidy: WindowTidyIcon(size: 24)
     case .assignToWorkspace, .moveToWorkspace: fatalError()
     }

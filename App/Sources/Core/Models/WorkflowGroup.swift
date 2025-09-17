@@ -25,7 +25,8 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
        color: String = "#000",
        rule: Rule? = nil,
        userModes: [UserMode] = [],
-       workflows: [Workflow] = []) {
+       workflows: [Workflow] = [])
+  {
     self.id = id
     self.symbol = symbol
     self.name = name
@@ -33,7 +34,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.rule = rule
     self.userModes = userModes
     self.workflows = workflows
-    self.isDisabled = false
+    isDisabled = false
   }
 
   func copy() -> Self {
@@ -57,32 +58,32 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-    self.symbol = try container.decodeIfPresent(String.self, forKey: .symbol) ?? "folder"
-    self.color = try container.decodeIfPresent(String.self, forKey: .color) ?? "#000"
-    self.name = try container.decode(String.self, forKey: .name)
-    self.rule = try container.decodeIfPresent(Rule.self, forKey: .rule)
-    self.userModes = try container.decodeIfPresent([UserMode].self, forKey: .userModes) ?? []
-    self.workflows = try container.decodeIfPresent([Workflow].self, forKey: .workflows) ?? []
-    self.isDisabled = try container.decodeIfPresent(Bool.self, forKey: .disabled) ?? false
+    id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    symbol = try container.decodeIfPresent(String.self, forKey: .symbol) ?? "folder"
+    color = try container.decodeIfPresent(String.self, forKey: .color) ?? "#000"
+    name = try container.decode(String.self, forKey: .name)
+    rule = try container.decodeIfPresent(Rule.self, forKey: .rule)
+    userModes = try container.decodeIfPresent([UserMode].self, forKey: .userModes) ?? []
+    workflows = try container.decodeIfPresent([Workflow].self, forKey: .workflows) ?? []
+    isDisabled = try container.decodeIfPresent(Bool.self, forKey: .disabled) ?? false
   }
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.color, forKey: .color)
-    try container.encode(self.id, forKey: .id)
-    try container.encode(self.symbol, forKey: .symbol)
-    try container.encode(self.name, forKey: .name)
-    try container.encodeIfPresent(self.rule, forKey: .rule)
-    if !self.userModes.isEmpty {
-      try container.encode(self.userModes, forKey: .userModes)
+    try container.encode(color, forKey: .color)
+    try container.encode(id, forKey: .id)
+    try container.encode(symbol, forKey: .symbol)
+    try container.encode(name, forKey: .name)
+    try container.encodeIfPresent(rule, forKey: .rule)
+    if !userModes.isEmpty {
+      try container.encode(userModes, forKey: .userModes)
     }
-    if !self.workflows.isEmpty {
-      try container.encode(self.workflows, forKey: .workflows)
+    if !workflows.isEmpty {
+      try container.encode(workflows, forKey: .workflows)
     }
 
-    if self.isDisabled {
-      try container.encode(self.isDisabled, forKey: .disabled)
+    if isDisabled {
+      try container.encode(isDisabled, forKey: .disabled)
     }
   }
 }
@@ -94,13 +95,14 @@ extension WorkflowGroup {
   }
 
   static func droppedApplication(id: String = UUID().uuidString,
-                                        _ application: Application) -> WorkflowGroup {
+                                 _ application: Application) -> WorkflowGroup
+  {
     WorkflowGroup(id: id,
-          name: application.displayName,
-          color: "#000",
-          rule: Rule(bundleIdentifiers: [application.bundleIdentifier]),
-          workflows: [
-          ])
+                  name: application.displayName,
+                  color: "#000",
+                  rule: Rule(allowedBundleIdentifiers: [application.bundleIdentifier]),
+                  workflows: [
+                  ])
   }
 
   static func designTime() -> WorkflowGroup {
@@ -108,19 +110,19 @@ extension WorkflowGroup {
     return WorkflowGroup(id: UUID().uuidString,
                          name: application.displayName,
                          color: "#6BD35F",
-                         rule: Rule(bundleIdentifiers: [
-                          application.bundleIdentifier,
-                          Application.music().bundleIdentifier,
-                          Application.xcode().bundleIdentifier,
+                         rule: Rule(allowedBundleIdentifiers: [
+                           application.bundleIdentifier,
+                           Application.music().bundleIdentifier,
+                           Application.xcode().bundleIdentifier,
                          ]),
                          workflows: [
-                          Workflow.designTime(nil),
-                          Workflow.designTime(.application([.init(application: application)])),
-                          Workflow.designTime(.keyboardShortcuts(.init(shortcuts: [
-                            .init(key: "A"),
-                            .init(key: "B"),
-                            .init(key: "C")
-                          ])))
+                           Workflow.designTime(nil),
+                           Workflow.designTime(.application([.init(application: application)])),
+                           Workflow.designTime(.keyboardShortcuts(.init(shortcuts: [
+                             .init(key: "A"),
+                             .init(key: "B"),
+                             .init(key: "C"),
+                           ]))),
                          ])
   }
 }

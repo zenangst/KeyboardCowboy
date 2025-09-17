@@ -2,7 +2,7 @@ import Apps
 import Bonzai
 import Foundation
 
-final class SidebarMapper {
+enum SidebarMapper {
   static func map(_ group: WorkflowGroup, applicationStore: ApplicationStore) -> GroupViewModel {
     let icon: Icon?
     if let rule = group.rule {
@@ -22,17 +22,19 @@ extension WorkflowGroup {
       icon: icon,
       color: color,
       symbol: symbol,
-      bundleIdentifiers: self.rule?.bundleIdentifiers ?? [],
+      bundleIdentifiers: rule?.allowedBundleIdentifiers ?? [],
       userModes: userModes,
       count: workflows.count,
-      isDisabled: isDisabled)
+      isDisabled: isDisabled
+    )
   }
 }
 
 private extension Rule {
   func icon(using applicationStore: ApplicationStore) -> Icon? {
-    if let bundleIdentifier: String = bundleIdentifiers.first,
-       let app: Application = applicationStore.application(for: bundleIdentifier) {
+    if let bundleIdentifier: String = allowedBundleIdentifiers.first,
+       let app: Application = applicationStore.application(for: bundleIdentifier)
+    {
       return .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
     }
     return nil

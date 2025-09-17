@@ -26,11 +26,12 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
 
   init(commandRunner: CommandRunning,
        keyboardCommandRunner: KeyboardCommandRunner,
-       store: KeyCodesStore) {
+       store: KeyCodesStore)
+  {
     self.commandRunner = commandRunner
     self.keyboardCommandRunner = keyboardCommandRunner
     self.store = store
-    self.specialKeys = Array(store.specialKeys().keys)
+    specialKeys = Array(store.specialKeys().keys)
 
     var customCharSet = CharacterSet.alphanumerics
     customCharSet.insert(charactersIn: "ÉéÅåÄäÖöÆæØøÜü")
@@ -48,10 +49,11 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
       .compactMap { $0 }
       .sink { [weak self] cgEvent in
         guard let self else { return }
+
         Task { [cgEvent] in
           await self.receiveCGEvent(cgEvent)
         }
-    }
+      }
   }
 
   // MARK: Private methods
@@ -85,11 +87,12 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
     guard let runningApplication = NSWorkspace.shared.frontmostApplication,
           let bundleIdentifier = runningApplication.bundleIdentifier else { return }
 
-    let globalKey: String = "*." + currentSnippet
+    let globalKey = "*." + currentSnippet
     let localKey: String = bundleIdentifier + "." + currentSnippet
 
     guard let workflows = snippetsStorage[localKey] ?? snippetsStorage[globalKey],
-          let machPortEvent = MachPortEvent.empty() else {
+          let machPortEvent = MachPortEvent.empty()
+    else {
       return
     }
 
@@ -97,7 +100,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
     let runningTask = Task { @MainActor in
       // Clean up snippet before running command
       if let key = VirtualSpecialKey.keys[kVK_Delete] {
-        for _ in 0..<currentSnippet.count {
+        for _ in 0 ..< currentSnippet.count {
           _ = try? await keyboardCommandRunner.run([.init(key: key)], iterations: 1, with: nil)
         }
       }
@@ -126,24 +129,25 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
   }
 
   private func receiveGroups(_ groups: [WorkflowGroup]) {
-    self.snippetsStorage = [:]
+    snippetsStorage = [:]
 
     for group in groups {
       let bundleIdentifiers: [String]
       if let rule = group.rule {
-        bundleIdentifiers = rule.bundleIdentifiers
+        bundleIdentifiers = rule.allowedBundleIdentifiers
       } else {
         bundleIdentifiers = ["*"]
       }
 
-      bundleIdentifiers.forEach { bundleIdentifier in
+      for bundleIdentifier in bundleIdentifiers {
         for workflow in group.workflows {
           guard workflow.isEnabled else { continue }
+
           if let trigger = workflow.trigger {
             switch trigger {
-            case .snippet(let trigger):
+            case let .snippet(trigger):
               guard !workflow.commands.isEmpty else { continue }
-              guard !trigger.text.isEmpty else { return }
+              guard !trigger.text.isEmpty else { continue }
 
               let key = bundleIdentifier + "." + trigger.text
 
@@ -161,4 +165,4 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
   }
 }
 
-extension CGEvent: @unchecked @retroactive Sendable {}
+extension CGEvent: @unchecked @retroactive Sendable { }

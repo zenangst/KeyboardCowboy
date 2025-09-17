@@ -10,15 +10,15 @@ final class ContentViewActionReducerTests: XCTestCase {
 
     // Nothing should happen because `.rerender` is no-op.
     GroupDetailViewActionReducer.reduce(.refresh([id]), groupStore: ctx.store,
-                                    selectionManager: ctx.selector,
-                                    group: &subject.original)
+                                        selectionManager: ctx.selector,
+                                        group: &subject.original)
 
     XCTAssertEqual(subject.original, subject.copy)
 
     // Nothing should happen because `.selectWorkflow` is no-op.
     GroupDetailViewActionReducer.reduce(.selectWorkflow(workflowIds: []), groupStore: ctx.store,
-                                    selectionManager: ctx.selector,
-                                    group: &subject.original)
+                                        selectionManager: ctx.selector,
+                                        group: &subject.original)
 
     XCTAssertEqual(subject.original, subject.copy)
   }
@@ -29,20 +29,20 @@ final class ContentViewActionReducerTests: XCTestCase {
         .init(id: "workflow-1-id", name: "workflow-1-name"),
         .init(id: "workflow-2-id", name: "workflow-2-name"),
       ]),
-      .init(id: "group-2-id", name: "group-2-name", workflows: [])
+      .init(id: "group-2-id", name: "group-2-name", workflows: []),
     ])
     let action: GroupDetailView.Action = .moveWorkflowsToGroup("group-2-id",
-                                                           workflows: ["workflow-1-id", "workflow-2-id"])
+                                                               workflows: ["workflow-1-id", "workflow-2-id"])
     var subject = ctx.store.groups[0]
 
     GroupDetailViewActionReducer.reduce(action, groupStore: ctx.store,
-                                    selectionManager: ctx.selector,
-                                    group: &subject)
+                                        selectionManager: ctx.selector,
+                                        group: &subject)
 
     // Verify that the workflows were moved to the new group.
     XCTAssertTrue(ctx.store.groups[0].workflows.isEmpty)
     XCTAssertEqual(ctx.store.groups[1].workflows.map(\.id).sorted(), [
-      "workflow-1-id", "workflow-2-id"
+      "workflow-1-id", "workflow-2-id",
     ])
   }
 
@@ -52,7 +52,7 @@ final class ContentViewActionReducerTests: XCTestCase {
         .init(id: "workflow-1-id", name: "workflow-1-name"),
         .init(id: "workflow-2-id", name: "workflow-2-name"),
       ]),
-      .init(id: "group-2-id", name: "group-2-name", workflows: [])
+      .init(id: "group-2-id", name: "group-2-name", workflows: []),
     ])
     let action: GroupDetailView.Action = .addWorkflow(workflowId: "workflow-3-id")
     var subject = ctx.store.groups[0]
@@ -62,8 +62,8 @@ final class ContentViewActionReducerTests: XCTestCase {
     XCTAssertEqual(subject.workflows.count, 2)
 
     GroupDetailViewActionReducer.reduce(action, groupStore: ctx.store,
-                                    selectionManager: ctx.selector,
-                                    group: &subject)
+                                        selectionManager: ctx.selector,
+                                        group: &subject)
 
     // Verify that a new workflow was added to the group.
     XCTAssertEqual(subject.workflows.count, 3)
@@ -78,7 +78,7 @@ final class ContentViewActionReducerTests: XCTestCase {
         .init(id: "workflow-1-id", name: "workflow-1-name"),
         .init(id: "workflow-2-id", name: "workflow-2-name"),
       ]),
-      .init(id: "group-2-id", name: "group-2-name", workflows: [])
+      .init(id: "group-2-id", name: "group-2-name", workflows: []),
     ])
     var subject = ctx.store.groups[0]
 
@@ -86,8 +86,8 @@ final class ContentViewActionReducerTests: XCTestCase {
 
     // Remove workflow-1-id and check that there is still one left.
     GroupDetailViewActionReducer.reduce(.removeWorkflows(["workflow-1-id"]), groupStore: ctx.store,
-                                    selectionManager: ctx.selector,
-                                    group: &subject)
+                                        selectionManager: ctx.selector,
+                                        group: &subject)
 
     XCTAssertEqual(subject.workflows.count, 1)
     XCTAssertEqual(ctx.selector.selections, ["workflow-2-id"])
@@ -95,8 +95,8 @@ final class ContentViewActionReducerTests: XCTestCase {
 
     // Remove workflow-2-id and check that the workflows are removed.
     GroupDetailViewActionReducer.reduce(.removeWorkflows(["workflow-2-id"]), groupStore: ctx.store,
-                                    selectionManager: ctx.selector,
-                                    group: &subject)
+                                        selectionManager: ctx.selector,
+                                        group: &subject)
     XCTAssertTrue(subject.workflows.isEmpty)
     XCTAssertTrue(ctx.selector.selections.isEmpty)
   }
@@ -108,7 +108,7 @@ final class ContentViewActionReducerTests: XCTestCase {
         .init(id: "workflow-2-id", name: "workflow-2-name"),
         .init(id: "workflow-3-id", name: "workflow-3-name"),
       ]),
-      .init(id: "group-2-id", name: "group-2-name", workflows: [])
+      .init(id: "group-2-id", name: "group-2-name", workflows: []),
     ])
 
     var indexSet = IndexSet()
@@ -117,15 +117,14 @@ final class ContentViewActionReducerTests: XCTestCase {
     var subject = ctx.store.groups[0]
 
     GroupDetailViewActionReducer.reduce(action, groupStore: ctx.store,
-                                    selectionManager: ctx.selector,
-                                    group: &subject)
+                                        selectionManager: ctx.selector,
+                                        group: &subject)
 
     XCTAssertEqual(subject.workflows.map(\.id), [
       "workflow-3-id",
       "workflow-1-id",
       "workflow-2-id",
     ])
-
   }
 
   // MARK: Private methods
@@ -136,7 +135,8 @@ final class ContentViewActionReducerTests: XCTestCase {
   }
 
   private func context(_ groups: [WorkflowGroup] = []) -> (store: GroupStore,
-                                                           selector: SelectionManager<GroupDetailViewModel>) {
+                                                           selector: SelectionManager<GroupDetailViewModel>)
+  {
     (store: GroupStore(groups), selector: SelectionManager())
   }
 }
