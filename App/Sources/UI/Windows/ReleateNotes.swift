@@ -8,7 +8,7 @@ final class ReleaseNotes: NSObject, NSWindowDelegate {
   func open() {
     let styleMask: NSWindow.StyleMask = [.titled, .closable, .fullSizeContentView]
     let window = ZenSwiftUIWindow(contentRect: .zero, styleMask: styleMask) {
-      Release3_27 { action in
+      Release3_28 { action in
         switch action {
         case .done:
           self.window?.close()
@@ -34,7 +34,7 @@ final class ReleaseNotes: NSObject, NSWindowDelegate {
     self.window = window
   }
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
   }
 }
