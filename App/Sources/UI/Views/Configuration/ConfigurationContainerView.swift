@@ -38,15 +38,7 @@ struct ConfigurationContainerView: View {
     if #available(macOS 26.0, *) {
       return 8
     } else {
-      return 0
-    }
-  }
-
-  func bottomPadding() -> CGFloat {
-    if #available(macOS 26.0, *) {
-      return 4
-    } else {
-      return 0
+      return 32
     }
   }
 }
