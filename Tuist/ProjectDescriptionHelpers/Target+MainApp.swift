@@ -12,8 +12,8 @@ public struct ApplicationProperties: Sendable {
   }
 }
 
-extension Target {
-  public static func app(_ properties: ApplicationProperties, shell: Shell, env: EnvHelper) -> Target {
+public extension Target {
+  static func app(_ properties: ApplicationProperties, shell: Shell, env: EnvHelper) -> Target {
     let buildNumber = ((try? shell.run("git rev-list --count HEAD")) ?? "x.x.x").trimmingCharacters(in: .whitespacesAndNewlines)
     let target = Target.target(
       name: properties.name,
@@ -39,27 +39,29 @@ extension Target {
         .package(product: "MachPort"),
         .package(product: "Sparkle"),
         .package(product: "Windows"),
+        .package(product: "RingBuffer"),
         //    .target(name: "LassoService")
       ],
       settings:
-        Settings.settings(
-          base: [
-            "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
-            "CODE_SIGN_IDENTITY": "Apple Development",
-            "CODE_SIGN_STYLE": "Automatic",
-            "CURRENT_PROJECT_VERSION": SettingValue(stringLiteral: buildNumber),
-            "DEVELOPMENT_TEAM": env["TEAM_ID"],
-            "ENABLE_HARDENED_RUNTIME": properties.hardendRuntime,
-            "MARKETING_VERSION": "3.28.0",
-            "PRODUCT_NAME": "Keyboard Cowboy",
-            "SWIFT_STRICT_CONCURRENCY": "complete",
-            "SWIFT_VERSION": "6.0",
-          ],
-          configurations: [
-            .debug(name: "Debug", xcconfig: "\(xcconfig("Debug"))"),
-            .release(name: "Release", xcconfig: "\(xcconfig("Release"))")
-          ],
-          defaultSettings: .recommended)
+      Settings.settings(
+        base: [
+          "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+          "CODE_SIGN_IDENTITY": "Apple Development",
+          "CODE_SIGN_STYLE": "Automatic",
+          "CURRENT_PROJECT_VERSION": SettingValue(stringLiteral: buildNumber),
+          "DEVELOPMENT_TEAM": env["TEAM_ID"],
+          "ENABLE_HARDENED_RUNTIME": properties.hardendRuntime,
+          "MARKETING_VERSION": "3.28.1",
+          "PRODUCT_NAME": "Keyboard Cowboy",
+          "SWIFT_STRICT_CONCURRENCY": "complete",
+          "SWIFT_VERSION": "6.0",
+        ],
+        configurations: [
+          .debug(name: "Debug", xcconfig: "\(xcconfig("Debug"))"),
+          .release(name: "Release", xcconfig: "\(xcconfig("Release"))"),
+        ],
+        defaultSettings: .recommended
+      )
     )
 
     return target

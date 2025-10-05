@@ -56,6 +56,7 @@ final class WindowStore: @unchecked Sendable {
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     subscriptions.frontmostApplication = publisher
       .compactMap { $0 }
+      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self, state] application in
         guard let self else { return }
 
@@ -75,7 +76,7 @@ final class WindowStore: @unchecked Sendable {
 
   func allApplicationsInSpace(_ models: [WindowModel], onScreen: Bool, sorted: Bool = true) -> [WindowModel] {
     let excluded = ["WindowManager", "Window Server"]
-    let minimumSize = CGSize(width: 48, height: 48)
+    let minimumSize = CGSize(width: 32, height: 32)
     let windowModels: [WindowModel] = models
       .filter {
         $0.ownerName != "borders" &&

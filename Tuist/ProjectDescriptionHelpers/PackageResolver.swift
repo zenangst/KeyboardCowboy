@@ -18,6 +18,7 @@ public enum PackageResolver {
         .package(path: "../LaunchArguments"),
         .package(path: "../MachPort"),
         .package(path: "../Windows"),
+        .package(path: "Packages/RingBuffer"),
       ]
     } else {
       packages = [
@@ -34,6 +35,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/zenangst/LaunchArguments.git", .branch("main")),
         .package(url: "https://github.com/zenangst/MachPort.git", .branch("main")),
         .package(url: "https://github.com/zenangst/Windows.git", .branch("main")),
+        .package(path: "Packages/RingBuffer"),
       ]
     }
     return packages
