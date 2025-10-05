@@ -75,9 +75,11 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     try container.encode(symbol, forKey: .symbol)
     try container.encode(name, forKey: .name)
     try container.encodeIfPresent(rule, forKey: .rule)
+
     if !userModes.isEmpty {
       try container.encode(userModes, forKey: .userModes)
     }
+
     if !workflows.isEmpty {
       try container.encode(workflows, forKey: .workflows)
     }
