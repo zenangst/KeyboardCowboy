@@ -1,6 +1,8 @@
+import AXEssibility
 import Cocoa
 
 final class UnhideApplicationPlugin {
+  static let debug: Bool = true
   let workspace: WorkspaceProviding
   let userSpace: UserSpace
 
@@ -10,16 +12,19 @@ final class UnhideApplicationPlugin {
     self.userSpace = userSpace
   }
 
-  func execute(_ command: ApplicationCommand) {
-    guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: command.application.bundleIdentifier).first,
-    runningApplication.isHidden else {
-      return
-    }
-
+  func execute(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
     guard workspace.frontApplication?.bundleIdentifier != command.application.bundleIdentifier else {
       return
     }
+    guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: command.application.bundleIdentifier).first
+    else {
+      return
+    }
 
-    _ = runningApplication.unhide()
+    if checkCancellation {
+      try Task.checkCancellation()
+    }
+
+    runningApplication.unhide()
   }
 }

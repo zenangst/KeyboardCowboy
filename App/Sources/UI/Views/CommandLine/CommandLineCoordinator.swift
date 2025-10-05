@@ -35,6 +35,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
   @MainActor
   private override init() {
     self.applicationRunner = ApplicationCommandRunner(
+      applicationActivityMonitor: .init(),
       scriptCommandRunner: .init(),
       keyboard: .init(store: KeyCodesStore(InputSourceController())),
       workspace: NSWorkspace.shared

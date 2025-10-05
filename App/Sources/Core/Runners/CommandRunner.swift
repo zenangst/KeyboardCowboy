@@ -58,6 +58,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
   @MainActor
   init(_ workspace: WorkspaceProviding = NSWorkspace.shared,
+       applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
        applicationStore: ApplicationStore,
        builtInCommandRunner: BuiltInCommandRunner,
        scriptCommandRunner: ScriptCommandRunner,
@@ -78,6 +79,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
     runners = .init(
       application: ApplicationCommandRunner(
+        applicationActivityMonitor: applicationActivityMonitor,
         scriptCommandRunner: scriptCommandRunner,
         keyboard: keyboardCommandRunner,
         workspace: workspace

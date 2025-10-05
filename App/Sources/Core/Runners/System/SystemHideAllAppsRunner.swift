@@ -96,6 +96,20 @@ enum SystemHideAllAppsRunner {
     for app in apps {
       if checkCancellation { try Task.checkCancellation() }
       app.hide()
+
+      if !app.isHidden {
+        var waiting = true
+        var timeout = 10
+        while waiting {
+          waiting = !app.isHidden && timeout > 0
+
+          if waiting {
+            try await Task.sleep(for: .milliseconds(10))
+            timeout -= 1
+          }
+        }
+      }
+
       processIdentifiers.insert(Int(app.processIdentifier))
     }
 
@@ -103,6 +117,7 @@ enum SystemHideAllAppsRunner {
     let limit = 100
     var waitingForWindowsToDisappear = true
 
+    // Do we actually need this?
     while waitingForWindowsToDisappear {
       if checkCancellation { try Task.checkCancellation() }
 

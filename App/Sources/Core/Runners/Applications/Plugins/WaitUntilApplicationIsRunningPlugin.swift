@@ -12,14 +12,14 @@ final class WaitUntilApplicationIsRunningPlugin {
   func run(for bundleIdentifier: String, checkCancellation: Bool) async throws {
     #warning("Fix this properly, perhaps with another routine?")
     // Music does not play well with waiting for it to launch.
-    let skippableBundleIdentifiers: [String] = ["com.apple.Music"]
+    let skippableBundleIdentifiers = ["com.apple.Music"]
 
     if skippableBundleIdentifiers.contains(bundleIdentifier) {
       return
     }
 
-    var waiting: Bool = true
-    var retries: Int = 20
+    var waiting = true
+    var retries = 20
     ifDebug("Waiting for \(bundleIdentifier)")
     while waiting {
       if checkCancellation { try Task.checkCancellation() }
