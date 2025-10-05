@@ -2,9 +2,9 @@ import Carbon.HIToolbox
 import Cocoa
 import Combine
 import Foundation
-import MachPort
 import InputSources
 import KeyCodes
+import MachPort
 import os
 
 @MainActor
@@ -30,7 +30,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   private var repeatingKeyCode: Int64 = -1
   private var repeatExecution: (@MainActor (MachPortEvent, Bool) async -> Void)?
   private var repeatingMatch: Bool?
-  private var specialKeys: [Int] = [Int]()
+  private var specialKeys: [Int] = .init()
   private var scheduledWorkItem: DispatchWorkItem?
   private var capsLockDown: Bool = false
   private var clearOnFlagsChanged: Bool = false
@@ -45,29 +45,29 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   private let tapHeld: TapHeldCoordinator
   private let workflowRunner: WorkflowRunner
 
-  internal init(store: KeyCodesStore,
-                keyboardCleaner: KeyboardCleaner,
-                keyboardCommandRunner: KeyboardCommandRunner,
-                macroCoordinator: MacroCoordinator,
-                mode: KeyboardCowboyMode,
-                notifications: MachPortUINotifications,
-                shortcutResolver: ShortcutResolver,
-                tapHeldCoordinator: TapHeldCoordinator,
-                workflowRunner: WorkflowRunner,
-  ) {
+  init(store: KeyCodesStore,
+       keyboardCleaner: KeyboardCleaner,
+       keyboardCommandRunner: KeyboardCommandRunner,
+       macroCoordinator: MacroCoordinator,
+       mode: KeyboardCowboyMode,
+       notifications: MachPortUINotifications,
+       shortcutResolver: ShortcutResolver,
+       tapHeldCoordinator: TapHeldCoordinator,
+       workflowRunner: WorkflowRunner)
+  {
     self.keyboardCleaner = keyboardCleaner
     self.keyboardCommandRunner = keyboardCommandRunner
     self.macroCoordinator = macroCoordinator
     self.mode = mode
     self.notifications = notifications
-    self.recordValidator = MachPortRecordValidator(store: store)
+    recordValidator = MachPortRecordValidator(store: store)
     self.shortcutResolver = shortcutResolver
-    self.specialKeys = Array(store.specialKeys().keys)
+    specialKeys = Array(store.specialKeys().keys)
     self.store = store
-    self.tapHeld = tapHeldCoordinator
+    tapHeld = tapHeldCoordinator
     self.workflowRunner = workflowRunner
 
-    self.tapHeld.delegate = self
+    tapHeld.delegate = self
   }
 
   func captureUIElement() {
@@ -84,9 +84,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
 
   func subscribe(to publisher: Published<KeyboardCowboyMode?>.Publisher) {
     keyboardCowboyModeSubscription = publisher
-      .compactMap({ $0 })
+      .compactMap { $0 }
       .sink { [weak self] mode in
         guard let self else { return }
+
         self.mode = mode
         self.specialKeys = Array(self.store.specialKeys().keys)
       }
@@ -98,9 +99,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     case .disabled: return
     case .captureUIElement: break
     case .intercept, .recordMacro:
-      guard machPortEvent.type != .leftMouseUp &&
-            machPortEvent.type != .leftMouseDown &&
-            machPortEvent.type != .leftMouseDragged else {
+      guard machPortEvent.type != .leftMouseUp,
+            machPortEvent.type != .leftMouseDown,
+            machPortEvent.type != .leftMouseDragged
+      else {
         return
       }
 
@@ -117,7 +119,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       record(machPortEvent)
     }
 
-    self.event = machPortEvent
+    event = machPortEvent
   }
 
   func receiveFlagsChanged(_ machPortEvent: MachPortEvent, allowsEscapeFallback: Bool) {
@@ -131,14 +133,14 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     repeatingKeyCode = -1
     KeyViewer.instance.handleFlagsChanged(machPortEvent.flags)
 
-    if clearOnFlagsChanged && machPortEvent.flags == .maskNonCoalesced {
+    if clearOnFlagsChanged, machPortEvent.flags == .maskNonCoalesced {
       previousPartialMatch = PartialMatch.default()
       clearOnFlagsChanged = false
     }
 
-    if allowsEscapeFallback && machPortEvent.keyCode == kVK_Escape && machPortEvent.result == nil {
+    if allowsEscapeFallback, machPortEvent.keyCode == kVK_Escape, machPortEvent.result == nil {
       _ = try? machPort?.post(kVK_Escape, type: .flagsChanged, flags: .maskNonCoalesced)
-    } else if machPortEvent.keyCode == kVK_Escape && machPortEvent.flags != .maskNonCoalesced {
+    } else if machPortEvent.keyCode == kVK_Escape, machPortEvent.flags != .maskNonCoalesced {
       Task {
         let event = machPortEvent.event
         event.type = .keyDown
@@ -148,7 +150,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       }
     }
   }
- 
+
   // MARK: - Private methods
 
   @MainActor
@@ -165,27 +167,29 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     switch machPortEvent.type {
     case .keyDown:
       if mode == .intercept,
-         macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature) {
+         macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature)
+      {
         return
       }
 
       if handleRepeatingKeyEvent(machPortEvent) { return }
     case .keyUp:
       if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp,
-         let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent {
-          let pressDurtion = timeElapsedInSeconds(
-              start: previousKeyDownMachPortEvent.event.timestamp,
-              end: machPortEvent.event.timestamp
-              )
+         let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent
+      {
+        let pressDurtion = timeElapsedInSeconds(
+          start: previousKeyDownMachPortEvent.event.timestamp,
+          end: machPortEvent.event.timestamp
+        )
 
-            if pressDurtion > 0.5 {
-              Task.detached { [workflowRunner] in
-                await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
-              }
-            }
-          PeekApplicationPlugin.peekEvent = nil
-          return
+        if pressDurtion > 0.5 {
+          Task.detached { [workflowRunner] in
+            await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
+          }
         }
+        PeekApplicationPlugin.peekEvent = nil
+        return
+      }
 
       handleKeyUp(machPortEvent)
       scheduledWorkItem?.cancel()
@@ -204,19 +208,20 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
 
     // Check for use of the `Any Key`
     if let workflow = previousPartialMatch.workflow,
-       workflow.machPortConditions.lastKeyIsAnyKey {
+       workflow.machPortConditions.lastKeyIsAnyKey
+    {
       if previousPartialMatch.rawValue.count(where: { $0 == "+" }) + 1 == workflow.machPortConditions.keyboardShortcutsTriggerCount {
         lookupToken = AnyKeyLookupToken()
 
-        if case .exact(let workflow) = shortcutResolver.lookup(
+        if case let .exact(workflow) = shortcutResolver.lookup(
           machPortEvent,
           bundleIdentifier: bundleIdentifier,
           userModes: userModes,
           partialMatch: .init(rawValue: ".")
         ), let rebinding = workflow.machPortConditions.rebinding,
-           let keyCode = shortcutResolver.lookup(rebinding),
-           let virtualKey = CGKeyCode(exactly: keyCode),
-           let event = CGEvent(keyboardEventSource: nil, virtualKey: virtualKey, keyDown: true) {
+        let keyCode = shortcutResolver.lookup(rebinding),
+        let virtualKey = CGKeyCode(exactly: keyCode),
+        let event = CGEvent(keyboardEventSource: nil, virtualKey: virtualKey, keyDown: true) {
           event.flags = rebinding.cgFlags
           lastEventOrRebinding = event
         } else {
@@ -253,14 +258,14 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       lastEventOrRebinding = machPortEvent.event
       tapHeldState = nil
       previousPartialMatch = PartialMatch.default()
-    case .partialMatch(let partialMatch):
+    case let .partialMatch(partialMatch):
       lastEventOrRebinding = machPortEvent.event
       handlePartialMatch(partialMatch, machPortEvent: machPortEvent, runningMacro: runningMacro)
       KeyViewer.instance.handleInput(machPortEvent.event, store: store)
-    case .exact(let workflow):
+    case let .exact(workflow):
       previousExactMatch = workflow
 
-      if case .event(let kind, _) = tapHeldState {
+      if case let .event(kind, _) = tapHeldState {
         switch kind {
         case .held, .leader:
           break
@@ -284,10 +289,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     }
   }
 
-  private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent, runningMacro: Bool) {
+  private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent, runningMacro _: Bool) {
     if let workflow = partialMatch.workflow,
        workflow.machPortConditions.isPassthrough,
-       macroCoordinator.state == .recording {
+       macroCoordinator.state == .recording
+    {
       previousPartialMatch = partialMatch
       macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
                               kind: .event(machPortEvent),
@@ -298,11 +304,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       machPortEvent.result = nil
     } else {
       if let partialWorkflow = partialMatch.workflow,
-        !partialWorkflow.machPortConditions.isPassthrough {
-          machPortEvent.result = nil
-        } else {
-          machPortEvent.result = nil
-        }
+         !partialWorkflow.machPortConditions.isPassthrough
+      {
+        machPortEvent.result = nil
+      } else {
+        machPortEvent.result = nil
+      }
       previousPartialMatch = partialMatch
     }
 
@@ -327,22 +334,24 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
 
     // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
     if workflow.machPortConditions.enabledCommandsCount == 1,
-       case .keyboard(let keyboardCommand) = workflow.machPortConditions.enabledCommands.first,
-       case .key(let command) = keyboardCommand.kind {
-
+       case let .keyboard(keyboardCommand) = workflow.machPortConditions.enabledCommands.first,
+       case let .key(command) = keyboardCommand.kind
+    {
       if !machPortEvent.isRepeat {
         notifications.notifyKeyboardCommand(workflow, command: keyboardCommand)
       }
 
       execution = { [weak self, keyboardCommandRunner] machPortEvent, _ in
         guard let self else { return }
+
         // Don't send the original event if `allowRepeat` is `false`.
         // If we don't, then it won't send a proper key up event.
         let originalEvent = workflow.machPortConditions.allowRepeat ? machPortEvent.event : nil
         guard let newEvents = try? await keyboardCommandRunner.run(command.keyboardShortcuts,
                                                                    originalEvent: originalEvent,
                                                                    iterations: command.iterations,
-                                                                   with: machPortEvent.eventSource) else {
+                                                                   with: machPortEvent.eventSource)
+        else {
           return
         }
 
@@ -369,6 +378,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       handlePassthroughIfNeeded()
       execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
         guard let self, machPortEvent.type != .keyUp else { return }
+
         self.coordinatorEvent = machPortEvent.event
         KeyViewer.instance.handleInput(machPortEvent.event, store: store)
         Task.detached { [workflowRunner] in
@@ -399,7 +409,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   }
 
   @MainActor
-  private func handleNoMatch(_ result: KeyboardShortcutResult?, machPortEvent: MachPortEvent) {
+  private func handleNoMatch(_: KeyboardShortcutResult?, machPortEvent: MachPortEvent) {
     reset()
     repeatingMatch = false
     coordinatorEvent = machPortEvent.event
@@ -416,7 +426,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     recording = recordValidator.validate(machPortEvent, allowAllKeys: true)
   }
 
-  private func reset(_ function: StaticString = #function, line: Int = #line) {
+  private func reset(_: StaticString = #function, line _: Int = #line) {
     previousPartialMatch = PartialMatch.default()
     notifications.reset()
   }
@@ -445,7 +455,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   @MainActor private func handleKeyUp(_ machPortEvent: MachPortEvent) {
     if let repeatExecution {
       if handleSingleKeyRebinding(previousExactMatch, machPortEvent: machPortEvent) {
-        self.previousExactMatch = nil
+        previousExactMatch = nil
         return
       }
 
@@ -454,15 +464,16 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
         self.previousExactMatch = nil
       } else if previousPartialMatch.workflow?.machPortConditions.isPassthrough == true {
       } else {
-        self.previousExactMatch = nil
+        previousExactMatch = nil
         machPortEvent.result = nil
       }
-    } else if case .event(let kind, _) = tapHeldState,
-              kind == .tap {
+    } else if case let .event(kind, _) = tapHeldState,
+              kind == .tap
+    {
       tapHeldState = nil
       previousPartialMatch = .default()
     } else if handleSingleKeyRebinding(previousExactMatch, machPortEvent: machPortEvent) {
-      self.previousExactMatch = nil
+      previousExactMatch = nil
     }
   }
 
@@ -550,13 +561,13 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   }
 
   func tapHeldDidResign() {
-    self.previousPartialMatch = .default()
+    previousPartialMatch = .default()
   }
 
   // MARK: LeaderKeyCoordinatorDelegate
 
   func leaderKeyDidResign() {
-    self.previousPartialMatch = .default()
+    previousPartialMatch = .default()
   }
 }
 
@@ -566,8 +577,8 @@ private struct AnyKeyLookupToken: LookupToken {
   let signature: CGEventSignature
 
   init() {
-    self.keyCode = Int64(KeyShortcut.anyKeyCode)
-    self.flags = [.maskNonCoalesced]
-    self.signature = CGEventSignature(self.keyCode, self.flags)
+    keyCode = Int64(KeyShortcut.anyKeyCode)
+    flags = [.maskNonCoalesced]
+    signature = CGEventSignature(keyCode, flags)
   }
 }

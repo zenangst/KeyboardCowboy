@@ -20,14 +20,17 @@ final class ApplicationCommandRunner: @unchecked Sendable {
 
   var delegate: ApplicationCommandRunnerDelegate?
 
+  private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
   private let workspace: WorkspaceProviding
   private let plugins: Plugins
 
   @MainActor
-  init(scriptCommandRunner: ScriptCommandRunner = .init(),
+  init(applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
+       scriptCommandRunner: ScriptCommandRunner = .init(),
        keyboard _: KeyboardCommandRunner,
        workspace: WorkspaceProviding = NSWorkspace.shared)
   {
+    self.applicationActivityMonitor = applicationActivityMonitor
     self.workspace = workspace
     plugins = Plugins(
       activate: ActivateApplicationPlugin(),
@@ -64,9 +67,9 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       try plugins.close.execute(command, checkCancellation: checkCancellation)
       snapshot = await snapshot.updateFrontmostApplication()
     case .hide:
-      plugins.hide.execute(command, snapshot: snapshot)
+      try await plugins.hide.execute(command, snapshot: snapshot, checkCancellation: checkCancellation)
     case .unhide:
-      plugins.unhide.execute(command)
+      try await plugins.unhide.execute(command, checkCancellation: checkCancellation)
     case .peek:
       guard let machPortEvent else { return }
 
@@ -75,7 +78,13 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       if machPortEvent.type == .keyDown {
         try await openApplication(command, checkCancellation: checkCancellation)
       } else if machPortEvent.type == .keyUp {
-        plugins.hide.execute(command, snapshot: snapshot)
+        if UserSettings.WindowManager.stageManagerEnabled {
+          if let previousApplication = await applicationActivityMonitor.previousApplication() {
+            try await openApplication(.init(application: previousApplication.asApplication()), checkCancellation: checkCancellation)
+          }
+        } else {
+          try await plugins.hide.execute(command, snapshot: snapshot, checkCancellation: checkCancellation)
+        }
       }
     }
   }

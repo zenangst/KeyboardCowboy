@@ -1,4 +1,5 @@
 import AppKit
+import Apps
 import Foundation
 import MachPort
 
@@ -154,7 +155,7 @@ actor BundledCommandRunner: Sendable {
                    snapshot: inout UserSpace.Snapshot,
                    machPortEvent: MachPortEvent,
                    checkCancellation: Bool, repeatingEvent: Bool,
-                   runtimeDictionary: inout [String: String]) async throws
+                   runtimeDictionary _: inout [String: String]) async throws
   {
     let applications = applicationStore.applications
     let dynamicApps = await DynamicWorkspace.shared
@@ -201,6 +202,7 @@ actor BundledCommandRunner: Sendable {
       }
     }
 
+    var bundleIdentifiers = Set<String>()
     for (offset, command) in commands.enumerated() {
       do {
         try Task.checkCancellation()
@@ -215,41 +217,52 @@ actor BundledCommandRunner: Sendable {
           continue
         }
       default:
-        var checkCancellation = checkCancellation
         if case let .application(appCommand) = command {
           if appCommand.modifiers.contains(.waitForAppToLaunch) {
-            checkCancellation = false
+            bundleIdentifiers.insert(appCommand.application.bundleIdentifier)
           }
         }
 
-        if case let .application(applicationCommand) = command,
-           applicationCommand.action == .open,
-           offset == 0,
-           Self.slowApps.contains(applicationCommand.application.bundleIdentifier.lowercased())
-        {
-          detachedTask = Task.detached { [commandRunner, snapshot, runtimeDictionary] in
-            var snapshot = snapshot
-            var runtimeDictionary = runtimeDictionary
+        var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
+        var runtimeDictionary = [String: String]()
+        try await commandRunner
+          .run(command,
+               workflowCommands: commands,
+               snapshot: &snapshot,
+               machPortEvent: machPortEvent,
+               checkCancellation: checkCancellation,
+               repeatingEvent: repeatingEvent,
+               runtimeDictionary: &runtimeDictionary)
+
+        if offset == commands.count - 1 {
+          try? await Task.sleep(for: .milliseconds(50))
+
+          // Check if the current menu bar owning application is part of the workspace.
+          // If not, and if there is at least one application in the workspace,
+          // then focus the last application in the workspace.
+          if let owningBundleIdentifier = NSWorkspace.shared.menuBarOwningApplication?.bundleIdentifier,
+             let lastApp = workspaceCommand.applications
+             .compactMap({ app -> WorkspaceCommand.WorkspaceApplication? in
+               if app.options.contains(.onlyWhenRunning),
+                  NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier).isEmpty
+               {
+                 return nil
+               }
+               return app
+             })
+             .last,
+             !bundleIdentifiers.contains(owningBundleIdentifier),
+             let application = ApplicationStore.shared.application(for: lastApp.bundleIdentifier)
+          {
             try await commandRunner
-              .run(command,
+              .run(.application(.init(application: application)),
                    workflowCommands: commands,
                    snapshot: &snapshot,
                    machPortEvent: machPortEvent,
-                   checkCancellation: true,
+                   checkCancellation: checkCancellation,
                    repeatingEvent: repeatingEvent,
                    runtimeDictionary: &runtimeDictionary)
           }
-        } else {
-          var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
-          var runtimeDictionary = [String: String]()
-          try await commandRunner
-            .run(command,
-                 workflowCommands: commands,
-                 snapshot: &snapshot,
-                 machPortEvent: machPortEvent,
-                 checkCancellation: checkCancellation,
-                 repeatingEvent: repeatingEvent,
-                 runtimeDictionary: &runtimeDictionary)
         }
       }
 
@@ -266,20 +279,15 @@ actor BundledCommandRunner: Sendable {
     }
   }
 
-  private func handleOnlyUnhide(_ commands: [Command], dynamicWorkspaceWithoutTiling: Bool) -> [Command] {
+  private func handleOnlyUnhide(_ commands: [Command], dynamicWorkspaceWithoutTiling _: Bool) -> [Command] {
     var commands = commands
     for (offset, command) in commands.enumerated() {
       if case var .application(applicationCommand) = command {
-        if dynamicWorkspaceWithoutTiling {
-          applicationCommand.delay = nil
-          applicationCommand.action = .unhide
-        } else {
-          applicationCommand.action = .unhide
-        }
-
+        applicationCommand.action = .unhide
         commands[offset] = .application(applicationCommand)
       }
     }
+
     return commands
   }
 }

@@ -11,7 +11,7 @@ final class HideApplicationPlugin {
     self.userSpace = userSpace
   }
 
-  func execute(_ command: ApplicationCommand, snapshot: UserSpace.Snapshot) {
+  func execute(_ command: ApplicationCommand, snapshot: UserSpace.Snapshot, checkCancellation: Bool) async throws {
     if command.application.bundleIdentifier == Application.previousAppBundleIdentifier() {
       if !snapshot.previousApplication.ref.isHidden {
         _ = snapshot.previousApplication.ref.hide()
@@ -19,9 +19,12 @@ final class HideApplicationPlugin {
       return
     }
 
-    guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: command.application.bundleIdentifier).first,
-          !runningApplication.isHidden else {
+    guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: command.application.bundleIdentifier).first else {
       return
+    }
+
+    if checkCancellation {
+      try Task.checkCancellation()
     }
 
     if workspace.frontApplication?.bundleIdentifier != command.application.bundleIdentifier {

@@ -155,10 +155,9 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
     var commands = [Command]()
 
-    let slowBundles = Set(["com.tinyspeck.slackmacgap", "com.apple.news"])
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
-    let windows = indexWindowsInStage(getWindows([.optionOnScreenOnly, .excludeDesktopElements]))
+    let windows = indexWindowsInStage(getWindows([.excludeDesktopElements]))
     let runningApplications = windows
       .compactMap { NSRunningApplication(processIdentifier: Int32($0.ownerPid.rawValue)) }
 
@@ -181,8 +180,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       kind: .hideAllApps,
       meta: Command.MetaData(delay: tiling != nil ? 40 : nil, name: "Hide All Apps")
     ))
-
-    var containsSlowApps = false
 
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
@@ -223,17 +220,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       name = action.displayName(for: application)
 
       if isLastItem {
-        let activationDelay: Double? = nil
-
-        if slowBundles.contains(application.bundleIdentifier) || application.metadata.isElectron {
-          containsSlowApps = true
-        }
-
         commands.append(
           .application(ApplicationCommand(
             action: .open,
             application: application,
-            meta: Command.MetaData(delay: activationDelay, name: "Activate \(application.displayName)"),
+            meta: Command.MetaData(delay: nil, name: "Activate \(application.displayName)"),
             modifiers: [.waitForAppToLaunch]
           )))
       } else if isFrontmost {
@@ -282,14 +273,8 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       commands.append(.windowTiling(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling"))))
     }
 
-    if hideOtherApps, !aerospaceIsRunning {
-      if !perfectBundleMatch {
-        if containsSlowApps {
-          commands.insert(hideAllAppsCommand, at: max(commands.count - 1, 0))
-        } else {
-          commands.append(hideAllAppsCommand)
-        }
-      }
+    if hideOtherApps, !aerospaceIsRunning, !UserSettings.WindowManager.stageManagerEnabled {
+      commands.append(hideAllAppsCommand)
     }
 
     return commands

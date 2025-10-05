@@ -4,28 +4,29 @@ import SwiftUI
 
 @MainActor
 final class Core {
-
   // MARK: - Coordinators
 
-  lazy private(set) var configCoordinator = ConfigurationCoordinator(
+  private(set) lazy var configCoordinator = ConfigurationCoordinator(
     contentStore: contentStore,
     configurationUpdater: configurationUpdater,
     selectionManager: configSelection,
-    store: configurationStore)
+    store: configurationStore
+  )
 
-  lazy private(set) var sidebarCoordinator = SidebarCoordinator(
+  private(set) lazy var sidebarCoordinator = SidebarCoordinator(
     groupStore,
     applicationStore: ApplicationStore.shared,
-    groupSelectionManager: groupSelection)
+    groupSelectionManager: groupSelection
+  )
 
-  lazy private(set) var groupCoordinator = GroupCoordinator(
+  private(set) lazy var groupCoordinator = GroupCoordinator(
     groupStore,
     applicationStore: ApplicationStore.shared,
     groupSelectionManager: groupSelection,
     workflowsSelectionManager: workflowsSelection
   )
 
-  lazy private(set) var workflowCoordinator = WorkflowCoordinator(
+  private(set) lazy var workflowCoordinator = WorkflowCoordinator(
     applicationStore: ApplicationStore.shared,
     applicationTriggerSelection: applicationTriggerSelection,
     commandRunner: commandRunner,
@@ -35,30 +36,31 @@ final class Core {
     groupSelection: groupSelection,
     keyboardCowboyEngine: engine,
     keyboardShortcutSelection: keyboardShortcutSelection,
-    groupStore: contentStore.groupStore)
+    groupStore: contentStore.groupStore
+  )
 
   // MARK: - Selection managers
 
-  lazy private(set) var keyboardShortcutSelection = SelectionManager<KeyShortcut>()
-  lazy private(set) var applicationTriggerSelection = SelectionManager<DetailViewModel.ApplicationTrigger>()
-  lazy private(set) var commandSelection = SelectionManager<CommandViewModel>()
+  private(set) lazy var keyboardShortcutSelection = SelectionManager<KeyShortcut>()
+  private(set) lazy var applicationTriggerSelection = SelectionManager<DetailViewModel.ApplicationTrigger>()
+  private(set) lazy var commandSelection = SelectionManager<CommandViewModel>()
 
-  lazy private(set) var configSelection = SelectionManager<ConfigurationViewModel>(initialSelection: [AppStorageContainer.shared.configId]) {
+  private(set) lazy var configSelection = SelectionManager<ConfigurationViewModel>(initialSelection: [AppStorageContainer.shared.configId]) {
     AppStorageContainer.shared.configId = $0.first ?? ""
   }
 
-  lazy private(set) var groupSelection = SelectionManager<GroupViewModel>(initialSelection: AppStorageContainer.shared.groupIds) {
+  private(set) lazy var groupSelection = SelectionManager<GroupViewModel>(initialSelection: AppStorageContainer.shared.groupIds) {
     AppStorageContainer.shared.groupIds = $0
   }
 
-  lazy private(set) var workflowsSelection = SelectionManager<GroupDetailViewModel>(initialSelection: AppStorageContainer.shared.workflowIds) {
+  private(set) lazy var workflowsSelection = SelectionManager<GroupDetailViewModel>(initialSelection: AppStorageContainer.shared.workflowIds) {
     AppStorageContainer.shared.workflowIds = $0
   }
 
   // MARK: - Stores
 
-  lazy private(set) var configurationStore = ConfigurationStore()
-  lazy private(set) var contentStore = ContentStore(
+  private(set) lazy var configurationStore = ConfigurationStore()
+  private(set) lazy var contentStore = ContentStore(
     AppPreferences.config,
     applicationStore: ApplicationStore.shared,
     configurationStore: configurationStore,
@@ -66,14 +68,15 @@ final class Core {
     shortcutResolver: shortcutResolver,
     recorderStore: recorderStore,
     shortcutStore: shortcutStore,
-    scriptCommandRunner: scriptCommandRunner)
-  lazy private(set) var keyboardCleaner = KeyboardCleaner()
-  lazy private(set) var macroCoordinator = MacroCoordinator(keyCodes: keyCodeStore)
-  lazy private(set) var groupStore = GroupStore()
-  lazy private(set) var keyCodeStore = KeyCodesStore(InputSourceController())
-  lazy private(set) var notifications = MachPortUINotifications(shortcutResolver: shortcutResolver)
-  lazy private(set) var tapHeldCoordinator = TapHeldCoordinator(defaultPartialMatch: .default())
-  lazy private(set) var machPortCoordinator = MachPortCoordinator(
+    scriptCommandRunner: scriptCommandRunner
+  )
+  private(set) lazy var keyboardCleaner = KeyboardCleaner()
+  private(set) lazy var macroCoordinator = MacroCoordinator(keyCodes: keyCodeStore)
+  private(set) lazy var groupStore = GroupStore()
+  private(set) lazy var keyCodeStore = KeyCodesStore(InputSourceController())
+  private(set) lazy var notifications = MachPortUINotifications(shortcutResolver: shortcutResolver)
+  private(set) lazy var tapHeldCoordinator = TapHeldCoordinator(defaultPartialMatch: .default())
+  private(set) lazy var machPortCoordinator = MachPortCoordinator(
     store: keyboardCommandRunner.store,
     keyboardCleaner: keyboardCleaner,
     keyboardCommandRunner: keyboardCommandRunner,
@@ -82,10 +85,10 @@ final class Core {
     notifications: notifications,
     shortcutResolver: shortcutResolver,
     tapHeldCoordinator: tapHeldCoordinator,
-    workflowRunner: workflowRunner,
+    workflowRunner: workflowRunner
   )
 
-  lazy private(set) var engine = KeyboardCowboyEngine(
+  private(set) lazy var engine = KeyboardCowboyEngine(
     contentStore,
     applicationActivityMonitor: applicationActivityMonitor,
     applicationTriggerController: applicationTriggerController,
@@ -100,20 +103,22 @@ final class Core {
     snippetController: snippetController,
     tapHeld: tapHeldCoordinator,
     uiElementCaptureStore: uiElementCaptureStore,
-    workspace: .shared,
+    workspace: .shared
   )
-  lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
-  lazy private(set) var recorderStore = KeyShortcutRecorderStore()
-  lazy private(set) var shortcutStore = ShortcutStore(scriptCommandRunner)
-  lazy private(set) var commandLine = CommandLineCoordinator.shared
-  lazy private(set) var applicationActivityMonitor = ApplicationActivityMonitor<UserSpace.Application>()
-  lazy private(set) var applicationWindowObserver = ApplicationWindowObserver()
+  private(set) lazy var uiElementCaptureStore = UIElementCaptureStore()
+  private(set) lazy var recorderStore = KeyShortcutRecorderStore()
+  private(set) lazy var shortcutStore = ShortcutStore(scriptCommandRunner)
+  private(set) lazy var commandLine = CommandLineCoordinator.shared
+  private(set) lazy var applicationActivityMonitor = ApplicationActivityMonitor<UserSpace.Application>()
+  private(set) lazy var applicationWindowObserver = ApplicationWindowObserver()
 
   // MARK: - Runners
-  lazy private(set) var workflowRunner = WorkflowRunner(commandRunner: commandRunner,
+
+  private(set) lazy var workflowRunner = WorkflowRunner(commandRunner: commandRunner,
                                                         store: keyCodeStore, notifications: notifications)
-  lazy private(set) var repeatLastWorkflowRunner = RepeatLastWorkflowRunner()
-  lazy private(set) var commandRunner = CommandRunner(
+  private(set) lazy var repeatLastWorkflowRunner = RepeatLastWorkflowRunner()
+  private(set) lazy var commandRunner = CommandRunner(
+    applicationActivityMonitor: applicationActivityMonitor,
     applicationStore: ApplicationStore.shared,
     builtInCommandRunner: BuiltInCommandRunner(
       commandLine: commandLine,
@@ -127,31 +132,32 @@ final class Core {
     systemCommandRunner: systemCommandRunner,
     uiElementCommandRunner: uiElementCommandRunner
   )
-  lazy private(set) var systemCommandRunner = SystemCommandRunner(applicationActivityMonitor: applicationActivityMonitor)
-  lazy private(set) var keyboardCommandRunner = KeyboardCommandRunner(store: keyCodeStore)
-  lazy private(set) var uiElementCommandRunner = UIElementCommandRunner()
-  lazy private(set) var scriptCommandRunner = ScriptCommandRunner(workspace: .shared)
-  lazy private(set) var macroRunner = MacroRunner(coordinator: macroCoordinator)
-  lazy private(set) var snippetController = SnippetController(
+  private(set) lazy var systemCommandRunner = SystemCommandRunner(applicationActivityMonitor: applicationActivityMonitor)
+  private(set) lazy var keyboardCommandRunner = KeyboardCommandRunner(store: keyCodeStore)
+  private(set) lazy var uiElementCommandRunner = UIElementCommandRunner()
+  private(set) lazy var scriptCommandRunner = ScriptCommandRunner(workspace: .shared)
+  private(set) lazy var macroRunner = MacroRunner(coordinator: macroCoordinator)
+  private(set) lazy var snippetController = SnippetController(
     commandRunner: commandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
     store: keyCodeStore
   )
 
-  lazy private(set) var applicationTriggerController = ApplicationTriggerController(workflowRunner)
-  lazy private(set) var modifierTriggerController = ModifierTriggerController()
+  private(set) lazy var applicationTriggerController = ApplicationTriggerController(workflowRunner)
+  private(set) lazy var modifierTriggerController = ModifierTriggerController()
 
-  lazy private(set) var inputSourceStore: InputSourceStore = .init()
-  lazy private(set) var raycast = Raycast.Store()
+  private(set) lazy var inputSourceStore: InputSourceStore = .init()
+  private(set) lazy var raycast = Raycast.Store()
 
   // MARK: - Controllers
 
-  lazy private(set) var shortcutResolver = ShortcutResolver(keyCodes: keyCodeStore)
+  private(set) lazy var shortcutResolver = ShortcutResolver(keyCodes: keyCodeStore)
 
-  lazy private(set) var configurationUpdater = ConfigurationUpdater(
+  private(set) lazy var configurationUpdater = ConfigurationUpdater(
     storageDebounce: .milliseconds(175),
-    onRender: { [weak self] configuration, commit, animation in
+    onRender: { [weak self] configuration, commit, _ in
       guard let self else { return }
+
       groupStore.updateGroups(Set(configuration.groups))
       sidebarCoordinator.handle(.selectGroups([commit.groupID]))
       groupCoordinator.handle(.selectGroups([commit.groupID]))
@@ -159,11 +165,13 @@ final class Core {
     },
     onStorageUpdate: { [weak self] configuration, commit in
       guard let self else { return }
+
       withAnimation { [groupCoordinator] in
         groupCoordinator.handle(.refresh([commit.groupID]))
       }
       configurationStore.update(configuration)
-  })
+    }
+  )
 
   init() { }
 }
