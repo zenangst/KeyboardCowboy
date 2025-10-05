@@ -43,7 +43,19 @@ enum WindowTilingRunner {
 
     guard let nextWindow = oldWindows.first else { return }
 
-    let app = AppAccessibilityElement(snapshot.frontMostApplication.ref.processIdentifier)
+    let app: AppAccessibilityElement
+
+    // Check that the current application is the same as the next window.
+    // Otherwise, activate that application.
+    if snapshot.frontMostApplication.ref.processIdentifier != nextWindow.ownerPid.rawValue,
+       let runningApp = NSRunningApplication(processIdentifier: pid_t(nextWindow.ownerPid.rawValue))
+    {
+      app = AppAccessibilityElement(runningApp.processIdentifier)
+      runningApp.activate(options: [.activateIgnoringOtherApps])
+    } else {
+      app = AppAccessibilityElement(snapshot.frontMostApplication.ref.processIdentifier)
+    }
+
     let menuItems = try app
       .menuBar()
       .menuItems()
