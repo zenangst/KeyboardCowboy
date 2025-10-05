@@ -2,48 +2,57 @@ import AXEssibility
 import Cocoa
 import Combine
 import Foundation
+import RingBuffer
 import Windows
 
 @MainActor
 enum WindowFocus {
-  private static var visibleMostIndex: Int = 0
-  static var previousWindowId: CGWindowID?
-  static var ring = [WindowModel]()
+  enum Ring: String { case app, global, stage }
+
+  private static var visibleMostIndexByRing: [Ring: Int] = [:]
+  static var previousWindowIds = [Ring: CGWindowID]()
+  static var appRing = RingBuffer<WindowModel>()
+  static var globalRing = RingBuffer<WindowModel>()
+  static var stageRing = RingBuffer<WindowModel>()
+  static var skipNextApplicationChange = false
 
   static func frontMostApplicationChanged() {
-    guard ring.count > 1 else { return }
+    guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else { return }
 
-    let frontmostApplication = NSWorkspace.shared.frontmostApplication!
-    let currentApplication = AppAccessibilityElement(frontmostApplication.processIdentifier)
+    let newAppWindows = WindowStore.shared
+      .getWindows(onScreen: true)
+      .filter { $0.ownerPid.rawValue == frontmostApplication.processIdentifier }
 
-    guard let currentId = try? currentApplication.focusedWindow()?.id else {
-      previousWindowId = nil
-      return
-    }
-    guard let prevId = previousWindowId,
-          currentId != prevId,
-          let cIdx = ring.firstIndex(where: { $0.id == currentId }),
-          let pIdx = ring.firstIndex(where: { $0.id == prevId })
+    appRing.update(newAppWindows)
+
+    let processIdentifier = frontmostApplication.processIdentifier
+    let app = AppAccessibilityElement(processIdentifier)
+    guard let id = try? app.focusedWindow()?.id,
+          let window = newAppWindows.first(where: { $0.id == id })
     else {
-      previousWindowId = currentId
       return
     }
 
-    ring.move(ring[cIdx], after: ring[pIdx])
-
-    if let prevElem = ring.first(where: { $0.id == prevId }) {
-      ring.rotateTo(head: prevElem)
+    if skipNextApplicationChange {
+      appRing.setCursor(to: window)
+      globalRing.setCursor(to: window)
+      stageRing.setCursor(to: window)
+      skipNextApplicationChange = false
+    } else {
+      appRing.moveEntryToCursor(window)
+      globalRing.moveEntryToCursor(window)
+      stageRing.moveEntryToCursor(window)
     }
-
-    visibleMostIndex = min(1, ring.count - 1)
-    previousWindowId = currentId
   }
 
   static func run(kind: WindowFocusCommand.Kind,
-                  snapshot: WindowStoreSnapshot, applicationStore: ApplicationStore,
+                  snapshot: WindowStoreSnapshot,
+                  applicationStore: ApplicationStore,
                   workspace: WorkspaceProviding) throws
   {
     let newCollection: [WindowModel]
+    let ring: RingBuffer<WindowModel>
+
     if kind == .moveFocusToNextWindowFront || kind == .moveFocusToPreviousWindowFront {
       newCollection = snapshot.visibleWindowsInSpace
         .filter { $0.ownerPid.rawValue == UserSpace.shared.frontmostApplication.ref.processIdentifier }
@@ -53,61 +62,27 @@ enum WindowFocus {
           .routine(UserSpace.shared.frontmostApplication)
           .run(kind)
       }
+      ring = appRing
     } else if kind == .moveFocusToNextWindow || kind == .moveFocusToPreviousWindow {
       newCollection = snapshot.visibleWindowsInStage
+      ring = stageRing
+    } else if kind == .moveFocusToNextWindowGlobal || kind == .moveFocusToPreviousWindowGlobal {
+      newCollection = snapshot.visibleWindowsInSpace
+      ring = globalRing
     } else {
-      newCollection = kind == .moveFocusToNextWindowGlobal ||
-        kind == .moveFocusToPreviousWindowGlobal
-        ? snapshot.visibleWindowsInSpace
-        : snapshot.visibleWindowsInStage
+      return
     }
 
-    if !Self.ring.isEqual(to: newCollection) {
-      for window in Self.ring {
-        if !newCollection.contains(where: { $0.id == window.id }) {
-          // If the window is no longer in the new collection, we need to remove it from
-          // the snapshot to avoid stale references.
-          if let index = Self.ring.firstIndex(where: { $0.id == window.id }) {
-            Self.ring.remove(at: index)
-          }
-        }
-      }
-
-      for newWindow in newCollection {
-        if !Self.ring.contains(where: { $0.id == newWindow.id }) {
-          // If the new window is not in the snapshot, we add it.
-          Self.ring.append(newWindow)
-        }
-      }
-    }
-
-    let collection: [WindowModel] = Self.ring
-    let collectionCount = collection.count
-
-    guard collectionCount > 1 else { return }
-
-    let frontmostApplication = NSWorkspace.shared.frontmostApplication!
-    let currentApplication = AppAccessibilityElement(frontmostApplication.processIdentifier)
-    let currentId = try? currentApplication.focusedWindow()?.id
-
-    switch kind {
+    let direction: RingBufferDirection = switch kind {
     case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal, .moveFocusToNextWindowFront:
-      visibleMostIndex = (visibleMostIndex + 1) % collectionCount
+      .right
     default:
-      visibleMostIndex = (visibleMostIndex - 1 + collectionCount) % collectionCount
+      .left
     }
 
-    var window = collection[visibleMostIndex]
-
-    if let currentId, currentId == window.id {
-      switch kind {
-      case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal, .moveFocusToNextWindowFront:
-        visibleMostIndex = (visibleMostIndex - 1 + collectionCount) % collectionCount
-      default:
-        visibleMostIndex = (visibleMostIndex + 1) % collectionCount
-      }
-
-      window = collection[visibleMostIndex]
+    guard newCollection.count > 1 else { return }
+    guard let window = ring.navigate(direction, entries: newCollection) else {
+      return
     }
 
     let windowId = UInt32(window.id)
@@ -115,7 +90,7 @@ enum WindowFocus {
     let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
     let app = AppAccessibilityElement(processIdentifier)
 
-    if let runningApplication = runningApplication {
+    if let runningApplication {
       let options: NSApplication.ActivationOptions = [.activateIgnoringOtherApps]
       runningApplication.activate(options: options)
 
@@ -134,7 +109,8 @@ enum WindowFocus {
 
     let axWindow = try app.windows().first(where: { $0.id == windowId })
     axWindow?.performAction(.raise)
-    previousWindowId = axWindow?.id
+
+    skipNextApplicationChange = true
   }
 }
 
