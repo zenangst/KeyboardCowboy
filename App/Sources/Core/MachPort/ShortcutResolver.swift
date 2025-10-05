@@ -29,8 +29,7 @@ extension MachPortEvent: LookupToken {
   var signature: CGEventSignature { CGEventSignature.from(event) }
 }
 
-@MainActor
-final class ShortcutResolver {
+@MainActor final class ShortcutResolver {
   enum Fallback {
     case functionKey
     case remainder(originalFlags: UInt64)
@@ -38,6 +37,7 @@ final class ShortcutResolver {
 
   private static let debug: Bool = false
   private var cache = [String: KeyboardShortcutResult]()
+  private var disallowedBundleIdentifiers = Set<String>()
 
   let keyCodes: KeycodeLocating
 
@@ -69,7 +69,9 @@ final class ShortcutResolver {
         }
 
         let globalKeyWithUserMode = Self.createKey(eventSignature: eventSignature,
-                                                   bundleIdentifier: "*", userModeKey: userModeKey, previousKey: partialMatch.rawValue)
+                                                   bundleIdentifier: "*",
+                                                   userModeKey: userModeKey,
+                                                   previousKey: partialMatch.rawValue)
 
         if let result = cache[globalKeyWithUserMode] {
           if Self.debug { print("globalKeyWithUserMode: \(globalKeyWithUserMode)") }
@@ -80,7 +82,9 @@ final class ShortcutResolver {
     }
 
     let scopedKey = Self.createKey(eventSignature: eventSignature,
-                                   bundleIdentifier: bundleIdentifier, userModeKey: "", previousKey: partialMatch.rawValue)
+                                   bundleIdentifier: bundleIdentifier,
+                                   userModeKey: "",
+                                   previousKey: partialMatch.rawValue)
 
     if let result = cache[scopedKey] {
       if Self.debug { print("scopeKey: \(scopedKey)") }
@@ -91,6 +95,10 @@ final class ShortcutResolver {
                                    bundleIdentifier: "*", userModeKey: "", previousKey: partialMatch.rawValue)
 
     if Self.debug { print("globalKey: \(globalKey)") }
+
+    if disallowedBundleIdentifiers.contains(scopedKey) {
+      return nil
+    }
 
     if let globalKeyResult = cache[globalKey] {
       return globalKeyResult
@@ -144,10 +152,8 @@ final class ShortcutResolver {
 
     var workflows = results.compactMap { result in
       switch result {
-      case let .partialMatch(partialMatch):
-        partialMatch.workflow
-      case let .exact(workflow):
-        workflow
+      case let .partialMatch(partialMatch): partialMatch.workflow
+      case let .exact(workflow): workflow
       }
     }
 
@@ -168,16 +174,23 @@ final class ShortcutResolver {
   func cache(_ groups: [WorkflowGroup]) {
     var newCache = [String: KeyboardShortcutResult]()
     for group in groups where !group.isDisabled {
-      let bundleIdentifiers: [String]
+      let allowedBundleIdentifiers: [String]
+      let disallowedBundleIdentifiers: [String]
       if let rule = group.rule {
-        bundleIdentifiers = rule.allowedBundleIdentifiers
+        if !rule.allowedBundleIdentifiers.isEmpty {
+          allowedBundleIdentifiers = rule.allowedBundleIdentifiers
+        } else {
+          allowedBundleIdentifiers = ["*"]
+        }
+
+        disallowedBundleIdentifiers = rule.disallowedBundleIdentifiers
       } else {
-        bundleIdentifiers = ["*"]
+        allowedBundleIdentifiers = ["*"]
+        disallowedBundleIdentifiers = []
       }
 
-      for bundleIdentifier in bundleIdentifiers {
-        for workflow in group.workflows {
-          guard workflow.isEnabled else { continue }
+      for allowedBundleIdentifier in allowedBundleIdentifiers {
+        for workflow in group.workflows where workflow.isEnabled {
           guard case let .keyboardShortcuts(trigger) = workflow.trigger else { continue }
 
           let count = trigger.shortcuts.count - 1
@@ -204,31 +217,9 @@ final class ShortcutResolver {
 
             let eventSignature = CGEventSignature(Int64(keyCode), flags)
 
-            if Self.debug, workflow.name.contains("**") {
-              print(workflow.name, eventSignature.id)
-              print(keyCode, flags)
-              print(" .maskAlphaShift", flags.contains(.maskAlphaShift))
-              print(" .maskShift", flags.contains(.maskShift))
-              print(" .maskLeftShift", flags.contains(.maskLeftShift))
-              print(" .maskRightShift", flags.contains(.maskRightShift))
-              print(" .maskControl", flags.contains(.maskControl))
-              print(" .maskLeftControl", flags.contains(.maskLeftControl))
-              print(" .maskRightControl", flags.contains(.maskRightControl))
-              print(" .maskAlternate", flags.contains(.maskAlternate))
-              print(" .maskLeftAlternate", flags.contains(.maskLeftAlternate))
-              print(" .maskRightAlternate", flags.contains(.maskRightAlternate))
-              print(" .maskCommand", flags.contains(.maskCommand))
-              print(" .maskLeftCommand", flags.contains(.maskLeftCommand))
-              print(" .maskRightCommand", flags.contains(.maskRightCommand))
-              print(" .maskHelp", flags.contains(.maskHelp))
-              print(" .maskSecondaryFn", flags.contains(.maskSecondaryFn))
-              print(" .maskNumericPad", flags.contains(.maskNumericPad))
-              print(" .maskNonCoalesced", flags.contains(.maskNonCoalesced))
-            }
-
             if group.userModes.isEmpty {
               let key = Self.createKey(eventSignature: eventSignature,
-                                       bundleIdentifier: bundleIdentifier,
+                                       bundleIdentifier: allowedBundleIdentifier,
                                        userModeKey: "",
                                        previousKey: previousKey)
               let currentPreviousKey = previousKey
@@ -239,7 +230,7 @@ final class ShortcutResolver {
                   for: workflow,
                   keyCode: Int64(keyCode),
                   flags: flags,
-                  bundleIdentifier: bundleIdentifier,
+                  bundleIdentifier: allowedBundleIdentifier,
                   userModeKey: "",
                   previousKey: currentPreviousKey
                 ) { newKey, match in
@@ -262,7 +253,7 @@ final class ShortcutResolver {
                 let userModeKey = userMode.dictionaryKey(true)
                 let currentPreviousKey = previousKey
                 let key = Self.createKey(eventSignature: eventSignature,
-                                         bundleIdentifier: bundleIdentifier,
+                                         bundleIdentifier: allowedBundleIdentifier,
                                          userModeKey: userModeKey,
                                          previousKey: previousKey)
                 if !didSetPreviousKey {
@@ -270,16 +261,14 @@ final class ShortcutResolver {
                   didSetPreviousKey = true
                 }
 
-                if Self.debug, workflow.name.contains("**") {
-                  print(key)
-                }
+                let lastItem = offset == count
 
-                if offset == count {
+                if lastItem {
                   DynamicWorkspace.createDynamicWorkflows(
                     for: workflow,
                     keyCode: Int64(keyCode),
                     flags: flags,
-                    bundleIdentifier: bundleIdentifier,
+                    bundleIdentifier: allowedBundleIdentifier,
                     userModeKey: userModeKey,
                     previousKey: currentPreviousKey
                   ) { newKey, match in
@@ -298,6 +287,45 @@ final class ShortcutResolver {
             }
 
             offset += 1
+          }
+        }
+      }
+
+      self.disallowedBundleIdentifiers = []
+      for disallowedBundleIdentifier in disallowedBundleIdentifiers {
+        for workflow in group.workflows where workflow.isEnabled {
+          guard case let .keyboardShortcuts(trigger) = workflow.trigger else { continue }
+
+          var previousKey = "."
+
+          for keyboardShortcut in trigger.shortcuts {
+            guard let keyCode = keyCodes.keyCode(for: keyboardShortcut.key, matchDisplayValue: true)
+              ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: true)
+              ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: false)
+              ?? resolveAnyKeyCode(keyboardShortcut)
+            else {
+              continue
+            }
+
+            var flags = keyboardShortcut.cgFlags
+
+            if SpecialKeys.numericPadKeys.contains(keyCode) {
+              flags.insert(.maskNumericPad)
+            }
+
+            if SpecialKeys.functionKeys.contains(keyCode) {
+              flags.insert(.maskSecondaryFn)
+            }
+
+            let eventSignature = CGEventSignature(Int64(keyCode), flags)
+            let key = Self.createKey(eventSignature: eventSignature,
+                                     bundleIdentifier: disallowedBundleIdentifier,
+                                     userModeKey: "",
+                                     previousKey: previousKey)
+            if !self.disallowedBundleIdentifiers.contains(key) {
+              self.disallowedBundleIdentifiers.insert(key)
+            }
+            previousKey += "\(eventSignature.id)+"
           }
         }
       }
