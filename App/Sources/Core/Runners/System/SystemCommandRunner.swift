@@ -39,7 +39,7 @@ final class SystemCommandRunner: @unchecked Sendable {
           }
         }
       case .fillAllOpenWindows:
-        await SystemFillAllWindowsRunner.run(snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
+        try await SystemFillAllWindowsRunner.run(snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
       case .hideAllApps:
         let targetApplication: Application? = workflowCommands.compactMap {
           switch $0 {
