@@ -290,26 +290,21 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   }
 
   private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent, runningMacro _: Bool) {
-    if let workflow = partialMatch.workflow,
-       workflow.machPortConditions.isPassthrough,
-       macroCoordinator.state == .recording
-    {
+    // Handle passthrough workflows
+    if let workflow = partialMatch.workflow, workflow.machPortConditions.isPassthrough {
       previousPartialMatch = partialMatch
-      macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
-                              kind: .event(machPortEvent),
-                              machPortEvent: machPortEvent)
+
+      if macroCoordinator.state == .recording {
+        macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
+                                kind: .event(machPortEvent),
+                                machPortEvent: machPortEvent)
+      }
     } else if tapHeld.handlePartialMatchIfApplicable(partialMatch, machPortEvent: machPortEvent) {
       previousPartialMatch = partialMatch
       repeatingMatch = nil
       machPortEvent.result = nil
     } else {
-      if let partialWorkflow = partialMatch.workflow,
-         !partialWorkflow.machPortConditions.isPassthrough
-      {
-        machPortEvent.result = nil
-      } else {
-        machPortEvent.result = nil
-      }
+      machPortEvent.result = nil
       previousPartialMatch = partialMatch
     }
 
