@@ -1,6 +1,10 @@
 import Foundation
 
 struct ScriptCommand: MetaDataProviding {
+  enum MigrationKind: String, Codable {
+    case appleScript = "scpt"
+    case shellScript = "sh"
+  }
   var kind: Kind
   var source: Source
   var meta: Command.MetaData
@@ -26,7 +30,19 @@ struct ScriptCommand: MetaDataProviding {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.kind = try container.decode(Kind.self, forKey: .kind)
+    do {
+      self.kind = try container.decode(Kind.self, forKey: .kind)
+    } catch {
+      let result = try container.decode(MigrationKind.self, forKey: .kind)
+      switch result {
+      case .appleScript:
+        self.kind = .appleScript(variant: .regular)
+      case .shellScript:
+        self.kind = .shellScript
+      }
+      Task { await MainActor.run { Migration.shouldSave = true } }
+    }
+
     self.source = try container.decode(Source.self, forKey: .source)
     self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }

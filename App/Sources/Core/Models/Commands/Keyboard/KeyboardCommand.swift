@@ -17,10 +17,27 @@ struct KeyboardCommand: MetaDataProviding {
     self.kind = kind
   }
 
+  enum MigrationCodingKeys: String, CodingKey {
+    case id
+    case name
+    case keyboardShortcuts
+    case kind
+    case isEnabled = "enabled"
+    case iterations
+    case notification
+  }
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-    self.kind = try container.decode(Kind.self, forKey: .kind)
+    let migration = try decoder.container(keyedBy: MigrationCodingKeys.self)
+    if let keyboardShortcuts = try migration.decodeIfPresent([KeyShortcut].self, forKey: .keyboardShortcuts) {
+      let iterations = (try? migration.decodeIfPresent(Int.self, forKey: .iterations)) ?? 1
+      self.kind = .key(command: .init(keyboardShortcuts: keyboardShortcuts, iterations: iterations))
+      Task { await MainActor.run { Migration.shouldSave = true } }
+    } else {
+      self.kind = try container.decode(Kind.self, forKey: .kind)
+    }
   }
 
   func copy() -> KeyboardCommand {
