@@ -8,7 +8,7 @@
             <sparkle:version>2677</sparkle:version>
             <sparkle:shortVersionString>3.28.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://raw.githubusercontent.com/zenangst/KeyboardCowboy/main/Keyboard%20Cowboy%203.28.1.dmg" length="10288602" type="application/octet-stream" sparkle:edSignature="YDjm1x2vQm9vXaI6iSEaqmj0KBcwNkOjOnxuXQHqMmIfp4Om0KazOtusozqpCLtAADz2MotAU4rhIAlaYjS5Dw=="/>
+            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.28.1/Keyboard.Cowboy.3.28.1.dmg" length="10292916" type="application/octet-stream" sparkle:edSignature="QQ042YtWfuB8N9MtouQ+GndZxL9hei+1c4UGZ47mp13FEZE2U93IUkTqKRuy1l3sCr7sOne/Uwnj/sDYBSPEBA=="/>
         </item>
         <item>
             <title>3.28.0</title>
