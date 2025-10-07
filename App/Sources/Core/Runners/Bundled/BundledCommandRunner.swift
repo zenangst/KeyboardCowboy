@@ -43,8 +43,7 @@ actor BundledCommandRunner: Sendable {
                       snapshot: &snapshot,
                       machPortEvent: machPortEvent,
                       checkCancellation: checkCancellation,
-                      repeatingEvent: repeatingEvent,
-                      runtimeDictionary: &runtimeDictionary)
+                      repeatingEvent: repeatingEvent)
         output = "Back to \(command.name)"
       } else {
         output = ""
@@ -74,8 +73,7 @@ actor BundledCommandRunner: Sendable {
                     snapshot: &snapshot,
                     machPortEvent: machPortEvent,
                     checkCancellation: checkCancellation,
-                    repeatingEvent: repeatingEvent,
-                    runtimeDictionary: &runtimeDictionary)
+                    repeatingEvent: repeatingEvent)
 
       if movedToWorkspace {
         if let runningApp = NSRunningApplication.runningApplications(withBundleIdentifier: application.bundleIdentifier).first {
@@ -138,8 +136,7 @@ actor BundledCommandRunner: Sendable {
                     snapshot: &snapshot,
                     machPortEvent: machPortEvent,
                     checkCancellation: checkCancellation,
-                    repeatingEvent: repeatingEvent,
-                    runtimeDictionary: &runtimeDictionary)
+                    repeatingEvent: repeatingEvent)
       output = command.name
     case let .tidy(command):
       try await windowTidy.run(command)
@@ -154,8 +151,8 @@ actor BundledCommandRunner: Sendable {
                    commandRunner: CommandRunner,
                    snapshot: inout UserSpace.Snapshot,
                    machPortEvent: MachPortEvent,
-                   checkCancellation: Bool, repeatingEvent: Bool,
-                   runtimeDictionary _: inout [String: String]) async throws
+                   _: Bool = false,
+                   checkCancellation: Bool, repeatingEvent: Bool) async throws
   {
     let applications = applicationStore.applications
     let dynamicApps = await DynamicWorkspace.shared
