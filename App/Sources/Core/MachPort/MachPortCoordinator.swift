@@ -244,7 +244,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     switch result {
     case .none:
       let partialMatchCopy = previousPartialMatch
-      handleNoMatch(result, machPortEvent: machPortEvent)
+      handleNoMatch(machPortEvent: machPortEvent)
 
       if inMacroContext {
         macroCoordinator.record(eventSignature, kind: .event(machPortEvent), machPortEvent: machPortEvent)
@@ -404,7 +404,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   }
 
   @MainActor
-  private func handleNoMatch(_: KeyboardShortcutResult?, machPortEvent: MachPortEvent) {
+  private func handleNoMatch(machPortEvent: MachPortEvent) {
     reset()
     repeatingMatch = false
     coordinatorEvent = machPortEvent.event
@@ -421,7 +421,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     recording = recordValidator.validate(machPortEvent, allowAllKeys: true)
   }
 
-  private func reset(_: StaticString = #function, line _: Int = #line) {
+  private func reset() {
     previousPartialMatch = PartialMatch.default()
     notifications.reset()
   }
