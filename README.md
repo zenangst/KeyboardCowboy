@@ -57,6 +57,7 @@ By assigning frequently-used commands to the function key, you can streamline yo
   - [Keyboard Shortcut Triggers](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#keyboard-shortcut-triggers)
     - [Allow Repeat](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#allow-repeat)
     - [Keep Last Partial Match](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#keep-last-partial-match)
+    - [Leader Key](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#leader-key)
     - [Passthrough Feature](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#passthrough-feature)
     - [Hold for X Seconds](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#hold-for-x-seconds)
   - [Application Triggers](https://github.com/zenangst/KeyboardCowboy/wiki/Triggers#application-triggers)
