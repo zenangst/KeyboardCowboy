@@ -26,7 +26,7 @@ extension WindowTiling {
     case .arrangeLeftRight: "Window › Move & Resize › Left & Right"
     case .arrangeRightLeft: "Window › Move & Resize › Right & Left"
     case .arrangeTopBottom: "Window › Move & Resize › Top & Bottom"
-    case .arrangeBottomTop  : "Window › Move & Resize › Bottom & Top"
+    case .arrangeBottomTop: "Window › Move & Resize › Bottom & Top"
     case .arrangeLeftQuarters: "Window › Move & Resize › Left & Quarters"
     case .arrangeRightQuarters: "Window › Move & Resize › Right & Quarters"
     case .arrangeTopQuarters: "Window › Move & Resize › Top & Quarters"

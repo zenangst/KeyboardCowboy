@@ -4,11 +4,10 @@ import Foundation
 
 enum SidebarMapper {
   static func map(_ group: WorkflowGroup, applicationStore: ApplicationStore) -> GroupViewModel {
-    let icon: Icon?
-    if let rule = group.rule {
-      icon = rule.icon(using: applicationStore)
+    let icon: Icon? = if let rule = group.rule {
+      rule.icon(using: applicationStore)
     } else {
-      icon = nil
+      nil
     }
     return group.asViewModel(icon)
   }
@@ -16,7 +15,7 @@ enum SidebarMapper {
 
 extension WorkflowGroup {
   func asViewModel(_ icon: Icon?) -> GroupViewModel {
-    return GroupViewModel(
+    GroupViewModel(
       id: id,
       name: name,
       icon: icon,
@@ -25,7 +24,7 @@ extension WorkflowGroup {
       bundleIdentifiers: rule?.allowedBundleIdentifiers ?? [],
       userModes: userModes,
       count: workflows.count,
-      isDisabled: isDisabled
+      isDisabled: isDisabled,
     )
   }
 }

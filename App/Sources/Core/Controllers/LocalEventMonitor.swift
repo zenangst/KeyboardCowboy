@@ -17,14 +17,15 @@ final class LocalEventMonitor: ObservableObject {
   fileprivate init() {
     let mouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .leftMouseDown, .leftMouseUp]) { [weak self] event in
       guard let self else { return event }
+
       switch event.type {
       case .leftMouseUp:
-        self.mouseDown = false
+        mouseDown = false
       case .leftMouseDown:
-        self.mouseDown = true
+        mouseDown = true
       case .flagsChanged:
         let result = event.cgEvent?.flags == CGEventFlags.maskNonCoalesced
-        self.emptyFlags = result
+        emptyFlags = result
         if result {
           self.event = nil
         }

@@ -84,12 +84,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
 
   func subscribe(to publisher: Published<KeyboardCowboyMode?>.Publisher) {
     keyboardCowboyModeSubscription = publisher
-      .compactMap { $0 }
+      .compactMap(\.self)
       .sink { [weak self] mode in
         guard let self else { return }
 
         self.mode = mode
-        self.specialKeys = Array(self.store.specialKeys().keys)
+        specialKeys = Array(store.specialKeys().keys)
       }
   }
 
@@ -179,7 +179,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       {
         let pressDurtion = timeElapsedInSeconds(
           start: previousKeyDownMachPortEvent.event.timestamp,
-          end: machPortEvent.event.timestamp
+          end: machPortEvent.event.timestamp,
         )
 
         if pressDurtion > 0.5 {
@@ -217,7 +217,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
           machPortEvent,
           bundleIdentifier: bundleIdentifier,
           userModes: userModes,
-          partialMatch: .init(rawValue: ".")
+          partialMatch: .init(rawValue: "."),
         ), let rebinding = workflow.machPortConditions.rebinding,
         let keyCode = shortcutResolver.lookup(rebinding),
         let virtualKey = CGKeyCode(exactly: keyCode),
@@ -238,7 +238,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       lookupToken,
       bundleIdentifier: bundleIdentifier,
       userModes: userModes,
-      partialMatch: previousPartialMatch
+      partialMatch: previousPartialMatch,
     )
 
     switch result {
@@ -351,8 +351,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
         }
 
         for newEvent in newEvents {
-          self.coordinatorEvent = newEvent
-          self.lastEventOrRebinding = newEvent
+          coordinatorEvent = newEvent
+          lastEventOrRebinding = newEvent
           KeyViewer.instance.handleInput(newEvent, store: store)
         }
       }
@@ -374,7 +374,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
         guard let self, machPortEvent.type != .keyUp else { return }
 
-        self.coordinatorEvent = machPortEvent.event
+        coordinatorEvent = machPortEvent.event
         KeyViewer.instance.handleInput(machPortEvent.event, store: store)
         Task.detached { [workflowRunner] in
           await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
@@ -431,7 +431,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   /// - Parameter machPortEvent: The MachPortEvent representing the key event.
   /// - Returns: A Boolean value indicating whether the execution should return early (true) or continue (false).
   private func handleEscapeKeyDownEvent(_ machPortEvent: MachPortEvent) -> Bool {
-    if machPortEvent.type == .keyDown && machPortEvent.keyCode == kVK_Escape {
+    if machPortEvent.type == .keyDown, machPortEvent.keyCode == kVK_Escape {
       notifications.reset()
       if previousPartialMatch.rawValue != PartialMatch.default().rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
         machPortEvent.result = nil
@@ -501,7 +501,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
       // simply opt-out because we don't want to lookup the same
       // keyboard shortcut over and over again.
     } else if machPortEvent.isRepeat, repeatingMatch == false {
-      if machPortEvent.type == .keyDown && KeyViewer.instance.isWindowOpen {
+      if machPortEvent.type == .keyDown, KeyViewer.instance.isWindowOpen {
         KeyViewer.instance.handleInput(machPortEvent.event, store: store)
       } else {
         if machPortEvent.type == .keyDown {
@@ -528,15 +528,15 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
   private func schedule(_ workflow: Workflow, machPortEvent: MachPortEvent, after duration: Double) -> DispatchWorkItem {
     let workItem = DispatchWorkItem { [weak self] in
       guard let self else { return }
-      guard self.scheduledWorkItem?.isCancelled != true else { return }
+      guard scheduledWorkItem?.isCancelled != true else { return }
 
-      let workflowRunner = self.workflowRunner
+      let workflowRunner = workflowRunner
       Task.detached {
         await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
       }
       reset()
       previousPartialMatch = .default()
-      self.scheduledWorkItem = nil
+      scheduledWorkItem = nil
     }
 
     DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)

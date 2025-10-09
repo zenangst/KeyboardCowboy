@@ -7,6 +7,7 @@ final class ShellScriptPlugin: @unchecked Sendable {
     case noData
     case scriptError(String)
   }
+
   let fileManager: FileManager
 
   init(_ fileManager: FileManager = .default) {
@@ -25,8 +26,9 @@ final class ShellScriptPlugin: @unchecked Sendable {
     return output
   }
 
-  func executeScript(at path: String, environment: [String: String],
-                     checkCancellation: Bool) async throws -> String? {
+  func executeScript(at path: String, environment _: [String: String],
+                     checkCancellation: Bool) async throws -> String?
+  {
     let filePath = path.sanitizedPath
     let command = (filePath as NSString).lastPathComponent
     let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
@@ -36,8 +38,8 @@ final class ShellScriptPlugin: @unchecked Sendable {
     if let data = FileManager.default.contents(atPath: path),
        let contents = String(data: data, encoding: .utf8),
        let firstLine = contents.split(separator: "\n").first,
-       firstLine.hasPrefix("#!") {
-
+       firstLine.hasPrefix("#!")
+    {
       let interpreterLine = firstLine.dropFirst(2).trimmingCharacters(in: .whitespacesAndNewlines)
       let tokens = interpreterLine.split(separator: " ").map(String.init)
       if let interpreter = tokens.first {
@@ -68,7 +70,8 @@ final class ShellScriptPlugin: @unchecked Sendable {
 
     let output: String
     if let data = try pipe.fileHandleForReading.readToEnd(),
-       let rawOutput = String(data: data, encoding: .utf8) {
+       let rawOutput = String(data: data, encoding: .utf8)
+    {
       let ansiEscapePattern = "\u{001B}\\[[0-?]*[ -/]*[@-~]"
       let regex = try NSRegularExpression(pattern: ansiEscapePattern, options: [])
       let range = NSRange(rawOutput.startIndex..., in: rawOutput)

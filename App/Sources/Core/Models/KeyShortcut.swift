@@ -29,17 +29,17 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-    self.key = try container.decode(String.self, forKey: .key)
-    self.modifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .modifiers) ?? []
+    id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    key = try container.decode(String.self, forKey: .key)
+    modifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .modifiers) ?? []
   }
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.id, forKey: .id)
-    try container.encode(self.key, forKey: .key)
-    if !self.modifiers.isEmpty {
-      try container.encode(self.modifiers, forKey: .modifiers)
+    try container.encode(id, forKey: .id)
+    try container.encode(key, forKey: .key)
+    if !modifiers.isEmpty {
+      try container.encode(modifiers, forKey: .modifiers)
     }
   }
 
@@ -52,23 +52,24 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
   }
 
   static let anyKeyCode: Int = 3000
-  static let anyKey: KeyShortcut = KeyShortcut(id: UUID().uuidString, key: "any")
+  static let anyKey: KeyShortcut = .init(id: UUID().uuidString, key: "any")
 
   // MARK: Computed properties
 
   var modifersDisplayValue: String {
-    let modifiers = self.modifiers.map(\.pretty)
+    let modifiers = modifiers.map(\.pretty)
     return modifiers.joined()
   }
 
   var validationValue: String {
-    return "\(modifersDisplayValue)\(key)"
+    "\(modifersDisplayValue)\(key)"
   }
 
   var stringValue: String {
     var input: String = modifiers
       .sorted(by: { $0.rawValue > $1.rawValue })
-      .compactMap({ $0.rawValue.lowercased() }).joined()
+      .compactMap { $0.rawValue.lowercased() }
+      .joined()
     input.append(key)
     return input
   }

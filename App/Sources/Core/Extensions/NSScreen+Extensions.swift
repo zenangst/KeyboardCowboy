@@ -12,19 +12,18 @@ extension NSScreen {
   private func findNextScreen(in direction: WindowTiling, cycling: Bool) -> NSScreen? {
     let screens = NSScreen.screens
 
-
     func screenMatches(_ candidate: NSScreen, direction: WindowTiling, relativeTo currentScreen: NSScreen) -> Bool {
       switch direction {
       case .left:
-        return candidate.frame.maxX <= currentScreen.frame.minX
+        candidate.frame.maxX <= currentScreen.frame.minX
       case .right:
-        return candidate.frame.minX >= currentScreen.frame.maxX
+        candidate.frame.minX >= currentScreen.frame.maxX
       case .top:
-        return candidate.frame.minY >= currentScreen.frame.maxY
+        candidate.frame.minY >= currentScreen.frame.maxY
       case .bottom:
-        return candidate.frame.maxY <= currentScreen.frame.minY
+        candidate.frame.maxY <= currentScreen.frame.minY
       default:
-        return false
+        false
       }
     }
 

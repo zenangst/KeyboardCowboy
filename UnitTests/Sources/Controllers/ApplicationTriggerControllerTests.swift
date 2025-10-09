@@ -1,8 +1,8 @@
-@testable import Keyboard_Cowboy
-import XCTest
-import Combine
 import Cocoa
+import Combine
+@testable import Keyboard_Cowboy
 import MachPort
+import XCTest
 
 @MainActor
 final class ApplicationTriggerControllerTests: XCTestCase {
@@ -23,7 +23,6 @@ final class ApplicationTriggerControllerTests: XCTestCase {
 
     ctx.userSpace.injectFrontmostApplication(.init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: ""))
 
-
     ctx.userSpace.injectFrontmostApplication(.init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.finder", name: "Finder", path: ""))
   }
 
@@ -41,10 +40,10 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     controller.subscribe(to: ctx.userSpace.$runningApplications)
 
     ctx.userSpace.injectRunningApplications([
-      .init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")
+      .init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.finder", name: "Finder", path: ""),
     ])
     ctx.userSpace.injectRunningApplications([
-      .init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: "")
+      .init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: ""),
     ])
   }
 
@@ -63,7 +62,6 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     controller.subscribe(to: ctx.userSpace
       .$runningApplications)
 
-
     ctx.userSpace.injectRunningApplications([UserSpace.Application(ref: NSRunningApplication.current, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")])
     ctx.userSpace.injectRunningApplications([])
   }
@@ -72,11 +70,13 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     command: Command,
     groupPublisher: WorkGroupPublisher,
     runner: WorkflowRunner,
-    userSpace: UserSpace) {
-      let command = Command.text(.init(.insertText(.init("Type command.", mode: .instant, actions: []))))
+    userSpace: UserSpace,
+  ) {
+    let command = Command.text(.init(.insertText(.init("Type command.", mode: .instant, actions: []))))
     let runner = WorkflowRunner(
       concurrent: { _ in fatalError("Should not be invoked yet.") },
-      serial: { _ in fatalError("Should not be invoked yet.") })
+      serial: { _ in fatalError("Should not be invoked yet.") },
+    )
 
     let group = WorkflowGroup(
       name: "Test Group",
@@ -84,8 +84,9 @@ final class ApplicationTriggerControllerTests: XCTestCase {
         Workflow(name: "Finder",
                  trigger: .application([.init(application: .finder(), contexts: [triggerContext])]),
                  execution: .concurrent,
-                 commands: [command])
-      ])
+                 commands: [command]),
+      ],
+    )
 
     let groupPublisher = WorkGroupPublisher(groups: [group])
     let userSpace = UserSpace.shared
@@ -109,9 +110,10 @@ private final class WorkflowRunner: WorkflowRunning {
   var serialRunHandler: ([Command]) -> Void
 
   init(concurrent: @escaping ([Command]) -> Void,
-       serial: @escaping ([Command]) -> Void) {
-    self.concurrentRunHandler = concurrent
-    self.serialRunHandler = serial
+       serial: @escaping ([Command]) -> Void)
+  {
+    concurrentRunHandler = concurrent
+    serialRunHandler = serial
   }
 
   func runCommands(in workflow: Keyboard_Cowboy.Workflow) {
@@ -123,7 +125,7 @@ private final class WorkflowRunner: WorkflowRunning {
     }
   }
 
-  func run(_ workflow: Keyboard_Cowboy.Workflow, executionOverride: Keyboard_Cowboy.Workflow.Execution?, machPortEvent: MachPort.MachPortEvent, repeatingEvent: Bool) {
+  func run(_ workflow: Keyboard_Cowboy.Workflow, executionOverride: Keyboard_Cowboy.Workflow.Execution?, machPortEvent _: MachPort.MachPortEvent, repeatingEvent _: Bool) {
     switch executionOverride ?? workflow.execution {
     case .concurrent:
       concurrentRunHandler(workflow.commands)
@@ -132,4 +134,3 @@ private final class WorkflowRunner: WorkflowRunning {
     }
   }
 }
-

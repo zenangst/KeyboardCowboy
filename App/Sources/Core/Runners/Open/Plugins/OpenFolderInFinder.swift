@@ -18,17 +18,17 @@ final class OpenFolderInFinder: Sendable {
   func execute(_ path: String, checkCancellation: Bool) async throws {
     let url = OpenURLParser().parse(path)
     let source = """
-      tell application "Finder"
-        set the target of the front Finder window to folder ("\(url.path)" as POSIX file)
-      end tell
-      """
+    tell application "Finder"
+      set the target of the front Finder window to folder ("\(url.path)" as POSIX file)
+    end tell
+    """
     let script = ScriptCommand(name: "Open folder in Finder: \(path)",
                                kind: .appleScript(variant: .regular),
                                source: .inline(source),
                                notification: nil)
 
     if checkCancellation { try Task.checkCancellation() }
-    
+
     _ = try await commandRunner.run(script, snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: true),
                                     runtimeDictionary: [:], checkCancellation: checkCancellation)
   }

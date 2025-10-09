@@ -2,7 +2,7 @@ import Apps
 import Foundation
 
 // TODO: Add support for defaults: Notification (true/false)
-final class DropCommandsController {
+enum DropCommandsController {
   static func generateCommands(from urls: [URL], applications: [Application]) -> [Command] {
     var commands = [Command]()
     for url in urls {
@@ -10,10 +10,12 @@ final class DropCommandsController {
       case .application:
         guard let application = applications.first(where: { $0.path == url.path })
         else { continue }
+
         let applicationCommand = ApplicationCommand(
           name: "\(application.bundleName)",
           application: application,
-          notification: nil)
+          notification: nil,
+        )
         commands.append(Command.application(applicationCommand))
       case .applescript:
         let name = "\(url.lastPathComponent)"
@@ -53,16 +55,16 @@ private extension URL {
   var dropType: DropType {
     if isFileURL {
       if lastPathComponent.contains(".app") {
-        return .application
+        .application
       } else if lastPathComponent.contains(".sh") {
-        return .shellscript
+        .shellscript
       } else if lastPathComponent.contains(".scpt") {
-        return .applescript
+        .applescript
       } else {
-        return .file
+        .file
       }
     } else {
-      return .web
+      .web
     }
   }
 }

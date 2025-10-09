@@ -6,15 +6,15 @@ final class ApplicationActivityMonitorTests: XCTestCase {
   func testPreviousApplication() {
     let app1 = TestApplication(
       bundleIdentifier: "com.zenangst.app1",
-      isTerminated: false
+      isTerminated: false,
     )
     let app2 = TestApplication(
       bundleIdentifier: "com.zenangst.app2",
-      isTerminated: false
+      isTerminated: false,
     )
     let app3 = TestApplication(
       bundleIdentifier: "com.zenangst.app3",
-      isTerminated: false
+      isTerminated: false,
     )
 
     let publisher = TestPublisher<TestApplication>(current: app1)
@@ -30,26 +30,26 @@ final class ApplicationActivityMonitorTests: XCTestCase {
     publisher.current = app2
     XCTAssertEqual(app1, monitor.previousApplication())
     XCTAssertEqual(monitor.bundleIdentifiers, [
-      app1.bundleIdentifier, app2.bundleIdentifier
+      app1.bundleIdentifier, app2.bundleIdentifier,
     ])
 
     publisher.current = app1
     XCTAssertEqual(app2, monitor.previousApplication())
     XCTAssertEqual(monitor.bundleIdentifiers, [
-      app2.bundleIdentifier, app1.bundleIdentifier
+      app2.bundleIdentifier, app1.bundleIdentifier,
     ])
 
     publisher.current = app3
     XCTAssertEqual(app1, monitor.previousApplication())
     XCTAssertEqual(monitor.bundleIdentifiers, [
-      app2.bundleIdentifier, app1.bundleIdentifier, app3.bundleIdentifier
+      app2.bundleIdentifier, app1.bundleIdentifier, app3.bundleIdentifier,
     ])
 
     app3.isTerminated = true
     publisher.current = app1
     XCTAssertEqual(app2, monitor.previousApplication())
     XCTAssertEqual(monitor.bundleIdentifiers, [
-      app2.bundleIdentifier, app1.bundleIdentifier
+      app2.bundleIdentifier, app1.bundleIdentifier,
     ])
   }
 }
@@ -66,6 +66,6 @@ private class TestApplication: ActivityApplication, Equatable {
 
   static func == (lhs: TestApplication, rhs: TestApplication) -> Bool {
     lhs.bundleIdentifier == rhs.bundleIdentifier &&
-    lhs.isTerminated == rhs.isTerminated
+      lhs.isTerminated == rhs.isTerminated
   }
 }

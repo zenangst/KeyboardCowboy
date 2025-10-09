@@ -22,9 +22,9 @@ struct AllowedApplicationsHeaderView: View {
       Menu(content: {
         ForEach(applicationStore.applications.lazy.filter {
           if let rule = group.rule {
-            return !rule.allowedBundleIdentifiers.contains($0.bundleIdentifier)
+            !rule.allowedBundleIdentifiers.contains($0.bundleIdentifier)
           } else {
-            return true
+            true
           }
         }, id: \.path) { application in
           Button {

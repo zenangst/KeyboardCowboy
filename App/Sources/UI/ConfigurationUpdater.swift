@@ -17,13 +17,14 @@ final class ConfigurationUpdater: ObservableObject {
 
   init(storageDebounce stride: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(500),
        onRender: @escaping (KeyboardCowboyConfiguration, UpdateTransaction, Animation?) -> Void,
-       onStorageUpdate: @escaping (KeyboardCowboyConfiguration, UpdateTransaction) -> Void) {
+       onStorageUpdate: @escaping (KeyboardCowboyConfiguration, UpdateTransaction) -> Void)
+  {
     self.onRender = onRender
-    self.passthroughSubscription = passthrough
+    passthroughSubscription = passthrough
       .debounce(for: stride, scheduler: DispatchQueue.main)
       .sink { [weak self] commit in
         switch commit.state {
-        case .configured(let configuration):
+        case let .configured(configuration):
           onStorageUpdate(configuration, commit.transaction)
           commit.postAction?()
         case .uninitialized:
@@ -35,23 +36,23 @@ final class ConfigurationUpdater: ObservableObject {
 
   func subscribe(to publisher: Published<KeyboardCowboyConfiguration>.Publisher) {
     configurationSubscription = publisher
-      .compactMap { $0 }
+      .compactMap(\.self)
       .sink { [weak self] in
         self?.state = .configured($0)
       }
   }
 
   func getConfiguration(handler: (KeyboardCowboyConfiguration) -> Void) {
-    guard case .configured(let configuration) = state else { return }
+    guard case let .configured(configuration) = state else { return }
+
     handler(configuration)
   }
 
   func modifyGroup(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout WorkflowGroup) -> Void) {
-    guard case .configured(var configuration) = state else { return }
-
+    guard case var .configured(configuration) = state else { return }
     guard configuration.modify(
       groupID: transaction.groupID,
-      modify: handler
+      modify: handler,
     ) else {
       return
     }
@@ -61,11 +62,11 @@ final class ConfigurationUpdater: ObservableObject {
   }
 
   func modifyWorkflow(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout Workflow) -> Void, postAction: ((Workflow.ID) -> Void)? = nil) {
-    guard case .configured(var configuration) = state else { return }
+    guard case var .configured(configuration) = state else { return }
     guard configuration.modify(
       groupID: transaction.groupID,
       workflowID: transaction.workflowID,
-      modify: handler
+      modify: handler,
     ) else {
       return
     }
@@ -77,12 +78,12 @@ final class ConfigurationUpdater: ObservableObject {
   }
 
   func modifyCommand(withID commandID: Command.ID, withAnimation animation: Animation? = nil, using transaction: UpdateTransaction, handler: (inout Command) -> Void) {
-    guard case .configured(var configuration) = state else { return }
+    guard case var .configured(configuration) = state else { return }
     guard configuration.modify(
       groupID: transaction.groupID,
       workflowID: transaction.workflowID,
       commandID: commandID,
-      modify: handler
+      modify: handler,
     ) else {
       return
     }
@@ -109,7 +110,8 @@ struct UpdateCommit {
 
   init(_ state: ConfigurationUpdater.State,
        transaction: UpdateTransaction,
-       postAction: (() -> Void)? = nil) {
+       postAction: (() -> Void)? = nil)
+  {
     self.state = state
     self.transaction = transaction
     self.postAction = postAction

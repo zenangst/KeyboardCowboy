@@ -23,7 +23,8 @@ struct BuiltInCommandView: View {
       icon: { BuiltinIconBuilder.icon(model.kind, size: iconSize.width) },
       content: {
         BuiltInCommandContentView(model, metaData: metaData)
-      }, subContent: { })
+      }, subContent: {},
+    )
     .enableInjection()
   }
 }
@@ -92,7 +93,8 @@ private struct BuiltInCommandContentView: View {
               Image(systemName: "togglepower")
               Text("Toggle User Mode").font(.subheadline)
             }
-          })
+          },
+        )
         Button(
           action: {
             let newKind: BuiltInCommand.Kind = .userMode(mode: .init(id: model.kind.userModeId, name: model.name, isEnabled: metaData.isEnabled), action: .enable)
@@ -105,7 +107,8 @@ private struct BuiltInCommandContentView: View {
               Image(systemName: "lightswitch.on")
               Text("Enable User Mode").font(.subheadline)
             }
-          })
+          },
+        )
         Button(
           action: {
             let newKind: BuiltInCommand.Kind = .userMode(mode: .init(id: model.kind.userModeId, name: model.name, isEnabled: metaData.isEnabled), action: .disable)
@@ -118,7 +121,8 @@ private struct BuiltInCommandContentView: View {
               Image(systemName: "lightswitch.off")
               Text("Disable User Mode").font(.subheadline)
             }
-          })
+          },
+        )
       }, label: {
         Text(model.kind.displayValue)
           .font(.subheadline)
@@ -136,7 +140,7 @@ private struct BuiltInCommandContentView: View {
           ForEach(configurationPublisher.data.userModes) { userMode in
             Button(action: {
               let action: BuiltInCommand.Kind.Action
-              if case .userMode(_, let resolvedAction) = model.kind {
+              if case let .userMode(_, resolvedAction) = model.kind {
                 action = resolvedAction
                 model.kind = .userMode(mode: userMode, action: action)
                 performUpdate(model.kind)
@@ -153,7 +157,8 @@ private struct BuiltInCommandContentView: View {
 
   private func performUpdate(_ newKind: BuiltInCommand.Kind) {
     updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-      guard case .builtIn(let builtInCommand) = command else { return }
+      guard case let .builtIn(builtInCommand) = command else { return }
+
       command = .builtIn(BuiltInCommand(kind: newKind,
                                         notification: builtInCommand.notification))
     }
@@ -168,10 +173,9 @@ struct BuiltInCommandView_Previews: PreviewProvider {
       model: command.kind,
       iconSize: .init(
         width: 24,
-        height: 24
-      )
+        height: 24,
+      ),
     )
     .designTime()
   }
 }
-

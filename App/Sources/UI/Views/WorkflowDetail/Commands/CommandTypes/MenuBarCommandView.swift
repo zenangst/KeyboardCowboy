@@ -33,7 +33,7 @@ private struct MenuBarCommandInternalView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placeholder) { 
+    CommandContainerView(metaData, placeholder: model.placeholder) {
       MenuIconView(size: iconSize.width)
     } content: {
       MenuBarCommandContentView(model)
@@ -68,7 +68,7 @@ private struct MenuBarCommandContentView: View {
             .padding(4)
             .background(
               RoundedRectangle(cornerRadius: 4)
-                .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+                .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1),
             )
             .background(
               RoundedRectangle(cornerRadius: 4)
@@ -76,9 +76,9 @@ private struct MenuBarCommandContentView: View {
                   LinearGradient(colors: [
                     Color(nsColor: .systemBlue).opacity(0.7),
                     Color(nsColor: .systemBlue.withSystemEffect(.disabled)).opacity(0.4),
-                  ], startPoint: .top, endPoint: .bottom)
+                  ], startPoint: .top, endPoint: .bottom),
                 )
-                .grayscale(0.4)
+                .grayscale(0.4),
             )
             .compositingGroup()
             .shadow(radius: 2, y: 1)
@@ -87,7 +87,7 @@ private struct MenuBarCommandContentView: View {
 
         ForEach(model.tokens) { token in
           switch token {
-          case .menuItem(let name):
+          case let .menuItem(name):
             HStack(spacing: 0) {
               Text(name)
                 .lineLimit(1)
@@ -97,13 +97,15 @@ private struct MenuBarCommandContentView: View {
                   .padding(.leading, 4)
               }
             }
-          case .menuItems(let lhs, let rhs):
+          case let .menuItems(lhs, rhs):
             HStack(spacing: 0) {
-              Text(lhs).bold()
+              Text(lhs)
+                .bold()
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: true)
               Text(" or ")
-              Text(rhs).bold()
+              Text(rhs)
+                .bold()
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: true)
               if token != model.tokens.last {
@@ -116,7 +118,7 @@ private struct MenuBarCommandContentView: View {
         .padding(4)
         .background(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+            .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1),
         )
         .background(
           RoundedRectangle(cornerRadius: 4)
@@ -124,9 +126,9 @@ private struct MenuBarCommandContentView: View {
               LinearGradient(colors: [
                 Color(nsColor: .controlAccentColor).opacity(0.7),
                 Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)).opacity(0.4),
-              ], startPoint: .top, endPoint: .bottom)
+              ], startPoint: .top, endPoint: .bottom),
             )
-            .grayscale(0.4)
+            .grayscale(0.4),
         )
         .compositingGroup()
         .shadow(radius: 2, y: 1)
@@ -139,7 +141,7 @@ private struct MenuBarCommandContentView: View {
 struct MenuBarCommandView_Previews: PreviewProvider {
   static let command = DesignTime.menuBarCommand
   static var previews: some View {
-    MenuBarCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) 
+    MenuBarCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24))
       .designTime()
   }
 }

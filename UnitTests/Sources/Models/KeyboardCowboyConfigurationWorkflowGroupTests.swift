@@ -17,12 +17,12 @@ final class KeyboardCowboyConfigurationWorkflowGroupTests: XCTestCase {
               Command.openCommand(id: "command-1"),
               Command.openCommand(id: "command-2"),
               Command.openCommand(id: "command-3"),
-            ]
+            ],
           ),
-        ]
+        ],
       ),
       WorkflowGroup(name: "group-2"),
-    ]
+    ],
   )
   func testUpdate() {
     var config = Self.config

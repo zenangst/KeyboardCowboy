@@ -30,7 +30,7 @@ final class UserModesRunner {
       output = "\(builtInCommand.name) ⏸️"
     case .toggle:
       modifiedMode.isEnabled.toggle()
-      output = "\(builtInCommand.name): \( modifiedMode.isEnabled ? "✅" : "⏸️")"
+      output = "\(builtInCommand.name): \(modifiedMode.isEnabled ? "✅" : "⏸️")"
     }
     userModes[index] = modifiedMode
     await UserSpace.shared.setUserModes(userModes)

@@ -22,7 +22,7 @@ extension CGEventFlags {
     .maskHelp,
     .maskSecondaryFn,
     .maskNumericPad,
-    .maskNonCoalesced
+    .maskNonCoalesced,
   ]
 
   var modifierKeys: [ModifierKey] {
@@ -30,25 +30,25 @@ extension CGEventFlags {
 
     // Handle Shift
     if contains(.maskShift) {
-      if contains(.maskLeftShift)  { modifiers.append(.leftShift) }
+      if contains(.maskLeftShift) { modifiers.append(.leftShift) }
       if contains(.maskRightShift) { modifiers.append(.rightShift) }
     }
 
     // Handle Control
     if contains(.maskControl) {
-      if contains(.maskLeftControl)  { modifiers.append(.leftControl) }
+      if contains(.maskLeftControl) { modifiers.append(.leftControl) }
       if contains(.maskRightControl) { modifiers.append(.rightControl) }
     }
 
     // Handle Option
     if contains(.maskAlternate) {
-      if contains(.maskLeftAlternate)  { modifiers.append(.leftOption) }
+      if contains(.maskLeftAlternate) { modifiers.append(.leftOption) }
       if contains(.maskRightAlternate) { modifiers.append(.rightOption) }
     }
 
     // Handle Command
     if contains(.maskCommand) {
-      if contains(.maskLeftCommand)  { modifiers.append(.leftCommand) }
+      if contains(.maskLeftCommand) { modifiers.append(.leftCommand) }
       if contains(.maskRightCommand) { modifiers.append(.rightCommand) }
     }
 

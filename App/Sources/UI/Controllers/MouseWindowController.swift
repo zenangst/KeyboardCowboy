@@ -16,10 +16,10 @@ final class MouseWindowController {
     let model = MouseModel()
     let window = NotificationWindow(
       animationBehavior: .none,
-      content: MouseView(model: model)
+      content: MouseView(model: model),
     )
     self.model = model
-    self.windowController = NSWindowController(window: window)
+    windowController = NSWindowController(window: window)
   }
 
   func post(_ rect: CGRect) {
@@ -34,11 +34,11 @@ struct MouseView: View {
   @ObservedObject var model: MouseModel
 
   var body: some View {
-    GeometryReader { proxy in
+    GeometryReader { _ in
       Rectangle()
         .fill(Color.green.opacity(0.2))
         .overlay(
-          Text("Location: \(model.rect.origin.x)x\(model.rect.origin.y)")
+          Text("Location: \(model.rect.origin.x)x\(model.rect.origin.y)"),
         )
         .frame(width: model.rect.size.width, height: model.rect.size.height)
         .offset(x: model.rect.origin.x, y: model.rect.origin.y)

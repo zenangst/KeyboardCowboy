@@ -42,6 +42,7 @@ struct NewCommandShortcutView: View {
     }
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
+
       withAnimation { validation = updateAndValidatePayload() }
     })
     .onAppear {
@@ -68,8 +69,8 @@ struct NewCommandShortcutView_Previews: PreviewProvider {
       selection: .shortcut,
       payload: .placeholder,
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }
-

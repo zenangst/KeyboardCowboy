@@ -10,7 +10,7 @@ final class UIElementCaptureStore: ObservableObject {
   private lazy var publisher = WindowBorderViewPublisher()
   private lazy var windowCoordinator: UIElementWindowCoordinator<WindowBordersView> = UIElementWindowCoordinator(
     .none,
-    content: WindowBordersView(publisher: self.publisher)
+    content: WindowBordersView(publisher: self.publisher),
   )
 
   @Published var isCapturing: Bool = false
@@ -24,13 +24,14 @@ final class UIElementCaptureStore: ObservableObject {
   private var restore: [Int32: Bool] = [:]
 
   #if DEBUG
-  init(isCapturing: Bool = false,
-       capturedElement: UIElementCaptureItem? = nil,
-       flags: CGEventFlags? = nil) {
-    self.isCapturing = isCapturing
-    self.capturedElement = capturedElement
-    self.flags = flags
-  }
+    init(isCapturing: Bool = false,
+         capturedElement: UIElementCaptureItem? = nil,
+         flags: CGEventFlags? = nil)
+    {
+      self.isCapturing = isCapturing
+      self.capturedElement = capturedElement
+      self.flags = flags
+    }
   #endif
 
   func subscribe(to coordinator: MachPortCoordinator) {
@@ -39,15 +40,16 @@ final class UIElementCaptureStore: ObservableObject {
       .dropFirst()
       .sink { [weak self] mode in
         guard let self else { return }
+
         switch mode {
         case .captureUIElement:
           isCapturing = true
           let leftMouseEvents: CGEventMask = (1 << CGEventType.leftMouseDown.rawValue)
-          | (1 << CGEventType.leftMouseUp.rawValue)
-          | (1 << CGEventType.leftMouseDragged.rawValue)
+            | (1 << CGEventType.leftMouseUp.rawValue)
+            | (1 << CGEventType.leftMouseDragged.rawValue)
           let keyboardEvents: CGEventMask = (1 << CGEventType.keyDown.rawValue)
-          | (1 << CGEventType.keyUp.rawValue)
-          | (1 << CGEventType.flagsChanged.rawValue)
+            | (1 << CGEventType.keyUp.rawValue)
+            | (1 << CGEventType.flagsChanged.rawValue)
 
           let newMachPortController = try? MachPortEventController(
             .privateState,
@@ -59,7 +61,8 @@ final class UIElementCaptureStore: ObservableObject {
             },
             onEventChange: { [weak self] event in
               self?.handle(event)
-            })
+            },
+          )
           machPortController = newMachPortController
         default:
           isCapturing = false
@@ -74,7 +77,9 @@ final class UIElementCaptureStore: ObservableObject {
     windowCoordinator.close()
     capturedElement = nil
 
-    for (pid, value) in restore { AppAccessibilityElement(pid).enhancedUserInterface = value }
+    for (pid, value) in restore {
+      AppAccessibilityElement(pid).enhancedUserInterface = value
+    }
     restore.removeAll()
   }
 
@@ -85,7 +90,7 @@ final class UIElementCaptureStore: ObservableObject {
       windowCoordinator.show()
       coordinator?.captureUIElement()
       UserModeWindow.shared.show([
-        .init(id: UUID().uuidString, name: "Capturing UI Element", isEnabled: true)
+        .init(id: UUID().uuidString, name: "Capturing UI Element", isEnabled: true),
       ])
     }
   }
@@ -97,7 +102,8 @@ final class UIElementCaptureStore: ObservableObject {
 
     guard let flags, flags != .maskNonCoalesced,
           var mouseLocation = CGEvent(source: nil)?.location else { return }
-    if flags.contains(.maskCommand)  && isValidMouseEvent(machPortEvent.event) {
+
+    if flags.contains(.maskCommand), isValidMouseEvent(machPortEvent.event) {
       machPortEvent.result = nil
 
       guard machPortEvent.type == .leftMouseUp else { return }
@@ -111,7 +117,6 @@ final class UIElementCaptureStore: ObservableObject {
         let systemElement = SystemAccessibilityElement()
         guard let app = systemElement.element(at: mouseLocation, as: AppAccessibilityElement.self)?.app
         else { return }
-
 
         var enhancedUserInterface = false
         if let pid = app.pid, let appValue = app.enhancedUserInterface {
@@ -130,13 +135,14 @@ final class UIElementCaptureStore: ObservableObject {
         try await Task.sleep(for: .milliseconds(100))
 
         guard let element = systemElement.element(at: mouseLocation, as: AnyAccessibilityElement.self),
-              let frame = element.frame else {
+              let frame = element.frame
+        else {
           app.enhancedUserInterface = enhancedUserInterface
           return
         }
 
         let id = UUID().uuidString
-        let model: WindowBorderViewModel =  .init(id: id, frame: frame)
+        let model: WindowBorderViewModel = .init(id: id, frame: frame)
         publisher.publish([model])
         windowCoordinator.screenChanged()
         windowCoordinator.show()
@@ -153,7 +159,7 @@ final class UIElementCaptureStore: ObservableObject {
           title: element.title,
           value: element.value,
           role: element.role,
-          subrole: element.subrole
+          subrole: element.subrole,
         )
         self.capturedElement = capturedElement
 
@@ -164,8 +170,8 @@ final class UIElementCaptureStore: ObservableObject {
 
   private func isValidMouseEvent(_ event: CGEvent) -> Bool {
     event.type == .leftMouseUp ||
-    event.type == .leftMouseDown ||
-    event.type == .leftMouseDragged
+      event.type == .leftMouseDown ||
+      event.type == .leftMouseDragged
   }
 }
 
@@ -222,7 +228,7 @@ final class UIElementWindowCoordinator<Content> where Content: View {
     let window = ZenPanel(
       animationBehavior: animationBehavior,
       contentRect: NSScreen.main!.frame,
-      content: content()
+      content: content(),
     )
     let controller = NSWindowController(window: window)
     self.controller = controller
@@ -230,13 +236,14 @@ final class UIElementWindowCoordinator<Content> where Content: View {
       self,
       selector: #selector(screenChanged),
       name: NSApplication.didChangeScreenParametersNotification,
-      object: nil
+      object: nil,
     )
   }
 
   @objc func screenChanged() {
     guard let screenFrame = NSScreen.main?.frame else { return }
-    self.controller.window?.setFrame(screenFrame, display: true)
+
+    controller.window?.setFrame(screenFrame, display: true)
   }
 
   func show() {

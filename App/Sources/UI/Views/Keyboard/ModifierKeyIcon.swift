@@ -12,29 +12,29 @@ struct ModifierKeyIcon: View {
     .easeInOut(duration: 1.25)
     .repeatForever(autoreverses: true)
 
-
-  init(key: ModifierKey, 
+  init(key: ModifierKey,
        alignment: Alignment? = nil,
        glowColor: Color = Color(.systemGreen),
-       glow: Binding<Bool> = .constant(false)) {
+       glow: Binding<Bool> = .constant(false))
+  {
     self.key = key
     self.glowColor = glowColor
     _glow = glow
 
-    if let alignment = alignment {
+    if let alignment {
       self.alignment = alignment
     } else {
       self.alignment = switch key {
-      case .leftShift:    .bottomLeading
-      case .leftControl:  .topTrailing
-      case .leftOption:   .topTrailing
-      case .leftCommand:  .topTrailing
-      case .rightShift:   .bottomTrailing
+      case .leftShift: .bottomLeading
+      case .leftControl: .topTrailing
+      case .leftOption: .topTrailing
+      case .leftCommand: .topTrailing
+      case .rightShift: .bottomTrailing
       case .rightControl: .topLeading
-      case .rightOption:  .topLeading
+      case .rightOption: .topLeading
       case .rightCommand: .topLeading
-      case .function:     .topTrailing
-      case .capsLock:     .bottomLeading
+      case .function: .topTrailing
+      case .capsLock: .bottomLeading
       }
     }
   }
@@ -46,15 +46,15 @@ struct ModifierKeyIcon: View {
           .background(
             RoundedRectangle(cornerRadius: proxy.size.height * 0.2)
               .stroke(glow
-                      ? glowColor .opacity(0.5)
-                      : Color.clear, lineWidth: 2)
-              .padding(-2)
+                ? glowColor.opacity(0.5)
+                : Color.clear, lineWidth: 2)
+              .padding(-2),
           )
 
         Group {
-        Text(key.keyValue)
-          .font(Font.system(size: proxy.size.height * 0.23,
-                            weight: .medium, design: .rounded))
+          Text(key.keyValue)
+            .font(Font.system(size: proxy.size.height * 0.23,
+                              weight: .medium, design: .rounded))
         }
         .padding(6)
         .frame(width: proxy.size.width,
@@ -83,11 +83,11 @@ struct ModifierKeyIcon: View {
       }
       .foregroundColor(
         Color(.textColor)
-          .opacity(0.66)
+          .opacity(0.66),
       )
       .onAppear {
         if glow {
-          withAnimation(animation, { glow.toggle() })
+          withAnimation(animation) { glow.toggle() }
         }
       }
     }
@@ -99,15 +99,15 @@ struct ModifierKeyIcon_Previews: PreviewProvider {
   static let size: CGFloat = 64
 
   static var previews: some View {
-    return HStack {
+    HStack {
       ForEach(ModifierKey.allCases) { modifier in
         ModifierKeyIcon(key: modifier)
           .frame(width: {
             switch modifier {
             case .leftCommand, .rightCommand, .leftShift, .rightShift, .capsLock:
-              return size * 1.5
+              size * 1.5
             default:
-              return size
+              size
             }
           }(),
           height: size)

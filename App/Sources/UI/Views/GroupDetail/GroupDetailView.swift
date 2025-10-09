@@ -126,7 +126,7 @@ struct GroupDetailView: View {
       for image in workflow.images {
         switch image.kind {
         case let .icon(icon):
-          if searchTerm.contains("app") && icon.path.contains("app") {
+          if searchTerm.contains("app"), icon.path.contains("app") {
             match = .typeMatch(.application)
             break
           }
@@ -186,7 +186,7 @@ struct GroupDetailView: View {
           withAnimation(.smooth(duration: 0.2)) {
             searchTerm = newValue
           }
-        }
+        },
       )
       .style(.derived)
 
@@ -210,7 +210,7 @@ struct GroupDetailView: View {
             workflow: element,
             publisher: publisher,
             contentSelectionManager: workflowSelection,
-            onAction: onAction
+            onAction: onAction,
           )
           .modifier(LegacyOnTapFix(onTap: {
             focus = .element(element.id)
@@ -267,7 +267,7 @@ struct GroupDetailView: View {
             direction,
             publisher.data.filter { search($0) },
             proxy: proxy,
-            vertical: true
+            vertical: true,
           ) {
             focus = .element(elementID)
           }

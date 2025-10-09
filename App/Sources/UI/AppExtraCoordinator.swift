@@ -13,13 +13,12 @@ final class AppExtraCoordinator {
 
   func handle(_ action: AppMenuBarExtras.Action) {
     guard !launchArguments.isEnabled(.runningUnitTests) else { return }
-
     guard !isRunningPreview else { return }
 
     switch action {
     case .openKeyViewer:
       windowOpener.openKeyViewer()
-    case .helpMenu(let action):
+    case let .helpMenu(action):
       handleHelpMenu(action)
     case .onAppear:
       if launchArguments.isEnabled(.openWindowAtLaunch) {
@@ -37,7 +36,8 @@ final class AppExtraCoordinator {
       moveToApplicationsFolderAndRestart()
     case .reveal:
       NSWorkspace.shared.selectFile(Bundle.main.bundlePath, inFileViewerRootedAtPath: "")
-      NSWorkspace.shared.runningApplications
+      NSWorkspace.shared
+        .runningApplications
         .first(where: { $0.bundleIdentifier?.lowercased().contains("apple.finder") == true })?
         .activate()
     }

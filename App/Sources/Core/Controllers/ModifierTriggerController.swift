@@ -40,7 +40,7 @@ final class ModifierTriggerController: @unchecked Sendable {
     workflowGroupsSubscription = publisher.sink { [weak self] groups in
       guard let self else { return }
 
-      self.cache(groups)
+      cache(groups)
     }
   }
 
@@ -111,7 +111,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         cache[keySignature] = ModifierTrigger(
           id: keySignature,
           alone: .init(kind: .key(key), threshold: 125),
-          heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75)
+          heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75),
         )
       }
     }
@@ -139,17 +139,16 @@ final class ModifierTriggerController: @unchecked Sendable {
         cache[keySignature] = ModifierTrigger(
           id: keySignature,
           alone: .init(kind: .key(key), threshold: 125),
-          heldDown: .init(kind: .modifiers([.function]), threshold: 75)
+          heldDown: .init(kind: .modifiers([.function]), threshold: 75),
         )
       }
     }
 
     for group in groups where !group.isDisabled {
-      let bundleIdentifiers: [String]
-      if let rule = group.rule {
-        bundleIdentifiers = rule.allowedBundleIdentifiers
+      let bundleIdentifiers: [String] = if let rule = group.rule {
+        rule.allowedBundleIdentifiers
       } else {
-        bundleIdentifiers = ["*"]
+        ["*"]
       }
 
       for bundleIdentifier in bundleIdentifiers {
@@ -157,13 +156,11 @@ final class ModifierTriggerController: @unchecked Sendable {
           guard case let .modifier(trigger) = workflow.trigger else { continue }
           guard let resolvedKeyCode = trigger.keyCode else { continue }
 
-          let flags: CGEventFlags
-
-          switch trigger.alone.kind {
+          let flags: CGEventFlags = switch trigger.alone.kind {
           case let .modifiers(modifiers):
-            flags = modifiers.cgModifiers
+            modifiers.cgModifiers
           case .key:
-            flags = .maskNonCoalesced
+            .maskNonCoalesced
           }
 
           let keyCode = Int64(resolvedKeyCode)
@@ -308,7 +305,7 @@ final class ModifierTriggerController: @unchecked Sendable {
   }
 
   nonisolated static func convertTimestampToMilliseconds(_ timestamp: UInt64) -> Double {
-    return Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
+    Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
   }
 
   private func reset() {
@@ -328,12 +325,10 @@ final class ModifierTriggerController: @unchecked Sendable {
 
   @MainActor
   private func lookup(_ signature: CGEventSignature) -> ModifierTrigger? {
-    let bundleIdentifiers: [String]
-
-    if let frontmostApplication = NSWorkspace.shared.frontmostApplication, let bundleIdentifier = frontmostApplication.bundleIdentifier {
-      bundleIdentifiers = [bundleIdentifier, "*"]
+    let bundleIdentifiers: [String] = if let frontmostApplication = NSWorkspace.shared.frontmostApplication, let bundleIdentifier = frontmostApplication.bundleIdentifier {
+      [bundleIdentifier, "*"]
     } else {
-      bundleIdentifiers = ["*"]
+      ["*"]
     }
 
     var trigger: ModifierTrigger?

@@ -26,6 +26,7 @@ final class MacroCoordinator: @unchecked Sendable {
       }
     }
   }
+
   var machPort: MachPortEventController?
   var keyCodes: KeyCodesStore
 
@@ -45,7 +46,7 @@ final class MacroCoordinator: @unchecked Sendable {
   @MainActor
   init(keyCodes: KeyCodesStore) {
     self.keyCodes = keyCodes
-    self.userSpace = UserSpace.shared
+    userSpace = UserSpace.shared
   }
 
   func cancel() {
@@ -53,7 +54,7 @@ final class MacroCoordinator: @unchecked Sendable {
   }
 
   func setState(_ newState: State) {
-    self.state = newState
+    state = newState
   }
 
   func match(_ machPortEvent: MachPortEvent) -> [MacroKind]? {
@@ -76,7 +77,8 @@ final class MacroCoordinator: @unchecked Sendable {
                             machPort: MachPortEventController?,
                             keyboardRunner: KeyboardCommandRunner,
                             workflowRunner: WorkflowRunner,
-                            eventSignature: CGEventSignature) -> Bool {
+                            eventSignature: CGEventSignature) -> Bool
+  {
     cancel()
 
     if state == .idle, let macro = match(machPortEvent) {
@@ -87,13 +89,13 @@ final class MacroCoordinator: @unchecked Sendable {
 
       task = Task.detached { [machPort, workflowRunner, keyboardRunner, weak self] in
         do {
-          for _  in 0..<iterations {
+          for _ in 0 ..< iterations {
             let specialKeys: [Int] = [kVK_Return, kVK_Escape]
 
             for element in macro {
               try Task.checkCancellation()
               switch element {
-              case .event(let machPortEvent):
+              case let .event(machPortEvent):
                 let keyCode = Int(machPortEvent.keyCode)
 
                 if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(25)) }
@@ -101,12 +103,13 @@ final class MacroCoordinator: @unchecked Sendable {
                 try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
                 try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
                 try await Task.sleep(for: .milliseconds(5))
-              case .workflow(let workflow):
-                if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
+              case let .workflow(workflow):
+                if workflow.commands.allSatisfy(\.isKeyboardBinding) {
                   for command in workflow.commands {
                     try Task.checkCancellation()
-                    if case .keyboard(let command) = command,
-                       case .key(let command) = command.kind {
+                    if case let .keyboard(command) = command,
+                       case let .key(command) = command.kind
+                    {
                       _ = try await keyboardRunner.run(command.keyboardShortcuts,
                                                        originalEvent: nil,
                                                        iterations: command.iterations,
@@ -146,11 +149,12 @@ final class MacroCoordinator: @unchecked Sendable {
 
   func record(_ eventSignature: CGEventSignature, kind: MacroKind, machPortEvent: MachPortEvent) {
     guard state == .recording else { return }
-    if case .workflow(let workflow) = kind {
+
+    if case let .workflow(workflow) = kind {
       // Should never record macro related commands.
       let isValid = workflow.commands.contains(where: {
         switch $0 {
-        case .builtIn(let command):
+        case let .builtIn(command):
           switch command.kind {
           case .macro: false
           default: true
@@ -168,6 +172,7 @@ final class MacroCoordinator: @unchecked Sendable {
         machPortEvent.result = nil
         state = .idle
         guard let recordingEvent, let keyShortcut = keyShortcut(for: recordingEvent) else { return }
+
         Task { @MainActor [bezelId] in
           BezelNotificationController.shared.post(.init(id: bezelId, text: "Recorded Macro for \(keyShortcut.modifersDisplayValue) \(keyShortcut.key)"))
         }
@@ -185,9 +190,9 @@ final class MacroCoordinator: @unchecked Sendable {
 
       macros[recordingKey] = nil
 
-      self.newMacroKey = recordingKey
+      newMacroKey = recordingKey
       self.recordingKey = recordingKey
-      self.recordingEvent = machPortEvent
+      recordingEvent = machPortEvent
 
       if let keyShortcut = keyShortcut(for: machPortEvent) {
         Task { @MainActor [bezelId] in
@@ -204,6 +209,7 @@ final class MacroCoordinator: @unchecked Sendable {
     if macros[macroKey] != nil {
       macros[macroKey] = nil
       guard let keyShortcut = keyShortcut(for: machPortEvent) else { return }
+
       Task { @MainActor [bezelId] in
         BezelNotificationController.shared.post(.init(id: bezelId, text: "Removed Macro for \(keyShortcut.modifersDisplayValue) \(keyShortcut.key)"))
       }

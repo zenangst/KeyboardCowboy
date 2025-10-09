@@ -53,7 +53,7 @@ struct Release3_28: View {
                 .init(color: .clear, location: 1),
               ],
               startPoint: .top,
-              endPoint: .bottom
+              endPoint: .bottom,
             )
           }
         ZenVisualEffectView(material: .contentBackground)
@@ -64,10 +64,10 @@ struct Release3_28: View {
                 .init(color: .black, location: 0.75),
               ],
               startPoint: .top,
-              endPoint: .bottom
+              endPoint: .bottom,
             )
           }
-      }
+      },
     )
     .ignoresSafeArea(.all)
     .frame(width: 550, height: 650)
@@ -133,8 +133,8 @@ private struct HeaderOverlay: View {
               Gradient.Stop(color: .black, location: 1),
             ],
             startPoint: .top,
-            endPoint: .bottom
-          )
+            endPoint: .bottom,
+          ),
         )
         .overlay {
           AngularGradient(stops: [
@@ -237,7 +237,7 @@ private struct ChangesView: View {
               Text(markdown)
                 .tint(Color.accentColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
-              Button(action: { }, label: {
+              Button(action: {}, label: {
                 Text(change.version.rawValue)
                   .font(.caption)
               })
@@ -262,55 +262,55 @@ private struct SupportersView: View {
     Supporter(
       index: 0,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/2284279?v=4"),
-      githubHandle: "onmyway133"
+      githubHandle: "onmyway133",
     ),
 
     Supporter(
       index: 1,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/4262050?v=4"),
-      githubHandle: "bjrmatos"
+      githubHandle: "bjrmatos",
     ),
 
     Supporter(
       index: 2,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/1260095?s=52&v=4")!,
-      githubHandle: "andreasoverland"
+      githubHandle: "andreasoverland",
     ),
 
     Supporter(
       index: 3,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/68963405?v=4"),
-      githubHandle: "MrKai77"
+      githubHandle: "MrKai77",
     ),
 
     Supporter(
       index: 4,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/4584594?s=96&v=4"),
-      githubHandle: "murdahl"
+      githubHandle: "murdahl",
     ),
 
     Supporter(
       index: 5,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/620789?s=96&v=4"),
-      githubHandle: "hansoln"
+      githubHandle: "hansoln",
     ),
 
     Supporter(
       index: 6,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/47497819?v=4"),
-      githubHandle: "Moelfarri"
+      githubHandle: "Moelfarri",
     ),
 
     Supporter(
       index: 7,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/555305?s=96&v=4"),
-      githubHandle: "t0ggah"
+      githubHandle: "t0ggah",
     ),
 
     Supporter(
       index: 8,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/32518292?s=96&v=4"),
-      githubHandle: "Abenayan"
+      githubHandle: "Abenayan",
     ),
 
     Supporter(index: 9, imageUrl: URL(string: "https://avatars.githubusercontent.com/u/1581077?v=4"), githubHandle: "fushugaku"),
@@ -322,43 +322,43 @@ private struct SupportersView: View {
     Supporter(
       index: 12,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/378235?v=4"),
-      githubHandle: "timkurvers"
+      githubHandle: "timkurvers",
     ),
 
     Supporter(
       index: 13,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/386122?v=4"),
-      githubHandle: "sindrenm"
+      githubHandle: "sindrenm",
     ),
 
     Supporter(
       index: 14,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/10261662?v=4"),
-      githubHandle: "FischLu"
+      githubHandle: "FischLu",
     ),
 
     Supporter(
       index: 15,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/146323001?s=200&v=4"),
-      githubHandle: "lo-cafe"
+      githubHandle: "lo-cafe",
     ),
 
     Supporter(
       index: 16,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/45841003?v=4"),
-      githubHandle: "TaylorJKing"
+      githubHandle: "TaylorJKing",
     ),
 
     Supporter(
       index: 16,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/227768?v=4"),
-      githubHandle: "brunns"
+      githubHandle: "brunns",
     ),
 
     Supporter(
       index: 17,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/2263015?v=4"),
-      githubHandle: "hakonk"
+      githubHandle: "hakonk",
     ),
   ]
 
@@ -394,7 +394,7 @@ private struct SupporterView: View {
   let githubHandle: String
 
   var body: some View {
-    Button(action: { }) {
+    Button(action: {}) {
       HStack {
         AsyncImage(url: imageUrl) { image in
           image

@@ -40,7 +40,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       hide: HideApplicationPlugin(workspace: workspace, userSpace: .shared),
       unhide: UnhideApplicationPlugin(workspace: workspace, userSpace: .shared),
       launch: LaunchApplicationPlugin(workspace: workspace),
-      wait: WaitUntilApplicationIsRunningPlugin(workspace: workspace)
+      wait: WaitUntilApplicationIsRunningPlugin(workspace: workspace),
     )
   }
 

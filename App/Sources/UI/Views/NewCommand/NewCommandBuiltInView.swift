@@ -23,7 +23,6 @@ struct NewCommandBuiltInView: View {
         BuiltinIconBuilder.icon(kindSelection, size: 24)
 
         VStack {
-
           Menu {
             Button(action: { kindSelection = .commandLine(action: .argument(contents: "")) },
                    label: { Text("Open Command Line") })
@@ -43,7 +42,7 @@ struct NewCommandBuiltInView: View {
                    label: { Text("Remove Macros") })
           } label: {
             switch kindSelection {
-            case .macro(let action):
+            case let .macro(action):
               switch action.kind {
               case .record: Text("Record Macro")
               case .remove: Text("Remove Macro")
@@ -64,14 +63,15 @@ struct NewCommandBuiltInView: View {
         userMode()
       }
     }
-    .onChange(of: kindSelection, perform: { newValue in
+    .onChange(of: kindSelection, perform: { _ in
       validation = updateAndValidatePayload()
     })
-    .onChange(of: userModeSelection, perform: { newValue in
+    .onChange(of: userModeSelection, perform: { _ in
       validation = updateAndValidatePayload()
     })
     .onChange(of: validation) { newValue in
       guard newValue == .needsValidation else { return }
+
       validation = updateAndValidatePayload()
     }
     .onAppear {
@@ -117,13 +117,13 @@ struct NewCommandBuiltInView: View {
     let validation: Bool
     let newKind: BuiltInCommand.Kind
     switch kindSelection {
-    case .macro(let action):
+    case let .macro(action):
       validation = true
       newKind = .macro(action: action)
-    case .userMode(_, let action):
+    case let .userMode(_, action):
       validation = !userModeSelection.name.isEmpty
       newKind = .userMode(mode: userModeSelection, action: action)
-    case .commandLine(let action):
+    case let .commandLine(action):
       validation = true
       newKind = .commandLine(action: action)
     case .repeatLastWorkflow:
@@ -149,7 +149,8 @@ struct NewCommandBuiltInView_Previews: PreviewProvider {
       selection: .builtIn,
       payload: .placeholder,
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

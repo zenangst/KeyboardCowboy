@@ -10,6 +10,7 @@ extension NSColor {
       self.init(red: 255, green: 255, blue: 255, alpha: 1.0)
       return
     }
+
     if hex.count == 3 {
       for (index, char) in hex.enumerated() {
         let offset = index * 2
@@ -24,12 +25,13 @@ extension NSColor {
 
     let red = Double((intCode >> 16) & 0xFF)
     let green = Double((intCode >> 8) & 0xFF)
-    let blue = Double((intCode) & 0xFF)
+    let blue = Double(intCode & 0xFF)
 
     self.init(
       red: red / 255.0,
       green: green / 255.0,
       blue: blue / 255.0,
-      alpha: 1.0)
+      alpha: 1.0,
+    )
   }
 }

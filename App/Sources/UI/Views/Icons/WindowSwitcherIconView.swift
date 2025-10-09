@@ -10,10 +10,10 @@ struct WindowSwitcherIconView: View {
         LinearGradient(
           stops: [
             Gradient.Stop(color: Color(nsColor: .systemRed), location: 0),
-            Gradient.Stop(color: .clear, location: 0.5)
+            Gradient.Stop(color: .clear, location: 0.5),
           ],
           startPoint: .topLeading,
-          endPoint: .bottomTrailing
+          endPoint: .bottomTrailing,
         )
       }
       .overlay { iconOverlay().opacity(0.25) }
@@ -23,22 +23,22 @@ struct WindowSwitcherIconView: View {
           .init(color: Color.white, location: 0.25),
           .init(color: Color(nsColor: .systemPink), location: 1.0),
         ], startPoint: .topLeading, endPoint: .bottom)
-        .mask {
-          Group {
-            RoundedRectangle(cornerRadius: size / 8)
-              .fill(Color.white.opacity(0.7))
-              .offset(x: -size * 0.1, y: -size * 0.1)
-              .frame(width: size * 0.6, height: size * 0.5)
+          .mask {
+            Group {
+              RoundedRectangle(cornerRadius: size / 8)
+                .fill(Color.white.opacity(0.7))
+                .offset(x: -size * 0.1, y: -size * 0.1)
+                .frame(width: size * 0.6, height: size * 0.5)
 
-            Image(systemName: "appwindow.swipe.rectangle")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .offset(x: size * 0.1, y: size * 0.1)
+              Image(systemName: "appwindow.swipe.rectangle")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .offset(x: size * 0.1, y: size * 0.1)
+            }
+            .fontWeight(.bold)
+            .frame(width: size * 0.6)
           }
-          .fontWeight(.bold)
-          .frame(width: size * 0.6)
-        }
-        .shadow(radius: 2)
+          .shadow(radius: 2)
       }
       .frame(width: size, height: size)
       .fixedSize()

@@ -6,11 +6,11 @@ enum DetailViewState: Hashable, Identifiable, Equatable {
   var id: String {
     switch self {
     case .empty:
-      return "0"
+      "0"
     case .single:
-      return "1"
-    case .multiple(let viewModels):
-      return viewModels.map { $0.id }.joined()
+      "1"
+    case let .multiple(viewModels):
+      viewModels.map(\.id).joined()
     }
   }
 
@@ -48,11 +48,11 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
   enum Trigger: Hashable, Equatable, Identifiable {
     var id: String {
       switch self {
-      case .applications(let array): array.map(\.id).joined()
-      case .keyboardShortcuts(let keyboardTrigger): keyboardTrigger.shortcuts.map(\.id).joined()
-      case .snippet(let trigger): trigger.id
+      case let .applications(array): array.map(\.id).joined()
+      case let .keyboardShortcuts(keyboardTrigger): keyboardTrigger.shortcuts.map(\.id).joined()
+      case let .snippet(trigger): trigger.id
       case .empty: "empty"
-      case .modifier(let trigger): trigger.id
+      case let .modifier(trigger): trigger.id
       }
     }
 
@@ -78,14 +78,14 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     }
 
     enum Context: String, Hashable, Codable, CaseIterable, Identifiable {
-      public var id: String { rawValue }
+      var id: String { rawValue }
 
       case closed, launched, frontMost, resignFrontMost
 
       var displayValue: String {
         switch self {
-        case .launched:  "Launched"
-        case .closed:    "Closed"
+        case .launched: "Launched"
+        case .closed: "Closed"
         case .frontMost: "When in front most"
         case .resignFrontMost: "When resigns front most"
         }

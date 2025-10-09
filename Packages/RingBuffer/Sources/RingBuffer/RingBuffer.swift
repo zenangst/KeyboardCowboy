@@ -35,9 +35,9 @@ public final class RingBuffer<T: Identifiable & Hashable> {
     if !commonIDs.isEmpty {
       updated = updated.map { old in
         if let fresh = newByID[old.id] {
-          return fresh // "new wins"
+          fresh // "new wins"
         } else {
-          return old
+          old
         }
       }
     }

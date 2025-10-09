@@ -35,7 +35,8 @@ struct WorkflowTrigger: View {
                 .lineLimit(1)
             }
             .frame(maxWidth: .infinity, minHeight: 24)
-          })
+          },
+        )
         .onMoveCommand(perform: { direction in
           switch direction {
           case .right:
@@ -53,15 +54,16 @@ struct WorkflowTrigger: View {
             }
           },
           label: {
-          HStack(spacing: 6) {
-            KeyboardIconView("M", size: 20)
-            Text("Keyboard Shortcut")
-              .allowsTightening(true)
-              .lineLimit(1)
-              .font(.caption)
-          }
-          .frame(maxWidth: .infinity, minHeight: 24)
-        })
+            HStack(spacing: 6) {
+              KeyboardIconView("M", size: 20)
+              Text("Keyboard Shortcut")
+                .allowsTightening(true)
+                .lineLimit(1)
+                .font(.caption)
+            }
+            .frame(maxWidth: .infinity, minHeight: 24)
+          },
+        )
         .onMoveCommand(perform: { direction in
           switch direction {
           case .left:
@@ -89,7 +91,8 @@ struct WorkflowTrigger: View {
                 .lineLimit(1)
             }
             .frame(maxWidth: .infinity, minHeight: 24)
-          })
+          },
+        )
         .onMoveCommand(perform: { direction in
           switch direction {
           case .left:

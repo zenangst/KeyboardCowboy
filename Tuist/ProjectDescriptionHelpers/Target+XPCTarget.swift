@@ -25,7 +25,7 @@ public extension Target {
         "PRODUCT_NAME": "LassoService",
         "SWIFT_STRICT_CONCURRENCY": "complete",
         "SWIFT_VERSION": "6.0",
-      ])
+      ]),
     )
   }
 }

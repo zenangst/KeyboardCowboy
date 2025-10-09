@@ -52,12 +52,12 @@ private struct HeaderView: View {
   var body: some View {
     ZStack(alignment: .bottomTrailing) {
       switch metaData.icon {
-      case .some(let icon):
+      case let .some(icon):
         if let appPath = model.applicationPath {
           IconView(icon: .init(bundleIdentifier: appPath, path: appPath),
                    size: iconSize)
-          .shadow(radius: 3)
-          .id("open-with-\(appPath)")
+            .shadow(radius: 3)
+            .id("open-with-\(appPath)")
         } else {
           IconView(icon: icon, size: iconSize)
         }
@@ -90,7 +90,8 @@ private struct ContentView: View {
         .environment(\.textFieldUnfocusedOpacity, 0.0)
         .onChange(of: model.path, perform: { newValue in
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            guard case .open(var openCommand) = command else { return }
+            guard case var .open(openCommand) = command else { return }
+
             openCommand.path = newValue
             command = .open(openCommand)
           }
@@ -103,7 +104,8 @@ private struct ContentView: View {
             model.appName = app.displayName
             model.applicationPath = app.path
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-              guard case .open(let openCommand) = command else { return }
+              guard case let .open(openCommand) = command else { return }
+
               command = .open(OpenCommand(application: app, path: openCommand.path, meta: command.meta))
             }
           })
@@ -113,7 +115,8 @@ private struct ContentView: View {
           model.appName = nil
           model.applicationPath = nil
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            guard case .open(let openCommand) = command else { return }
+            guard case let .open(openCommand) = command else { return }
+
             command = .open(OpenCommand(application: nil, path: openCommand.path, meta: command.meta))
           }
         })
@@ -141,7 +144,8 @@ private struct SubContentView: View {
 
   init(model: Binding<CommandViewModel.Kind.OpenModel>,
        onReveal: @escaping () -> Void,
-       onEdit: @escaping () -> Void) {
+       onEdit: @escaping () -> Void)
+  {
     _model = model
     self.onReveal = onReveal
     self.onEdit = onEdit

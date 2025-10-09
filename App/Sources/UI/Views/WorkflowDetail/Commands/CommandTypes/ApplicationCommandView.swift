@@ -25,7 +25,7 @@ struct ApplicationCommandView: View {
       content: {
         ApplicationCommandInternalView(metaData, model: model, iconSize: iconSize)
       },
-      subContent: { }
+      subContent: {},
     )
     .enableInjection()
   }
@@ -123,7 +123,6 @@ private struct ApplicationCommandInternalView: View {
 
           Toggle(isOn: $model.ifNotRunning, label: { Text("If not running") })
             .onChange(of: model.ifNotRunning, perform: { newValue in updateModifier(.onlyIfNotRunning, newValue: newValue) })
-
         }
         GridRow {
           Toggle(isOn: $model.addToStage, label: { Text("Add to Stage") })
@@ -147,7 +146,8 @@ private struct ApplicationCommandInternalView: View {
 
   func updateAction(_ action: ApplicationCommand.Action) {
     updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-      guard case .application(var appCommand) = command else { return }
+      guard case var .application(appCommand) = command else { return }
+
       appCommand.action = action
       command = .application(appCommand)
     }
@@ -155,10 +155,11 @@ private struct ApplicationCommandInternalView: View {
 
   func updateModifier(_ modifier: ApplicationCommand.Modifier, newValue: Bool) {
     updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-      guard case .application(var appCommand) = command else { return }
-      if !appCommand.modifiers.contains(modifier) && newValue {
+      guard case var .application(appCommand) = command else { return }
+
+      if !appCommand.modifiers.contains(modifier), newValue {
         appCommand.modifiers.insert(modifier)
-      } else if appCommand.modifiers.contains(modifier) && !newValue {
+      } else if appCommand.modifiers.contains(modifier), !newValue {
         appCommand.modifiers.remove(modifier)
       }
       command = .application(appCommand)
@@ -184,7 +185,8 @@ struct ApplicationCommandImageView: View {
       Button(action: {
         let previousApplication = Application.previousApplication()
         updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-          guard case .application(var applicationCommand) = command else { return }
+          guard case var .application(applicationCommand) = command else { return }
+
           applicationCommand.application = previousApplication
           command = .application(applicationCommand)
         }
@@ -197,27 +199,28 @@ struct ApplicationCommandImageView: View {
       ForEach(applicationStore.applications.lazy, id: \.path) { app in
         Button(action: {
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            guard case .application(var applicationCommand) = command else { return }
+            guard case var .application(applicationCommand) = command else { return }
+
             applicationCommand.application = app
             command = .application(applicationCommand)
           }
           metaData.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
         }, label: {
           let text = app.metadata.isSafariWebApp
-          ? "\(app.displayName) (Safari Web App)"
-          : app.displayName
+            ? "\(app.displayName) (Safari Web App)"
+            : app.displayName
           Text(text)
         })
       }
-    }, label: { })
-    .contentShape(Rectangle())
-    .menuStyle(IconMenuStyle())
-    .overlay(content: {
-      IconView(icon: metaData.icon, size: iconSize)
-        .fixedSize()
-        .allowsHitTesting(false)
-        .opacity(metaData.icon != nil ? 1 : 0)
-    })
+    }, label: {})
+      .contentShape(Rectangle())
+      .menuStyle(IconMenuStyle())
+      .overlay(content: {
+        IconView(icon: metaData.icon, size: iconSize)
+          .fixedSize()
+          .allowsHitTesting(false)
+          .opacity(metaData.icon != nil ? 1 : 0)
+      })
   }
 }
 
@@ -235,7 +238,7 @@ struct ApplicationCommandView_Previews: PreviewProvider {
     ApplicationCommandView(
       command.model.meta,
       model: command.kind,
-      iconSize: .init(width: 24, height: 24)
+      iconSize: .init(width: 24, height: 24),
     )
     .style(.section(.detail))
     .style(.derived)

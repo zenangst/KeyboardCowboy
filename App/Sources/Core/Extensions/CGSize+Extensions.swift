@@ -13,8 +13,8 @@ extension CGSize {
   @MainActor static var debug: Bool = false
   @MainActor
   func hasDifference(greaterThan tolerance: CGFloat, comparedTo other: CGSize) -> Bool {
-    let widthDiff = abs(self.width - round(other.width))
-    let heightDiff = abs(self.height - round(other.height))
+    let widthDiff = abs(width - round(other.width))
+    let heightDiff = abs(height - round(other.height))
 
     if Self.debug {
       if widthDiff > tolerance {

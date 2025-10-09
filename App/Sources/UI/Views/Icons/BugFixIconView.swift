@@ -9,14 +9,14 @@ struct BugFixIconView: View {
           .init(color: Color(.systemGreen.blended(withFraction: 0.6, of: .black)!), location: 0.0),
           .init(color: Color(.systemTeal), location: 0.6),
           .init(color: Color(.systemGreen.blended(withFraction: 0.6, of: .white)!), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay {
         LinearGradient(stops: [
           .init(color: Color(.systemGreen), location: 0.5),
           .init(color: Color(.systemGreen.blended(withFraction: 0.2, of: .white)!), location: 1.0),
         ], startPoint: .topTrailing, endPoint: .bottomTrailing)
-        .opacity(0.6)
+          .opacity(0.6)
       }
       .overlay {
         LinearGradient(stops: [
@@ -49,4 +49,3 @@ struct BugFixIconView: View {
 #Preview {
   IconPreview(content: { BugFixIconView(size: $0) })
 }
-

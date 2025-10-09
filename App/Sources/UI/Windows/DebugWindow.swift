@@ -8,7 +8,7 @@ final class DebugWorkflow: NSObject, NSWindowDelegate {
 
   static let shared = DebugWorkflow()
 
-  func open(_ message: String) {
+  func open(_: String) {
     let window = createWindow()
     window.center()
     window.orderFrontRegardless()
@@ -43,7 +43,7 @@ final class DebugWorkflow: NSObject, NSWindowDelegate {
 
   // MARK: NSWindowDelegate
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
   }
 }

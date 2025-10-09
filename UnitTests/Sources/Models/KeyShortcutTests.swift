@@ -2,7 +2,6 @@
 import XCTest
 
 final class KeyShortcutTests: XCTestCase {
-
   func testModifersDisplayValue() {
     XCTAssertEqual(KeyShortcut(key: "A", modifiers: [.leftShift]).modifersDisplayValue, "⇧")
     XCTAssertEqual(KeyShortcut(key: "A", modifiers: [.function]).modifersDisplayValue, "ƒ")

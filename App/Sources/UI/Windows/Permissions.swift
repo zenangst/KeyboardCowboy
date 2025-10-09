@@ -1,5 +1,5 @@
-import AXEssibility
 import AppKit
+import AXEssibility
 import Bonzai
 import Foundation
 import SwiftUI
@@ -41,7 +41,7 @@ final class Permissions: NSObject, NSWindowDelegate {
     }
   }
 
-  func windowWillClose(_ notification: Notification) {
+  func windowWillClose(_: Notification) {
     window = nil
   }
 }

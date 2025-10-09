@@ -35,7 +35,7 @@ struct MissionControlIconView: View {
   }
 }
 
-fileprivate struct MissionControlWindowView: View {
+private struct MissionControlWindowView: View {
   private let size: CGSize
 
   init(_ size: CGSize) {
@@ -48,7 +48,7 @@ fileprivate struct MissionControlWindowView: View {
         LinearGradient(stops: [
           .init(color: Color(nsColor: .white), location: 0.0),
           .init(color: Color(nsColor: .white.withSystemEffect(.disabled)), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay(alignment: .topLeading) {
         HStack(alignment: .top, spacing: 0) {
@@ -74,7 +74,6 @@ fileprivate struct MissionControlWindowView: View {
       .overlay { iconBorder(size.width * 0.7) }
       .iconShape(size.width * 0.7)
       .frame(width: size.width, height: size.height)
-
   }
 }
 

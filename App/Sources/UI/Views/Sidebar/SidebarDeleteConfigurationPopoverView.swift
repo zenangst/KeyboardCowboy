@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct SidebarDeleteConfigurationPopoverView: View {
   @Binding private var deleteConfigurationPopover: Bool
@@ -12,7 +12,8 @@ struct SidebarDeleteConfigurationPopoverView: View {
        id: ConfigurationViewModel.ID,
        configurationName: String,
        selectionManager: SelectionManager<ConfigurationViewModel>,
-       onAction: @escaping (ConfigurationViewModel.ID) -> Void) {
+       onAction: @escaping (ConfigurationViewModel.ID) -> Void)
+  {
     _deleteConfigurationPopover = deleteConfigurationPopover
     self.id = id
     self.configurationName = configurationName
@@ -23,8 +24,8 @@ struct SidebarDeleteConfigurationPopoverView: View {
   var body: some View {
     VStack {
       Text("Are you sure you want to delete '") +
-      Text(configurationName).bold() +
-      Text("'?")
+        Text(configurationName).bold() +
+        Text("'?")
       HStack {
         Spacer()
         Button("Abort", action: {

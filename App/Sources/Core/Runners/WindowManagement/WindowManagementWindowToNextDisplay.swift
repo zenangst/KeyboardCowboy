@@ -1,11 +1,11 @@
-import AXEssibility
 import AppKit
+import AXEssibility
 import Foundation
 import IOKit
 import IOKit.graphics
 
-final class WindowManagementWindowToNextDisplay {
-  static func run(_ window: WindowAccessibilityElement, kind: WindowManagementCommand.Mode) throws {
+enum WindowManagementWindowToNextDisplay {
+  static func run(_ window: WindowAccessibilityElement, kind _: WindowManagementCommand.Mode) throws {
     guard let windowFrame = window.frame,
           let currentScreen = NSScreen.screenIntersects(windowFrame.mainDisplayFlipped),
           let currentIndex = NSScreen.screens.firstIndex(of: currentScreen) else { return }
@@ -14,7 +14,8 @@ final class WindowManagementWindowToNextDisplay {
       // Move to iPad if possible.
       if let axApp = AppAccessibilityElement.focusedApplication(),
          let menuItems = try? axApp.menuBar().menuItems().windowMenuBarItems,
-         let moveToIPad = menuItems.first(where: { $0.identifier == "_toggleIPad:" }) {
+         let moveToIPad = menuItems.first(where: { $0.identifier == "_toggleIPad:" })
+      {
         moveToIPad.performAction(.press)
       }
       return
@@ -28,10 +29,10 @@ final class WindowManagementWindowToNextDisplay {
 
     // Move the mouse to the window on the next monitor.
     guard let frame = window.frame else { return }
+
     let midPoint = CGPoint(x: frame.midX,
                            y: frame.midY)
     NSCursor.moveCursor(to: midPoint)
-
   }
 
   static func moveWindowToNextDisplay(_ window: WindowAccessibilityElement, to screen: NSScreen, from currentScreen: NSScreen) {

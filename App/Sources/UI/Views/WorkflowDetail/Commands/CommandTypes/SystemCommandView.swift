@@ -12,7 +12,8 @@ struct SystemCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.SystemModel,
-       iconSize: CGSize) {
+       iconSize: CGSize)
+  {
     _model = Binding<CommandViewModel.Kind.SystemModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize
@@ -26,13 +27,15 @@ struct SystemCommandView: View {
       content: {
         SystemCommandContentView(model: $model) { kind in
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            guard case .systemCommand(var systemCommand) = command else { return }
+            guard case var .systemCommand(systemCommand) = command else { return }
+
             systemCommand.kind = kind
             command = .systemCommand(systemCommand)
           }
         }
       },
-      subContent: { })
+      subContent: {},
+    )
     .id(model.id)
     .enableInjection()
   }
@@ -77,7 +80,7 @@ struct SystemCommandView_Previews: PreviewProvider {
   static let command = DesignTime.systemCommand
   static var previews: some View {
     SystemCommandView(command.model.meta, model: command.kind,
-                      iconSize: .init(width: 24, height: 24)) 
+                      iconSize: .init(width: 24, height: 24))
       .designTime()
   }
 }

@@ -7,7 +7,6 @@ protocol WindowSpaceCacheDelegate {
 }
 
 extension WindowSpace {
-
   actor Cache {
     static let debug: Bool = true
 
@@ -18,7 +17,7 @@ extension WindowSpace {
     private var current: WindowSpace.Entity?
     private var storage: [BundleIdentifier: [WindowSpace.Entity.ID: WindowSpace.Entity]] = [:]
 
-    init() { }
+    init() {}
 
     func index(_ windows: [WindowModel], mapContainer: WindowSpace.MapContainer) async throws {
       await withTaskGroup(of: WindowSpace.Entity?.self) { [mapContainer] group in
@@ -28,7 +27,7 @@ extension WindowSpace {
           }
         }
 
-        for await case .some(let result) in group {
+        for await case let .some(result) in group {
           if var currentEntry = storage[result.bundleIdentifier] {
             currentEntry[result.id] = result
             storage[result.bundleIdentifier] = currentEntry
@@ -54,13 +53,15 @@ extension WindowSpace {
     nonisolated func update(element: AXUIElement, focused: Bool, mapContainer: WindowSpace.MapContainer) {
       Task { [weak self, mapContainer] in
         guard let self, let entity = await WindowAccessibilityElement(element)?
-          .convert(with: mapContainer) else {
+          .convert(with: mapContainer)
+        else {
           return
         }
+
         await addOrUpdateCache(entity)
 
         if focused {
-          await self.setCurrent(entity)
+          await setCurrent(entity)
         }
       }
     }
@@ -76,7 +77,7 @@ extension WindowSpace {
     // MARK: Private methods
 
     private func setCurrent(_ entity: WindowSpace.Entity) {
-      self.current = entity
+      current = entity
       delegate?.currentWindowDidChange(entity)
     }
 
@@ -101,6 +102,7 @@ extension WindowSpace {
 
     func debug() {
       guard Self.debug else { return }
+
       for (bundleIdentifier, windows) in storage {
         print("\(bundleIdentifier)")
         for (_, window) in windows {

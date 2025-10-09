@@ -32,15 +32,16 @@ final class WindowManagementCommandRunner {
 
   func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
     subscription = publisher
-      .compactMap { $0 }
+      .compactMap(\.self)
       .sink { [weak self] machPortEvent in
         guard let self else { return }
+
         let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
 
         self.isRepeatingEvent = isRepeatingEvent
-        self.shouldCycle = machPortEvent.keyCode == self.lastKeyCode
-        self.lastKeyCode = machPortEvent.keyCode
-    }
+        shouldCycle = machPortEvent.keyCode == lastKeyCode
+        lastKeyCode = machPortEvent.keyCode
+      }
   }
 
   @MainActor
@@ -55,17 +56,16 @@ final class WindowManagementCommandRunner {
       }
     }()) {
       app,
-      activeWindow,
-      originFrame in
+        activeWindow,
+        originFrame in
       let newFrame: CGRect
       switch command.kind {
-      case .anchor(let position, let padding):
-        let minSize: CGSize?
-        if let size = minSizeCache[activeWindow.id] {
-          minSize = CGSize(width: size.width + CGFloat(padding),
-                           height: size.height + CGFloat(padding))
+      case let .anchor(position, padding):
+        let minSize: CGSize? = if let size = minSizeCache[activeWindow.id] {
+          CGSize(width: size.width + CGFloat(padding),
+                 height: size.height + CGFloat(padding))
         } else {
-          minSize = nil
+          nil
         }
         newFrame = WindowManagementRunnerAnchorWindow.calculateRect(
           originFrame,
@@ -74,9 +74,9 @@ final class WindowManagementCommandRunner {
           position: position,
           padding: padding,
           currentScreen: currentScreen,
-          mainDisplay: mainDisplay
+          mainDisplay: mainDisplay,
         )
-        
+
         interpolateWindowFrame(
           from: originFrame,
           to: newFrame,
@@ -85,19 +85,19 @@ final class WindowManagementCommandRunner {
           mainDisplay: mainDisplay,
           constrainedToScreen: true,
           duration: command.animationDuration,
-          onUpdate: { activeWindow.frame = $0 }
+          onUpdate: { activeWindow.frame = $0 },
         )
         return
-      case .decreaseSize(let byValue, let direction, let constrainedToScreen):
+      case let .decreaseSize(byValue, direction, constrainedToScreen):
         newFrame = WindowManagementDecreaseWindowSize.calculateRect(
           originFrame,
           byValue: byValue,
           in: direction,
           constrainedToScreen: constrainedToScreen,
           currentScreen: currentScreen,
-          mainDisplay: mainDisplay
+          mainDisplay: mainDisplay,
         )
-      case .increaseSize(let byValue, let direction, let padding, let constrainedToScreen):
+      case let .increaseSize(byValue, direction, padding, constrainedToScreen):
         newFrame = WindowManagementIncreaseWindowSize.calculateRect(
           originFrame,
           byValue: byValue,
@@ -105,9 +105,9 @@ final class WindowManagementCommandRunner {
           padding: padding,
           constrainedToScreen: constrainedToScreen,
           currentScreen: currentScreen,
-          mainDisplay: mainDisplay
+          mainDisplay: mainDisplay,
         )
-      case .move(let byValue, let direction, let padding, let constrainedToScreen):
+      case let .move(byValue, direction, padding, constrainedToScreen):
         app.enhancedUserInterface = !isRepeatingEvent
         newFrame = WindowManagementMoveWindow.calculateRect(
           originFrame,
@@ -116,9 +116,9 @@ final class WindowManagementCommandRunner {
           padding: padding,
           constrainedToScreen: constrainedToScreen,
           currentScreen: currentScreen,
-          mainDisplay: mainDisplay
+          mainDisplay: mainDisplay,
         )
-      case .fullscreen(let padding):
+      case let .fullscreen(padding):
         if intercom.isRunning() {
           intercom.send(.snapToFullscreen, userInfo: ["padding": padding])
           return
@@ -128,8 +128,9 @@ final class WindowManagementCommandRunner {
           originFrame,
           padding: padding,
           currentScreen: currentScreen,
-          mainDisplay: mainDisplay)
-        
+          mainDisplay: mainDisplay,
+        )
+
         let lhs = resolvedFrame.origin.x + resolvedFrame.origin.y + resolvedFrame.width + resolvedFrame.size.height + statusBarHeight()
         let rhs = originFrame.origin.x + originFrame.origin.y + originFrame.width + originFrame.size.height
         let delta = abs(lhs - rhs)
@@ -141,7 +142,8 @@ final class WindowManagementCommandRunner {
 
         if delta <= abs(limit),
            abs(widthDelta) <= delta,
-           let restoreFrame = fullscreenCache[activeWindow.id] {
+           let restoreFrame = fullscreenCache[activeWindow.id]
+        {
           newFrame = restoreFrame
         } else {
           newFrame = resolvedFrame
@@ -151,21 +153,22 @@ final class WindowManagementCommandRunner {
         let resolvedFrame = WindowManagementCenterWindow.calculateRect(
           originFrame,
           currentScreen: currentScreen,
-          mainDisplay: mainDisplay
+          mainDisplay: mainDisplay,
         )
 
         let lhs = resolvedFrame.origin.x + resolvedFrame.origin.y
         let rhs = originFrame.origin.x + originFrame.origin.y
         let delta = abs(lhs - rhs)
-        
+
         if delta < 1,
-           let restoreFrame = centerCache[activeWindow.id] {
+           let restoreFrame = centerCache[activeWindow.id]
+        {
           newFrame = restoreFrame
         } else {
           newFrame = resolvedFrame
           centerCache[activeWindow.id] = originFrame
         }
-      case .moveToNextDisplay(let mode):
+      case let .moveToNextDisplay(mode):
         try WindowManagementWindowToNextDisplay.run(activeWindow, kind: mode)
         return
       }
@@ -176,7 +179,7 @@ final class WindowManagementCommandRunner {
         currentScreen: currentScreen,
         mainDisplay: mainDisplay,
         duration: command.animationDuration,
-        onUpdate: { activeWindow.frame = $0 }
+        onUpdate: { activeWindow.frame = $0 },
       )
 
       intercom.send(.autoHideDockIfNeeded)
@@ -186,7 +189,8 @@ final class WindowManagementCommandRunner {
   // MARK: Private methods
 
   private func statusBarHeight() -> CGFloat {
-    NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+    NSStatusBar.system
+      .statusItem(withLength: NSStatusItem.squareLength)
       .button?
       .window?
       .frame
@@ -208,12 +212,11 @@ final class WindowManagementCommandRunner {
 
     let app = AppAccessibilityElement(frontmostApplication.processIdentifier)
 
-    var previousValue: Bool = false
+    var previousValue = false
     if app.enhancedUserInterface == true {
       app.enhancedUserInterface = false
       previousValue = true
     }
-
 
     var focusedElement: AnyFocusedAccessibilityElement
     let focusedWindow: WindowAccessibilityElement?
@@ -257,7 +260,8 @@ final class WindowManagementCommandRunner {
                                       currentScreen: NSScreen, mainDisplay: NSScreen,
                                       curve: InterpolationCurve = .easeInOut,
                                       constrainedToScreen: Bool = false, duration: TimeInterval,
-                                      onUpdate: @MainActor @escaping @Sendable (CGRect) -> Void) {
+                                      onUpdate: @MainActor @escaping @Sendable (CGRect) -> Void)
+  {
     let dockSize = getDockSize(mainDisplay)
     let dockPosition = getDockPosition(mainDisplay)
     let currenScreenFrame = currentScreen.frame
@@ -297,36 +301,34 @@ final class WindowManagementCommandRunner {
           dockLeftSize: dockLeftSize,
           dockRightSize: dockRightSize,
           currentScreenIsMainDisplay: currentScreenIsMainDisplay,
-          mainDisplayMaxY: mainDisplayMaxY
+          mainDisplayMaxY: mainDisplayMaxY,
         )
       }
       onUpdate(modifiedFrame)
       return
     }
 
-    self.task = Task {
+    task = Task {
       await withThrowingTaskGroup(of: Void.self) { group in
         let numberOfFrames = Int(duration * maximumFramesPerSecond)
-        for frameIndex in 0...numberOfFrames {
+        for frameIndex in 0 ... numberOfFrames {
           group.addTask {
             let progress = CGFloat(frameIndex) / CGFloat(numberOfFrames)
-            let easedProgress: CGFloat
-
-            switch curve {
+            let easedProgress: CGFloat = switch curve {
             case .easeIn:
-              easedProgress = await Self.easeIn(progress)
+              await Self.easeIn(progress)
             case .easeInOut:
-              easedProgress = await Self.easeInOut(progress)
+              await Self.easeInOut(progress)
             case .spring:
-              easedProgress = await Self.spring(progress)
+              await Self.spring(progress)
             case .linear:
-              easedProgress = progress
+              progress
             }
 
-            let interpolatedOrigin = CGPoint(x: await Self.interpolate(from: oldFrame.origin.x, to: newFrame.origin.x, progress: easedProgress),
-                                             y: await Self.interpolate(from: oldFrame.origin.y, to: newFrame.origin.y, progress: easedProgress))
-            let interpolatedSize = CGSize(width: await Self.interpolate(from: oldFrame.size.width, to: newFrame.size.width, progress: easedProgress),
-                                          height: await Self.interpolate(from: oldFrame.size.height, to: newFrame.size.height, progress: easedProgress))
+            let interpolatedOrigin = await CGPoint(x: Self.interpolate(from: oldFrame.origin.x, to: newFrame.origin.x, progress: easedProgress),
+                                                   y: Self.interpolate(from: oldFrame.origin.y, to: newFrame.origin.y, progress: easedProgress))
+            let interpolatedSize = await CGSize(width: Self.interpolate(from: oldFrame.size.width, to: newFrame.size.width, progress: easedProgress),
+                                                height: Self.interpolate(from: oldFrame.size.height, to: newFrame.size.height, progress: easedProgress))
             var interpolatedFrame = CGRect(origin: interpolatedOrigin, size: interpolatedSize)
             let delay = (duration / TimeInterval(numberOfFrames)) * TimeInterval(frameIndex)
 
@@ -340,7 +342,7 @@ final class WindowManagementCommandRunner {
                 dockLeftSize: dockLeftSize,
                 dockRightSize: dockRightSize,
                 currentScreenIsMainDisplay: currentScreenIsMainDisplay,
-                mainDisplayMaxY: mainDisplayMaxY
+                mainDisplayMaxY: mainDisplayMaxY,
               )
             }
 
@@ -358,10 +360,11 @@ final class WindowManagementCommandRunner {
                                      currenScreenFrame: CGRect,
                                      currenScreenVisibleFrame: CGRect,
                                      dockBottomSize: CGFloat,
-                                     dockLeftSize: CGFloat,
-                                     dockRightSize: CGFloat,
+                                     dockLeftSize _: CGFloat,
+                                     dockRightSize _: CGFloat,
                                      currentScreenIsMainDisplay: Bool,
-                                     mainDisplayMaxY: CGFloat) {
+                                     mainDisplayMaxY: CGFloat)
+  {
     let maxX = currenScreenFrame.maxX - (minSize?.width ?? interpolatedFrame.width)
     let maxY = currenScreenFrame.maxY - (minSize?.height ?? interpolatedFrame.height)
 
@@ -376,23 +379,23 @@ final class WindowManagementCommandRunner {
   }
 
   private static func interpolate(from oldValue: CGFloat, to newValue: CGFloat, progress: CGFloat) -> CGFloat {
-    return round(oldValue + (newValue - oldValue) * progress)
+    round(oldValue + (newValue - oldValue) * progress)
   }
 
   private static func easeInOut(_ t: CGFloat) -> CGFloat {
-    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+    t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
   }
 
-  private static func spring(_ t: CGFloat, mass: CGFloat = 1.0, damping: CGFloat = 1.0) -> CGFloat {
-    return (1 - cos(t * CGFloat.pi * 4)) * pow(2, -damping * t) + 1
+  private static func spring(_ t: CGFloat, mass _: CGFloat = 1.0, damping: CGFloat = 1.0) -> CGFloat {
+    (1 - cos(t * CGFloat.pi * 4)) * pow(2, -damping * t) + 1
   }
 
   private static func easeIn(_ t: CGFloat) -> CGFloat {
-    return t * t
+    t * t
   }
 }
 
-fileprivate enum InterpolationCurve {
+private enum InterpolationCurve {
   case easeIn
   case easeInOut
   case spring
@@ -408,26 +411,26 @@ enum DockPosition: Int {
 func getDockPosition(_ screen: NSScreen) -> DockPosition {
   if screen.visibleFrame.origin.y == screen.frame.origin.y {
     if screen.visibleFrame.origin.x == screen.frame.origin.x {
-      return .right
+      .right
     } else {
-      return .left
+      .left
     }
   } else {
-    return .bottom
+    .bottom
   }
 }
 
 func getDockSize(_ screen: NSScreen) -> CGFloat {
   switch getDockPosition(screen) {
   case .right:
-    return screen.frame.width - screen.visibleFrame.width
+    screen.frame.width - screen.visibleFrame.width
   case .left:
-    return screen.visibleFrame.origin.x
+    screen.visibleFrame.origin.x
   case .bottom:
     if screen.isMainDisplay {
-      return screen.visibleFrame.origin.y
+      screen.visibleFrame.origin.y
     } else {
-      return abs(screen.visibleFrame.height - screen.frame.size.height)
+      abs(screen.visibleFrame.height - screen.frame.size.height)
     }
   }
 }

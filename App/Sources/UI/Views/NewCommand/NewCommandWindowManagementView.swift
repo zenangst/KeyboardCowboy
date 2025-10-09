@@ -21,7 +21,7 @@ struct NewCommandWindowManagementView: View {
         Menu {
           ForEach(WindowManagementCommand.Kind.allCases) { kind in
             Button(action: {
-              self.selection = kind
+              selection = kind
               validation = updateAndValidatePayload()
             }, label: {
               Text(kind.displayValue)
@@ -34,17 +34,18 @@ struct NewCommandWindowManagementView: View {
     }
     .onChange(of: validation) { newValue in
       guard newValue == .needsValidation else { return }
+
       validation = updateAndValidatePayload()
     }
     .onAppear {
       validation = .valid
-      payload = .windowManagement(kind: self.selection)
+      payload = .windowManagement(kind: selection)
     }
   }
 
   @discardableResult
   private func updateAndValidatePayload() -> NewCommandValidation {
-    payload = .windowManagement(kind: self.selection)
+    payload = .windowManagement(kind: selection)
     return .valid
   }
 }
@@ -58,7 +59,8 @@ struct NewCommandWindowManagementView_Previews: PreviewProvider {
       selection: .windowManagement,
       payload: .placeholder,
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

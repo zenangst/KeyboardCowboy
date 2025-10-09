@@ -2,7 +2,8 @@ import SwiftUI
 
 @MainActor
 final class ViewModelPublisher<ViewModel>: ObservableObject, Sendable where ViewModel: Hashable,
-                                                                            ViewModel: Identifiable {
+  ViewModel: Identifiable
+{
   @Published var data: ViewModel
 
   init(_ data: ViewModel) {
@@ -14,6 +15,6 @@ final class ViewModelPublisher<ViewModel>: ObservableObject, Sendable where View
   }
 
   func publish(_ newModel: ViewModel) {
-    self.data <- newModel
+    data <- newModel
   }
 }

@@ -20,7 +20,8 @@ struct EditableKeyboardShortcutsItemView: View {
        keyboardShortcuts: Binding<[KeyShortcut]>,
        features: Set<Feature>,
        selectionManager: SelectionManager<KeyShortcut>,
-       onDelete: @escaping (KeyShortcut) -> Void) {
+       onDelete: @escaping (KeyShortcut) -> Void)
+  {
     _keyboardShortcuts = keyboardShortcuts
     self.keyboardShortcut = keyboardShortcut
     self.selectionManager = selectionManager
@@ -34,7 +35,7 @@ struct EditableKeyboardShortcutsItemView: View {
       keyboardShortcut: keyboardShortcut,
       features: features,
       selectionManager: selectionManager,
-      onDelete: onDelete
+      onDelete: onDelete,
     )
     .enableInjection()
   }
@@ -54,7 +55,8 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
 
   init(keyboardShortcuts: Binding<[KeyShortcut]>, keyboardShortcut: Binding<KeyShortcut>,
        features: Set<EditableKeyboardShortcutsItemView.Feature>,
-       selectionManager: SelectionManager<KeyShortcut>, onDelete: @escaping (KeyShortcut) -> Void) {
+       selectionManager: SelectionManager<KeyShortcut>, onDelete: @escaping (KeyShortcut) -> Void)
+  {
     _keyboardShortcuts = keyboardShortcuts
     self.features = features
     self.keyboardShortcut = keyboardShortcut
@@ -68,11 +70,11 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
         let largerModifiers: [ModifierKey] = [
           .leftCommand, .rightCommand,
           .leftShift, .rightShift,
-          .capsLock
+          .capsLock,
         ]
         ModifierKeyIcon(
           key: modifier,
-          glow: .constant(false)
+          glow: .constant(false),
         )
         .frame(minWidth: largerModifiers.contains(modifier) ? 40 : 30, minHeight: 30)
         .fixedSize(horizontal: true, vertical: true)
@@ -98,7 +100,7 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
     .background(
       RoundedRectangle(cornerRadius: 6, style: .continuous)
         .stroke(Color(.disabledControlTextColor).opacity(0.6))
-        .opacity(0.5)
+        .opacity(0.5),
     )
     .padding(.horizontal, 2)
     .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(keyboardShortcut.wrappedValue.id) }, cornerRadius: 4))
@@ -110,12 +112,13 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
 }
 
 struct EditableKeyboardShortcutsItemView_Previews: PreviewProvider {
-    static var previews: some View {
-      EditableKeyboardShortcutsItemView(
-        keyboardShortcut: .constant(.init(key: "Caps Lock", modifiers: [.capsLock])),
-        keyboardShortcuts: .constant([]),
-        features: [.remove],
-        selectionManager: .init(), onDelete: { _ in })
-      .padding()
-    }
+  static var previews: some View {
+    EditableKeyboardShortcutsItemView(
+      keyboardShortcut: .constant(.init(key: "Caps Lock", modifiers: [.capsLock])),
+      keyboardShortcuts: .constant([]),
+      features: [.remove],
+      selectionManager: .init(), onDelete: { _ in },
+    )
+    .padding()
+  }
 }

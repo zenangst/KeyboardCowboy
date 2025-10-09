@@ -1,15 +1,15 @@
 import Apps
+import Bonzai
 import Inject
 import SwiftUI
-import Bonzai
 
 struct NewCommandApplicationView: View {
   @ObserveInjection var inject
 
   enum ApplicationAction: String, CaseIterable {
-    case open  = "Open"
+    case open = "Open"
     case close = "Close"
-    case hide  = "Hide"
+    case hide = "Hide"
     case unhide = "Unhide"
     case peek = "Peek"
   }
@@ -36,7 +36,8 @@ struct NewCommandApplicationView: View {
        ifNotRunning: Bool,
        waitForAppToLaunch: Bool,
        addToStage: Bool,
-       validation: Binding<NewCommandValidation>) {
+       validation: Binding<NewCommandValidation>)
+  {
     _application = .init(initialValue: application)
     _action = .init(initialValue: action)
     _payload = payload
@@ -83,25 +84,25 @@ struct NewCommandApplicationView: View {
               }
             })
           }
-        }, label: { })
-        .overlay(alignment: .leading,
-                 content: {
-          HStack {
-            if let application {
-              IconView(icon: .init(application), size: .init(width: 24, height: 24))
-              Text(application.displayName)
-            } else {
-              IconView(
-                icon: .init(bundleIdentifier: "/System/Applications/Utilities/Script Editor.app",
-                           path: "/System/Applications/Utilities/Script Editor.app"),
-                size: .init(width: 24, height: 24)
-              )
-              Text("Select application")
-            }
-          }
-          .padding(.leading, 8)
-          .allowsHitTesting(false)
-        })
+        }, label: {})
+          .overlay(alignment: .leading,
+                   content: {
+                     HStack {
+                       if let application {
+                         IconView(icon: .init(application), size: .init(width: 24, height: 24))
+                         Text(application.displayName)
+                       } else {
+                         IconView(
+                           icon: .init(bundleIdentifier: "/System/Applications/Utilities/Script Editor.app",
+                                       path: "/System/Applications/Utilities/Script Editor.app"),
+                           size: .init(width: 24, height: 24),
+                         )
+                         Text("Select application")
+                       }
+                     }
+                     .padding(.leading, 8)
+                     .allowsHitTesting(false)
+                   })
       }
 
       Divider()
@@ -128,6 +129,7 @@ struct NewCommandApplicationView: View {
       }
       .onChange(of: validation) { newValue in
         guard newValue == .needsValidation else { return }
+
         validation = updateAndValidatePayload()
       }
       .frame(maxHeight: 36)
@@ -144,6 +146,7 @@ struct NewCommandApplicationView: View {
     guard let application else {
       return .invalid(reason: "Pick an application")
     }
+
     payload = .application(application: application, action: action,
                            inBackground: inBackground,
                            hideWhenRunning: hideWhenRunning,
@@ -163,7 +166,8 @@ struct NewCommandApplicationView_Previews: PreviewProvider {
       selection: .application,
       payload: .placeholder,
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

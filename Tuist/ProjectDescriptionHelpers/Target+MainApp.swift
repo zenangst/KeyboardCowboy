@@ -60,8 +60,8 @@ public extension Target {
           .debug(name: "Debug", xcconfig: "\(xcconfig("Debug"))"),
           .release(name: "Release", xcconfig: "\(xcconfig("Release"))"),
         ],
-        defaultSettings: .recommended
-      )
+        defaultSettings: .recommended,
+      ),
     )
 
     return target

@@ -18,7 +18,7 @@ final class EmptyConfiguration: NSObject, NSWindowDelegate {
       .miniaturizable,
       .resizable,
       .titled,
-      .fullSizeContentView
+      .fullSizeContentView,
     ]
     let window = ZenSwiftUIWindow(styleMask: styleMask, content: content)
     let size = window.sizeThatFits(in: .zero)
@@ -32,7 +32,7 @@ final class EmptyConfiguration: NSObject, NSWindowDelegate {
     self.window = window
   }
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
   }
 }

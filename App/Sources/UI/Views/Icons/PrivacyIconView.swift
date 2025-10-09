@@ -9,7 +9,7 @@ struct PrivacyIconView: View {
         primaryColor: .systemGray,
         secondaryColor: .systemGreen,
         primaryTintColor: .white,
-        secondaryTintColor: .yellow
+        secondaryTintColor: .yellow,
       )
 
       InternalPrivayIconView(
@@ -17,7 +17,7 @@ struct PrivacyIconView: View {
         primaryColor: .systemGreen,
         secondaryColor: .white,
         primaryTintColor: .systemYellow,
-        secondaryTintColor: .white
+        secondaryTintColor: .white,
       )
       .mask(alignment: .trailing) {
         Rectangle()
@@ -42,7 +42,7 @@ private struct InternalPrivayIconView: View {
         LinearGradient(stops: [
           .init(color: Color(primaryColor.blended(withFraction: 0.2, of: primaryTintColor)!), location: 0.0),
           .init(color: Color(primaryColor.withSystemEffect(.disabled)), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
+        ], startPoint: .top, endPoint: .bottom),
       )
       .overlay { iconOverlay().opacity(0.65) }
       .overlay { iconBorder(size) }
@@ -51,13 +51,13 @@ private struct InternalPrivayIconView: View {
           .init(color: Color(nsColor: secondaryColor.blended(withFraction: 0.5, of: secondaryTintColor)!), location: 0.2),
           .init(color: Color(nsColor: secondaryColor.blended(withFraction: 0.3, of: .black)!), location: 1.0),
         ], startPoint: .top, endPoint: .bottom)
-        .mask {
-          Image(systemName: "shield.lefthalf.filled")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: size * 0.5)
-        }
-        .shadow(radius: 4)
+          .mask {
+            Image(systemName: "shield.lefthalf.filled")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: size * 0.5)
+          }
+          .shadow(radius: 4)
       }
       .frame(width: size, height: size)
       .fixedSize()

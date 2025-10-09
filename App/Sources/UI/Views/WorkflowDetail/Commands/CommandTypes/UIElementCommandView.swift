@@ -31,9 +31,9 @@ struct UIElementCommandView: View {
                   ForEach(UIElementCommand.Predicate.Compare.allCases, id: \.displayName) { compare in
                     Button(action: { model.predicates[index].compare = compare },
                            label: {
-                      Text(compare.displayName)
-                        .font(.callout)
-                    })
+                             Text(compare.displayName)
+                               .font(.callout)
+                           })
                   }
                 } label: {
                   Text(model.predicates[index].compare.displayName)
@@ -43,7 +43,7 @@ struct UIElementCommandView: View {
 
                 HStack {
                   TextField("", text: $model.predicates[index].value)
-                  Button { 
+                  Button {
                     model.predicates.remove(at: index)
                     if model.predicates.isEmpty {
                       updater.modifyWorkflow(using: transaction) { workflow in
@@ -67,9 +67,9 @@ struct UIElementCommandView: View {
                   ForEach(UIElementCommand.Kind.allCases, id: \.displayName) { kind in
                     Button(action: { model.predicates[index].kind = kind },
                            label: {
-                      Text(kind.displayName)
-                        .font(.callout)
-                    })
+                             Text(kind.displayName)
+                               .font(.callout)
+                           })
                   }
                 } label: {
                   Text(model.predicates[index].kind.displayName)
@@ -86,7 +86,7 @@ struct UIElementCommandView: View {
                         } else {
                           model.predicates[index].properties.removeAll(where: { $0 == property })
                         }
-                      }
+                      },
                     ), label: {})
                     Text(property.displayName)
                       .font(.caption)
@@ -105,13 +105,13 @@ struct UIElementCommandView: View {
           }
         }
       }
-    } subContent: { }
-    .onChange(of: model, perform: { value in
-      updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-        command = .uiElement(value)
-      }
-    })
-    .enableInjection()
+    } subContent: {}
+      .onChange(of: model, perform: { value in
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          command = .uiElement(value)
+        }
+      })
+      .enableInjection()
   }
 }
 
@@ -122,10 +122,11 @@ struct UIElementCommandView: View {
       predicates: [
         .init(
           value: "issues",
-          properties: [.identifier]
-        )
-      ]
-    )), iconSize: .init(width: 24, height: 24))
+          properties: [.identifier],
+        ),
+      ],
+    )), iconSize: .init(width: 24, height: 24),
+  )
   .designTime()
   .previewLayout(.sizeThatFits)
 }

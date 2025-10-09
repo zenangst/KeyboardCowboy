@@ -47,6 +47,7 @@ struct NewCommandSystemCommandView: View {
     }
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
+
       withAnimation { validation = updateAndValidatePayload() }
     })
     .onAppear {
@@ -74,7 +75,8 @@ struct NewCommandSystemCommandView_Previews: PreviewProvider {
       selection: .system,
       payload: .systemCommand(kind: .applicationWindows),
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

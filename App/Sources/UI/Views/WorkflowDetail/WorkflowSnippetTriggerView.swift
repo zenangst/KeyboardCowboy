@@ -10,7 +10,8 @@ struct WorkflowSnippetTriggerView: View {
   @State var snippet: DetailViewModel.SnippetTrigger
 
   init(_ focus: FocusState<AppFocus?>.Binding,
-       snippet: DetailViewModel.SnippetTrigger) {
+       snippet: DetailViewModel.SnippetTrigger)
+  {
     _snippet = .init(initialValue: snippet)
     self.focus = focus
   }
@@ -28,14 +29,14 @@ struct WorkflowSnippetTriggerView: View {
           updater.modifyWorkflow(using: transaction) { workflow in
             workflow.trigger = .snippet(SnippetTrigger(id: snippet.id, text: snippet.text))
           }
-        }
+        },
       )
       .focused(focus, equals: .detail(.snippet))
     }
     .onDisappear(perform: {
-        snippetController.isEnabled = true
+      snippetController.isEnabled = true
     })
-    .onChange(of: snippet.text, perform: { value in
+    .onChange(of: snippet.text, perform: { _ in
       updater.modifyWorkflow(using: transaction) { workflow in
         workflow.trigger = .snippet(SnippetTrigger(id: snippet.id, text: snippet.text))
       }

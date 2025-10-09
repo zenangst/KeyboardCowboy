@@ -12,7 +12,8 @@ struct WorkflowShortcutsView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        data: Binding<[KeyShortcut]>,
        selectionManager: SelectionManager<KeyShortcut>,
-       onUpdate: @escaping ([KeyShortcut]) -> Void) {
+       onUpdate: @escaping ([KeyShortcut]) -> Void)
+  {
     _data = data
     self.focus = focus
     self.onUpdate = onUpdate
@@ -28,20 +29,20 @@ struct WorkflowShortcutsView: View {
                                             selectionManager: selectionManager,
                                             recordOnAppearIfEmpty: true,
                                             onTab: {
-      if $0 {
-        focus.wrappedValue = .detail(.commands)
-      } else {
-        focus.wrappedValue = .detail(.name)
-      }
-    })
-    .style(.list)
-    .roundedSubStyle(8, padding: 0)
-    .frame(minHeight: 42, maxHeight: 42)
-    .onChange(of: data, perform: { newValue in
-      onUpdate(newValue)
-    })
-    .focused(focus, equals: .detail(.keyboardShortcuts))
-    .enableInjection()
+                                              if $0 {
+                                                focus.wrappedValue = .detail(.commands)
+                                              } else {
+                                                focus.wrappedValue = .detail(.name)
+                                              }
+                                            })
+                                            .style(.list)
+                                            .roundedSubStyle(8, padding: 0)
+                                            .frame(minHeight: 42, maxHeight: 42)
+                                            .onChange(of: data, perform: { newValue in
+                                              onUpdate(newValue)
+                                            })
+                                            .focused(focus, equals: .detail(.keyboardShortcuts))
+                                            .enableInjection()
   }
 }
 
@@ -52,9 +53,9 @@ struct WorkflowShortcutsView_Previews: PreviewProvider {
                           data: .constant([]),
                           selectionManager: .init(),
                           onUpdate: {
-      _ in
-    })
-      .designTime()
-      .padding()
+                            _ in
+                          })
+                          .designTime()
+                          .padding()
   }
 }

@@ -8,9 +8,9 @@ extension MouseCommand {
     var element: UIElement {
       get {
         switch self {
-        case .click(let uIElement): uIElement
-        case .doubleClick(let uIElement): uIElement
-        case .rightClick(let uIElement): uIElement
+        case let .click(uIElement): uIElement
+        case let .doubleClick(uIElement): uIElement
+        case let .rightClick(uIElement): uIElement
         }
       }
       set {
@@ -23,16 +23,16 @@ extension MouseCommand {
     }
 
     var displayValue: String {
-      var value: String = ""
+      var value = ""
       let element: UIElement
       switch self {
-      case .click(let uIElement):
+      case let .click(uIElement):
         value += "Click"
         element = uIElement
-      case .doubleClick(let uIElement):
+      case let .doubleClick(uIElement):
         value += "Double Click"
         element = uIElement
-      case .rightClick(let uIElement):
+      case let .rightClick(uIElement):
         value += "Right Click"
         element = uIElement
       }

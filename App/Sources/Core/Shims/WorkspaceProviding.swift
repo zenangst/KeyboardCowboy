@@ -1,6 +1,6 @@
 import AppKit
 
-public typealias WorkspaceCompletion = ((RunningApplication?, Error?) -> Void)
+public typealias WorkspaceCompletion = (RunningApplication?, Error?) -> Void
 
 public protocol WorkspaceProviding: Sendable {
   var applications: [RunningApplication] { get }

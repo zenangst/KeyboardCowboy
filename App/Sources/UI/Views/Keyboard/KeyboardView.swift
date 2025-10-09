@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct KeyboardView: View {
-
   let touchbar = false
 
   @ViewBuilder
@@ -32,6 +31,7 @@ struct KeyboardView: View {
     RegularKeyIcon(letters: ["F"], width: size, height: size).frame(width: size, height: size)
     RegularKeyIcon(letters: ["G"], width: size, height: size).frame(width: size, height: size)
   }
+
   @ViewBuilder
   func row3_2(_ size: CGFloat) -> some View {
     RegularKeyIcon(letters: ["H"], width: size, height: size).frame(width: size, height: size)
@@ -117,7 +117,6 @@ struct KeyboardView: View {
                   .frame(width: relative(48), height: relative(22))
                   .colorScheme(.dark)
                   .opacity(0.6)
-
               }
 
               Spacer()
@@ -248,8 +247,8 @@ struct KeyboardView_Previews: PreviewProvider {
   static var previews: some View {
 //      KeyboardView(width: 320).previewDisplayName("320")
 //      KeyboardView(width: 640).previewDisplayName("640")
-      KeyboardView(width: 800)
-        .previewDisplayName("800")
+    KeyboardView(width: 800)
+      .previewDisplayName("800")
 //      KeyboardView(width: 1024).previewDisplayName("1024")
   }
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Router {
+public enum Router {
   public static let sourceRoot = URL(fileURLWithPath: String(#filePath))
     .deletingLastPathComponent()
     .deletingLastPathComponent()

@@ -15,12 +15,13 @@ final class ConfigurationCoordinator {
   init(contentStore: ContentStore,
        configurationUpdater: ConfigurationUpdater,
        selectionManager: SelectionManager<ConfigurationViewModel>,
-       store: ConfigurationStore) {
+       store: ConfigurationStore)
+  {
     self.contentStore = contentStore
     self.store = store
     self.selectionManager = selectionManager
-    self.configurationsPublisher = ConfigurationsPublisher()
-    self.configurationPublisher = ConfigurationPublisher(.init(id: UUID().uuidString, name: "", selected: false))
+    configurationsPublisher = ConfigurationsPublisher()
+    configurationPublisher = ConfigurationPublisher(.init(id: UUID().uuidString, name: "", selected: false))
 
     configurationUpdater.subscribe(to: store.$selectedConfiguration)
 
@@ -31,44 +32,44 @@ final class ConfigurationCoordinator {
         .sink { [weak self] configuration in
           guard let self else { return }
 
-          self.configurationPublisher.publish(
+          configurationPublisher.publish(
             ConfigurationViewModel(
               id: configuration.id,
               name: configuration.name,
               selected: true,
-              userModes: configuration.userModes
-            )
+              userModes: configuration.userModes,
+            ),
           )
-          self.render(selectedConfiguration: configuration)
+          render(selectedConfiguration: configuration)
         }
     }
   }
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .selectConfiguration(let id):
+    case let .selectConfiguration(id):
       if let configuration = store.selectConfiguration(withId: id) {
         contentStore.use(configuration)
         render(selectedConfiguration: configuration)
         selectionManager.publish([configuration.id])
       }
-    case .addConfiguration(let name):
+    case let .addConfiguration(name):
       let configuration = KeyboardCowboyConfiguration(
         id: UUID().uuidString,
         name: name,
         userModes: [],
-        groups: []
+        groups: [],
       )
       store.add(configuration)
       contentStore.use(configuration)
       selectionManager.publish([configuration.id])
-    case .updateConfiguration(let newName):
+    case let .updateConfiguration(newName):
       var modifiedConfiguration = contentStore.configurationStore.selectedConfiguration
       modifiedConfiguration.name = newName
       contentStore.configurationStore.update(modifiedConfiguration)
       render(selectedConfiguration: modifiedConfiguration)
       selectionManager.publish([modifiedConfiguration.id])
-    case .deleteConfiguration(let id):
+    case let .deleteConfiguration(id):
       // Fix the bug when deleting configurations (they are out-of-sync)
       assert(contentStore.configurationStore.selectedConfiguration.id == id)
       contentStore.configurationStore.remove(contentStore.configurationStore.selectedConfiguration)
@@ -76,24 +77,25 @@ final class ConfigurationCoordinator {
         contentStore.use(firstConfiguration)
         render(selectedConfiguration: firstConfiguration)
       }
-    case .userMode(let action):
+    case let .userMode(action):
       switch action {
-      case .add(let string):
+      case let .add(string):
         let userMode = UserMode(id: UUID().uuidString, name: string, isEnabled: false)
         var modifiedConfiguration = contentStore.configurationStore.selectedConfiguration
         modifiedConfiguration.userModes.append(userMode)
         contentStore.configurationStore.update(modifiedConfiguration)
         contentStore.configurationStore.select(modifiedConfiguration)
-      case .delete(let string):
+      case let .delete(string):
         var modifiedConfiguration = contentStore.configurationStore.selectedConfiguration
         modifiedConfiguration.userModes.removeAll(where: { $0.id == string })
         contentStore.configurationStore.update(modifiedConfiguration)
         contentStore.configurationStore.select(modifiedConfiguration)
-      case .rename(let id, let newName):
+      case let .rename(id, newName):
         var modifiedConfiguration = contentStore.configurationStore.selectedConfiguration
         guard let index = modifiedConfiguration.userModes.firstIndex(where: { $0.id == id }) else {
           return
         }
+
         modifiedConfiguration.userModes[index].name = newName
         contentStore.configurationStore.update(modifiedConfiguration)
         contentStore.configurationStore.select(modifiedConfiguration)
@@ -111,7 +113,8 @@ final class ConfigurationCoordinator {
           id: configuration.id,
           name: configuration.name,
           selected: selectedConfiguration?.id == configuration.id,
-          userModes: configuration.userModes)
+          userModes: configuration.userModes,
+        )
 
         if let selectedConfiguration, configuration.id == selectedConfiguration.id {
           selections.append(viewModel)

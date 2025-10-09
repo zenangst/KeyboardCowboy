@@ -37,7 +37,7 @@ extension MouseCommand {
       case .bottomLeading: "bottomLeading"
       case .bottom: "bottom"
       case .bottomTrailing: "bottomTrailing"
-      case .custom(let x, let y): "custom:\(x)x\(y)"
+      case let .custom(x, y): "custom:\(x)x\(y)"
       }
     }
 

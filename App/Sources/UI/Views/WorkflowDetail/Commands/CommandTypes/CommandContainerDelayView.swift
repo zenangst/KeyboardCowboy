@@ -11,7 +11,8 @@ struct CommandContainerDelayView: View {
 
   init(metaData: Binding<CommandViewModel.MetaData>,
        execution: DetailViewModel.Execution,
-       onChange: @escaping (Double) -> Void) {
+       onChange: @escaping (Double) -> Void)
+  {
     _metaData = metaData
     self.execution = execution
     self.onChange = onChange
@@ -58,14 +59,14 @@ struct CommandContainerDelayView_Previews: PreviewProvider {
     name: UUID().uuidString,
     namePlaceholder: UUID().uuidString,
     isEnabled: false,
-    notification: nil
+    notification: nil,
   )
 
   static var previews: some View {
     CommandContainerDelayView(
       metaData: .constant(model),
       execution: .serial,
-      onChange: { _ in }
+      onChange: { _ in },
     )
     .padding()
   }

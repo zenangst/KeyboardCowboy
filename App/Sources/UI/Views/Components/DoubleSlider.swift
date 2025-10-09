@@ -30,12 +30,12 @@ struct DoubleSlider<Label: View>: View {
         HStack {
           Slider(
             value: $value,
-            in: min...max,
+            in: min ... max,
             step: step,
-            label: {  },
+            label: {},
             minimumValueLabel: { Text(String(format: "%.1f", min)) },
             maximumValueLabel: { Text(String(format: "%.1f", max)) },
-            onEditingChanged: { _ in }
+            onEditingChanged: { _ in },
           )
           .frame(minWidth: 200)
           .padding(8)

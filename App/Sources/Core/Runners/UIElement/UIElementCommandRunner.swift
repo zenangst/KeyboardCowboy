@@ -1,8 +1,8 @@
 import ApplicationServices
-import Cocoa
-import MachPort
 import AXEssibility
+import Cocoa
 import Foundation
+import MachPort
 
 enum UIElementCommandRunnerError: Error {
   case unableToFindWindow
@@ -17,6 +17,7 @@ final class UIElementCommandRunner {
 
   func run(_ command: UIElementCommand, checkCancellation: Bool) async throws {
     guard let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier else { return }
+
     //    var counter = 0
     //    let start = CACurrentMediaTime()
     //    defer {
@@ -38,8 +39,9 @@ final class UIElementCommandRunner {
       focusedWindow = try app.focusedWindow()
     }
 
-    guard let focusedWindow = focusedWindow,
-          let screen = NSScreen.main else {
+    guard let focusedWindow,
+          let screen = NSScreen.main
+    else {
       throw UIElementCommandRunnerError.unableToFindWindow
     }
 
@@ -50,7 +52,7 @@ final class UIElementCommandRunner {
     keys.append(.role)
 
     let mouseBasedRoles: Set<String> = [kAXStaticTextRole, kAXCellRole]
-    var mouseBasedRole: Bool = false
+    var mouseBasedRole = false
 
     let subject = focusedWindow.findChild(on: screen, keys: Set(keys), abort: {
       checkCancellation ? Task.isCancelled : false
@@ -67,35 +69,40 @@ final class UIElementCommandRunner {
 
         if predicate.properties.contains(.description),
            let value = values[.description] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value){
+           predicate.compare.run(lhs: value, rhs: predicate.value)
+        {
           return true
         }
 
         if predicate.properties.contains(.identifier),
            let value = values[.identifier] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value) {
+           predicate.compare.run(lhs: value, rhs: predicate.value)
+        {
           return true
         }
 
         if predicate.properties.contains(.title),
            let value = values[.title] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value) {
+           predicate.compare.run(lhs: value, rhs: predicate.value)
+        {
           return true
         }
 
         if predicate.properties.contains(.value),
            let value = values[.value] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value) {
+           predicate.compare.run(lhs: value, rhs: predicate.value)
+        {
           return true
         }
-        
+
         if predicate.properties.contains(.subrole),
            let value = values[.subrole] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value) {
+           predicate.compare.run(lhs: value, rhs: predicate.value)
+        {
           return true
         }
       }
-      
+
       return false
     }
 
@@ -104,18 +111,18 @@ final class UIElementCommandRunner {
     }
 
     guard let subject else {
-
       return
     }
 
     if checkCancellation { try Task.checkCancellation() }
 
     if let mousePosition = CGEvent(source: nil)?.location,
-       mouseBasedRole {
+       mouseBasedRole
+    {
       CGEvent.performClick(
         machPort?.eventSource,
         eventType: .leftMouse,
-        at: subject.position
+        at: subject.position,
       )
       try await Task.sleep(for: .milliseconds(10))
       CGEvent.restoreMousePosition(to: mousePosition)
@@ -125,12 +132,14 @@ final class UIElementCommandRunner {
   }
 
   private func restoreEnhancedUserInterface() {
-    for (pid, value) in restore { AppAccessibilityElement(pid).enhancedUserInterface = value }
+    for (pid, value) in restore {
+      AppAccessibilityElement(pid).enhancedUserInterface = value
+    }
     restore.removeAll()
   }
 }
 
-fileprivate extension CGEvent {
+private extension CGEvent {
   static func restoreMousePosition(to origin: CGPoint) {
     let eventDown = CGEvent(mouseEventSource: nil, mouseType: .mouseMoved,
                             mouseCursorPosition: origin, mouseButton: .left)
@@ -141,19 +150,20 @@ fileprivate extension CGEvent {
   static func performClick(_ source: CGEventSource?,
                            eventType: MouseEventType,
                            clickCount: Int64 = 1,
-                           at location: CGPoint) {
+                           at location: CGPoint)
+  {
     let eventDown = CGEvent(
       mouseEventSource: source,
       mouseType: eventType.downType,
       mouseCursorPosition: location,
-      mouseButton: eventType.mouseButton
+      mouseButton: eventType.mouseButton,
     )
     eventDown?.flags = CGEventFlags(rawValue: 0)
     let eventUp = CGEvent(
       mouseEventSource: source,
       mouseType: eventType.upType,
       mouseCursorPosition: location,
-      mouseButton: eventType.mouseButton
+      mouseButton: eventType.mouseButton,
     )
     eventUp?.flags = CGEventFlags(rawValue: 0)
 

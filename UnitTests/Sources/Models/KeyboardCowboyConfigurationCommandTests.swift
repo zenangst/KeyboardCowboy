@@ -17,7 +17,7 @@ final class KeyboardCowboyConfigurationCommandTests: XCTestCase {
               Command.openCommand(id: "command-1"),
               Command.openCommand(id: "command-2"),
               Command.openCommand(id: "command-3"),
-            ]
+            ],
           ),
 
           Workflow(
@@ -27,7 +27,7 @@ final class KeyboardCowboyConfigurationCommandTests: XCTestCase {
               Command.openCommand(id: "command-4"),
               Command.openCommand(id: "command-5"),
               Command.openCommand(id: "command-6"),
-            ]
+            ],
           ),
           Workflow(
             id: "workflow-3",
@@ -36,17 +36,17 @@ final class KeyboardCowboyConfigurationCommandTests: XCTestCase {
               Command.openCommand(id: "command-7"),
               Command.openCommand(id: "command-8"),
               Command.openCommand(id: "command-9"),
-            ]
+            ],
           ),
           Workflow(
             id: "workflow-4",
             name: "workflow-4",
-            commands: [ ]
-          )
-        ]
+            commands: [],
+          ),
+        ],
       ),
       WorkflowGroup(name: "group 2"),
-    ]
+    ],
   )
   func testUpdate() {
     var config = Self.config

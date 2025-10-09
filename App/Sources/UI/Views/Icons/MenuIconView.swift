@@ -9,12 +9,12 @@ struct MenuIconView: View {
       .fill(
         LinearGradient(
           stops: [
-            .init(color: Color(nsColor:  NSColor(red:0.95, green:0.70, blue:0.25, alpha:1.00)), location: 0.0),
+            .init(color: Color(nsColor: NSColor(red: 0.95, green: 0.70, blue: 0.25, alpha: 1.00)), location: 0.0),
             .init(color: Color(.controlAccentColor).opacity(0.65), location: 1.0),
           ],
           startPoint: .top,
-          endPoint: .bottom
-        )
+          endPoint: .bottom,
+        ),
       )
       .overlay { iconOverlay().opacity(0.65) }
       .overlay { iconBorder(size) }
@@ -66,7 +66,7 @@ private struct MenuIconMenuBarView: View {
                 .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.rollover)), location: 0),
                 .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.pressed)), location: 0.1),
                 .init(color: Color(nsColor: .controlAccentColor), location: 1.0),
-              ], startPoint: .top, endPoint: .bottom)
+              ], startPoint: .top, endPoint: .bottom),
             )
             .shadow(radius: 2)
             .padding(size * 0.03)
@@ -78,8 +78,8 @@ private struct MenuIconMenuBarView: View {
         .font(
           Font.system(
             size: size * 0.125,
-            design: .rounded
-          )
+            design: .rounded,
+          ),
         )
         .foregroundStyle(.black)
         .padding(.leading, size * 0.1)
@@ -94,27 +94,27 @@ private struct MenuBarIconWindowControls: View {
       Circle()
         .fill(
           LinearGradient(stops: [
-            .init(color: Color(nsColor: NSColor(red:0.88, green:0.19, blue:0.14, alpha:1.00)), location: 0.1),
-            .init(color: Color(.systemRed), location: 1)
+            .init(color: Color(nsColor: NSColor(red: 0.88, green: 0.19, blue: 0.14, alpha: 1.00)), location: 0.1),
+            .init(color: Color(.systemRed), location: 1),
           ],
-                         startPoint: .top,
-                         endPoint: .bottom)
+          startPoint: .top,
+          endPoint: .bottom),
         )
         .frame(height: size * 0.1)
       Circle()
         .fill(
           LinearGradient(colors: [
-            Color(nsColor: NSColor(red:1.00, green:0.98, blue:0.37, alpha:1.00)),
-            Color(.systemYellow)
-          ], startPoint: .top, endPoint: .bottom)
+            Color(nsColor: NSColor(red: 1.00, green: 0.98, blue: 0.37, alpha: 1.00)),
+            Color(.systemYellow),
+          ], startPoint: .top, endPoint: .bottom),
         )
         .frame(height: size * 0.1)
       Circle()
         .fill(
           LinearGradient(colors: [
-            Color(nsColor: NSColor(red:0.44, green:0.94, blue:0.39, alpha:1.00)),
-            Color(.systemGreen)
-          ], startPoint: .topLeading, endPoint: .bottomTrailing)
+            Color(nsColor: NSColor(red: 0.44, green: 0.94, blue: 0.39, alpha: 1.00)),
+            Color(.systemGreen),
+          ], startPoint: .topLeading, endPoint: .bottomTrailing),
         )
         .frame(height: size * 0.1)
     }

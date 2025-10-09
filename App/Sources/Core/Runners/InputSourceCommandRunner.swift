@@ -6,7 +6,7 @@ final class InputSourceCommandRunner {
   private let controller: InputSourceController
 
   init() {
-    self.controller = InputSourceController()
+    controller = InputSourceController()
   }
 
   func run(_ command: KeyboardCommand.InputSourceCommand) async throws {

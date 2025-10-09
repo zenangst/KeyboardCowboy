@@ -8,13 +8,13 @@ import SwiftUI
 final class KeyViewer: NSObject, NSWindowDelegate {
   static let instance = KeyViewer()
 
-  public var isWindowOpen: Bool { window != nil }
+  var isWindowOpen: Bool { window != nil }
 
   private lazy var publisher = KeyViewerPublisher()
   private var window: NSWindow?
   private var lastEventTime: Double = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
 
-  private override init() {
+  override private init() {
     super.init()
   }
 
@@ -35,8 +35,8 @@ final class KeyViewer: NSObject, NSWindowDelegate {
     self.window = window
   }
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
   }
 
   func handleInput(_ cgEvent: CGEvent, store: KeyCodesStore) {
@@ -48,7 +48,6 @@ final class KeyViewer: NSObject, NSWindowDelegate {
     guard let displayValue = store.displayValue(for: keyCode, modifiers: modifiers) ?? store.displayValue(for: keyCode, modifiers: []) else {
       return
     }
-
     guard displayValue.lowercased() != "space" else {
       return
     }
@@ -58,16 +57,19 @@ final class KeyViewer: NSObject, NSWindowDelegate {
 
   func handleInput(_ key: KeyShortcut) {
     guard window != nil else { return }
+
     updateKeys(key.key)
   }
 
   func handleString(_ string: String) {
     guard window != nil else { return }
+
     updateKeys(string.replacingOccurrences(of: " ", with: ""))
   }
 
   func handleFlagsChanged(_ cgFlags: CGEventFlags) {
     guard window != nil else { return }
+
     publisher.modifiers = cgFlags.modifierKeys
   }
 
@@ -118,10 +120,10 @@ final class KeyViewer: NSObject, NSWindowDelegate {
       publisher.keystrokes = [.init(key: displayValue)]
     }
 
-    self.lastEventTime = currentTimestamp
+    lastEventTime = currentTimestamp
   }
 
-  static private func convertTimestampToMilliseconds(_ timestamp: UInt64) -> Double {
-    return Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
+  private static func convertTimestampToMilliseconds(_ timestamp: UInt64) -> Double {
+    Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
   }
 }

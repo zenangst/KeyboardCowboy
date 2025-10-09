@@ -14,8 +14,9 @@ final class WorkflowRunner: WorkflowRunning, Sendable {
   private let store: KeyCodesStore
   private let notifications: MachPortUINotifications
 
-  init(commandRunner: CommandRunner, store: KeyCodesStore, 
-       notifications: MachPortUINotifications) {
+  init(commandRunner: CommandRunner, store: KeyCodesStore,
+       notifications: MachPortUINotifications)
+  {
     self.commandRunner = commandRunner
     self.store = store
     self.notifications = notifications
@@ -32,7 +33,7 @@ final class WorkflowRunner: WorkflowRunning, Sendable {
         checkCancellation: false,
         resolveUserEnvironment: workflow.resolveUserEnvironment(),
         machPortEvent: machPortEvent,
-        repeatingEvent: false
+        repeatingEvent: false,
       )
     case .serial:
       commandRunner.serialRun(
@@ -40,13 +41,14 @@ final class WorkflowRunner: WorkflowRunning, Sendable {
         checkCancellation: true,
         resolveUserEnvironment: workflow.resolveUserEnvironment(),
         machPortEvent: machPortEvent,
-        repeatingEvent: false
+        repeatingEvent: false,
       )
     }
   }
 
   func run(_ workflow: Workflow, executionOverride: Workflow.Execution? = nil,
-           machPortEvent: MachPortEvent, repeatingEvent: Bool) async {
+           machPortEvent: MachPortEvent, repeatingEvent: Bool) async
+  {
     Task.detached { @MainActor [weak notifications] in
       notifications?.notifyRunningWorkflow(workflow)
     }
@@ -55,11 +57,12 @@ final class WorkflowRunner: WorkflowRunning, Sendable {
     /// Determines whether the command runner should check for cancellation.
     /// If the workflow is triggered by a keyboard shortcut that is a passthrough and consists of only one shortcut,
     /// and that shortcut is the escape key, then cancellation checking is disabled.
-    var checkCancellation: Bool = true
+    var checkCancellation = true
     if let trigger = workflow.trigger,
-       case .keyboardShortcuts(let keyboardShortcutTrigger) = trigger,
+       case let .keyboardShortcuts(keyboardShortcutTrigger) = trigger,
        keyboardShortcutTrigger.passthrough,
-       keyboardShortcutTrigger.shortcuts.count == 1 {
+       keyboardShortcutTrigger.shortcuts.count == 1
+    {
       let shortcut = keyboardShortcutTrigger.shortcuts[0]
       let displayValue = await store.displayValue(for: kVK_Escape)
       if shortcut.key == displayValue {
@@ -97,38 +100,38 @@ private extension Workflow {
   var isValidForRepeatWorkflowCommand: Bool {
     commands.allSatisfy { command in
       switch command {
-        case .application:                           return true
-        case .builtIn:                               return false
-        case .bundled:                               return false
-        case .keyboard:                              return true
-        case .mouse:                                 return true
-        case .menuBar:                               return true
-        case .open:                                  return true
-        case .shortcut:                              return true
-        case .script:                                return true
-        case .text:                                  return true
-        case .systemCommand(let systemCommand):
-          switch systemCommand.kind {
-            case .activateLastApplication:           return true
-            case .applicationWindows:                return false
-            case .hideAllApps:                       return false
-            case .fillAllOpenWindows:                return false
-            case .minimizeAllOpenWindows:            return false
-            case .missionControl:                    return false
-            case .showDesktop:                       return false
-          }
-        case .uiElement:                             return true
-      case .windowFocus: return false
-      case .windowTiling: return true
-        case .windowManagement(let command):
+      case .application: true
+      case .builtIn: false
+      case .bundled: false
+      case .keyboard: true
+      case .mouse: true
+      case .menuBar: true
+      case .open: true
+      case .shortcut: true
+      case .script: true
+      case .text: true
+      case let .systemCommand(systemCommand):
+        switch systemCommand.kind {
+        case .activateLastApplication: true
+        case .applicationWindows: false
+        case .hideAllApps: false
+        case .fillAllOpenWindows: false
+        case .minimizeAllOpenWindows: false
+        case .missionControl: false
+        case .showDesktop: false
+        }
+      case .uiElement: true
+      case .windowFocus: false
+      case .windowTiling: true
+      case let .windowManagement(command):
         switch command.kind {
-        case .increaseSize: return false
-        case .decreaseSize: return false
-        case .move: return false
-        case .fullscreen: return false
-        case .center: return false
-        case .moveToNextDisplay: return true
-        case .anchor: return false
+        case .increaseSize: false
+        case .decreaseSize: false
+        case .move: false
+        case .fullscreen: false
+        case .center: false
+        case .moveToNextDisplay: true
+        case .anchor: false
         }
       }
     }

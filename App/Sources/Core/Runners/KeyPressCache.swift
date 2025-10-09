@@ -6,7 +6,7 @@ final class KeyPressCache {
   private var pressedKeys: Set<Int64> = []
 
   func noKeysPressed() -> Bool {
-    return pressedKeys.isEmpty
+    pressedKeys.isEmpty
   }
 
   func handle(_ event: CGEvent) {

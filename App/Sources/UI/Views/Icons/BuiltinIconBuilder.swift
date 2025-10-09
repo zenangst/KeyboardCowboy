@@ -4,7 +4,7 @@ enum BuiltinIconBuilder {
   @ViewBuilder @MainActor
   static func icon(_ kind: BuiltInCommand.Kind, size: CGFloat) -> some View {
     switch kind {
-    case .macro(let action):
+    case let .macro(action):
       switch action.kind {
       case .record: MacroIconView(.record, size: size)
       case .remove: MacroIconView(.remove, size: size)

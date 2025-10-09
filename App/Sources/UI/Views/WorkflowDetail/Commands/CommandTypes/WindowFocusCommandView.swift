@@ -12,7 +12,8 @@ struct WindowFocusCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowFocusModel,
-       iconSize: CGSize) {
+       iconSize: CGSize)
+  {
     _model = Binding<CommandViewModel.Kind.WindowFocusModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize
@@ -26,13 +27,15 @@ struct WindowFocusCommandView: View {
       content: {
         ContentView(model: $model) { kind in
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            guard case .windowFocus(var focusCommand) = command else { return }
+            guard case var .windowFocus(focusCommand) = command else { return }
+
             focusCommand.kind = kind
             command = .windowFocus(focusCommand)
           }
         }
       },
-      subContent: { })
+      subContent: {},
+    )
     .id(model.id)
     .enableInjection()
   }

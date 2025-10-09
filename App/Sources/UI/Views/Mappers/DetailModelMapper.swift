@@ -20,18 +20,17 @@ final class DetailModelMapper {
         workflowCommands.append(workflowCommand)
       }
 
-      let execution: DetailViewModel.Execution
-      switch workflow.execution {
+      let execution: DetailViewModel.Execution = switch workflow.execution {
       case .concurrent:
-        execution = .concurrent
+        .concurrent
       case .serial:
-        execution = .serial
+        .serial
       }
 
       let viewModel = DetailViewModel(
         info: DetailViewModel.Info(id: workflow.id, name: workflow.name, isEnabled: workflow.isEnabled),
         commandsInfo: DetailViewModel.CommandsInfo(id: workflow.id, commands: workflowCommands, execution: execution),
-        trigger: workflow.trigger?.asViewModel() ?? .empty
+        trigger: workflow.trigger?.asViewModel() ?? .empty,
       )
       viewModels.append(viewModel)
     }
@@ -54,7 +53,7 @@ private extension Command.MetaData {
       namePlaceholder: command.name,
       isEnabled: isEnabled,
       notification: notification,
-      icon: command.icon
+      icon: command.icon,
     )
   }
 }
@@ -72,8 +71,8 @@ private extension Command {
           hideWhenRunning: applicationCommand.modifiers.contains(.hidden),
           ifNotRunning: applicationCommand.modifiers.contains(.onlyIfNotRunning),
           addToStage: applicationCommand.modifiers.contains(.addToStage),
-          waitForAppToLaunch: applicationCommand.modifiers.contains(.waitForAppToLaunch)
-        )
+          waitForAppToLaunch: applicationCommand.modifiers.contains(.waitForAppToLaunch),
+        ),
       )
     case let .builtIn(builtInCommand):
       kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))
@@ -83,14 +82,12 @@ private extension Command {
       case let .activatePreviousWorkspace(command):
         kind = .bundled(CommandViewModel.Kind.BundledModel(id: command.id, name: "Focus on last Workspace", kind: .activatePreviousWorkspace))
       case let .appFocus(appFocusCommand):
-        let match: Application?
-
-        if appFocusCommand.bundleIdentifer == Application.currentAppBundleIdentifier() {
-          match = Application.currentApplication()
+        let match: Application? = if appFocusCommand.bundleIdentifer == Application.currentAppBundleIdentifier() {
+          Application.currentApplication()
         } else if appFocusCommand.bundleIdentifer == Application.previousAppBundleIdentifier() {
-          match = Application.previousApplication()
+          Application.previousApplication()
         } else {
-          match = applicationStore.applications.first(where: { $0.bundleIdentifier == appFocusCommand.bundleIdentifer })
+          applicationStore.applications.first(where: { $0.bundleIdentifier == appFocusCommand.bundleIdentifer })
         }
 
         kind = .bundled(
@@ -102,10 +99,10 @@ private extension Command {
                 application: match,
                 tiling: appFocusCommand.tiling,
                 hideOtherApps: appFocusCommand.hideOtherApps,
-                createNewWindow: appFocusCommand.createNewWindow
-              )
-            )
-          )
+                createNewWindow: appFocusCommand.createNewWindow,
+              ),
+            ),
+          ),
         )
       case let .tidy(tidyCommand):
         var rules = [CommandViewModel.Kind.WindowTidyModel.Rule]()
@@ -122,8 +119,8 @@ private extension Command {
           .init(
             id: bundledCommand.id,
             name: bundledCommand.name,
-            kind: .tidy(tidyModel)
-          )
+            kind: .tidy(tidyModel),
+          ),
         )
       case let .workspace(workspaceCommand):
         var applications = [CommandViewModel.Kind.WorkspaceModel.WorkspaceApplication]()
@@ -145,14 +142,14 @@ private extension Command {
           defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
           tiling: workspaceCommand.tiling,
           hideOtherApps: workspaceCommand.hideOtherApps,
-          isDynamic: workspaceCommand.isDynamic
+          isDynamic: workspaceCommand.isDynamic,
         )
         kind = .bundled(
           .init(
             id: bundledCommand.id,
             name: bundledCommand.name,
-            kind: .workspace(model)
-          )
+            kind: .workspace(model),
+          ),
         )
       }
     case let .keyboard(keyboardCommand):
@@ -218,20 +215,18 @@ private extension Command {
       let path = Bundle.main.bundleURL.path
       return .init(bundleIdentifier: path, path: path)
     case let .open(command):
-      let path: String
-      if command.isUrl {
-        path = "/System/Library/SyncServices/Schemas/Bookmarks.syncschema/Contents/Resources/com.apple.Bookmarks.icns"
+      let path: String = if command.isUrl {
+        "/System/Library/SyncServices/Schemas/Bookmarks.syncschema/Contents/Resources/com.apple.Bookmarks.icns"
       } else {
-        path = command.path
+        command.path
       }
       return .init(bundleIdentifier: path, path: path)
     case let .script(scriptCommand):
-      let path: String
-      switch scriptCommand.source {
+      let path: String = switch scriptCommand.source {
       case let .path(sourcePath):
-        path = sourcePath
+        sourcePath
       case .inline:
-        path = ""
+        ""
       }
 
       return .init(bundleIdentifier: path, path: path)
@@ -260,7 +255,7 @@ extension Workflow.Trigger {
                                                case .resignFrontMost: .resignFrontMost
                                                }
                                              })
-        }
+        },
       )
     case let .keyboardShortcuts(trigger):
       .keyboardShortcuts(.init(allowRepeat: trigger.allowRepeat,

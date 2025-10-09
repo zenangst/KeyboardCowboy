@@ -3,7 +3,7 @@ import Cocoa
 
 extension WindowAccessibilityElement {
   func convert(with container: WindowSpace.MapContainer) async -> WindowSpace.Entity? {
-    guard let pid32 = self.app?.pid else {
+    guard let pid32 = app?.pid else {
       return nil
     }
 
@@ -12,7 +12,8 @@ extension WindowAccessibilityElement {
     if let resolvedBundleIdentifier = await container.lookup(pid) {
       bundleIdentifier = resolvedBundleIdentifier
     } else if let runningApplication = NSRunningApplication(processIdentifier: pid_t(pid)),
-              let resolvedBundleIdentifier = runningApplication.bundleIdentifier {
+              let resolvedBundleIdentifier = runningApplication.bundleIdentifier
+    {
       bundleIdentifier = resolvedBundleIdentifier
     } else {
       return nil

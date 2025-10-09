@@ -56,7 +56,6 @@ struct Release3_24_0: View {
                     .init(color: Color.clear, location: 0.8),
                     .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
                   ], startPoint: .top, endPoint: .bottom)
-
                 }
             }
             .iconShape(size)
@@ -129,7 +128,6 @@ struct Release3_24_0: View {
 
             Spacer()
 
-
             VStack(alignment: .leading, spacing: 12) {
               HStack(alignment: .top, spacing: 12) {
                 MagicVarsIconView(size: 24)
@@ -142,7 +140,6 @@ struct Release3_24_0: View {
             }
 
             Spacer()
-
 
             VStack(alignment: .leading, spacing: 12) {
               HStack(alignment: .top, spacing: 12) {
@@ -187,7 +184,7 @@ struct Release3_24_0: View {
 
                     Text("Finding workflows is easier than ever with our improved filtering algorithm. Just type 'command' and watch the magic happen!")
                   }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                  .frame(maxWidth: .infinity, alignment: .leading)
                   Divider()
                 }
               }
@@ -203,17 +200,21 @@ struct Release3_24_0: View {
             Text("Special thanks to")
             SponsorView(
               imageUrl: URL(string: "https://avatars.githubusercontent.com/u/4044886?v=4")!,
-              githubHandle: "uwe-schwarz")
+              githubHandle: "uwe-schwarz",
+            )
             SponsorView(
               imageUrl: URL(string: "https://avatars.githubusercontent.com/u/4262050?v=4"),
-              githubHandle: "bjrmatos")
+              githubHandle: "bjrmatos",
+            )
             SponsorView(
               imageUrl: URL(string: "https://avatars.githubusercontent.com/u/2284279?v=4"),
-              githubHandle: "onmyway133")
+              githubHandle: "onmyway133",
+            )
             Text("and")
             SponsorView(
               imageUrl: URL(string: "https://avatars.githubusercontent.com/u/1260095?v=4"),
-              githubHandle: "andreasoverland")
+              githubHandle: "andreasoverland",
+            )
             Text("for supporting the project ❤️")
           }
           .frame(minHeight: 24)
@@ -240,7 +241,7 @@ private struct SponsorView: View {
 
   var body: some View {
     HStack(spacing: 4) {
-      AsyncImage.init(url: imageUrl) { image in
+      AsyncImage(url: imageUrl) { image in
         image
           .resizable()
           .aspectRatio(contentMode: .fit)

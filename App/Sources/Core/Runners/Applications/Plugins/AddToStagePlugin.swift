@@ -18,7 +18,7 @@ final class AddToStagePlugin {
       try await Self.activateCurrentApplication(snapshot)
 
       _ = try await Task(timeout: 5) {
-        var result: Bool = false
+        var result = false
         while result == false {
           if Self.resolveRunningApplication(command.application) != nil {
             result = true
@@ -95,7 +95,7 @@ final class AddToStagePlugin {
         mouseEventSource: nil,
         mouseType: .mouseMoved,
         mouseCursorPosition: mouseLocation,
-        mouseButton: .left
+        mouseButton: .left,
       )
       restoreMouse?.post(tap: .cghidEventTap)
     }
@@ -123,7 +123,7 @@ final class AddToStagePlugin {
       mouseEventSource: nil,
       mouseType: mouseDown,
       mouseCursorPosition: CGPoint(x: x, y: y),
-      mouseButton: .center
+      mouseButton: .center,
     )
     if let flags {
       mouseEventDown?.flags.insert(flags)
@@ -135,7 +135,7 @@ final class AddToStagePlugin {
       mouseEventSource: nil,
       mouseType: mouseUp,
       mouseCursorPosition: CGPoint(x: x, y: y),
-      mouseButton: .center
+      mouseButton: .center,
     )
 
     if let flags {
@@ -144,16 +144,17 @@ final class AddToStagePlugin {
     mouseEventUp?.post(tap: .cghidEventTap)
   }
 
-  static func findWindowOnLeft(_ window: WindowModel, axWindow: WindowAccessibilityElement, 
-                               snapshot: inout UserSpace.Snapshot) async throws -> WindowModel {
+  static func findWindowOnLeft(_ window: WindowModel, axWindow: WindowAccessibilityElement,
+                               snapshot: inout UserSpace.Snapshot) async throws -> WindowModel
+  {
     let moveMouse = CGEvent(
       mouseEventSource: nil,
       mouseType: .mouseMoved,
       mouseCursorPosition: CGPoint(
         x: 0,
-        y: window.rect.origin.y + window.rect.height / 2
+        y: window.rect.origin.y + window.rect.height / 2,
       ),
-      mouseButton: .center
+      mouseButton: .center,
     )
     moveMouse?.post(tap: .cghidEventTap)
     try await Task.sleep(for: .milliseconds(175))
@@ -163,20 +164,22 @@ final class AddToStagePlugin {
     guard let resolvedWindow = resolveWindow(withId: axWindow.id, snapshot: snapshot) else {
       throw AddToStagePluginError.windowNotFound
     }
+
     return resolvedWindow
   }
 
-  static func findWindowOnRight(_ window: WindowModel, axWindow: WindowAccessibilityElement, 
-                                snapshot: inout UserSpace.Snapshot) async throws -> WindowModel {
+  static func findWindowOnRight(_ window: WindowModel, axWindow: WindowAccessibilityElement,
+                                snapshot: inout UserSpace.Snapshot) async throws -> WindowModel
+  {
     CGEvent(mouseEventSource: nil, mouseType: .mouseMoved,
             mouseCursorPosition: CGPoint(x: 9999, y: window.rect.origin.y + window.rect.height / 2),
-            mouseButton: .center
-    )?.post(tap: .cghidEventTap)
+            mouseButton: .center)?.post(tap: .cghidEventTap)
     try await Task.sleep(for: .milliseconds(175))
     snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
-    guard let resolvedWindow = resolveWindow(withId: axWindow.id, snapshot: snapshot) else { 
+    guard let resolvedWindow = resolveWindow(withId: axWindow.id, snapshot: snapshot) else {
       throw AddToStagePluginError.windowNotFound
     }
+
     return resolvedWindow
   }
 
@@ -185,9 +188,9 @@ final class AddToStagePlugin {
   }
 
   static func resolveRunningApplication(_ application: Application) -> NSRunningApplication? {
-    return NSWorkspace.shared.runningApplications.first(where: { runningApplication in
+    NSWorkspace.shared.runningApplications.first(where: { runningApplication in
       runningApplication.bundleIdentifier == application.bundleIdentifier &&
-      runningApplication.isFinishedLaunching
+        runningApplication.isFinishedLaunching
     })
   }
 }

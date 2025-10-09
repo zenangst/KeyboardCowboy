@@ -23,12 +23,11 @@ struct WorkflowOuputView: View {
           Spacer()
           Text("✅")
         }
-
       }
       .padding()
       .background(
         RoundedRectangle(cornerRadius: 8)
-          .stroke(Color(.windowFrameTextColor).opacity(0.2), lineWidth: 2)
+          .stroke(Color(.windowFrameTextColor).opacity(0.2), lineWidth: 2),
       )
     }
     .padding()

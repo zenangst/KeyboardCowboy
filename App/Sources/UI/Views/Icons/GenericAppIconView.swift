@@ -25,8 +25,8 @@ struct GenericAppIconView: View {
             .init(color: primaryColor.blended(withFraction: 0.6, of: .black), location: 1.0),
           ],
           startPoint: .top,
-          endPoint: .bottom
-        )
+          endPoint: .bottom,
+        ),
       )
       .overlay { iconOverlay().opacity(0.25) }
       .overlay { iconBorder(size) }

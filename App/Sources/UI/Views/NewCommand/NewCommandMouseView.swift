@@ -8,7 +8,7 @@ struct NewCommandMouseView: View {
 
   var body: some View {
     Text("Mouse Command")
-      .font(.system(.body, design: .rounded,weight: .semibold))
+      .font(.system(.body, design: .rounded, weight: .semibold))
       .allowsTightening(true)
       .lineLimit(1)
       .foregroundColor(Color.secondary)
@@ -39,7 +39,7 @@ struct NewCommandMouseView: View {
       }, label: {
         Text(selection.displayValue)
       })
-      .onChange(of: selection, perform: { value in
+      .onChange(of: selection, perform: { _ in
         payload = .mouse(kind: selection)
       })
       .onAppear {
@@ -59,7 +59,8 @@ struct NewCommandMouseView_Previews: PreviewProvider {
       selection: .mouse,
       payload: .placeholder,
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

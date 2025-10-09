@@ -27,9 +27,9 @@ enum NewCommandPayload: Equatable {
     switch self {
     case .placeholder:
       return "Placeholder"
-    case .builtIn(let command):
+    case let .builtIn(command):
       return command.kind.displayValue
-    case .script(_, let kind, let scriptExtension):
+    case let .script(_, kind, scriptExtension):
       switch scriptExtension {
       case .appleScript:
         return switch kind {
@@ -42,44 +42,44 @@ enum NewCommandPayload: Equatable {
         case .source: "Run Shell Script"
         }
       }
-    case .application(let application, let action, _, _, _, _, _):
+    case let .application(application, action, _, _, _, _, _):
       return switch action {
-      case .open:   "Open \(application?.displayName ?? "Application")"
-      case .close:  "Close \(application?.displayName ?? "Application")"
-      case .hide:   "Hide \(application?.displayName ?? "Application")"
+      case .open: "Open \(application?.displayName ?? "Application")"
+      case .close: "Close \(application?.displayName ?? "Application")"
+      case .hide: "Hide \(application?.displayName ?? "Application")"
       case .unhide: "Unhide \(application?.displayName ?? "Application")"
-      case .peek:   "Peek at \(application?.displayName ?? "Application")"
+      case .peek: "Peek at \(application?.displayName ?? "Application")"
       }
-    case .url(let targetUrl, let application):
+    case let .url(targetUrl, application):
       return if let application {
         "Open URL \(targetUrl.absoluteString) with \(application.displayName)"
       } else {
         "Open URL \(targetUrl.absoluteString)"
       }
-    case .open(let path, let application):
+    case let .open(path, application):
       return if let application {
         "Open \(path) with \(application.displayName)"
       } else {
         "Open \(path)"
       }
-    case .shortcut(let name):
+    case let .shortcut(name):
       return "Run Shortcut '\(name)'"
-    case .keyboardShortcut(let keyboardShortcuts):
-      var keyboardShortcutString: String = "Run "
+    case let .keyboardShortcut(keyboardShortcuts):
+      var keyboardShortcutString = "Run "
       for keyboardShortcut in keyboardShortcuts {
         keyboardShortcutString.append(keyboardShortcut.stringValue)
       }
       return keyboardShortcutString
-    case .inputSource:      return "Input Source"
-    case .text:             return "Text editing"
-    case .systemCommand:    return "System Command"
-    case .menuBar:          return "MenuBar Command"
+    case .inputSource: return "Input Source"
+    case .text: return "Text editing"
+    case .systemCommand: return "System Command"
+    case .menuBar: return "MenuBar Command"
     case .windowManagement: return "Window Management Command"
-    case .mouse:            return "Mouse Command"
-    case .uiElement:        return "UI Element Command"
-    case .bundled:          return "Bundled Command"
-    case .windowFocus:      return "Window Focus Command"
-    case .windowTiling:     return "Window Tiling Command"
+    case .mouse: return "Mouse Command"
+    case .uiElement: return "UI Element Command"
+    case .bundled: return "Bundled Command"
+    case .windowFocus: return "Window Focus Command"
+    case .windowTiling: return "Window Tiling Command"
     }
   }
 }

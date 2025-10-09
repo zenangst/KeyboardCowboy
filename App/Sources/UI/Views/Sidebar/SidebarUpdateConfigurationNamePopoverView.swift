@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct SidebarUpdateConfigurationNamePopoverView: View {
   @Binding private var updateConfigurationNamePopover: Bool
@@ -8,7 +8,8 @@ struct SidebarUpdateConfigurationNamePopoverView: View {
 
   init(_ updateConfigurationNamePopover: Binding<Bool>,
        configurationName: Binding<String>,
-       onAction: @escaping (String) -> Void) {
+       onAction: @escaping (String) -> Void)
+  {
     _configurationName = configurationName
     _updateConfigurationNamePopover = updateConfigurationNamePopover
     self.onAction = onAction
@@ -38,7 +39,7 @@ struct SidebarUpdateConfigurationNamePopoverView: View {
 struct SidebarUpdateConfigurationNamePopoverView_Previews: PreviewProvider {
   static var previews: some View {
     SidebarUpdateConfigurationNamePopoverView(.constant(true),
-                                               configurationName: .constant("Default"),
-                                               onAction: { _ in })
+                                              configurationName: .constant("Default"),
+                                              onAction: { _ in })
   }
 }

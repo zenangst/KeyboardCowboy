@@ -1,6 +1,6 @@
 import Apps
-import Inject
 import Bonzai
+import Inject
 import SwiftUI
 
 struct NewCommandWorkspaceView: View {
@@ -18,7 +18,8 @@ struct NewCommandWorkspaceView: View {
   init(validation: Binding<NewCommandValidation>,
        onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        onSelectedAppsChange: @escaping ([WorkspaceApplicationItem]) -> Void,
-       onHideOtherAppsChange: @escaping (Bool) -> Void) {
+       onHideOtherAppsChange: @escaping (Bool) -> Void)
+  {
     _validation = validation
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange
@@ -30,23 +31,23 @@ struct NewCommandWorkspaceView: View {
       Text("Applications")
         .font(.subheadline)
 
-        Menu {
-          ForEach(applicationStore.applications) { application in
-            Button(action: {
-              selectedApps.append(WorkspaceApplicationItem(application))
-              onSelectedAppsChange(selectedApps)
-            },
-                   label: { Text(application.displayName) })
-          }
-        } label: {
-          Text("Add Application")
+      Menu {
+        ForEach(applicationStore.applications) { application in
+          Button(action: {
+                   selectedApps.append(WorkspaceApplicationItem(application))
+                   onSelectedAppsChange(selectedApps)
+                 },
+                 label: { Text(application.displayName) })
         }
+      } label: {
+        Text("Add Application")
+      }
 
       CompatList {
         ForEach(Array(zip(selectedApps.indices, selectedApps)), id: \.0) { offset, item in
           VStack(spacing: 8) {
             HStack {
-              IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
+              IconView(icon: Icon(item.application), size: CGSize(width: 18, height: 18))
               Text(item.application.displayName)
                 .frame(maxWidth: .infinity, alignment: .leading)
               Button {
@@ -115,7 +116,7 @@ struct WorkspaceApplicationItem {
   }
 }
 
-fileprivate extension WorkspaceCommand.Tiling {
+private extension WorkspaceCommand.Tiling {
   var name: String {
     switch self {
     case .arrangeLeftRight: "Left & Right"

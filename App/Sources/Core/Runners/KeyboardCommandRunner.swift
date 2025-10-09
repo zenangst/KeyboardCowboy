@@ -1,7 +1,7 @@
-import Foundation
-import MachPort
 import CoreGraphics
+import Foundation
 import KeyCodes
+import MachPort
 
 enum KeyboardCommandRunnerError: Error {
   case failedToResolveMachPortController
@@ -15,7 +15,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
   var machPort: MachPortEventController?
   let store: KeyCodesStore
 
-  internal init(store: KeyCodesStore) {
+  init(store: KeyCodesStore) {
     self.store = store
   }
 
@@ -30,7 +30,8 @@ final class KeyboardCommandRunner: @unchecked Sendable {
            originalEvent: CGEvent? = nil,
            iterations: Int,
            isRepeating: Bool = false,
-           with eventSource: CGEventSource?) async throws -> [CGEvent] {
+           with _: CGEventSource?) async throws -> [CGEvent]
+  {
     guard let machPort else {
       throw KeyboardCommandRunnerError.failedToResolveMachPortController
     }
@@ -40,7 +41,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
     var events = [CGEvent]()
     let count = keyboardShortcuts.count
 
-    for _ in 1...iterations {
+    for _ in 1 ... iterations {
       for keyboardShortcut in keyboardShortcuts {
         do {
           let key = try resolveKey(for: keyboardShortcut.key)
@@ -55,7 +56,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           }
 
           let shouldPostKeyDown = originalEvent == nil || originalEvent?.type == .keyDown
-          let shouldPostKeyUp = originalEvent == nil   || (!isRepeat && originalEvent?.type == .keyUp)
+          let shouldPostKeyUp = originalEvent == nil || (!isRepeat && originalEvent?.type == .keyUp)
 
           if shouldPostKeyDown {
             let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
@@ -66,7 +67,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
             let keyUp = try machPort.post(key, type: .keyUp, flags: flags, configure: configureEvent)
             events.append(keyUp)
           }
-        } catch let error {
+        } catch {
           throw error
         }
       }
@@ -96,7 +97,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
       flags.insert(CGEventFlags(rawValue: 8))
     }
 
-    let arrowKeys: ClosedRange<Int> = 123...126
+    let arrowKeys: ClosedRange<Int> = 123 ... 126
     if arrowKeys.contains(keyCode) {
       flags.insert(.maskNumericPad)
     }

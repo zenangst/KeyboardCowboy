@@ -25,7 +25,7 @@ final class PermissionsSettings: NSObject, NSWindowDelegate {
     self.window = window
   }
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
   }
 }

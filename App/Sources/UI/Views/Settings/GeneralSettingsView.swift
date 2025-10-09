@@ -25,7 +25,7 @@ struct GeneralSettingsView: View {
           SettingsIcon(NSColor.orange, symbolName: "menubar.arrow.up.rectangle")
           Text("Show menu bar icon")
             .frame(maxWidth: .infinity, alignment: .leading)
-          Toggle(isOn: $showMenuBarIcon) { }
+          Toggle(isOn: $showMenuBarIcon) {}
         }
         .padding(8)
       }

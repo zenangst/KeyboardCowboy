@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct GroupDetailAddButton: View {
   @EnvironmentObject private var contentPublisher: GroupDetailPublisher

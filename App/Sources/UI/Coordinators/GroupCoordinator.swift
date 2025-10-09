@@ -10,37 +10,39 @@ final class GroupCoordinator {
   private let mapper: GroupDetailViewModelMapper
   private let store: GroupStore
 
-  let groupPublisher: GroupPublisher = GroupPublisher(
+  let groupPublisher: GroupPublisher = .init(
     .init(id: UUID().uuidString, name: "", icon: nil,
           color: "", symbol: "", bundleIdentifiers: [], userModes: [],
-          count: 0, isDisabled: false)
+          count: 0, isDisabled: false),
   )
-  let contentPublisher: GroupDetailPublisher = GroupDetailPublisher()
+  let contentPublisher: GroupDetailPublisher = .init()
 
   init(_ store: GroupStore,
        applicationStore: ApplicationStore,
        groupSelectionManager: SelectionManager<GroupViewModel>,
-       workflowsSelectionManager: SelectionManager<GroupDetailViewModel>) {
+       workflowsSelectionManager: SelectionManager<GroupDetailViewModel>)
+  {
     self.applicationStore = applicationStore
     self.store = store
     self.groupSelectionManager = groupSelectionManager
-    self.mapper = GroupDetailViewModelMapper()
+    mapper = GroupDetailViewModelMapper()
     self.workflowsSelectionManager = workflowsSelectionManager
   }
 
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .refresh, .openScene, .addConfiguration, .updateConfiguration,
-        .moveGroups, .removeGroups, .deleteConfiguration, .userMode:
+         .moveGroups, .removeGroups, .deleteConfiguration, .userMode:
       // NOOP
       break
     case .moveWorkflows, .copyWorkflows:
       render(groupSelectionManager.selections)
     case .selectConfiguration:
       render(groupSelectionManager.selections, calculateSelections: true)
-    case .selectGroups(let ids):
+    case let .selectGroups(ids):
       if let id = ids.first,
-         let firstGroup = store.group(withId: id) {
+         let firstGroup = store.group(withId: id)
+      {
         let group = SidebarMapper.map(firstGroup, applicationStore: applicationStore)
         groupPublisher.publish(group)
       }
@@ -48,7 +50,7 @@ final class GroupCoordinator {
       let shouldRemoveLastSelection = !contentPublisher.data.isEmpty
       handle(.refresh(ids))
 
-      if shouldRemoveLastSelection && ids.count == 1 && ids.first != groupPublisher.data.id {
+      if shouldRemoveLastSelection, ids.count == 1, ids.first != groupPublisher.data.id {
         if let firstId = contentPublisher.data.first?.id {
           workflowsSelectionManager.setLastSelection(firstId)
         } else {
@@ -69,9 +71,9 @@ final class GroupCoordinator {
 
   func handle(_ context: EditWorfklowGroupView.Context) {
     switch context {
-    case .add(let workflowGroup):
+    case let .add(workflowGroup):
       render([workflowGroup.id])
-    case .edit(let workflowGroup):
+    case let .edit(workflowGroup):
       let workflowGroup = SidebarMapper.map(workflowGroup, applicationStore: applicationStore)
       groupPublisher.publish(workflowGroup)
       render([workflowGroup.id])
@@ -87,10 +89,11 @@ final class GroupCoordinator {
       action,
       groupStore: store,
       selectionManager: workflowsSelectionManager,
-      group: &group)
+      group: &group,
+    )
 
     switch action {
-    case .addWorkflow(let id):
+    case let .addWorkflow(id):
       store.updateGroups([group])
       withAnimation {
         render([group.id], selectionOverrides: [id])
@@ -98,7 +101,7 @@ final class GroupCoordinator {
       NotificationCenter.default.post(.newWorkflow)
     case .selectWorkflow:
       break
-    case .refresh(let ids):
+    case let .refresh(ids):
       render(ids, calculateSelections: true)
     default:
       store.updateGroups([group])
@@ -110,7 +113,8 @@ final class GroupCoordinator {
 
   private func render(_ groupIds: Set<GroupViewModel.ID>,
                       calculateSelections: Bool = false,
-                      selectionOverrides: Set<Workflow.ID>? = nil) {
+                      selectionOverrides: Set<Workflow.ID>? = nil)
+  {
     Benchmark.shared.start("ContentCoordinator.render")
     defer { Benchmark.shared.stop("ContentCoordinator.render") }
 
@@ -132,9 +136,10 @@ final class GroupCoordinator {
 
           viewModels.append(viewModel)
 
-          if calculateSelections &&
-              !selectedWorkflowIds.isEmpty &&
-              selectedWorkflowIds.contains(viewModel.id) {
+          if calculateSelections,
+             !selectedWorkflowIds.isEmpty,
+             selectedWorkflowIds.contains(viewModel.id)
+          {
             selectedWorkflowIds.remove(viewModel.id)
             newSelections.insert(viewModel.id)
           }

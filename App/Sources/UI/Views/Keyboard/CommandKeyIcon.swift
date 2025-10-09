@@ -32,8 +32,8 @@ struct CommandKeyIcon: View {
 struct CommandKeyIcon_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
-    CommandKeyIcon()
-      .frame(width: 128, height: 128)
+      CommandKeyIcon()
+        .frame(width: 128, height: 128)
     }.background(Color.white)
   }
 }

@@ -1,6 +1,6 @@
 import AXEssibility
-@preconcurrency import Inject
 import Cocoa
+@preconcurrency import Inject
 import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -9,7 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
   // MARK: NSApplicationDelegate
 
-  func applicationDidFinishLaunching(_ aNotification: Notification) {
+  func applicationDidFinishLaunching(_: Notification) {
     NSApp.appearance = NSAppearance(named: .darkAqua)
     InjectConfiguration.animation = .spring()
 
@@ -24,7 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 //    }
   }
 
-  func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+  func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows: Bool) -> Bool {
     if !hasVisibleWindows {
       openWindow?.openMainWindow()
     }

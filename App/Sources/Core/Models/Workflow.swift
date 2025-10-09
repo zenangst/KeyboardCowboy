@@ -45,8 +45,8 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         throw DecodingError.dataCorrupted(
           DecodingError.Context(
             codingPath: container.codingPath,
-            debugDescription: "Unabled to decode enum."
-          )
+            debugDescription: "Unabled to decode enum.",
+          ),
         )
       }
     }
@@ -54,25 +54,25 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       switch self {
-      case .application(let trigger):
+      case let .application(trigger):
         try container.encode(trigger, forKey: .application)
-      case .keyboardShortcuts(let keyboardShortcuts):
+      case let .keyboardShortcuts(keyboardShortcuts):
         try container.encode(keyboardShortcuts, forKey: .keyboardShortcuts)
-      case .modifier(let modifierTrigger):
+      case let .modifier(modifierTrigger):
         try container.encode(modifierTrigger, forKey: .modifier)
-      case .snippet(let trigger):
+      case let .snippet(trigger):
         try container.encode(trigger, forKey: .snippet)
       }
     }
 
-    static func ==(lhs: Trigger, rhs: Trigger) -> Bool {
+    static func == (lhs: Trigger, rhs: Trigger) -> Bool {
       switch (lhs, rhs) {
-      case (.application(let lhsTriggers), .application(let rhsTriggers)):
-        return lhsTriggers == rhsTriggers
-      case (.keyboardShortcuts(let lhsShortcuts), .keyboardShortcuts(let rhsShortcuts)):
-        return lhsShortcuts == rhsShortcuts
+      case let (.application(lhsTriggers), .application(rhsTriggers)):
+        lhsTriggers == rhsTriggers
+      case let (.keyboardShortcuts(lhsShortcuts), .keyboardShortcuts(rhsShortcuts)):
+        lhsShortcuts == rhsShortcuts
       default:
-        return false
+        false
       }
     }
   }
@@ -83,10 +83,10 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   }
 
   private(set) var id: String
-  var commands: [Command]  { didSet { generateMachPortComponents() } }
-  var trigger: Trigger?  { didSet { generateMachPortComponents() } }
+  var commands: [Command] { didSet { generateMachPortComponents() } }
+  var trigger: Trigger? { didSet { generateMachPortComponents() } }
   var isEnabled: Bool { !isDisabled }
-  var isDisabled: Bool = false  { didSet { generateMachPortComponents() } }
+  var isDisabled: Bool = false { didSet { generateMachPortComponents() } }
   var name: String
   var execution: Execution { didSet { generateMachPortComponents() } }
 
@@ -101,19 +101,20 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
        trigger: Trigger? = nil,
        execution: Execution = .concurrent,
        isEnabled: Bool = true,
-       commands: [Command] = []) {
+       commands: [Command] = [])
+  {
     self.id = id
     self.commands = commands
     self.trigger = trigger
     self.name = name
-    self.isDisabled = !isEnabled
+    isDisabled = !isEnabled
     self.execution = execution
-    self.machPortConditions = MachPortConditions(
+    machPortConditions = MachPortConditions(
       id: id,
       trigger: trigger,
       execution: execution,
       isEnabled: !isDisabled,
-      commands: commands
+      commands: commands,
     )
   }
 
@@ -122,13 +123,13 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     clone.id = UUID().uuidString
 
     switch clone.trigger {
-    case .application(let array):
+    case let .application(array):
       clone.trigger = .application(array.map { $0.copy() })
-    case .keyboardShortcuts(let keyboardShortcutTrigger):
+    case let .keyboardShortcuts(keyboardShortcutTrigger):
       clone.trigger = .keyboardShortcuts(keyboardShortcutTrigger.copy())
-    case .modifier(let modifierTrigger):
+    case let .modifier(modifierTrigger):
       clone.trigger = .modifier(modifierTrigger.copy())
-    case .snippet(let trigger):
+    case let .snippet(trigger):
       clone.trigger = .snippet(trigger.copy())
     case .none:
       break
@@ -161,11 +162,11 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     let trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
 
     if let isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) {
-      self.isDisabled = !isEnabled
+      isDisabled = !isEnabled
     } else if let isDisabled = try container.decodeIfPresent(Bool.self, forKey: .isDisabled) {
       self.isDisabled = isDisabled
     } else {
-      self.isDisabled = false
+      isDisabled = false
     }
 
     self.id = id
@@ -173,12 +174,12 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.commands = commands
     self.execution = execution
     self.trigger = trigger
-    self.machPortConditions = MachPortConditions(
+    machPortConditions = MachPortConditions(
       id: id,
       trigger: trigger,
       execution: execution,
       isEnabled: !isDisabled,
-      commands: commands
+      commands: commands,
     )
   }
 
@@ -192,7 +193,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     }
 
     // Trigger takes precedence over keyboard shortcuts.
-    if let trigger = trigger {
+    if let trigger {
       try container.encode(trigger, forKey: .trigger)
     }
 
@@ -210,7 +211,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   }
 
   private mutating func generateMachPortComponents() {
-    self.machPortConditions = MachPortConditions.from(self)
+    machPortConditions = MachPortConditions.from(self)
   }
 
   struct MachPortConditions: Hashable {
@@ -229,64 +230,66 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     let scheduleDuration: Double?
     let shouldRunOnKeyUp: Bool
 
-    init(id: String, trigger: Trigger?, execution: Execution,
-         isEnabled: Bool, commands: [Command]) {
+    init(id _: String, trigger: Trigger?, execution _: Execution,
+         isEnabled _: Bool, commands: [Command])
+    {
       let enabledCommands = commands.filter(\.isEnabled)
       self.enabledCommands = enabledCommands
-      self.enabledCommandsCount = enabledCommands.count
-      self.hasHoldForDelay = trigger.hasHoldForDelay
-      self.isEmpty = enabledCommands.isEmpty
-      self.isPassthrough = trigger.isPassthrough
-      self.isValidForRepeat = enabledCommands.isValidForRepeat
-      
-      if case .keyboardShortcuts(let trigger) = trigger {
-        self.lastKeyIsAnyKey = KeyShortcut.anyKey.key == trigger.shortcuts.last?.key
-        self.keyboardShortcutsTriggerCount = trigger.shortcuts.count
-        self.allowRepeat = trigger.allowRepeat
-        self.keepLastPartialMatch = trigger.keepLastPartialMatch
-        self.isLeaderKey = trigger.leaderKey
+      enabledCommandsCount = enabledCommands.count
+      hasHoldForDelay = trigger.hasHoldForDelay
+      isEmpty = enabledCommands.isEmpty
+      isPassthrough = trigger.isPassthrough
+      isValidForRepeat = enabledCommands.isValidForRepeat
+
+      if case let .keyboardShortcuts(trigger) = trigger {
+        lastKeyIsAnyKey = KeyShortcut.anyKey.key == trigger.shortcuts.last?.key
+        keyboardShortcutsTriggerCount = trigger.shortcuts.count
+        allowRepeat = trigger.allowRepeat
+        keepLastPartialMatch = trigger.keepLastPartialMatch
+        isLeaderKey = trigger.leaderKey
 
         if let holdDuration = trigger.holdDuration, trigger.shortcuts.count == 1, holdDuration > 0 {
-          self.scheduleDuration = holdDuration
+          scheduleDuration = holdDuration
         } else {
-          self.scheduleDuration = nil
+          scheduleDuration = nil
         }
       } else {
-        self.isLeaderKey = false
-        self.allowRepeat = true
-        self.keepLastPartialMatch = false
-        self.keyboardShortcutsTriggerCount = nil
-        self.lastKeyIsAnyKey = false
-        self.scheduleDuration = nil
+        isLeaderKey = false
+        allowRepeat = true
+        keepLastPartialMatch = false
+        keyboardShortcutsTriggerCount = nil
+        lastKeyIsAnyKey = false
+        scheduleDuration = nil
       }
 
-      self.shouldRunOnKeyUp = enabledCommands.allSatisfy({ command in
+      shouldRunOnKeyUp = enabledCommands.allSatisfy { command in
         switch command {
-        case .application(let command):
-          return command.action == .peek
-        case .systemCommand(let command):
-          return command.kind == .activateLastApplication
-        case .bundled(let command):
+        case let .application(command):
+          command.action == .peek
+        case let .systemCommand(command):
+          command.kind == .activateLastApplication
+        case let .bundled(command):
           switch command.kind {
           case .activatePreviousWorkspace:
-            return true
+            true
           default:
-            return false
+            false
           }
-        default: return false
+        default: false
         }
-      })
+      }
 
-      if case .keyboardShortcuts(let shortcut) = trigger,
+      if case let .keyboardShortcuts(shortcut) = trigger,
          shortcut.shortcuts.count == 1,
          commands.count == 1,
-         case .keyboard(let keyboardCommand) = commands.first,
-         case .key(let keyboardCommand) = keyboardCommand.kind,
+         case let .keyboard(keyboardCommand) = commands.first,
+         case let .key(keyboardCommand) = keyboardCommand.kind,
          keyboardCommand.keyboardShortcuts.count == 1,
-         let keyboardShortcut = keyboardCommand.keyboardShortcuts.last {
-        self.rebinding = keyboardShortcut
+         let keyboardShortcut = keyboardCommand.keyboardShortcuts.last
+      {
+        rebinding = keyboardShortcut
       } else {
-        self.rebinding = nil
+        rebinding = nil
       }
     }
 
@@ -296,13 +299,13 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         trigger: workflow.trigger,
         execution: workflow.execution,
         isEnabled: !workflow.isDisabled,
-        commands: workflow.commands
+        commands: workflow.commands,
       )
     }
   }
 }
 
-private extension Collection where Element == Command {
+private extension Collection<Command> {
   var isValidForRepeat: Bool {
     allSatisfy { element in
       switch element {
@@ -318,7 +321,7 @@ private extension Workflow.Trigger? {
     switch self {
     case .application: false
     case .snippet: true
-    case .keyboardShortcuts(let trigger): trigger.passthrough
+    case let .keyboardShortcuts(trigger): trigger.passthrough
     case .modifier: false
     case .none: false
     }
@@ -326,15 +329,15 @@ private extension Workflow.Trigger? {
 
   var hasHoldForDelay: Bool {
     switch self {
-    case .none: return false
-    case .application: return false
-    case .snippet: return false
-    case .modifier: return false
-    case .keyboardShortcuts(let trigger):
+    case .none: false
+    case .application: false
+    case .snippet: false
+    case .modifier: false
+    case let .keyboardShortcuts(trigger):
       if let holdDurtion = trigger.holdDuration, holdDurtion > 0 {
-        return true
+        true
       } else {
-        return false
+        false
       }
     }
   }
@@ -347,7 +350,7 @@ extension Workflow {
       name: "Untitled workflow",
       trigger: nil,
       execution: .serial,
-      commands: []
+      commands: [],
     )
   }
 
@@ -355,40 +358,40 @@ extension Workflow {
     Workflow(id: UUID().uuidString,
              name: "Workflow name",
              trigger: trigger,
-    commands: [
-      Command.empty(.application),
-      Command.empty(.builtIn),
-      Command.empty(.keyboard),
-      Command.empty(.open),
-      Command.empty(.script),
-    ])
+             commands: [
+               Command.empty(.application),
+               Command.empty(.builtIn),
+               Command.empty(.keyboard),
+               Command.empty(.open),
+               Command.empty(.script),
+             ])
   }
 }
 
 extension Workflow {
   func resolveUserEnvironment() -> Bool {
-    var result: Bool = false
+    var result = false
     let keywords = UserSpace.EnvironmentKey.allCases
       .map(\.asTextVariable)
 
     for command in commands {
       switch command {
-      case .application, .builtIn, .mouse, 
+      case .application, .builtIn, .mouse,
            .keyboard, .menuBar, .shortcut, .bundled,
            .systemCommand, .uiElement, .windowFocus, .windowManagement, .windowTiling:
         result = false
-      case .open(let openCommand):
+      case let .open(openCommand):
         result = openCommand.path.contains(keywords)
-      case .script(let scriptCommand):
+      case let .script(scriptCommand):
         switch scriptCommand.source {
-        case .path(let string):
+        case let .path(string):
           result = string.contains(keywords)
-        case .inline(let string):
+        case let .inline(string):
           result = string.contains(keywords)
         }
-      case .text(let textCommand):
+      case let .text(textCommand):
         switch textCommand.kind {
-        case .insertText(let typeCommand):
+        case let .insertText(typeCommand):
           result = typeCommand.input.contains(keywords)
         }
       }
@@ -401,12 +404,11 @@ extension Workflow {
 
 private extension String {
   func contains(_ keywords: [String]) -> Bool {
-    var result: Bool = false
+    var result = false
     for keyword in keywords {
-      result = self.contains(keyword)
+      result = contains(keyword)
       if result { break }
     }
     return result
   }
 }
-

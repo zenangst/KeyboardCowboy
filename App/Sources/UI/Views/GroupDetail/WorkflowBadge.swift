@@ -6,7 +6,7 @@ struct WorkflowBadge: View {
   private let badgeOpacity: Double
 
   init(isHovered: Binding<Bool>, text: String, badgeOpacity: Double) {
-    self._isHovered = isHovered
+    _isHovered = isHovered
     self.text = text
     self.badgeOpacity = badgeOpacity
   }
@@ -23,7 +23,7 @@ struct WorkflowBadge: View {
       .padding(2)
       .background(
         Circle()
-          .fill(Color.accentColor)
+          .fill(Color.accentColor),
       )
       .frame(maxWidth: 12)
       .compositingGroup()
@@ -32,4 +32,3 @@ struct WorkflowBadge: View {
       .animation(.default, value: isHovered)
   }
 }
-

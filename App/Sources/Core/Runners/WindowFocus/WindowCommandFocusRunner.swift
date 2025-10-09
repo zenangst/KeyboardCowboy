@@ -67,7 +67,7 @@ final class WindowCommandFocusRunner {
         kind: command.kind,
         snapshot: snapshot.windows,
         applicationStore: applicationStore,
-        workspace: workspace
+        workspace: workspace,
       )
     }
   }

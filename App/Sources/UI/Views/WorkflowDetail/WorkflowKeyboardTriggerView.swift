@@ -23,7 +23,8 @@ struct WorkflowKeyboardTriggerView: View {
        workflowId: String,
        focus: FocusState<AppFocus?>.Binding,
        trigger: DetailViewModel.KeyboardTrigger,
-       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>) {
+       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>)
+  {
     self.namespace = namespace
     self.workflowId = workflowId
     self.focus = focus
@@ -53,7 +54,8 @@ struct WorkflowKeyboardTriggerView: View {
               leaderKey: leaderKey,
               passthrough: passthrough,
               holdDuration: holdForDuration == 0 ? nil : holdForDuration,
-              shortcuts: keyboardShortcuts))
+              shortcuts: keyboardShortcuts,
+            ))
         }
       }
 
@@ -68,7 +70,8 @@ struct WorkflowKeyboardTriggerView: View {
                   leaderKey: leaderKey,
                   passthrough: passthrough,
                   holdDuration: holdForDuration == 0 ? nil : holdForDuration,
-                  shortcuts: trigger.shortcuts))
+                  shortcuts: trigger.shortcuts,
+                ))
             }
           })
 
@@ -84,7 +87,8 @@ struct WorkflowKeyboardTriggerView: View {
                 leaderKey: leaderKey,
                 passthrough: passthrough,
                 holdDuration: holdForDuration == 0 ? nil : holdForDuration,
-                shortcuts: trigger.shortcuts))
+                shortcuts: trigger.shortcuts,
+              ))
           }
         })
 
@@ -98,7 +102,8 @@ struct WorkflowKeyboardTriggerView: View {
                   leaderKey: leaderKey,
                   passthrough: newValue,
                   holdDuration: holdForDuration == 0 ? nil : holdForDuration,
-                  shortcuts: trigger.shortcuts))
+                  shortcuts: trigger.shortcuts,
+                ))
             }
           })
 
@@ -112,7 +117,8 @@ struct WorkflowKeyboardTriggerView: View {
                   leaderKey: newValue,
                   passthrough: passthrough,
                   holdDuration: newValue ? nil : holdForDuration,
-                  shortcuts: trigger.shortcuts))
+                  shortcuts: trigger.shortcuts,
+                ))
             }
           })
         Spacer()
@@ -121,8 +127,8 @@ struct WorkflowKeyboardTriggerView: View {
           Spacer()
           if holdForDuration > 0 {
             Text(trigger.shortcuts.count == 1
-                 ? "Hold for"
-                 : "Become modifier after")
+              ? "Hold for"
+              : "Become modifier after")
           }
 
           DoubleSlider(
@@ -130,7 +136,8 @@ struct WorkflowKeyboardTriggerView: View {
             placeholderText: trigger.shortcuts.count == 1 ? "Add Delay" : "Create Modifier",
             min: 0.08, max: 1.0, step: 0.01, label: {
               Text("Will update all related sequences with matching values.")
-            })
+            },
+          )
           .onChange(of: holdForDuration) { newValue in
             updater.modifyWorkflow(using: transaction) { workflow in
               workflow.trigger = .keyboardShortcuts(
@@ -140,7 +147,8 @@ struct WorkflowKeyboardTriggerView: View {
                   leaderKey: leaderKey,
                   passthrough: passthrough,
                   holdDuration: newValue == 0 ? nil : newValue,
-                  shortcuts: trigger.shortcuts))
+                  shortcuts: trigger.shortcuts,
+                ))
             }
           }
           if holdForDuration > 0 {
@@ -153,7 +161,7 @@ struct WorkflowKeyboardTriggerView: View {
       .environment(\.toggleFont, .caption)
     }
     .onChange(of: publisher.data, perform: { newValue in
-      guard case .keyboardShortcuts(let trigger) = newValue,
+      guard case let .keyboardShortcuts(trigger) = newValue,
             trigger != self.trigger else { return }
 
       self.trigger = trigger
@@ -188,10 +196,10 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
         leaderKey: false,
         passthrough: false,
         shortcuts: [
-          .empty()
-        ]
+          .empty(),
+        ],
       ),
-      keyboardShortcutSelectionManager: .init()
+      keyboardShortcutSelectionManager: .init(),
     )
     .designTime()
     .padding()

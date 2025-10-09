@@ -20,6 +20,6 @@ public protocol RunningApplication {
 
 extension NSRunningApplication: @unchecked @retroactive Sendable, RunningApplication {
   public static var currentApp: RunningApplication {
-    return NSRunningApplication.current
+    NSRunningApplication.current
   }
 }

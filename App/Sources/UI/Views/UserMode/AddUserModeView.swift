@@ -23,7 +23,6 @@ struct AddUserModeView: View {
   }
 }
 
-
 #Preview {
   AddUserModeView(action: { _ in })
 }

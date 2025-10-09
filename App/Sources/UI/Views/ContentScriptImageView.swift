@@ -13,12 +13,12 @@ struct ContentScriptImageView: View {
       IconView(
         icon: .init(
           bundleIdentifier: "/System/Applications/Utilities/Script Editor.app",
-          path: "/System/Applications/Utilities/Script Editor.app"
+          path: "/System/Applications/Utilities/Script Editor.app",
         ),
-        size: .init(width: size, height: size)
+        size: .init(width: size, height: size),
       )
-        .aspectRatio(1, contentMode: .fill)
-        .frame(width: 32)
+      .aspectRatio(1, contentMode: .fill)
+      .frame(width: 32)
     }
   }
 }

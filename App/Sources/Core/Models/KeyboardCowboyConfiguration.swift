@@ -44,25 +44,23 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
       id: UUID().uuidString,
       name: "Untitled Configuration",
       userModes: [],
-      groups: []
+      groups: [],
     )
   }
 
   static func `default`() -> KeyboardCowboyConfiguration {
-    let editorWorkflow: Workflow
-
-    if !NSWorkspace.shared.urlsForApplications(withBundleIdentifier: "com.apple.dt.Xcode").isEmpty {
-      editorWorkflow = Workflow(
+    let editorWorkflow = if !NSWorkspace.shared.urlsForApplications(withBundleIdentifier: "com.apple.dt.Xcode").isEmpty {
+      Workflow(
         name: "Switch to Xcode",
         trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "E", modifiers: [.function])])),
         commands: [
           .application(
-            .init(application: .xcode())
+            .init(application: .xcode()),
           ),
-        ]
+        ],
       )
     } else {
-      editorWorkflow = Workflow(
+      Workflow(
         name: "Switch to TextEdit",
         trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "E", modifiers: [.function])])),
         commands: [
@@ -70,9 +68,9 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
             .init(application: .init(bundleIdentifier: "com.apple.TextEdit",
                                      bundleName: "TextEdit",
                                      displayName: "TextEdit",
-                                     path: "/System/Applications/TextEdit.app"))
+                                     path: "/System/Applications/TextEdit.app")),
           ),
-        ]
+        ],
       )
     }
 
@@ -87,9 +85,9 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
             trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "F", modifiers: [.function])])),
             commands: [
               .application(
-                .init(application: .finder())
+                .init(application: .finder()),
               ),
-            ]
+            ],
           ),
           editorWorkflow,
           Workflow(
@@ -101,10 +99,10 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                   bundleIdentifier: "com.apple.Terminal",
                   bundleName: "Terminal",
                   displayName: "Terminal",
-                  path: "/System/Applications/Utilities/Terminal.app"
-                ))
+                  path: "/System/Applications/Utilities/Terminal.app",
+                )),
               ),
-            ]
+            ],
           ),
 
           Workflow(
@@ -112,18 +110,18 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
             trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "S", modifiers: [.function])])),
             commands: [
               .application(
-                .init(application: .safari())
+                .init(application: .safari()),
               ),
-            ]
+            ],
           ),
           Workflow(
             name: "Open System Settings",
             trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: ",", modifiers: [.function])])),
             commands: [
               .application(
-                .init(application: .systemSettings())
+                .init(application: .systemSettings()),
               ),
-            ]
+            ],
           ),
         ]),
         WorkflowGroup(symbol: "applescript", name: "AppleScripts", color: "#F9D64A",
@@ -218,7 +216,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                                    """, mode: .instant, meta: .init(id: UUID().uuidString, name: "Signature", isEnabled: true, notification: nil), actions: [.insertEnter])))),
                                  ]),
                       ]),
-      ]
+      ],
     )
   }
 }

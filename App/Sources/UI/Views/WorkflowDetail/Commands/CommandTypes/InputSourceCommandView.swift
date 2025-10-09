@@ -12,7 +12,8 @@ struct InputSourceCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.InputSourceModel,
-       iconSize: CGSize) {
+       iconSize: CGSize)
+  {
     _model = Binding<CommandViewModel.Kind.InputSourceModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize
@@ -30,14 +31,15 @@ struct InputSourceCommandView: View {
               command: KeyboardCommand.InputSourceCommand(
                 id: command.id,
                 inputSourceId: id,
-                name: name
-              )
+                name: name,
+              ),
             )
             command = Command.keyboard(.init(name: command.name, kind: kind))
           }
         }
       },
-      subContent: { })
+      subContent: {},
+    )
     .id(model.id)
     .enableInjection()
   }

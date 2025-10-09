@@ -1,6 +1,6 @@
 import Apps
-import Inject
 import Bonzai
+import Inject
 import SwiftUI
 
 struct NewCommandTidyView: View {
@@ -8,7 +8,6 @@ struct NewCommandTidyView: View {
   @EnvironmentObject private var applicationStore: ApplicationStore
   @Binding private var validation: NewCommandValidation
   @State private var rules = [TidyApplicationItem]()
-
 
   private let onRulesChange: ([TidyApplicationItem]) -> Void
 
@@ -37,7 +36,7 @@ struct NewCommandTidyView: View {
         ForEach(Array(zip(rules.indices, rules)), id: \.0) { offset, item in
           VStack(spacing: 8) {
             HStack {
-              IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
+              IconView(icon: Icon(item.application), size: CGSize(width: 18, height: 18))
               Text(item.application.displayName)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -79,7 +78,7 @@ struct NewCommandTidyView: View {
   }
 }
 
-fileprivate struct TidyWindowTilingMenu: View {
+private struct TidyWindowTilingMenu: View {
   private static let validWindowTiling: [WindowTiling] = [
     WindowTiling.left,
     WindowTiling.right,
@@ -133,7 +132,7 @@ struct TidyApplicationItem {
   }
 }
 
-fileprivate extension WorkspaceCommand.Tiling {
+private extension WorkspaceCommand.Tiling {
   var name: String {
     switch self {
     case .arrangeLeftRight: "Left & Right"

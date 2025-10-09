@@ -6,12 +6,12 @@ struct WorkflowShortcutImage: View {
 
   var body: some View {
     IconView(
-      icon: .init(bundleIdentifier: "/System/Applications/Shortcuts.app", 
+      icon: .init(bundleIdentifier: "/System/Applications/Shortcuts.app",
                   path: "/System/Applications/Shortcuts.app"),
-      size: CGSize(width: size, height: size)
+      size: CGSize(width: size, height: size),
     )
-      .aspectRatio(1, contentMode: .fill)
-      .frame(width: size)
+    .aspectRatio(1, contentMode: .fill)
+    .frame(width: size)
   }
 }
 

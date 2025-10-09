@@ -1,18 +1,18 @@
-import XCTest
 import Cocoa
-import SwiftUI
 import SnapshotTesting
+import SwiftUI
 @testable import ViewKit
+import XCTest
 
 extension XCTestCase {
-  func assertScreenshot<Provider: TestPreviewProvider>(
-    from provider: Provider.Type,
+  func assertScreenshot(
+    from provider: (some TestPreviewProvider).Type,
     size: CGSize,
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line,
     redacted: Bool = true,
-    transparent: Bool = false
+    transparent: Bool = false,
   ) {
     assertScreenshot(
       provider.testPreview,
@@ -21,40 +21,38 @@ extension XCTestCase {
       testName: testName,
       line: line,
       redacted: redacted,
-      transparent: transparent
+      transparent: transparent,
     )
   }
 
-  func assertScreenshot<T: View>(
-    _ view: T,
+  func assertScreenshot(
+    _ view: some View,
     size: CGSize,
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line,
     redacted: Bool = true,
-    transparent: Bool = false
+    transparent: Bool = false,
   ) {
     let info = ProcessInfo.processInfo
     let version = "\(info.operatingSystemVersion.majorVersion).\(info.operatingSystemVersion.minorVersion)"
 
     for scheme in ColorScheme.allCases {
-      let anyView: AnyView
-
-      if redacted {
-        anyView = AnyView(view
+      let anyView = if redacted {
+        AnyView(view
           .previewLayout(.sizeThatFits)
-          .background(Color( transparent ? .clear : .windowBackgroundColor))
+          .background(Color(transparent ? .clear : .windowBackgroundColor))
           .colorScheme(scheme)
           .redacted(reason: .placeholder))
       } else {
-        anyView = AnyView(view
+        AnyView(view
           .previewLayout(.sizeThatFits)
-          .background(Color( transparent ? .clear : .windowBackgroundColor))
+          .background(Color(transparent ? .clear : .windowBackgroundColor))
           .colorScheme(scheme))
       }
 
       let window = SnapshotWindow(anyView, size: size)
-      let expectation = self.expectation(description: "Wait for window to load")
+      let expectation = expectation(description: "Wait for window to load")
 
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         assertSnapshot(
@@ -63,7 +61,7 @@ extension XCTestCase {
           named: "macOS\(version)-\(scheme.name)",
           file: file,
           testName: testName,
-          line: line
+          line: line,
         )
         expectation.fulfill()
       }
@@ -84,7 +82,7 @@ private class SnapshotWindow<Content>: NSWindow where Content: View {
     super.init(contentRect: .zero,
                styleMask: [.closable, .miniaturizable, .resizable],
                backing: .buffered, defer: false)
-    self.contentViewController = viewController
+    contentViewController = viewController
     setFrame(.init(origin: .zero, size: size), display: true)
     backgroundColor = .clear
   }

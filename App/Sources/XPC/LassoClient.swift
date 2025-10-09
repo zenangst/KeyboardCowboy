@@ -9,14 +9,14 @@ final class LassoClient {
     session = try XPCSession(xpcService: serviceName)
   }
 
-  func send(_ text: String) {
+  func send(_: String) {
     do {
       try session.send(XPCMessage(text: "Hello, world!"), replyHandler: { result in
         switch result {
-        case .success(let result):
+        case let .success(result):
           let response = try? result.decode(as: XPCMessage.self)
           print("result", response)
-        case .failure(let error):
+        case let .failure(error):
           print(error)
         }
       })

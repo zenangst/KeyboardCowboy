@@ -1,9 +1,9 @@
 import AppKit
 import Carbon
 import Combine
-import KeyCodes
-import InputSources
 import Foundation
+import InputSources
+import KeyCodes
 import SwiftUI
 
 final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate, CommandLineWindowEventDelegate, @unchecked Sendable {
@@ -15,7 +15,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
   @Published var selection: Int = 0
 
   @MainActor
-  static private(set) var shared: CommandLineCoordinator = .init()
+  private(set) static var shared: CommandLineCoordinator = .init()
 
   private let applicationRunner: ApplicationCommandRunner
 
@@ -33,12 +33,12 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
   private var task: Task<Void, Error>?
 
   @MainActor
-  private override init() {
-    self.applicationRunner = ApplicationCommandRunner(
+  override private init() {
+    applicationRunner = ApplicationCommandRunner(
       applicationActivityMonitor: .init(),
       scriptCommandRunner: .init(),
       keyboard: .init(store: KeyCodesStore(InputSourceController())),
-      workspace: NSWorkspace.shared
+      workspace: NSWorkspace.shared,
     )
     super.init()
     subscription = $input
@@ -46,16 +46,17 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
       .throttle(for: 0.2, scheduler: DispatchQueue.main, latest: true)
       .sink { [weak self] newInput in
         guard let self else { return }
+
         Task { @MainActor in
           await self.handleInputDidChange(newInput)
         }
-    }
+      }
 
     Task { await applicationStore.load() }
   }
 
   @MainActor
-  func show(_ action: CommandLineAction) async -> String {
+  func show(_: CommandLineAction) async -> String {
     if windowController.window?.isVisible == true {
       windowController.close()
       return ""
@@ -82,8 +83,9 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
       let _ = try? await task?.value
       switch data.kind {
       case .fallback:
-        if case .search(let kind) = data.results[selection],
-           let url = URL(string: "\(kind.prefix)\(kind.searchString)") {
+        if case let .search(kind) = data.results[selection],
+           let url = URL(string: "\(kind.prefix)\(kind.searchString)")
+        {
           NSWorkspace.shared.open(url)
         }
       case .keyboard:
@@ -91,7 +93,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
       case .app:
         let result = data.results[selection]
         switch result {
-        case .app(let application):
+        case let .app(application):
           if NSEvent.modifierFlags.contains(.command) {
             NSWorkspace.shared.reveal(application.path)
           } else {
@@ -104,7 +106,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
         default: break
         }
       case .url:
-        if case .url(let url) = data.results[selection] {
+        if case let .url(url) = data.results[selection] {
           var urlString = url.absoluteString
 
           if !urlString.contains("://") {
@@ -168,10 +170,11 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
   // MARK: NSWindowDelegate
 
-  func windowDidResignKey(_ notification: Notification) {
+  func windowDidResignKey(_: Notification) {
     windowController.close()
 
-    let frontMostOwningMenubarApplication = NSWorkspace.shared.runningApplications
+    let frontMostOwningMenubarApplication = NSWorkspace.shared
+      .runningApplications
       .first(where: { $0.ownsMenuBar })
 
     frontMostOwningMenubarApplication?.activate()
@@ -197,10 +200,10 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
     }
 
     if let components = URLComponents(string: newInput),
-       let url = components.url {
-
+       let url = components.url
+    {
       let split = newInput.split(separator: ".")
-      if split.count > 1 && !newInput.contains(".app") {
+      if split.count > 1, !newInput.contains(".app") {
         Task { @MainActor in
           data.kind = .url
           withAnimation(.smooth(duration: 0.1)) {
@@ -214,11 +217,11 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
     task = Task(priority: .high) {
       let apps = applicationStore.apps()
       let searchString = newInput.lowercased()
-      let matches = apps.filter({
+      let matches = apps.filter {
         $0.bundleIdentifier.lowercased().contains(searchString) ||
-        $0.path.lowercased().contains(searchString) ||
-        $0.displayName.lowercased().hasPrefix(searchString)
-      })
+          $0.path.lowercased().contains(searchString) ||
+          $0.displayName.lowercased().hasPrefix(searchString)
+      }
 
       try Task.checkCancellation()
 
@@ -234,20 +237,20 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
         results.append(
           .search(
             .init(id: "Google", name: "Google", text: "Google '\(newInput)'",
-                  prefix: "https://www.google.com/search?q=", searchString: newInput)
-          )
+                  prefix: "https://www.google.com/search?q=", searchString: newInput),
+          ),
         )
         results.append(
           .search(
             .init(id: "GitHub", name: "GitHub", text: "Seach GitHub for '\(newInput)'",
-                  prefix: "https://www.github.com/search?q=", searchString: newInput)
-          )
+                  prefix: "https://www.github.com/search?q=", searchString: newInput),
+          ),
         )
         results.append(
           .search(
             .init(id: "iMDB", name: "iMDB", text: "Seach iMDB for '\(newInput)'",
-                  prefix: "https://www.imdb.com/find/?q=", searchString: newInput)
-          )
+                  prefix: "https://www.imdb.com/find/?q=", searchString: newInput),
+          ),
         )
         kind = .fallback
       } else {
@@ -274,12 +277,10 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
     let contentSize = contentView.intrinsicContentSize
     let maxHeight = screen.visibleFrame.height / 3
     let oldFrame = window.frame
-    let newHeight: CGFloat
-
-    if input.isEmpty {
-      newHeight = CommandLineView.minHeight
+    let newHeight: CGFloat = if input.isEmpty {
+      CommandLineView.minHeight
     } else {
-      newHeight = min(contentSize.height, maxHeight)
+      min(contentSize.height, maxHeight)
     }
 
     var newFrame = oldFrame

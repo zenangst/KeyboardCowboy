@@ -19,8 +19,9 @@ final class MachPortUINotifications {
       reset()
       return
     }
+
     shouldReset = true
-    if case .keyboardShortcuts(let trigger) = workflow.trigger {
+    if case let .keyboardShortcuts(trigger) = workflow.trigger {
       Task { @MainActor in
         #warning("The user should be able to configure this for settings")
         CapsuleNotificationWindow.shared.open()
@@ -34,11 +35,13 @@ final class MachPortUINotifications {
       reset()
       return
     }
+
     shouldReset = true
     Task { @MainActor in
       var keyboardShortcuts = [KeyShortcut]()
-      if case .keyboardShortcuts(let trigger) = workflow.trigger,
-         case .key(let command) = command.kind {
+      if case let .keyboardShortcuts(trigger) = workflow.trigger,
+         case let .key(command) = command.kind
+      {
         keyboardShortcuts.append(contentsOf: trigger.shortcuts)
         keyboardShortcuts.append(.init(id: "spacer", key: "="))
         keyboardShortcuts.append(contentsOf: command.keyboardShortcuts)
@@ -47,8 +50,10 @@ final class MachPortUINotifications {
         WorkflowNotificationViewModel(
           id: workflow.id,
           workflow: nil,
-          keyboardShortcuts: keyboardShortcuts),
-        scheduleDismiss: true)
+          keyboardShortcuts: keyboardShortcuts,
+        ),
+        scheduleDismiss: true,
+      )
     }
   }
 
@@ -59,12 +64,13 @@ final class MachPortUINotifications {
     let splits = match.rawValue.split(separator: "+")
     let prefix = splits.count - 1
     if let workflow = match.workflow,
-       case .keyboardShortcuts(let trigger) = workflow.trigger {
+       case let .keyboardShortcuts(trigger) = workflow.trigger
+    {
       let shortcuts = Array(trigger.shortcuts.prefix(prefix))
       let matches = Set(shortcutResolver.allMatchingPrefix(match.rawValue, shortcutIndexPrefix: prefix))
       let sortedMatches = Array(matches)
         .sorted(by: { $0.name < $1.name })
-#warning("TODO: Should we delay before showing the bundle?")
+      #warning("TODO: Should we delay before showing the bundle?")
 
       Task { @MainActor in
         WorkflowNotificationController.shared.cancelReset()
@@ -73,14 +79,17 @@ final class MachPortUINotifications {
             id: workflow.id,
             matches: sortedMatches,
             glow: true,
-            keyboardShortcuts: shortcuts), 
-          scheduleDismiss: false)
+            keyboardShortcuts: shortcuts,
+          ),
+          scheduleDismiss: false,
+        )
       }
     }
   }
 
   func reset() {
     guard shouldReset else { return }
+
     shouldReset = false
     Task { @MainActor in
       WorkflowNotificationController.shared.post(
@@ -88,11 +97,10 @@ final class MachPortUINotifications {
           id: UUID().uuidString,
           matches: [],
           glow: false,
-          keyboardShortcuts: []
+          keyboardShortcuts: [],
         ),
-        scheduleDismiss: false
+        scheduleDismiss: false,
       )
     }
   }
-
 }

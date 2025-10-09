@@ -10,6 +10,7 @@ extension Color {
       self = Color(.white)
       return
     }
+
     if hex.count == 3 {
       for (index, char) in hex.enumerated() {
         let offset = index * 2
@@ -24,20 +25,21 @@ extension Color {
 
     let red = Double((intCode >> 16) & 0xFF)
     let green = Double((intCode >> 8) & 0xFF)
-    let blue = Double((intCode) & 0xFF)
+    let blue = Double(intCode & 0xFF)
 
     self = Color(
       red: red / 255.0,
       green: green / 255.0,
       blue: blue / 255.0,
-      opacity: 1.0)
+      opacity: 1.0,
+    )
   }
 
   static var random: Color {
-    return Color(
-      red: .random(in: 0...1),
-      green: .random(in: 0...1),
-      blue: .random(in: 0...1)
+    Color(
+      red: .random(in: 0 ... 1),
+      green: .random(in: 0 ... 1),
+      blue: .random(in: 0 ... 1),
     )
   }
 }

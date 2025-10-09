@@ -1,7 +1,7 @@
 import Apps
 import AXEssibility
-import Combine
 import Cocoa
+import Combine
 import Foundation
 import Windows
 
@@ -27,7 +27,8 @@ final class WindowSpace: WindowSpaceCacheDelegate {
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     publisher.sink { [weak self] application in
       guard let self else { return }
-      self.frontmostApplicationChanged(application)
+
+      frontmostApplicationChanged(application)
     }
     .store(in: &subscriptions)
   }
@@ -50,8 +51,9 @@ final class WindowSpace: WindowSpaceCacheDelegate {
     }
 
     do {
-      if let observer = app.observe(.focusedWindowChanged, element: app.reference, id: id, pointer: pointer, callback: { observer, element, _, opaquePointer in
+      if let observer = app.observe(.focusedWindowChanged, element: app.reference, id: id, pointer: pointer, callback: { _, element, _, opaquePointer in
         guard let opaquePointer else { return }
+
         let pointer = Unmanaged<PassthroughPointer>
           .fromOpaque(opaquePointer)
           .takeUnretainedValue()
@@ -62,8 +64,9 @@ final class WindowSpace: WindowSpaceCacheDelegate {
     }
 
     do {
-      if let observer = app.observe(.windowCreated, element: app.reference, id: id, pointer: pointer, callback: { observer, element, _, opaquePointer in
+      if let observer = app.observe(.windowCreated, element: app.reference, id: id, pointer: pointer, callback: { _, element, _, opaquePointer in
         guard let opaquePointer else { return }
+
         let pointer = Unmanaged<PassthroughPointer>
           .fromOpaque(opaquePointer)
           .takeUnretainedValue()
@@ -76,8 +79,9 @@ final class WindowSpace: WindowSpaceCacheDelegate {
     }
 
     do {
-      if let observer = app.observe(.closed, element: app.reference, id: id, pointer: pointer, callback: { observer, element, _, opaquePointer in
+      if let observer = app.observe(.closed, element: app.reference, id: id, pointer: pointer, callback: { _, _, _, opaquePointer in
         guard let opaquePointer else { return }
+
         let pointer = Unmanaged<PassthroughPointer>
           .fromOpaque(opaquePointer)
           .takeUnretainedValue()
@@ -112,7 +116,7 @@ final class WindowSpace: WindowSpaceCacheDelegate {
 }
 
 @MainActor
-fileprivate final class PassthroughPointer {
+private final class PassthroughPointer {
   let id: UUID
   let app: AppAccessibilityElement
   let bundleIdentifier: String

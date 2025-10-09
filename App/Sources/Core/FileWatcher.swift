@@ -15,20 +15,21 @@ final class FileWatcher {
   private let fileSystemMonitor: DispatchSourceFileSystemObject
 
   init(_ fileURL: URL, fileManager: FileManaging = FileManager.default,
-       handler: @escaping (URL) -> Void) throws {
+       handler: @escaping (URL) -> Void) throws
+  {
     guard fileManager.fileExists(atPath: fileURL.path) else {
       throw FileWatcherError.fileNotFound
     }
 
     let handle = open(fileURL.path, O_EVTONLY)
     let eventMask: DispatchSource.FileSystemEvent = [
-      .delete, .write, .extend, .attrib, 
-      .link, .rename, .revoke
+      .delete, .write, .extend, .attrib,
+      .link, .rename, .revoke,
     ]
     let fileSystemMonitor = DispatchSource.makeFileSystemObjectSource(
       fileDescriptor: handle,
       eventMask: eventMask,
-      queue: .main
+      queue: .main,
     )
 
     self.fileSystemMonitor = fileSystemMonitor

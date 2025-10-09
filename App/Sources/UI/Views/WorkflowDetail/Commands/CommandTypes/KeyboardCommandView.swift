@@ -2,7 +2,6 @@ import Bonzai
 import Inject
 import SwiftUI
 
-
 struct KeyboardCommandView: View {
   private let focus: FocusState<AppFocus?>.Binding
   private let iconSize: CGSize
@@ -10,7 +9,8 @@ struct KeyboardCommandView: View {
   private let model: CommandViewModel.Kind.KeyboardModel
 
   init(_ focus: FocusState<AppFocus?>.Binding, metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.KeyboardModel, iconSize: CGSize) {
+       model: CommandViewModel.Kind.KeyboardModel, iconSize: CGSize)
+  {
     self.focus = focus
     self.metaData = metaData
     self.model = model
@@ -34,7 +34,8 @@ struct KeyboardCommandInternalView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.KeyboardModel,
-       iconSize: CGSize) {
+       iconSize: CGSize)
+  {
     self.focus = focus
     self.metaData = metaData
     _model = Binding<CommandViewModel.Kind.KeyboardModel>(model)
@@ -55,11 +56,12 @@ struct KeyboardCommandInternalView: View {
       subContent: {
         Spacer()
         Menu {
-          ForEach(1..<20, id: \.self) { iteration in
+          ForEach(1 ..< 20, id: \.self) { iteration in
             Button {
               updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-                guard case .keyboard(let keyboardCommand) = command,
-                      case .key(var keyboardCommand) = keyboardCommand.kind else { return }
+                guard case let .keyboard(keyboardCommand) = command,
+                      case var .key(keyboardCommand) = keyboardCommand.kind else { return }
+
                 keyboardCommand.iterations = iteration
                 command = .keyboard(.init(id: command.id, name: command.name, kind: .key(command: keyboardCommand),
                                           notification: command.notification, meta: command.meta))
@@ -80,7 +82,8 @@ struct KeyboardCommandInternalView: View {
         KeyboardCommandSubContentView {
           openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
         }
-      })
+      },
+    )
   }
 }
 
@@ -106,7 +109,8 @@ private struct ContentView: View {
 
   init(model: Binding<CommandViewModel.Kind.KeyboardModel>,
        focus: FocusState<AppFocus?>.Binding,
-       onEdit: @escaping () -> Void) {
+       onEdit: @escaping () -> Void)
+  {
     _model = model
     self.focus = focus
     self.onEdit = onEdit
@@ -120,7 +124,8 @@ private struct ContentView: View {
       keyboardShortcuts: $model.command.keyboardShortcuts,
       draggableEnabled: false,
       selectionManager: keyboardSelection,
-      onTab: { _ in })
+      onTab: { _ in },
+    )
     .font(.caption)
     .scrollDisabled(true)
   }
@@ -148,9 +153,9 @@ struct RebindingCommandView_Previews: PreviewProvider {
       $focus,
       metaData: command.model.meta,
       model: command.kind,
-      iconSize: .init(width: 24, height: 24)
-    ) 
-      .designTime()
-      .environmentObject(recorderStore)
+      iconSize: .init(width: 24, height: 24),
+    )
+    .designTime()
+    .environmentObject(recorderStore)
   }
 }

@@ -14,8 +14,9 @@ struct ApplicationCommand: MetaDataProviding {
        action: Action = .open,
        application: Application,
        modifiers: [Modifier] = [],
-       notification: Command.Notification? = nil) {
-    self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
+       notification: Command.Notification? = nil)
+  {
+    meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
     self.application = application
     self.modifiers = Set(modifiers)
     self.action = action
@@ -29,7 +30,8 @@ struct ApplicationCommand: MetaDataProviding {
   }
 
   init(action: Action, application: Application,
-       meta: Command.MetaData, modifiers: [Modifier]) {
+       meta: Command.MetaData, modifiers: [Modifier])
+  {
     self.application = application
     self.modifiers = Set(modifiers)
     self.meta = meta
@@ -38,30 +40,30 @@ struct ApplicationCommand: MetaDataProviding {
 
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.application = try container.decode(Application.self, forKey: .application)
-    self.action = try container.decode(ApplicationCommand.Action.self, forKey: .action)
-    self.modifiers = try container.decodeIfPresent(Set<ApplicationCommand.Modifier>.self, forKey: .modifiers) ?? []
-    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    application = try container.decode(Application.self, forKey: .application)
+    action = try container.decode(ApplicationCommand.Action.self, forKey: .action)
+    modifiers = try container.decodeIfPresent(Set<ApplicationCommand.Modifier>.self, forKey: .modifiers) ?? []
+    meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    let sortedModifiers = self.modifiers.sorted(by: { $0.rawValue < $1.rawValue  })
+    let sortedModifiers = modifiers.sorted(by: { $0.rawValue < $1.rawValue })
 
-    try container.encode(self.application, forKey: .application)
-    try container.encode(self.action, forKey: .action)
+    try container.encode(application, forKey: .application)
+    try container.encode(action, forKey: .action)
     if !sortedModifiers.isEmpty {
       try container.encode(sortedModifiers, forKey: .modifiers)
     }
-    try container.encode(self.meta, forKey: .meta)
+    try container.encode(meta, forKey: .meta)
   }
 
   func copy() -> ApplicationCommand {
     ApplicationCommand(
-      action: self.action,
-      application: self.application,
-      meta: self.meta.copy(),
-      modifiers: Array(self.modifiers)
+      action: action,
+      application: application,
+      meta: meta.copy(),
+      modifiers: Array(modifiers),
     )
   }
 }

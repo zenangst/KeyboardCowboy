@@ -6,7 +6,7 @@ extension KeyShortcut {
 
   static func keyCode(for string: String) -> Int? {
     switch string {
-      // Standard ANSI characters
+    // Standard ANSI characters
     case "a", "A": kVK_ANSI_A
     case "b", "B": kVK_ANSI_B
     case "c", "C": kVK_ANSI_C
@@ -55,8 +55,7 @@ extension KeyShortcut {
     case ".", ">": kVK_ANSI_Period
     case "/", "?": kVK_ANSI_Slash
     case " ", "Space", "SPACE": kVK_Space
-
-      // Modifier keys
+    // Modifier keys
     case "Command", "COMMAND", "cmd", "⌘": kVK_Command
     case "LeftCommand", "LEFTCOMMAND", "leftCmd", "⌘L": kVK_Command
     case "RightCommand", "RIGHTCOMMAND", "rightCmd", "⌘R": kVK_RightCommand
@@ -71,8 +70,7 @@ extension KeyShortcut {
     case "RightControl", "RIGHTCONTROL", "rightCtrl", "⌃R": kVK_RightControl
     case "Tab", "TAB", "⇥": kVK_Tab
     case "Escape", "ESCAPE", "⎋": kVK_Escape
-
-      // Special keys
+    // Special keys
     case "ForwardDelete", "FORWARDDELETE", "⌦": kVK_ForwardDelete
     case "Help", "HELP", "?⃝": kVK_Help
     case "KeypadEnter", "KEYPADENTER", "⌤": kVK_ANSI_KeypadEnter
@@ -107,16 +105,13 @@ extension KeyShortcut {
     case "F18": kVK_F18
     case "F19": kVK_F19
     case "F20": kVK_F20
-
-      // Norwegian-specific characters
-    case "å", "Å": kVK_ANSI_Grave        // Typically backtick/tilde key
-    case "ø", "Ø": kVK_ANSI_Semicolon    // Typically semicolon/colon key
-    case "æ", "Æ": kVK_ANSI_Quote        // Typically quote/double-quote key
-
-      // Swedish-specific characters
-    case "ä", "Ä": kVK_ANSI_Quote        // Same key as "æ/Æ" in Norwegian
-    case "ö", "Ö": kVK_ANSI_Semicolon    // Same key as "ø/Ø" in Norwegian
-
+    // Norwegian-specific characters
+    case "å", "Å": kVK_ANSI_Grave // Typically backtick/tilde key
+    case "ø", "Ø": kVK_ANSI_Semicolon // Typically semicolon/colon key
+    case "æ", "Æ": kVK_ANSI_Quote // Typically quote/double-quote key
+    // Swedish-specific characters
+    case "ä", "Ä": kVK_ANSI_Quote // Same key as "æ/Æ" in Norwegian
+    case "ö", "Ö": kVK_ANSI_Semicolon // Same key as "ø/Ø" in Norwegian
     default: nil
     }
   }

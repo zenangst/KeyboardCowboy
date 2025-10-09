@@ -1,6 +1,6 @@
-import SwiftUI
-import Inject
 import Bonzai
+import Inject
+import SwiftUI
 
 struct NewCommandScriptView: View {
   @ObserveInjection var inject
@@ -41,7 +41,8 @@ struct NewCommandScriptView: View {
        value: String,
        scriptExtension: ScriptExtension,
        validation: Binding<NewCommandValidation>,
-       onSubmit: @escaping (NewCommandPayload) -> Void) {
+       onSubmit: @escaping (NewCommandPayload) -> Void)
+  {
     _kind = .init(initialValue: kind)
     _scriptExtension = .init(initialValue: scriptExtension)
     _value = .init(initialValue: value)
@@ -75,7 +76,7 @@ struct NewCommandScriptView: View {
           ForEach(Kind.allCases) { kind in
             Button(action: {
               self.kind = kind
-              self.payload = .script(value: value, kind: kind, scriptExtension: scriptExtension)
+              payload = .script(value: value, kind: kind, scriptExtension: scriptExtension)
             }, label: {
               Text(kind.rawValue)
             })
@@ -112,6 +113,7 @@ struct NewCommandScriptView: View {
     }
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
+
       validation = updateAndValidatePayload()
     })
     .onAppear {
@@ -146,7 +148,8 @@ struct NewCommandFileSelectorView: View {
 
   init(_ scriptExtension: Binding<NewCommandScriptView.ScriptExtension>,
        path: String,
-       onPathChange: @escaping (String) -> Void) {
+       onPathChange: @escaping (String) -> Void)
+  {
     _path = .init(initialValue: path)
     self.onPathChange = onPathChange
     _scriptExtension = scriptExtension
@@ -160,7 +163,7 @@ struct NewCommandFileSelectorView: View {
         }
       Button("Browse", action: {
         openPanel.perform(.selectFile(types: [scriptExtension.rawValue], handler: { newPath in
-          self.path = newPath
+          path = newPath
           onPathChange(newPath)
         }))
       })
@@ -177,7 +180,8 @@ struct NewCommandScriptSourceView: View {
   init(_ kind: Binding<NewCommandScriptView.ScriptExtension>,
        text: String,
        onSubmit: @escaping () -> Void,
-       onChange: @escaping (String) -> Void) {
+       onChange: @escaping (String) -> Void)
+  {
     _text = .init(initialValue: text)
     _kind = kind
     self.onChange = onChange
@@ -189,10 +193,10 @@ struct NewCommandScriptSourceView: View {
       text: $text,
       placeholder: "Script goes here…",
       font: Font.system(.body, design: .monospaced),
-      onCommandReturnKey: onSubmit
+      onCommandReturnKey: onSubmit,
     )
-      .onChange(of: text, perform: onChange)
-      .roundedStyle(padding: 8)
+    .onChange(of: text, perform: onChange)
+    .roundedStyle(padding: 8)
   }
 }
 
@@ -205,7 +209,8 @@ struct NewCommandScriptView_Previews: PreviewProvider {
       selection: .script,
       payload: .placeholder,
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

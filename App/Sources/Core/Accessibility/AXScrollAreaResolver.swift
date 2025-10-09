@@ -1,5 +1,5 @@
-import AXEssibility
 import AppKit
+import AXEssibility
 import Foundation
 
 enum AXScrollAreaResolverError: Error {

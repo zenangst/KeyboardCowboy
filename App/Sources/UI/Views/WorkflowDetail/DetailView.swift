@@ -18,7 +18,7 @@ struct DetailView: View {
     keyboardShortcutSelection: SelectionManager<KeyShortcut>,
     triggerPublisher: TriggerPublisher,
     infoPublisher: InfoPublisher,
-    commandPublisher: CommandsPublisher
+    commandPublisher: CommandsPublisher,
   ) {
     self.focus = focus
     self.commandSelection = commandSelection
@@ -44,7 +44,7 @@ struct DetailView: View {
         keyboardShortcutSelectionManager: keyboardShortcutSelection,
         triggerPublisher: triggerPublisher,
         infoPublisher: infoPublisher,
-        commandPublisher: commandPublisher
+        commandPublisher: commandPublisher,
       )
       .overlay(alignment: .topTrailing) {
         DevTagView()
@@ -54,7 +54,7 @@ struct DetailView: View {
       let count = viewModels.count
       MultiDetailView(
         count > limit ? Array(viewModels[0 ... limit - 1]) : viewModels,
-        count: count
+        count: count,
       )
     }
   }
@@ -68,7 +68,7 @@ private struct DevTagView: View {
           Gradient(colors: [
             Color.yellow,
             Color.yellow.opacity(0.3),
-          ])
+          ]),
         )
         .frame(width: 75, height: 20)
         .overlay {
@@ -96,7 +96,7 @@ private struct DevTagView: View {
     keyboardShortcutSelection: .init(),
     triggerPublisher: DesignTime.triggerPublisher,
     infoPublisher: DesignTime.infoPublisher,
-    commandPublisher: DesignTime.commandsPublisher
+    commandPublisher: DesignTime.commandsPublisher,
   )
   .designTime()
   .frame(height: 650)

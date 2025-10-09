@@ -247,7 +247,7 @@ enum WindowTilingRunner {
           if let currentStorage, currentStorage.isFullScreen {
             if currentStorage.tiling == activatedTiling {
               nextTiling = .center
-            } else if currentStorage.isFullScreen && currentStorage.tiling != .fill {
+            } else if currentStorage.isFullScreen, currentStorage.tiling != .fill {
               // this is where we are at.
               nextTiling = currentStorage.tiling
             } else {
@@ -266,14 +266,12 @@ enum WindowTilingRunner {
           nextTiling = activatedTiling
           let isFullScreen = nextTiling == .fill
           let isCentered = nextTiling == .center
-          let storedTiling: WindowTiling
-
-          if isFullScreen == false && isCentered == false {
-            storedTiling = currentStorage?.tiling ?? nextTiling
-          } else if isFullScreen == false && isCentered == true {
-            storedTiling = nextTiling
+          let storedTiling: WindowTiling = if isFullScreen == false, isCentered == false {
+            currentStorage?.tiling ?? nextTiling
+          } else if isFullScreen == false, isCentered == true {
+            nextTiling
           } else {
-            storedTiling = nextTiling
+            nextTiling
           }
 
           updateStore(storedTiling, isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
@@ -307,7 +305,7 @@ enum WindowTilingRunner {
           try await Task.sleep(for: .milliseconds(325))
 
           let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
-          let windowNumbers = updateSubjects.map { $0.windowNumber }
+          let windowNumbers = updateSubjects.map(\.windowNumber)
           let newWindows = newSnapshot.windows
             .visibleWindowsInStage
             .filter { $0.rect.intersects(visibleScreenFrame) && windowNumbers.contains($0.windowNumber) }
@@ -343,7 +341,7 @@ enum WindowTilingRunner {
     storage[window.windowNumber] = TileStorage(
       tiling: tiling,
       isFullScreen: isFullScreen,
-      isCentered: isCentered
+      isCentered: isCentered,
     )
   }
 
@@ -440,7 +438,7 @@ enum WindowTilingRunner {
   }
 }
 
-extension UserDefaults: @unchecked @retroactive Sendable { }
+extension UserDefaults: @unchecked @retroactive Sendable {}
 
 private struct TileStorage {
   let tiling: WindowTiling

@@ -15,21 +15,21 @@ extension UserSpace.Application: ActivityApplication {
 final class ApplicationActivityMonitor<T: ActivityApplication> {
   // Used for testing.
   var bundleIdentifiers: [String] {
-    storage.compactMap { $0.bundleIdentifier }
+    storage.compactMap(\.bundleIdentifier)
   }
 
   private var currentApplication: T?
   private var storage: [T] = []
   private var subscription: AnyCancellable?
 
-  init() { }
+  init() {}
 
   func subscribe(to publisher: Published<T>.Publisher) {
     subscription = publisher
       .sink { [weak self] application in
         guard let self else { return }
 
-        self.store(application)
+        store(application)
       }
   }
 

@@ -22,10 +22,10 @@ struct GroupsList: View {
 
     func contains(_ id: GroupViewModel.ID) -> Bool {
       switch self {
-      case .single(let groupId):
-        return groupId == id
-      case .multiple(let ids):
-        return ids.contains(id) && ids.first == id
+      case let .single(groupId):
+        groupId == id
+      case let .multiple(ids):
+        ids.contains(id) && ids.first == id
       }
     }
   }
@@ -45,17 +45,18 @@ struct GroupsList: View {
        namespace: Namespace.ID,
        groupSelection: SelectionManager<GroupViewModel>,
        workflowSelection: SelectionManager<GroupDetailViewModel>,
-       onAction: @escaping (GroupsList.Action) -> Void) {
+       onAction: @escaping (GroupsList.Action) -> Void)
+  {
     self.appFocus = appFocus
     self.namespace = namespace
     self.groupSelection = groupSelection
     self.workflowSelection = workflowSelection
     self.onAction = onAction
-    self.debounce = .init(.init(groups: groupSelection.selections),
-                          milliseconds: 150,
-                          onUpdate: { snapshot in
-      onAction(.selectGroups(snapshot.groups))
-    })
+    debounce = .init(.init(groups: groupSelection.selections),
+                     milliseconds: 150,
+                     onUpdate: { snapshot in
+                       onAction(.selectGroups(snapshot.groups))
+                     })
   }
 
   var body: some View {
@@ -66,39 +67,41 @@ struct GroupsList: View {
         CompatList {
           ForEach(publisher.data.lazy, id: \.id) { group in
             GroupListItem(group, selectionManager: groupSelection, onAction: onAction)
-            .overlay(content: { confirmDeleteView(group) })
-            .modifier(LegacyOnTapFix(onTap: {
-              focus = .element(group.id)
-              onTap(group)
-            }))
-            .contextMenu(menuItems: {
-              contextualMenu(for: group, onAction: onAction)
-            })
-            .focusable($focus, as: .element(group.id)) {
-              if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
-                 let lastSelection = groupSelection.lastSelection,
-                 let match = publisher.data.first(where: { $0.id == lastSelection }) {
-                focus = .element(match.id)
-              } else {
+              .overlay(content: { confirmDeleteView(group) })
+              .modifier(LegacyOnTapFix(onTap: {
+                focus = .element(group.id)
                 onTap(group)
-                proxy.scrollTo(group.id)
-              }
-            }
-            .gesture(
-              TapGesture(count: 1)
-                .onEnded { _ in
-                  focus = .element(group.id)
+              }))
+              .contextMenu(menuItems: {
+                contextualMenu(for: group, onAction: onAction)
+              })
+              .focusable($focus, as: .element(group.id)) {
+                if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
+                   let lastSelection = groupSelection.lastSelection,
+                   let match = publisher.data.first(where: { $0.id == lastSelection })
+                {
+                  focus = .element(match.id)
+                } else {
+                  onTap(group)
+                  proxy.scrollTo(group.id)
                 }
-                .simultaneously(with: TapGesture(count: 2)
+              }
+              .gesture(
+                TapGesture(count: 1)
                   .onEnded { _ in
-                    onAction(.openScene(.editGroup(group.id)))
-                  })
-            )
+                    focus = .element(group.id)
+                  }
+                  .simultaneously(with: TapGesture(count: 2)
+                    .onEnded { _ in
+                      onAction(.openScene(.editGroup(group.id)))
+                    }),
+              )
           }
           .dropDestination(for: GroupViewModel.self, action: { collection, destination in
             var indexSet = IndexSet()
             for item in collection {
               guard let index = publisher.data.firstIndex(of: item) else { continue }
+
               indexSet.insert(index)
             }
             onAction(.moveGroups(source: indexSet, destination: destination))
@@ -116,7 +119,8 @@ struct GroupsList: View {
               direction,
               publisher.data,
               proxy: proxy,
-              vertical: true) {
+              vertical: true,
+            ) {
               focus = .element(elementID)
             }
           })
@@ -127,6 +131,7 @@ struct GroupsList: View {
         }
         .onAppear {
           guard let initialSelection = groupSelection.initialSelection else { return }
+
           focus = .element(initialSelection)
           proxy.scrollTo(initialSelection)
         }
@@ -147,19 +152,20 @@ struct GroupsList: View {
     HStack {
       Button(action: { confirmDelete = nil },
              label: { Image(systemName: "x.circle") })
-      .keyboardShortcut(.cancelAction)
-      .environment(\.buttonBackgroundColor, .systemBrown)
+        .keyboardShortcut(.cancelAction)
+        .environment(\.buttonBackgroundColor, .systemBrown)
 
       Text("Are you sure?")
         .font(.footnote)
       Spacer()
       Button(action: {
         guard confirmDelete != nil else { return }
+
         confirmDelete = nil
         onAction(.removeGroups(groupSelection.selections))
       }, label: { Image(systemName: "trash") })
-      .environment(\.buttonBackgroundColor, .systemRed)
-      .keyboardShortcut(.defaultAction)
+        .environment(\.buttonBackgroundColor, .systemRed)
+        .keyboardShortcut(.defaultAction)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color(.windowBackgroundColor).cornerRadius(4))
@@ -169,7 +175,8 @@ struct GroupsList: View {
 
   @ViewBuilder
   private func contextualMenu(for group: GroupViewModel,
-                              onAction: @escaping (GroupsList.Action) -> Void) -> some View {
+                              onAction: @escaping (GroupsList.Action) -> Void) -> some View
+  {
     Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
     Divider()
     Button("Remove", action: {
@@ -183,10 +190,10 @@ struct GroupsListView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
     GroupsList($focus,
-                   namespace: namespace,
-                   groupSelection: .init(),
-                   workflowSelection: .init(),
-                   onAction: { _ in })
-    .designTime()
+               namespace: namespace,
+               groupSelection: .init(),
+               workflowSelection: .init(),
+               onAction: { _ in })
+      .designTime()
   }
 }

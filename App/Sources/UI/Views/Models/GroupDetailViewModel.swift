@@ -29,12 +29,13 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
   let isEnabled: Bool
   let execution: Execution
 
-  internal init(id: String, groupId: String,
-                groupName: String? = nil, name: String,
-                images: [GroupDetailViewModel.ImageModel],
-                overlayImages: [GroupDetailViewModel.ImageModel],
-                trigger: Trigger? = nil, execution: Execution = .concurrent,
-                badge: Int, badgeOpacity: Double, isEnabled: Bool) {
+  init(id: String, groupId: String,
+       groupName: String? = nil, name: String,
+       images: [GroupDetailViewModel.ImageModel],
+       overlayImages: [GroupDetailViewModel.ImageModel],
+       trigger: Trigger? = nil, execution: Execution = .concurrent,
+       badge: Int, badgeOpacity: Double, isEnabled: Bool)
+  {
     self.id = id
     self.groupId = groupId
     self.groupName = groupName
@@ -130,7 +131,6 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
     enum Text: Hashable, Codable, Sendable {
       case insertText
     }
-
 
     static func builtIn(_ command: Command, kind: BuiltInCommand.Kind, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .builtIn(kind)) }
     static func bundled(_ command: Command, offset: Double, kind: Bundled) -> Self { .init(id: command.id, offset: offset, kind: .bundled(kind)) }

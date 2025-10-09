@@ -7,9 +7,11 @@ struct NewCommandKeyboardShortcutView: View {
   enum CurrentState: Hashable {
     case recording
   }
+
   enum Focus: Hashable {
     case keyboardShortcut(KeyShortcut.ID)
   }
+
   @Binding private var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
@@ -24,7 +26,7 @@ struct NewCommandKeyboardShortcutView: View {
     _payload = payload
     _validation = validation
 
-    if case .keyboardShortcut(let shortcuts) = payload.wrappedValue {
+    if case let .keyboardShortcut(shortcuts) = payload.wrappedValue {
       _keyboardShortcuts = .init(initialValue: shortcuts)
     } else {
       _keyboardShortcuts = .init(initialValue: [])
@@ -48,7 +50,8 @@ struct NewCommandKeyboardShortcutView: View {
           keyboardShortcuts: $keyboardShortcuts,
           draggableEnabled: true,
           selectionManager: selectionManager,
-          onTab: { _ in })
+          onTab: { _ in },
+        )
         .onChange(of: keyboardShortcuts, perform: { newValue in
           keyboardShortcuts = newValue
         })
@@ -57,11 +60,12 @@ struct NewCommandKeyboardShortcutView: View {
         .frame(minHeight: 42, maxHeight: 42)
       }
     }
-    .onChange(of: keyboardShortcuts, perform: { newValue in
+    .onChange(of: keyboardShortcuts, perform: { _ in
       validation = updateAndValidatePayload()
     })
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
+
       validation = updateAndValidatePayload()
     })
     .onAppear {
@@ -99,7 +103,8 @@ struct NewCommandKeyboardShortcutView_Previews: PreviewProvider {
           .init(key: "Y"),
         ]),
         onDismiss: {},
-        onSave: { _, _ in })
+        onSave: { _, _ in },
+      )
 
       NewCommandView(
         workflowId: UUID().uuidString,
@@ -108,9 +113,9 @@ struct NewCommandKeyboardShortcutView_Previews: PreviewProvider {
         selection: .keyboardShortcut,
         payload: .placeholder,
         onDismiss: {},
-        onSave: { _, _ in })
+        onSave: { _, _ in },
+      )
     }
     .designTime()
   }
 }
-

@@ -46,7 +46,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
 
   func subscribe(to publisher: Published<CGEvent?>.Publisher) {
     machPortEventSubscription = publisher
-      .compactMap { $0 }
+      .compactMap(\.self)
       .sink { [weak self] cgEvent in
         guard let self else { return }
 
@@ -111,7 +111,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
           checkCancellation: true,
           resolveUserEnvironment: true,
           machPortEvent: machPortEvent,
-          repeatingEvent: false
+          repeatingEvent: false,
         )
 
         try await task.value
@@ -132,11 +132,10 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
     snippetsStorage = [:]
 
     for group in groups {
-      let bundleIdentifiers: [String]
-      if let rule = group.rule {
-        bundleIdentifiers = rule.allowedBundleIdentifiers
+      let bundleIdentifiers: [String] = if let rule = group.rule {
+        rule.allowedBundleIdentifiers
       } else {
-        bundleIdentifiers = ["*"]
+        ["*"]
       }
 
       for bundleIdentifier in bundleIdentifiers {
@@ -165,4 +164,4 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
   }
 }
 
-extension CGEvent: @unchecked @retroactive Sendable { }
+extension CGEvent: @unchecked @retroactive Sendable {}

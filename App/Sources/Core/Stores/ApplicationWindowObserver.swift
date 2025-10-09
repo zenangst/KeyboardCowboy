@@ -15,7 +15,7 @@ final class ApplicationWindowObserver {
     subscription = publisher.sink { [weak self] application in
       guard let self, Self.isEnabled else { return }
 
-      self.process(application)
+      process(application)
     }
   }
 

@@ -32,7 +32,8 @@ final class WorkflowCoordinator {
        groupSelection: SelectionManager<GroupViewModel>,
        keyboardCowboyEngine: KeyboardCowboyEngine,
        keyboardShortcutSelection: SelectionManager<KeyShortcut>,
-       groupStore: GroupStore) {
+       groupStore: GroupStore)
+  {
     self.applicationStore = applicationStore
     self.commandRunner = commandRunner
     self.commandSelection = commandSelection
@@ -41,7 +42,7 @@ final class WorkflowCoordinator {
     self.groupSelection = groupSelection
     self.groupStore = groupStore
     self.keyboardCowboyEngine = keyboardCowboyEngine
-    self.mapper = DetailModelMapper(applicationStore)
+    mapper = DetailModelMapper(applicationStore)
     self.keyboardShortcutSelection = keyboardShortcutSelection
     self.applicationTriggerSelection = applicationTriggerSelection
 
@@ -65,12 +66,14 @@ final class WorkflowCoordinator {
     case .selectConfiguration:
       render(workflowsSelection.selections,
              groupIds: groupSelection.selections)
-    case .selectGroups(let ids):
+    case let .selectGroups(ids):
       if let firstId = ids.first,
-         let group = groupStore.group(withId: firstId) {
+         let group = groupStore.group(withId: firstId)
+      {
         var workflowIds = Set<GroupDetailViewModel.ID>()
 
-        let matches = group.workflows.filter { workflowsSelection.selections.contains($0.id) }
+        let matches = group.workflows
+          .filter { workflowsSelection.selections.contains($0.id) }
           .map(\.id)
 
         if !matches.isEmpty {
@@ -91,20 +94,23 @@ final class WorkflowCoordinator {
     switch action {
     case .refresh, .moveWorkflowsToGroup, .reorderWorkflows, .duplicate:
       return
-    case .moveCommandsToWorkflow(_, let workflowId, _):
+    case let .moveCommandsToWorkflow(_, workflowId, _):
       guard let groupId = groupSelection.selections.first else { return }
+
       render([workflowId], groupIds: [groupId])
-    case .selectWorkflow(let workflowIds):
+    case let .selectWorkflow(workflowIds):
       render(workflowIds, groupIds: groupSelection.selections)
     case .removeWorkflows:
       guard let first = groupSelection.selections.first,
-            let group = groupStore.group(withId: first) else {
+            let group = groupStore.group(withId: first)
+      else {
         return
       }
+
       if group.workflows.isEmpty {
         render([], groupIds: groupSelection.selections)
       }
-    case .addWorkflow(let workflowId):
+    case let .addWorkflow(workflowId):
       render([workflowId], groupIds: groupSelection.selections)
     }
   }
@@ -113,6 +119,7 @@ final class WorkflowCoordinator {
 
   @objc private func injected(_ notification: Notification) {
     guard didInject(self, notification: notification) else { return }
+
     withAnimation(.easeInOut(duration: 0.2)) {
       render(workflowsSelection.selections,
              groupIds: groupSelection.selections,

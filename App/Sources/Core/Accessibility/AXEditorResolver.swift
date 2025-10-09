@@ -1,5 +1,5 @@
-import AXEssibility
 import AppKit
+import AXEssibility
 import Foundation
 
 enum AXEditorResolverError: Error {
@@ -12,10 +12,11 @@ enum AXEditorResolver {
     if var textRange = try? parent.value(.selectedTextRange, as: CFRange.self),
        let axValue = AXValueCreate(.cfRange, &textRange),
        let rect = try? parent.reference.parameterizedValue(
-        key: kAXBoundsForRangeParameterizedAttribute,
-        parameters: axValue,
-        as: AXValue.self
-       ) {
+         key: kAXBoundsForRangeParameterizedAttribute,
+         parameters: axValue,
+         as: AXValue.self,
+       )
+    {
       let defaultFrame = CGRect(x: -1, y: -1, width: -1, height: -1)
       var resolvedFrame: CGRect = defaultFrame
       _ = AXValueGetValue(rect, .cgRect, &resolvedFrame)

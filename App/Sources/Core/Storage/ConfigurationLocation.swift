@@ -22,11 +22,12 @@ extension ConfigurationLocation {
       "config-dev.json"
     }
   }
+
   private static var jsonFixuresFolder: String { rootFolder.appending("/Fixtures/json") }
 
   @MainActor
   static var user: ConfigurationLocation {
-    ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: Self.fileName)
+    ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: fileName)
   }
 
   static var designTime: ConfigurationLocation {

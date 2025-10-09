@@ -6,13 +6,12 @@ import SwiftUI
 
 @MainActor
 final class KeyboardCleaner: ObservableObject {
-
   @Published var isEnabled: Bool = false {
     didSet {
       let notchInfo = DynamicNotchInfo(
         icon: .init(content: { KeyboardCleanerIcon(size: 24) }),
         title: "",
-        style: NSScreen.main!.isMirrored() ? .floating(cornerRadius: 20) : .auto
+        style: NSScreen.main!.isMirrored() ? .floating(cornerRadius: 20) : .auto,
       )
       let title = isEnabled ? "Keyboard Cleaner enabled" : "Keyboard Cowboy disabled"
       notchInfo.title = LocalizedStringKey(stringLiteral: title)
@@ -25,14 +24,14 @@ final class KeyboardCleaner: ObservableObject {
     }
   }
 
-  nonisolated init() { }
+  nonisolated init() {}
 
   func consumeEvent(_ event: MachPortEvent) -> Bool {
     switch event.type {
     case .keyUp, .keyDown:
       event.result = nil
       return true
-      default:
+    default:
       return false
     }
   }

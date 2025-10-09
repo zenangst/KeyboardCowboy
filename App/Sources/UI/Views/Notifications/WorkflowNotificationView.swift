@@ -1,7 +1,7 @@
 import Apps
-import SwiftUI
-import Inject
 import Bonzai
+import Inject
+import SwiftUI
 
 struct WorkflowNotificationViewModel: Identifiable, Hashable {
   var id: String
@@ -50,7 +50,7 @@ struct WorkflowNotificationView: View {
       WorkflowNotificationMatchesView(publisher: publisher)
         .frame(
           maxHeight: maxHeight,
-          alignment: notificationPlacement.alignment
+          alignment: notificationPlacement.alignment,
         )
         .fixedSize(horizontal: false, vertical: true)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -71,17 +71,16 @@ struct WorkflowNotificationView: View {
 
   func getHorizontalAlignment(_ placement: NotificationPlacement) -> HorizontalAlignment {
     switch placement {
-    case .center:         .center
-    case .leading:        .leading
-    case .trailing:       .trailing
-    case .top:            .center
-    case .bottom:         .center
-    case .topLeading:     .leading
-    case .topTrailing:    .trailing
-    case .bottomLeading:  .leading
+    case .center: .center
+    case .leading: .leading
+    case .trailing: .trailing
+    case .top: .center
+    case .bottom: .center
+    case .topLeading: .leading
+    case .topTrailing: .trailing
+    case .bottomLeading: .leading
     case .bottomTrailing: .trailing
     }
-
   }
 }
 
@@ -126,7 +125,7 @@ struct WorkflowNotificationKeyView: View {
       ForEach(keyShortcut.modifiers) { modifier in
         ModifierKeyIcon(
           key: modifier,
-          glow: $glow
+          glow: $glow,
         )
         .frame(minWidth: modifier == .leftCommand || modifier == .leftShift ? 40 : 28, minHeight: 28)
         .fixedSize(horizontal: true, vertical: true)
@@ -140,14 +139,14 @@ struct WorkflowNotificationKeyView: View {
 struct WorkflowNotificationView_Previews: PreviewProvider {
   static let emptyModel = WorkflowNotificationViewModel(
     id: "test",
-    keyboardShortcuts: [ ]
+    keyboardShortcuts: [],
   )
 
   static let singleModel = WorkflowNotificationViewModel(
     id: "test",
-    keyboardShortcuts: [ 
-      .init(id: "a", key: "a")
-    ]
+    keyboardShortcuts: [
+      .init(id: "a", key: "a"),
+    ],
   )
 
   static let fullModel = WorkflowNotificationViewModel(
@@ -160,8 +159,8 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
             shortcuts: [
               KeyShortcut(key: "d", modifiers: [.leftControl, .leftOption, .leftCommand]),
               KeyShortcut(key: "f", modifiers: []),
-            ]
-          )
+            ],
+          ),
         ),
         commands: [
           Command.application(
@@ -169,15 +168,15 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
               action: .open,
               application: Application.finder(),
               meta: Command.MetaData(),
-              modifiers: []
-            )
-          )
-        ]
-      )
+              modifiers: [],
+            ),
+          ),
+        ],
+      ),
     ],
     keyboardShortcuts: [
       KeyShortcut(key: "d", modifiers: [.leftControl, .leftOption, .leftCommand]),
-    ]
+    ],
   )
 
   static var publisher = WorkflowNotificationPublisher(fullModel)
@@ -191,10 +190,9 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
 extension Workflow {
   @MainActor @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
-    
     let enabledCommands = Array(machPortConditions.enabledCommands.prefix(3).reversed())
     ZStack {
-      ForEach(Array(enabledCommands.enumerated()), id: \.element.id) { offset, command in
+      ForEach(Array(enabledCommands.enumerated()), id: \.element.id) { _, command in
         command.iconView(size)
           .id(command.id)
       }
@@ -216,60 +214,60 @@ struct PlaceholderIconView: View {
 }
 
 extension Command {
-  func placeholderView(_ size: CGFloat) -> some View {
+  func placeholderView(_: CGFloat) -> some View {
     PlaceholderIconView(size: 32)
   }
 
   @MainActor @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
     switch self {
-      case .builtIn(let builtInCommand):      BuiltinIconBuilder.icon(builtInCommand.kind, size: size)
-      case .bundled(let bundled):
+    case let .builtIn(builtInCommand): BuiltinIconBuilder.icon(builtInCommand.kind, size: size)
+    case let .bundled(bundled):
       switch bundled.kind {
       case .assignToWorkspace, .moveToWorkspace: fatalError()
       case .activatePreviousWorkspace: WorkspaceIcon(.activatePrevious, size: size)
       case .appFocus: AppFocusIcon(size: size)
-      case .workspace(let workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: size)
+      case let .workspace(workspace): WorkspaceIcon(workspace.isDynamic ? .dynamic : .regular, size: size)
       case .tidy: WindowTidyIcon(size: size)
       }
-      case .mouse:                            MouseIconView(size: size)
-      case .systemCommand(let systemCommand): SystemIconBuilder.icon(systemCommand.kind, size: size)
-      case .menuBar:                          MenuIconView(size: size)
-      case .windowManagement:                 WindowManagementIconView(size: size)
-      case .uiElement:                        UIElementIconView(size: size)
-      case .script(let command):
-        switch command.kind {
-          case .shellScript:                  ScriptIconView(size: size)
-          case .appleScript:                  ScriptIconView(size: size)
-        }
-      case .application(let command):         IconView(icon: Icon(command.application), size: CGSize(width: size + 6, height: size + 6))
-      case .text(let command):
-        switch command.kind {
-          case .insertText: TypingIconView(size: size)
-        }
-      case .keyboard(let model):
+    case .mouse: MouseIconView(size: size)
+    case let .systemCommand(systemCommand): SystemIconBuilder.icon(systemCommand.kind, size: size)
+    case .menuBar: MenuIconView(size: size)
+    case .windowManagement: WindowManagementIconView(size: size)
+    case .uiElement: UIElementIconView(size: size)
+    case let .script(command):
+      switch command.kind {
+      case .shellScript: ScriptIconView(size: size)
+      case .appleScript: ScriptIconView(size: size)
+      }
+    case let .application(command): IconView(icon: Icon(command.application), size: CGSize(width: size + 6, height: size + 6))
+    case let .text(command):
+      switch command.kind {
+      case .insertText: TypingIconView(size: size)
+      }
+    case let .keyboard(model):
       switch model.kind {
-      case .key(let command):
+      case let .key(command):
         let letters = command.keyboardShortcuts.map(\.key).joined()
         KeyboardIconView(letters, size: size)
-      case .inputSource(let command):
+      case let .inputSource(command):
         EmptyView()
       }
-      case .open(let command):
-        if let application = command.application {
-          IconView(
-            icon: .init(application),
-            size: .init(width: size + 6, height: size + 6)
-          )
-          .iconShape(size)
-        } else {
-          placeholderView(size)
-        }
+    case let .open(command):
+      if let application = command.application {
+        IconView(
+          icon: .init(application),
+          size: .init(width: size + 6, height: size + 6),
+        )
+        .iconShape(size)
+      } else {
+        placeholderView(size)
+      }
     case .shortcut:
       WorkflowShortcutImage(size: size)
-    case .windowFocus(let command):
+    case let .windowFocus(command):
       WindowFocusIconBuilder.icon(command.kind, size: size)
-    case .windowTiling(let command):
+    case let .windowTiling(command):
       WindowTilingIconBuilder.icon(command.kind, size: size)
     }
   }

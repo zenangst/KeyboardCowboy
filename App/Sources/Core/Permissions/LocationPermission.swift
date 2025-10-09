@@ -1,7 +1,7 @@
-import AXEssibility
-import Foundation
-import CoreLocation
 import AppKit
+import AXEssibility
+import CoreLocation
+import Foundation
 
 public enum PermissionsItemStatus: String {
   case request = "Request"
@@ -18,14 +18,15 @@ final class LocationPermission: NSObject, ObservableObject, CLLocationManagerDel
     case restricted
     case unknown
   }
+
   static let shared = LocationPermission()
 
-  @Published private(set) var viewModel:  PermissionsItemStatus = .request
+  @Published private(set) var viewModel: PermissionsItemStatus = .request
   @Published private(set) var permission: Permission = .notDetermined
 
   private let manager = CLLocationManager()
 
-  private override init() {
+  override private init() {
     super.init()
 
     manager.delegate = self

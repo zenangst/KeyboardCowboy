@@ -7,7 +7,7 @@ struct WorkspaceIcon: View {
     let firstOverlay: LinearGradient
     let secondOverlay: LinearGradient
 
-    nonisolated static let regular: Variant = Variant(
+    nonisolated static let regular: Variant = .init(
       showSymbol: false,
       fillGradient: LinearGradient(stops: [
         .init(color: Color.black, location: 0.0),
@@ -21,10 +21,10 @@ struct WorkspaceIcon: View {
       secondOverlay: LinearGradient(stops: [
         .init(color: Color(.systemGreen.blended(withFraction: 0.3, of: .white)!), location: 0.2),
         .init(color: Color.clear, location: 0.8),
-      ], startPoint: .topTrailing, endPoint: .bottomLeading)
+      ], startPoint: .topTrailing, endPoint: .bottomLeading),
     )
 
-    nonisolated static let activatePrevious: Variant = Variant(
+    nonisolated static let activatePrevious: Variant = .init(
       showSymbol: true,
       fillGradient: LinearGradient(stops: [
         .init(color: Color(.systemPurple), location: 0.0),
@@ -38,10 +38,10 @@ struct WorkspaceIcon: View {
       secondOverlay: LinearGradient(stops: [
         .init(color: Color(.systemOrange.blended(withFraction: 0.1, of: .red)!), location: 0.2),
         .init(color: Color.clear, location: 0.8),
-      ], startPoint: .topTrailing, endPoint: .bottomLeading)
+      ], startPoint: .topTrailing, endPoint: .bottomLeading),
     )
 
-    nonisolated static let dynamic: Variant = Variant(
+    nonisolated static let dynamic: Variant = .init(
       showSymbol: false,
       fillGradient: LinearGradient(stops: [
         .init(color: Color(.systemPurple), location: 0.0),
@@ -55,10 +55,8 @@ struct WorkspaceIcon: View {
       secondOverlay: LinearGradient(stops: [
         .init(color: Color(.systemPink.blended(withFraction: 0.1, of: .red)!), location: 0.2),
         .init(color: Color.clear, location: 0.8),
-      ], startPoint: .topTrailing, endPoint: .bottomLeading)
+      ], startPoint: .topTrailing, endPoint: .bottomLeading),
     )
-
-
   }
 
   let variant: Variant
@@ -74,7 +72,7 @@ struct WorkspaceIcon: View {
       .fill(variant.fillGradient)
       .overlay {
         variant.firstOverlay
-        .opacity(0.6)
+          .opacity(0.6)
       }
       .overlay {
         variant.secondOverlay
@@ -101,16 +99,16 @@ private struct SymbolView: View {
       .init(color: Color(nsColor: .white).opacity(0.8), location: 0.6),
       .init(color: Color(nsColor: .gray), location: 1.0),
     ], startPoint: .topLeading, endPoint: .bottom)
-    .mask {
-      ZStack {
-        Image(systemName: "arrowshape.turn.up.backward.fill")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: size * 0.35)
-          .offset(x: -size * 0.015, y: -size * 0.015)
+      .mask {
+        ZStack {
+          Image(systemName: "arrowshape.turn.up.backward.fill")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: size * 0.35)
+            .offset(x: -size * 0.015, y: -size * 0.015)
+        }
       }
-    }
-    .shadow(color: Color(nsColor: .systemPink.blended(withFraction: 0.4, of: .black)!), radius: 2, y: 1)
+      .shadow(color: Color(nsColor: .systemPink.blended(withFraction: 0.4, of: .black)!), radius: 2, y: 1)
   }
 }
 
@@ -141,6 +139,7 @@ struct WorkspaceIllustration: View {
     case rightQuarters
     case fill
   }
+
   let kind: Kind
   let size: CGFloat
   var body: some View {
@@ -160,7 +159,7 @@ struct WorkspaceIllustration: View {
   }
 }
 
-fileprivate struct WorkspaceQuarters: View {
+private struct WorkspaceQuarters: View {
   let size: CGFloat
   var body: some View {
     let cornerRadius: CGFloat = size * 0.0015
@@ -189,7 +188,7 @@ fileprivate struct WorkspaceQuarters: View {
   }
 }
 
-fileprivate struct WorkspaceLeftQuarters: View {
+private struct WorkspaceLeftQuarters: View {
   let size: CGFloat
   var body: some View {
     let cornerRadius: CGFloat = size * 0.0015
@@ -215,11 +214,11 @@ fileprivate struct WorkspaceLeftQuarters: View {
   }
 }
 
-fileprivate struct WorkspaceRightQuarters: View {
+private struct WorkspaceRightQuarters: View {
   let size: CGFloat
   var body: some View {
     let cornerRadius: CGFloat = size * 0.0015
-    let opacity: Double = 0.8
+    let opacity = 0.8
     let spacing = size * 0.045
     let clipShapeSize = size * 0.045
     HStack(spacing: spacing) {
@@ -241,8 +240,7 @@ fileprivate struct WorkspaceRightQuarters: View {
   }
 }
 
-
-fileprivate struct WorkspaceFill: View {
+private struct WorkspaceFill: View {
   let size: CGFloat
   var body: some View {
     let cornerRadius: CGFloat = size * 0.065
@@ -251,10 +249,9 @@ fileprivate struct WorkspaceFill: View {
     RoundedRectangle(cornerRadius: cornerRadius)
       .fill(Color.white.opacity(0.8))
       .clipShape(RoundedRectangle(cornerRadius: clipShapeSize))
-    .padding(spacing)
+      .padding(spacing)
   }
 }
-
 
 #Preview {
   IconPreview { WorkspaceIcon(.activatePrevious, size: $0) }

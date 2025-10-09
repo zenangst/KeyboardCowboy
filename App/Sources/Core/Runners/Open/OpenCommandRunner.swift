@@ -16,11 +16,12 @@ final class OpenCommandRunner: Sendable {
   private let workspace: WorkspaceProviding
 
   init(_ commandRunner: ScriptCommandRunner, workspace: WorkspaceProviding) {
-    self.plugins = .init(
+    plugins = .init(
       finderFolder: OpenFolderInFinder(commandRunner, workspace: workspace),
       open: OpenFilePlugin(workspace: workspace),
       swapTab: OpenURLSwapTabsPlugin(commandRunner),
-      webApp: OpenURLSafariWebAppPlugin(commandRunner))
+      webApp: OpenURLSafariWebAppPlugin(commandRunner),
+    )
     self.workspace = workspace
   }
 
@@ -29,7 +30,6 @@ final class OpenCommandRunner: Sendable {
       if plugins.finderFolder.validate(application?.bundleIdentifier) {
         try await plugins.finderFolder.execute(path, checkCancellation: checkCancellation)
       } else if path.isUrl {
-
         if let application, application.bundleIdentifier.hasPrefix("com.apple.Safari.WebApp") {
           try await plugins.webApp.execute(path, application: application, checkCancellation: checkCancellation)
           return
@@ -78,12 +78,12 @@ extension String {
   var isUrl: Bool {
     if let url = URL(string: self) {
       if url.host == nil || url.isFileURL {
-        return false
+        false
       } else {
-        return true
+        true
       }
     } else {
-      return false
+      false
     }
   }
 }

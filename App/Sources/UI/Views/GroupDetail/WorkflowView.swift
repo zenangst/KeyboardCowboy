@@ -12,7 +12,8 @@ struct WorkflowView: View {
   init(workflow: GroupDetailViewModel,
        publisher: GroupDetailPublisher,
        contentSelectionManager: SelectionManager<GroupDetailViewModel>,
-       onAction: @escaping (GroupDetailView.Action) -> Void) {
+       onAction: @escaping (GroupDetailView.Action) -> Void)
+  {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.publisher = publisher
@@ -24,7 +25,7 @@ struct WorkflowView: View {
       workflow: workflow,
       publisher: publisher,
       contentSelectionManager: contentSelectionManager,
-      onAction: onAction
+      onAction: onAction,
     )
     .enableInjection()
   }
@@ -43,7 +44,8 @@ private struct WorkflowViewItemInternalView: View {
   init(workflow: GroupDetailViewModel,
        publisher: GroupDetailPublisher,
        contentSelectionManager: SelectionManager<GroupDetailViewModel>,
-       onAction: @escaping (GroupDetailView.Action) -> Void) {
+       onAction: @escaping (GroupDetailView.Action) -> Void)
+  {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.publisher = publisher
@@ -56,13 +58,13 @@ private struct WorkflowViewItemInternalView: View {
         .opacity(workflow.isEnabled ? 1.0 : 0.5)
         .grayscale(workflow.isEnabled ? 0.0 : 1.0)
         .background(
-          Color.black.opacity(0.3).cornerRadius(8, antialiased: false)
+          Color.black.opacity(0.3).cornerRadius(8, antialiased: false),
         )
         .overlay(alignment: .topTrailing) {
           WorkflowBadge(isHovered: $isHovered,
                         text: "\(workflow.badge)",
                         badgeOpacity: workflow.badgeOpacity)
-          .offset(x: 4, y: 0)
+            .offset(x: 4, y: 0)
         }
         .fixedSize()
         .frame(width: 32, height: 32)
@@ -110,7 +112,7 @@ private struct ExecutionView: View {
       .clipShape(RoundedRectangle(cornerRadius: 4))
       .overlay(
         RoundedRectangle(cornerRadius: 4)
-          .stroke(Color(.separatorColor), lineWidth: 1)
+          .stroke(Color(.separatorColor), lineWidth: 1),
       )
       .help(execution == .concurrent ? "Concurrent" : "Serial")
       .enableInjection()
@@ -128,7 +130,7 @@ struct ItemBackgroundView<T: Hashable & Identifiable>: View where T.ID == String
 
   var body: some View {
     FillBackgroundView(
-      isSelected: Binding<Bool>.readonly { selectionManager.selections.contains(id) }
+      isSelected: Binding<Bool>.readonly { selectionManager.selections.contains(id) },
     )
   }
 }
@@ -141,14 +143,14 @@ private struct ContentItemAccessoryView: View {
     switch workflow.trigger {
     case .application:
       GenericAppIconView(size: 16)
-    case .keyboard(let binding):
+    case let .keyboard(binding):
       KeyboardShortcutView(shortcut: .init(key: binding, modifiers: []))
         .fixedSize()
         .font(.footnote)
         .lineLimit(1)
         .allowsTightening(true)
         .frame(minWidth: 32, alignment: .trailing)
-    case .snippet(let snippet):
+    case let .snippet(snippet):
       HStack(spacing: 1) {
         Text(snippet)
           .font(.footnote)
@@ -160,7 +162,7 @@ private struct ContentItemAccessoryView: View {
       .padding(1)
       .overlay(
         RoundedRectangle(cornerRadius: 4)
-          .stroke(Color(.separatorColor), lineWidth: 1)
+          .stroke(Color(.separatorColor), lineWidth: 1),
       )
     case .none:
       EmptyView()
@@ -173,7 +175,7 @@ private struct ContentItemAccessoryView: View {
     WorkflowView(
       workflow: workflow,
       publisher: DesignTime.contentPublisher,
-      contentSelectionManager: SelectionManager<GroupDetailViewModel>()
+      contentSelectionManager: SelectionManager<GroupDetailViewModel>(),
     ) { _ in }
   }
 

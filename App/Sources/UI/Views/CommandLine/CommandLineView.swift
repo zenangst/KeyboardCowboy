@@ -6,16 +6,15 @@ extension AnyTransition {
   static var commandLineTransition: AnyTransition {
     .asymmetric(
       insertion:
-          .scale(scale: 0.1, anchor: .topLeading)
-          .combined(with: .opacity)
-      ,
+      .scale(scale: 0.1, anchor: .topLeading)
+        .combined(with: .opacity),
+
       removal:
-          .scale(scale: 0.1, anchor: .topLeading)
-          .combined(with: .opacity)
+      .scale(scale: 0.1, anchor: .topLeading)
+        .combined(with: .opacity),
     )
   }
 }
-
 
 struct CommandLineViewModel: Equatable {
   var kind: Kind?
@@ -31,9 +30,9 @@ struct CommandLineViewModel: Equatable {
   enum Result: Hashable, Equatable, Identifiable {
     var id: String {
       switch self {
-      case .app(let app): app.id
-      case .url(let url): url.absoluteString
-      case .search(let search): search.id
+      case let .app(app): app.id
+      case let .url(url): url.absoluteString
+      case let .search(search): search.id
       }
     }
 
@@ -64,7 +63,8 @@ struct CommandLineView: View {
       CommandLineInputView(
         data: coordinator.data,
         input: $coordinator.input,
-        onSubmit: { coordinator.run() })
+        onSubmit: { coordinator.run() },
+      )
       .padding(.horizontal, 8)
 
       if !coordinator.data.results.isEmpty {
@@ -75,12 +75,12 @@ struct CommandLineView: View {
                                   optionDown: $coordinator.optionDown,
                                   onTap: { coordinator.run() },
                                   selection: $coordinator.selection)
-        .padding(.horizontal, 8)
+          .padding(.horizontal, 8)
       }
     }
     .background(
       .thinMaterial,
-      in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+      in: RoundedRectangle(cornerRadius: 8, style: .continuous),
     )
   }
 }
@@ -117,9 +117,10 @@ private struct CommandLineResultListView: View {
   private var data: CommandLineViewModel
   private let onTap: () -> Void
 
-  init(data: CommandLineViewModel, optionDown: Binding<Bool>, 
+  init(data: CommandLineViewModel, optionDown: Binding<Bool>,
        onTap: @escaping () -> Void,
-       selection: Binding<Int>) {
+       selection: Binding<Int>)
+  {
     _selection = selection
     _optionDown = optionDown
     self.onTap = onTap
@@ -133,13 +134,13 @@ private struct CommandLineResultListView: View {
           ForEach(Array(zip(data.results.indices, data.results)), id: \.1.id) { offset, result in
             Group {
               switch result {
-              case .app(let app):
+              case let .app(app):
                 CommandLineApplicationView(app: app, optionDown: $optionDown)
                   .id(app.id)
-              case .url(let url):
+              case let .url(url):
                 CommandLineURLView(url: url)
                   .id(url.absoluteString)
-              case .search(let search):
+              case let .search(search):
                 CommandLineSearchView(search: search)
                   .id(result.id)
               }
@@ -152,7 +153,7 @@ private struct CommandLineResultListView: View {
               RoundedRectangle(cornerRadius: 8)
                 .fill(Color.accentColor)
                 .shadow(radius: 4)
-                .opacity(selection == offset ? 0.25 : 0)
+                .opacity(selection == offset ? 0.25 : 0),
             )
             .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
           }
@@ -161,6 +162,7 @@ private struct CommandLineResultListView: View {
       }
       .onChange(of: selection, perform: { value in
         guard data.results.indices.contains(value) else { return }
+
         proxy.scrollTo(data.results[value].id, anchor: .center)
       })
     }
@@ -220,7 +222,6 @@ private struct CommandLineSearchView: View {
   }
 }
 
-
 private struct CommandLineImageView: View {
   let data: CommandLineViewModel
 
@@ -249,11 +250,10 @@ private struct CommandLineImageView: View {
     }
     .frame(width: 32, height: 32)
     .background(
-      Color.black.opacity(0.3).cornerRadius(8, antialiased: false)
+      Color.black.opacity(0.3).cornerRadius(8, antialiased: false),
     )
   }
 }
-
 
 #Preview {
   CommandLineView(coordinator: .shared)

@@ -55,7 +55,7 @@ struct SymbolPalette: View {
                 .frame(width: size - 4, height: size - 4)
                 .overlay(
                   Image(systemName: symbol)
-                    .foregroundStyle(group.symbol == symbol ? .black : .white)
+                    .foregroundStyle(group.symbol == symbol ? .black : .white),
                 )
                 .padding(4)
             }

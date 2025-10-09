@@ -10,9 +10,10 @@ struct CommandContainerDelayPopoverView: View {
 
   private let onChange: (Double) -> Void
 
-  init(_ metaData: Binding<CommandViewModel.MetaData>, 
+  init(_ metaData: Binding<CommandViewModel.MetaData>,
        isShown: Binding<Bool>,
-       onChange: @escaping (Double) -> Void) {
+       onChange: @escaping (Double) -> Void)
+  {
     if let delay = metaData.wrappedValue.delay {
       _delayString = .init(initialValue: String(Int(delay)))
     } else {
@@ -27,8 +28,9 @@ struct CommandContainerDelayPopoverView: View {
     HStack {
       TextField("Delay", text: $delayString) { isEditing in
         guard isShown else { return }
+
         if !isEditing {
-          if let value = Double(self.delayString) {
+          if let value = Double(delayString) {
             if value > 0 {
               metaData.delay = value
             } else {
@@ -59,13 +61,14 @@ struct CommandContainerDelayPopoverView_Previews: PreviewProvider {
     namePlaceholder: UUID().uuidString,
     isEnabled: false,
     notification: nil,
-    variableName: ""
+    variableName: "",
   )
 
   static var previews: some View {
     CommandContainerDelayPopoverView(
       .constant(model),
       isShown: .constant(true),
-      onChange: { _ in })
+      onChange: { _ in },
+    )
   }
 }

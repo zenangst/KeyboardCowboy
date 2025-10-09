@@ -13,7 +13,8 @@ extension NSView {
   }
 
   func findSuperview<T: NSView>(_ ofType: T.Type) -> T? {
-    guard let superview = superview else { return nil }
+    guard let superview else { return nil }
+
     if let match = superview as? T {
       return match
     } else {

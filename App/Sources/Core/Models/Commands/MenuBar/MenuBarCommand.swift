@@ -6,17 +6,18 @@ struct MenuBarCommand: MetaDataProviding {
   var application: Application?
   var meta: Command.MetaData
 
-  init(id: String = UUID().uuidString, 
+  init(id: String = UUID().uuidString,
        name: String = "",
        application: Application?,
        tokens: [Token],
        isEnabled: Bool = true,
-       notification: Command.Notification? = nil) {
+       notification: Command.Notification? = nil)
+  {
     self.application = application
     self.tokens = tokens
-    self.meta = Command.MetaData(id: id, name: name,
-                                 isEnabled: isEnabled,
-                                 notification: notification)
+    meta = Command.MetaData(id: id, name: name,
+                            isEnabled: isEnabled,
+                            notification: notification)
   }
 
   init(application: Application?, tokens: [Token], meta: Command.MetaData) {
@@ -28,9 +29,9 @@ struct MenuBarCommand: MetaDataProviding {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-    self.tokens = try container.decode([Token].self, forKey: .tokens)
-    self.application = try container.decodeIfPresent(Application.self, forKey: .application)
+    meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    tokens = try container.decode([Token].self, forKey: .tokens)
+    application = try container.decodeIfPresent(Application.self, forKey: .application)
   }
 
   func copy() -> MenuBarCommand {
@@ -98,7 +99,6 @@ extension MenuBarCommand.Token {
   static func rightLeft() -> [Self] {
     [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Left")]
   }
-
 
   static func leftQuarters() -> [Self] {
     [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Quarters")]

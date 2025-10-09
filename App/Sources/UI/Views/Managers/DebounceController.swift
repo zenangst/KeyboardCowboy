@@ -1,8 +1,8 @@
 import Combine
 import Foundation
 
-protocol DebounceSnapshot: Equatable { }
-extension String: DebounceSnapshot { }
+protocol DebounceSnapshot: Equatable {}
+extension String: DebounceSnapshot {}
 
 final class DebounceController<Snapshot: DebounceSnapshot> {
   enum Kind {
@@ -17,10 +17,10 @@ final class DebounceController<Snapshot: DebounceSnapshot> {
   @Published var snapshot: Snapshot
 
   init(_ initialValue: Snapshot, kind: Kind = .keyRepeat, milliseconds: Int, onUpdate: @escaping (Snapshot) -> Void) {
-    self._snapshot = .init(initialValue: initialValue)
+    _snapshot = .init(initialValue: initialValue)
     self.onUpdate = onUpdate
     self.kind = kind
-    self.subscription = subject
+    subscription = subject
       .debounce(for: .milliseconds(milliseconds), scheduler: DispatchQueue.main)
       .sink {
         onUpdate($0)

@@ -55,7 +55,7 @@ final class WindowStore: @unchecked Sendable {
 
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     subscriptions.frontmostApplication = publisher
-      .compactMap { $0 }
+      .compactMap(\.self)
       .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self, state] application in
         guard let self else { return }
@@ -63,7 +63,7 @@ final class WindowStore: @unchecked Sendable {
         let pid = application.ref.processIdentifier
         state.appAccessibilityElement = AppAccessibilityElement(pid)
         state.frontmostApplication = application
-        self.index()
+        index()
       }
   }
 
@@ -143,7 +143,7 @@ final class WindowStore: @unchecked Sendable {
             (window.size?.height ?? 0) > 20 &&
             !forbiddenSubroles.contains(window.subrole ?? "")
         }
-    } catch { }
+    } catch {}
   }
 }
 
@@ -152,7 +152,7 @@ private extension WindowStore.State {
     WindowStoreSnapshot(
       frontmostApplicationWindows: frontmostApplicationWindows.filter { $0.id > 0 },
       visibleWindowsInStage: visibleWindowsInStage.filter { $0.id > 0 },
-      visibleWindowsInSpace: visibleWindowsInSpace.filter { $0.id > 0 }
+      visibleWindowsInSpace: visibleWindowsInSpace.filter { $0.id > 0 },
     )
   }
 }

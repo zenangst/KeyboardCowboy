@@ -1,20 +1,21 @@
 import AXEssibility
 import Carbon
 import Cocoa
-import KeyCodes
 import Foundation
+import KeyCodes
 
 @MainActor
 final class TextCommandRunner {
   private let keyboardCommandRunner: KeyboardCommandRunner
 
-  internal init(_ keyboardCommandRunner: KeyboardCommandRunner) {
+  init(_ keyboardCommandRunner: KeyboardCommandRunner) {
     self.keyboardCommandRunner = keyboardCommandRunner
   }
 
   func run(_ command: TextCommand.TypeCommand, snapshot: UserSpace.Snapshot, runtimeDictionary: [String: String]) async throws {
     let input = snapshot.interpolateUserSpaceVariables(command.input, runtimeDictionary: runtimeDictionary)
-    guard !input.isEmpty .self else { return }
+    guard !input.isEmpty.self else { return }
+
     switch command.mode {
     case .typing:
       let newLines = CharacterSet.newlines
@@ -49,7 +50,8 @@ final class TextCommandRunner {
       }
     case .instant:
       if let focusedElement = try? SystemAccessibilityElement().focusedUIElement(),
-         focusedElement.selectedText() != nil {
+         focusedElement.selectedText() != nil
+      {
         focusedElement.setSelectedText(input)
       } else {
         let pasteboard = NSPasteboard.general

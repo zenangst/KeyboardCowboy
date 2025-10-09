@@ -13,11 +13,11 @@ final class SidebarCoordinator {
   let publisher = GroupsPublisher()
 
   init(_ store: GroupStore, applicationStore: ApplicationStore,
-       groupSelectionManager: SelectionManager<GroupViewModel>
-  ) {
+       groupSelectionManager: SelectionManager<GroupViewModel>)
+  {
     self.applicationStore = applicationStore
     self.store = store
-    self.selectionManager = groupSelectionManager
+    selectionManager = groupSelectionManager
 
     // Initial load
     // Configurations are loaded asynchronously, so we need to wait for them to be loaded
@@ -33,20 +33,20 @@ final class SidebarCoordinator {
     let storeWasEmpty = store.groups.isEmpty
     let groupId: GroupViewModel.ID
     switch context {
-    case .add(let group):
+    case let .add(group):
       groupId = group.id
       store.add(group)
       ColorPublisher.shared.publish(Color(hex: group.color))
-    case .edit(let group):
+    case let .edit(group):
       groupId = group.id
       store.updateGroups([group])
       ColorPublisher.shared.publish(Color(hex: group.color))
     }
     selectionManager.publish([groupId])
     if storeWasEmpty {
-        withAnimation(CommandList.animation) {
-          render(store.groups)
-        }
+      withAnimation(CommandList.animation) {
+        render(store.groups)
+      }
     } else {
       render(store.groups)
     }
@@ -58,7 +58,7 @@ final class SidebarCoordinator {
       break
     case .refresh:
       render(store.groups)
-    case .selectConfiguration(let id):
+    case let .selectConfiguration(id):
       if let firstGroup = store.groups.first(where: { $0.id == id }) {
         selectionManager.publish([firstGroup.id])
         ColorPublisher.shared.publish(Color(hex: firstGroup.color))
@@ -74,7 +74,7 @@ final class SidebarCoordinator {
         selectionManager.publish([])
       }
       render(store.groups)
-    case .selectGroups(let ids):
+    case let .selectGroups(ids):
       if ids.count == 1, let id = ids.first, let group = store.group(withId: id) {
         let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)!
         ColorPublisher.shared.publish(Color(nsColor: nsColor))
@@ -84,7 +84,7 @@ final class SidebarCoordinator {
       }
     case .addConfiguration:
       render(store.groups)
-    case .removeGroups(let ids):
+    case let .removeGroups(ids):
       var newIndex = 0
       for (index, group) in store.groups.enumerated() {
         if ids.contains(group.id) { newIndex = index }
@@ -112,15 +112,15 @@ final class SidebarCoordinator {
           newIndex = max(store.groups.count - 1, 0)
         }
         selectionManager.publish([
-          store.groups[newIndex].id
+          store.groups[newIndex].id,
         ])
       }
-    case .moveGroups(let source, let destination):
+    case let .moveGroups(source, destination):
       store.move(source: source, destination: destination)
       render(store.groups)
-    case .copyWorkflows(let workflowIds, let groupId):
+    case let .copyWorkflows(workflowIds, groupId):
       store.copy(workflowIds, to: groupId)
-    case .moveWorkflows(let workflowIds, let groupId):
+    case let .moveWorkflows(workflowIds, groupId):
       store.move(workflowIds, to: groupId)
     }
   }
@@ -140,6 +140,7 @@ final class SidebarCoordinator {
 
   @objc private func injected(_ notification: Notification) {
     guard didInject(self, notification: notification) else { return }
+
     withAnimation(.easeInOut(duration: 0.2)) {
       render(store.groups)
     }

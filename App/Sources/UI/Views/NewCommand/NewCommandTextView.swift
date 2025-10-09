@@ -9,8 +9,8 @@ struct NewCommandTextView: View {
   private let onSubmit: () -> Void
 
   init(payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>, onSubmit: @escaping () -> Void) {
-    if case .text(let textCommand) = payload.wrappedValue {
-      _kind = .init(initialValue: textCommand.kind) 
+    if case let .text(textCommand) = payload.wrappedValue {
+      _kind = .init(initialValue: textCommand.kind)
     } else {
       _kind = .init(initialValue: .insertText(.init("Hello, world!", mode: .instant, actions: [])))
     }
@@ -27,7 +27,6 @@ struct NewCommandTextView: View {
       Button(action: { NSWorkspace.shared.open(wikiUrl) },
              label: { Image(systemName: "questionmark.circle.fill") })
     }
-
 
     HStack {
       TypingIconView(size: 24)
@@ -63,7 +62,8 @@ struct NewCommandTextView_Previews: PreviewProvider {
       selection: .text,
       payload: .text(.init(.insertText(.init("", mode: .instant, actions: [])))),
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

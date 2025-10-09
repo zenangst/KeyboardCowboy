@@ -1,6 +1,6 @@
 import Cocoa
-@testable import Keyboard_Cowboy
 import Foundation
+@testable import Keyboard_Cowboy
 
 class RunningApplicationMock: @preconcurrency RunningApplication {
   var isFinishedLaunching: Bool = true
@@ -14,7 +14,8 @@ class RunningApplicationMock: @preconcurrency RunningApplication {
   @MainActor static let currentApp = NSRunningApplication.currentApp
 
   init(bundleIdentifier: String? = nil, bundleURL: URL? = nil, isHidden: Bool = false,
-       isTerminated: Bool = false, localizedName: String? = nil, processIdentifier: pid_t) {
+       isTerminated: Bool = false, localizedName: String? = nil, processIdentifier: pid_t)
+  {
     self.bundleIdentifier = bundleIdentifier
     self.bundleURL = bundleURL
     self.isHidden = isHidden
@@ -23,7 +24,7 @@ class RunningApplicationMock: @preconcurrency RunningApplication {
     self.processIdentifier = processIdentifier
   }
 
-  func activate(options: NSApplication.ActivationOptions) -> Bool { false }
+  func activate(options _: NSApplication.ActivationOptions) -> Bool { false }
   func terminate() -> Bool { false }
   func hide() -> Bool { false }
   func unhide() -> Bool { false }

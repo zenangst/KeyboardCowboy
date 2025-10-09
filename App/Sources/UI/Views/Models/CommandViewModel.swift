@@ -25,7 +25,8 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
          isEnabled: Bool = true,
          notification: Command.Notification? = nil,
          icon: Icon? = nil,
-         variableName: String = "") {
+         variableName: String = "")
+    {
       self.id = id
       self.delay = delay
       self.name = name
@@ -45,22 +46,22 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     var id: String { (self as (any Identifiable<String>)).id }
     var placeholder: String {
       switch self {
-      case .application(let applicationModel): applicationModel.placeholder
-      case .builtIn(let builtInModel): builtInModel.placeholder
-      case .bundled(let bundledModel): bundledModel.placeholder
-      case .open(let openModel): openModel.placeholder
-      case .keyboard(let keyboardModel): keyboardModel.placeholder
-      case .inputSource(let inputSourceModel): inputSourceModel.placeholder
-      case .script(let scriptModel): scriptModel.placeholder
-      case .shortcut(let shortcutModel): shortcutModel.placeholder
-      case .text(let textModel): textModel.placeholder
-      case .systemCommand(let systemModel): systemModel.placeholder
-      case .menuBar(let menuBarModel): menuBarModel.placeholder
-      case .mouse(let mouseModel): mouseModel.placeholder
-      case .uiElement(let uIElementCommand): uIElementCommand.placeholder
-      case .windowFocus(let command): command.placeholder
-      case .windowManagement(let windowManagementModel): windowManagementModel.placeholder
-      case .windowTiling(let command): command.placeholder
+      case let .application(applicationModel): applicationModel.placeholder
+      case let .builtIn(builtInModel): builtInModel.placeholder
+      case let .bundled(bundledModel): bundledModel.placeholder
+      case let .open(openModel): openModel.placeholder
+      case let .keyboard(keyboardModel): keyboardModel.placeholder
+      case let .inputSource(inputSourceModel): inputSourceModel.placeholder
+      case let .script(scriptModel): scriptModel.placeholder
+      case let .shortcut(shortcutModel): shortcutModel.placeholder
+      case let .text(textModel): textModel.placeholder
+      case let .systemCommand(systemModel): systemModel.placeholder
+      case let .menuBar(menuBarModel): menuBarModel.placeholder
+      case let .mouse(mouseModel): mouseModel.placeholder
+      case let .uiElement(uIElementCommand): uIElementCommand.placeholder
+      case let .windowFocus(command): command.placeholder
+      case let .windowManagement(windowManagementModel): windowManagementModel.placeholder
+      case let .windowTiling(command): command.placeholder
       }
     }
 
@@ -115,6 +116,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
           }
         }
       }
+
       let id: String
       var name: String
       var placeholder: String { kind.placeholder }
@@ -227,15 +229,16 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var id: String { kind.id }
       var placeholder: String {
         switch kind {
-        case .type(let model): model.placeholder
+        case let .type(model): model.placeholder
         }
       }
+
       let kind: Kind
 
       enum Kind: Codable, Hashable, Identifiable, Sendable {
         var id: String {
           switch self {
-          case .type(let model): model.id
+          case let .type(model): model.id
           }
         }
 
@@ -261,6 +264,5 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var placeholder: String { " Window Tiling…" }
       var kind: WindowTiling
     }
-
   }
 }

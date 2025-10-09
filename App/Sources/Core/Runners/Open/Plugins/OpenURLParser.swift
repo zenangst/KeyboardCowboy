@@ -2,16 +2,14 @@ import Cocoa
 
 final class OpenURLParser: Sendable {
   func parse(_ path: String) -> URL {
-    let targetUrl: URL
-
-    if let url = URL(string: path) {
+    let targetUrl: URL = if let url = URL(string: path) {
       if url.scheme == nil || url.isFileURL {
-        targetUrl = URL(fileURLWithPath: path)
+        URL(fileURLWithPath: path)
       } else {
-        targetUrl = url
+        url
       }
     } else {
-      targetUrl = URL(fileURLWithPath: path)
+      URL(fileURLWithPath: path)
     }
 
     return targetUrl

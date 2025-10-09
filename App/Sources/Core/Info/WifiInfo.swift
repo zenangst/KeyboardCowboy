@@ -1,5 +1,5 @@
-import Foundation
 import CoreWLAN
+import Foundation
 import SystemConfiguration.CaptiveNetwork
 
 enum WifiInfoError: Error {
@@ -11,7 +11,8 @@ final class WifiInfo: CWEventDelegate, @unchecked Sendable {
     let ssid: String
 
     init?(ssid: String?) {
-      guard let ssid = ssid else { return nil }
+      guard let ssid else { return nil }
+
       self.ssid = ssid
     }
   }
@@ -35,6 +36,7 @@ final class WifiInfo: CWEventDelegate, @unchecked Sendable {
     guard LocationPermission.shared.permission != .authorizedAlways else {
       throw WifiInfoError.needsPermissions
     }
+
     try client.startMonitoringEvent(with: .ssidDidChange)
   }
 

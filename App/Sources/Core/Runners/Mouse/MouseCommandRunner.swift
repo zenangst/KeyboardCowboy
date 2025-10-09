@@ -1,5 +1,5 @@
-import AXEssibility
 import AppKit
+import AXEssibility
 import CoreGraphics
 import Foundation
 
@@ -20,17 +20,17 @@ class MouseCommandRunner {
 
       guard let roleDescription = KnownAccessibilityRoleDescription(rawValue: rawRoleDescription) else {
         #if DEBUG
-        print("Ignored:", rawRoleDescription)
+          print("Ignored:", rawRoleDescription)
         #endif
         return
       }
 
-      let frame: CGRect
-      if let customRoutine = CustomMouseRoutine(rawValue: snapshot.frontMostApplication.bundleIdentifier)?
-        .routine(roleDescription: roleDescription) {
-        frame = try customRoutine.run(focusedElement, kind: command.kind, roleDescription: roleDescription)
+      let frame: CGRect = if let customRoutine = CustomMouseRoutine(rawValue: snapshot.frontMostApplication.bundleIdentifier)?
+        .routine(roleDescription: roleDescription)
+      {
+        try customRoutine.run(focusedElement, kind: command.kind, roleDescription: roleDescription)
       } else {
-        frame = switch roleDescription {
+        switch roleDescription {
         case .collection: try AXCollectionResolver.resolveFocusedElement(focusedElement)
         case .editor: try AXEditorResolver.resolveFocusedElement(focusedElement)
         case .group: try AXGroupResolver.resolveFocusedElement(AnyAccessibilityElement(focusedElement.reference))
@@ -44,10 +44,8 @@ class MouseCommandRunner {
         }
       }
 
-      var targetLocation: CGPoint
-
-      if case .focused(let clickLocation) = command.kind.element {
-        targetLocation = switch clickLocation {
+      var targetLocation = if case let .focused(clickLocation) = command.kind.element {
+        switch clickLocation {
         case .topLeading: CGPoint(x: frame.origin.x, y: frame.origin.y)
         case .top: CGPoint(x: frame.midX, y: frame.origin.y)
         case .topTrailing: CGPoint(x: frame.maxX, y: frame.origin.y)
@@ -57,10 +55,10 @@ class MouseCommandRunner {
         case .bottomLeading: CGPoint(x: frame.origin.x, y: frame.maxY)
         case .bottom: CGPoint(x: frame.midX, y: frame.maxY)
         case .bottomTrailing: CGPoint(x: frame.maxX, y: frame.maxY)
-        case .custom(let x, let y): CGPoint(x: x, y: y)
+        case let .custom(x, y): CGPoint(x: x, y: y)
         }
       } else {
-        targetLocation = CGPoint(x: frame.midX, y: frame.midY)
+        CGPoint(x: frame.midX, y: frame.midY)
       }
 
       targetLocation = targetLocation.applying(.init(translationX: 5, y: 5))
@@ -85,20 +83,20 @@ class MouseCommandRunner {
     _ source: CGEventSource?,
     eventType: MouseEventType,
     clickCount: Int64 = 1,
-    location: CGPoint
+    location: CGPoint,
   ) {
     let eventDown = CGEvent(
       mouseEventSource: source,
       mouseType: eventType.downType,
       mouseCursorPosition: location,
-      mouseButton: eventType.mouseButton
+      mouseButton: eventType.mouseButton,
     )
     eventDown?.flags = CGEventFlags(rawValue: 0)
     let eventUp = CGEvent(
       mouseEventSource: source,
       mouseType: eventType.upType,
       mouseCursorPosition: location,
-      mouseButton: eventType.mouseButton
+      mouseButton: eventType.mouseButton,
     )
     eventUp?.flags = CGEventFlags(rawValue: 0)
 
@@ -160,7 +158,7 @@ enum KnownAccessibilityRoleDescription: String {
 
 extension AnyAccessibilityElement {
   func getFrame() throws -> CGRect {
-    if let frame = frame {
+    if let frame {
       return frame
     } else {
       throw MouseCommandRunnerError.unableToResolveFrame

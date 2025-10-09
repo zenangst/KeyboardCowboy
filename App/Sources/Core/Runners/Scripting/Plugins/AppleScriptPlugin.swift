@@ -1,5 +1,5 @@
-import Combine
 import Cocoa
+import Combine
 
 enum AppleScriptPluginError: Error {
   case failedToCreateInlineScript
@@ -33,7 +33,7 @@ final class AppleScriptPlugin: @unchecked Sendable {
 
   init(workspace: NSWorkspace) {
     frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
-      .compactMap { $0 }
+      .compactMap(\.self)
       .filter { $0.bundleIdentifier == self.bundleIdentifier }
       .sink { [cache] _ in
         Task { await cache.clear() }
@@ -54,7 +54,7 @@ final class AppleScriptPlugin: @unchecked Sendable {
     }
 
     if checkCancellation { try Task.checkCancellation() }
-    let descriptor = try self.execute(appleScript)
+    let descriptor = try execute(appleScript)
     await cache.set(appleScript, for: key)
     return descriptor.stringValue
   }
@@ -75,7 +75,7 @@ final class AppleScriptPlugin: @unchecked Sendable {
 
     do {
       if checkCancellation { try Task.checkCancellation() }
-      let descriptor = try self.execute(appleScript)
+      let descriptor = try execute(appleScript)
       await cache.set(appleScript, for: id)
       return descriptor.stringValue
     } catch {
@@ -90,13 +90,13 @@ final class AppleScriptPlugin: @unchecked Sendable {
 
     appleScript.compileAndReturnError(&errorDictionary)
 
-    if let errorDictionary = errorDictionary {
+    if let errorDictionary {
       throw AppleScriptPluginError.compileFailed(createError(from: errorDictionary))
     }
 
     let descriptor = appleScript.executeAndReturnError(&errorDictionary)
 
-    if let errorDictionary = errorDictionary {
+    if let errorDictionary {
       throw AppleScriptPluginError.executionFailed(createError(from: errorDictionary))
     }
 
@@ -110,7 +110,7 @@ final class AppleScriptPlugin: @unchecked Sendable {
     let errorDomain = "com.zenangst.KeyboardCowboy.AppleScriptPlugin"
     let error = NSError(domain: errorDomain, code: code, userInfo: [
       NSLocalizedFailureReasonErrorKey: errorMessage,
-      NSLocalizedDescriptionKey: descriptionMessage
+      NSLocalizedDescriptionKey: descriptionMessage,
     ])
     return error
   }

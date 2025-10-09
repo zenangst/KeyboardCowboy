@@ -1,9 +1,9 @@
 import Carbon
-import XCTest
-import KeyCodes
 import InputSources
-@testable import MachPort
 @testable import Keyboard_Cowboy
+import KeyCodes
+@testable import MachPort
+import XCTest
 
 @MainActor
 final class ShortcutResolverTests: XCTestCase {
@@ -27,15 +27,15 @@ final class ShortcutResolverTests: XCTestCase {
     let mismatchedToken = LookupTokenMock(keyCode: 0, flags: .maskCommand)
     let matchedToken = LookupTokenMock(keyCode: 1, flags: keyShortcut.cgFlags)
 
-    XCTAssertFalse((shortcutResolver.lookup(mismatchedToken, bundleIdentifier: "*.", userModes: []) != nil))
-    XCTAssertTrue((shortcutResolver.lookup(matchedToken, bundleIdentifier: "*.", userModes: []) != nil))
+    XCTAssertFalse(shortcutResolver.lookup(mismatchedToken, bundleIdentifier: "*.", userModes: []) != nil)
+    XCTAssertTrue(shortcutResolver.lookup(matchedToken, bundleIdentifier: "*.", userModes: []) != nil)
   }
 
   func testShortcutResolverLookupSequenceKeyTrigger() {
     let keyShortcut1 = KeyShortcut(key: "s", modifiers: [.leftCommand])
     let keyShortcut2 = KeyShortcut(key: "a", modifiers: [.leftCommand])
     let trigger = Workflow.Trigger.keyboardShortcuts(
-      KeyboardShortcutTrigger(shortcuts: [keyShortcut1, keyShortcut2])
+      KeyboardShortcutTrigger(shortcuts: [keyShortcut1, keyShortcut2]),
     )
     let command = Command.systemCommand(.init(kind: .activateLastApplication, meta: Command.MetaData()))
     let workflow = Workflow(name: "workflow", trigger: trigger, commands: [command])
@@ -50,14 +50,14 @@ final class ShortcutResolverTests: XCTestCase {
     let matchedToken1 = LookupTokenMock(keyCode: 1, flags: keyShortcut1.cgFlags)
     let matchedToken2 = LookupTokenMock(keyCode: 0, flags: keyShortcut1.cgFlags)
 
-    XCTAssertFalse((shortcutResolver.lookup(mismatchedToken, bundleIdentifier: "*.", userModes: []) != nil))
+    XCTAssertFalse(shortcutResolver.lookup(mismatchedToken, bundleIdentifier: "*.", userModes: []) != nil)
 
     let partialMatch = shortcutResolver.lookup(matchedToken1, bundleIdentifier: "*.", userModes: [])
 
     switch partialMatch {
-    case .partialMatch(let partialMatch):
+    case let .partialMatch(partialMatch):
       switch shortcutResolver.lookup(matchedToken2, bundleIdentifier: "*.", userModes: [], partialMatch: partialMatch) {
-      case .exact(let resolvedWorkflow):
+      case let .exact(resolvedWorkflow):
         print("workflow", workflow.name)
         XCTAssertEqual(workflow, resolvedWorkflow)
       case .partialMatch, .none:
@@ -71,23 +71,23 @@ final class ShortcutResolverTests: XCTestCase {
 }
 
 @MainActor
-fileprivate class KeyCodeLoookupMock: KeycodeLocating {
-  func specialKeys() -> [Int : String] { [:] }
+private class KeyCodeLoookupMock: KeycodeLocating {
+  func specialKeys() -> [Int: String] { [:] }
 
-  func displayValue(for keyCode: Int, modifiers: [VirtualModifierKey]) -> String? { nil }
+  func displayValue(for _: Int, modifiers _: [VirtualModifierKey]) -> String? { nil }
 
   var cache: [String: Int]
 
-  init(cache: [String : Int]) {
+  init(cache: [String: Int]) {
     self.cache = cache
   }
 
-  func keyCode(for string: String, matchDisplayValue: Bool) -> Int? {
-    return cache[string]
+  func keyCode(for string: String, matchDisplayValue _: Bool) -> Int? {
+    cache[string]
   }
 }
 
-fileprivate struct LookupTokenMock: LookupToken {
+private struct LookupTokenMock: LookupToken {
   var keyCode: Int64
   var signature: CGEventSignature
   var flags: CGEventFlags
@@ -95,6 +95,6 @@ fileprivate struct LookupTokenMock: LookupToken {
   init(keyCode: Int64, flags: CGEventFlags) {
     self.keyCode = keyCode
     self.flags = flags
-    self.signature = CGEventSignature(keyCode, flags)
+    signature = CGEventSignature(keyCode, flags)
   }
 }

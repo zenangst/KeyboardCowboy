@@ -1,6 +1,7 @@
 import Foundation
 
 // MARK: Experimental -
+
 // Should probably measure performance and see what this would look like at
 // call-sites.
 extension MutableCollection where Element: Identifiable {
@@ -25,6 +26,7 @@ extension MutableCollection where Element: Identifiable {
       guard let index = old.firstIndex(where: { $0.id == element.id }) else {
         continue
       }
+
       new[index] = element
     }
     self = new

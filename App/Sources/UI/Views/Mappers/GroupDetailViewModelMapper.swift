@@ -7,23 +7,23 @@ final class GroupDetailViewModelMapper {
   }
 }
 
-private extension Array where Element == Workflow {
+private extension [Workflow] {
   func asViewModels(_ groupName: String?, groupId: String) -> [GroupDetailViewModel] {
     var viewModels = [GroupDetailViewModel]()
-    viewModels.reserveCapacity(self.count)
-    for (offset, model) in self.enumerated() {
+    viewModels.reserveCapacity(count)
+    for (offset, model) in enumerated() {
       viewModels.append(model.asViewModel(offset == 0 ? groupName : nil, groupId: groupId))
     }
     return viewModels
   }
 }
 
-private extension Array where Element == KeyShortcut {
+private extension [KeyShortcut] {
   var binding: String? {
     if count == 1, let firstMatch = first {
       let key: String = firstMatch.key.count == 1
-      ? firstMatch.key.uppercaseFirstLetter()
-      : firstMatch.key
+        ? firstMatch.key.uppercaseFirstLetter()
+        : firstMatch.key
       return "\(firstMatch.modifersDisplayValue)\(key)"
     } else if count > 1 {
       return compactMap {
@@ -36,14 +36,15 @@ private extension Array where Element == KeyShortcut {
 }
 
 private extension String {
-    func uppercaseFirstLetter() -> String {
-        guard let firstCharacter = self.first else {
-            return self
-        }
-        let uppercaseFirstCharacter = String(firstCharacter).uppercased()
-        let remainingString = String(self.dropFirst())
-        return uppercaseFirstCharacter + remainingString
+  func uppercaseFirstLetter() -> String {
+    guard let firstCharacter = first else {
+      return self
     }
+
+    let uppercaseFirstCharacter = String(firstCharacter).uppercased()
+    let remainingString = String(dropFirst())
+    return uppercaseFirstCharacter + remainingString
+  }
 }
 
 private extension Workflow {
@@ -52,8 +53,8 @@ private extension Workflow {
     let viewModelTrigger: GroupDetailViewModel.Trigger?
     viewModelTrigger = switch trigger {
     case .application: .application("foo")
-    case .keyboardShortcuts(let trigger): .keyboard(trigger.shortcuts.binding ?? "")
-    case .snippet(let snippetTrigger): .snippet(snippetTrigger.text)
+    case let .keyboardShortcuts(trigger): .keyboard(trigger.shortcuts.binding ?? "")
+    case let .snippet(snippetTrigger): .snippet(snippetTrigger.text)
     case .modifier: .none
     case .none: nil
     }
@@ -74,37 +75,39 @@ private extension Workflow {
       execution: execution,
       badge: commandCount > 1 ? commandCount : 0,
       badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
-      isEnabled: isEnabled)
+      isEnabled: isEnabled,
+    )
   }
 }
 
 private extension Workflow.Trigger {
   var binding: String? {
     switch self {
-    case .keyboardShortcuts(let trigger):
-      return trigger.shortcuts.binding
+    case let .keyboardShortcuts(trigger):
+      trigger.shortcuts.binding
     case .application, .snippet, .modifier:
-      return nil
+      nil
     }
   }
 }
 
-private extension Array where Element == Command {
+private extension [Command] {
   func overlayImages(limit: Int) -> [GroupDetailViewModel.ImageModel] {
     var images = [GroupDetailViewModel.ImageModel]()
 
-    for (offset, element) in self.enumerated() where element.isEnabled {
+    for (offset, element) in enumerated() where element.isEnabled {
       if offset == limit { break }
       let convertedOffset = Double(offset)
 
       switch element {
-      case .open(let command):
+      case let .open(command):
         if let application = command.application {
           images.append(GroupDetailViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
             kind: .icon(.init(bundleIdentifier: application.bundleIdentifier,
-                              path: application.path))))
+                              path: application.path)),
+          ))
         }
       default:
         continue
@@ -116,8 +119,8 @@ private extension Array where Element == Command {
 
   func images(limit: Int) -> [GroupDetailViewModel.ImageModel] {
     var images = [GroupDetailViewModel.ImageModel]()
-    var offset: Int = 0
-    for element in self.reversed() where element.isEnabled {
+    var offset = 0
+    for element in reversed() where element.isEnabled {
       // Don't render icons for commands that are not enabled.
       if !element.isEnabled { continue }
 
@@ -125,17 +128,18 @@ private extension Array where Element == Command {
 
       let convertedOffset = Double(offset)
       switch element {
-      case .application(let command):
+      case let .application(command):
         images.append(
           GroupDetailViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
             kind: .icon(.init(bundleIdentifier: command.application.bundleIdentifier,
-                              path: command.application.path)))
+                              path: command.application.path)),
+          ),
         )
-      case .menuBar:              images.append(.menubar(element, offset: convertedOffset))
-      case .builtIn(let command): images.append(.builtIn(element, kind: command.kind, offset: convertedOffset))
-      case .bundled(let command):
+      case .menuBar: images.append(.menubar(element, offset: convertedOffset))
+      case let .builtIn(command): images.append(.builtIn(element, kind: command.kind, offset: convertedOffset))
+      case let .bundled(command):
         switch command.kind {
         case .assignToWorkspace, .moveToWorkspace: fatalError()
         case .activatePreviousWorkspace: images.append(.bundled(element, offset: convertedOffset, kind: .activatePreviousWorkspace))
@@ -145,43 +149,42 @@ private extension Array where Element == Command {
         }
       case .mouse:
         images.append(.mouse(element, offset: convertedOffset))
-      case .keyboard(let keyCommand):
+      case let .keyboard(keyCommand):
         switch keyCommand.kind {
-        case .key(let keyCommand):
+        case let .key(keyCommand):
           if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
             images.append(.keyboard(element, string: keyboardShortcut.key, offset: convertedOffset))
           }
         case .inputSource:
           images.append(.inputSource(element, offset: convertedOffset))
         }
-
-      case .open(let command):
-        let path: String
-        if let appPath = command.application?.path {
-          path = appPath
+      case let .open(command):
+        let path: String = if let appPath = command.application?.path {
+          appPath
         } else if command.isUrl {
-          path = "/System/Library/SyncServices/Schemas/Bookmarks.syncschema/Contents/Resources/com.apple.Bookmarks.icns"
+          "/System/Library/SyncServices/Schemas/Bookmarks.syncschema/Contents/Resources/com.apple.Bookmarks.icns"
         } else {
-          path = command.path
+          command.path
         }
 
         images.append(
           GroupDetailViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .icon(.init(bundleIdentifier: path, path: path)))
+            kind: .icon(.init(bundleIdentifier: path, path: path)),
+          ),
         )
-      case .script(let command): images.append(.script(element, source: command.source, offset: convertedOffset))
-      case .shortcut:            images.append(.shortcut(element, offset: convertedOffset))
-      case .text(let model):
+      case let .script(command): images.append(.script(element, source: command.source, offset: convertedOffset))
+      case .shortcut: images.append(.shortcut(element, offset: convertedOffset))
+      case let .text(model):
         switch model.kind {
         case .insertText: images.append(.text(element, kind: .insertText, offset: convertedOffset))
         }
-      case .systemCommand(let command): images.append(.systemCommand(element, kind: command.kind, offset: convertedOffset))
-      case .uiElement:                  images.append(.uiElement(element, offset: convertedOffset))
-      case .windowFocus(let command):   images.append(.windowFocus(element, kind: command.kind, offset: convertedOffset))
-      case .windowManagement:           images.append(.windowManagement(element, offset: convertedOffset))
-      case .windowTiling(let command):  images.append(.windowTiling(element, kind: command.kind, offset: convertedOffset))
+      case let .systemCommand(command): images.append(.systemCommand(element, kind: command.kind, offset: convertedOffset))
+      case .uiElement: images.append(.uiElement(element, offset: convertedOffset))
+      case let .windowFocus(command): images.append(.windowFocus(element, kind: command.kind, offset: convertedOffset))
+      case .windowManagement: images.append(.windowManagement(element, offset: convertedOffset))
+      case let .windowTiling(command): images.append(.windowTiling(element, kind: command.kind, offset: convertedOffset))
       }
       offset += 1
     }

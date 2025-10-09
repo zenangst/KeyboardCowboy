@@ -5,6 +5,7 @@ struct MacroIconView: View {
     case record
     case remove
   }
+
   let kind: Kind
   let size: CGFloat
 
@@ -15,16 +16,17 @@ struct MacroIconView: View {
 
   var body: some View {
     let color: NSColor = kind == .record
-                      ? .systemCyan
-                      : .systemYellow
+      ? .systemCyan
+      : .systemYellow
     Rectangle()
       .fill(LinearGradient(
         stops: [
           .init(color: Color(nsColor: color), location: 0.1),
-          .init(color: Color(nsColor: color.withSystemEffect(.disabled)), location: 1.0)
+          .init(color: Color(nsColor: color.withSystemEffect(.disabled)), location: 1.0),
         ],
         startPoint: .top,
-        endPoint: .bottom))
+        endPoint: .bottom,
+      ))
       .overlay { iconBorder(size) }
       .overlay(alignment: .center) {
         backgroundShape(color: Color(nsColor: color))

@@ -1,6 +1,6 @@
 import Carbon
 
-struct SpecialKeys {
+enum SpecialKeys {
   static let functionKeys: Set<Int> = [
     kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6,
     kVK_F7, kVK_F8, kVK_F9, kVK_F10, kVK_F11, kVK_F12,

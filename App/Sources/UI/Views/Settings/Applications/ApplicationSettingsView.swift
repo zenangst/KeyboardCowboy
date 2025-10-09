@@ -13,7 +13,7 @@ struct ApplicationSettingsView: View {
   var body: some View {
     VStack {
       HStack(alignment: .bottom) {
-        ZenLabel(.detail, content: { Text("Additional Applications")})
+        ZenLabel(.detail, content: { Text("Additional Applications") })
           .style(.derived)
         Spacer()
       }
@@ -58,14 +58,15 @@ struct ApplicationSettingsView: View {
         .popover(isPresented: $isPresentingPopover,
                  arrowEdge: .bottom,
                  content: {
-          ApplicationSettingsPopoverView()
-        })
+                   ApplicationSettingsPopoverView()
+                 })
         .buttonStyle(.help)
 
         Spacer()
         Button(action: {
           openPanel.perform(.selectFolder(allowMultipleSelections: true, handler: { string in
             guard !additionalApplicationPaths.contains(string) else { return }
+
             additionalApplicationPaths.append(string)
             Task { await ApplicationStore.shared.load() }
           }))

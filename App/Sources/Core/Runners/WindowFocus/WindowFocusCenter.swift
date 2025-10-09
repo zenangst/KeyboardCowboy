@@ -1,8 +1,8 @@
 import AXEssibility
 import Bonzai
 import Cocoa
-import Windows
 import SwiftUI
+import Windows
 
 final class WindowFocusCenter: @unchecked Sendable {
   nonisolated(unsafe) static var debug: Bool = false
@@ -14,11 +14,13 @@ final class WindowFocusCenter: @unchecked Sendable {
 
   @MainActor lazy var window: NSWindow = ZenWindow(
     animationBehavior: .none,
-    content: RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor, lineWidth: 4))
-  @MainActor lazy var windowController: NSWindowController = NSWindowController(window: window)
+    content: RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor, lineWidth: 4),
+  )
+  @MainActor lazy var windowController: NSWindowController = .init(window: window)
 
   init() {
     guard let screen = NSScreen.main else { return }
+
     let targetRect = targetRect(on: screen)
     initialWindows = indexWindowsInStage(getWindows(), targetRect: targetRect)
   }
@@ -27,9 +29,10 @@ final class WindowFocusCenter: @unchecked Sendable {
     consumedWindows.removeAll()
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
       guard let self, let screen = NSScreen.main else { return }
+
       let targetRect = targetRect(on: screen)
       initialWindows = indexWindowsInStage(getWindows(), targetRect: targetRect)
-      self.previousScreen = screen
+      previousScreen = screen
     }
   }
 
@@ -94,12 +97,14 @@ final class WindowFocusCenter: @unchecked Sendable {
     guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) ?? activeWindow else {
       return
     }
+
     FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
 
     consumedWindows.insert(matchedWindow)
 
     let processIdentifier = pid_t(matchedWindow.ownerPid.rawValue)
     guard let runningApplication = NSRunningApplication(processIdentifier: processIdentifier) else { return }
+
     let appElement = AppAccessibilityElement(processIdentifier)
     let match = try appElement.windows().first(where: { $0.id == matchedWindow.id })
 
@@ -122,7 +127,7 @@ final class WindowFocusCenter: @unchecked Sendable {
     let screenFrame = screen.frame.mainDisplayFlipped
     let size: CGFloat = 2
     let origin = CGPoint(x: screenFrame.midX - size, y: screenFrame.midY - size)
-    let targetRect: CGRect = CGRect(origin: origin, size: CGSize(width: size, height: size))
+    let targetRect = CGRect(origin: origin, size: CGSize(width: size, height: size))
     return targetRect
   }
 
@@ -138,13 +143,13 @@ final class WindowFocusCenter: @unchecked Sendable {
     let windows: [WindowModel] = models
       .filter {
         $0.id > 0 &&
-        $0.ownerName != "borders" &&
-        $0.isOnScreen &&
-        $0.rect.size.width > minimumSize.width &&
-        $0.rect.size.height > minimumSize.height &&
-        $0.alpha == 1 &&
-        !excluded.contains($0.ownerName) &&
-        $0.rect.intersects(targetRect)
+          $0.ownerName != "borders" &&
+          $0.isOnScreen &&
+          $0.rect.size.width > minimumSize.width &&
+          $0.rect.size.height > minimumSize.height &&
+          $0.alpha == 1 &&
+          !excluded.contains($0.ownerName) &&
+          $0.rect.intersects(targetRect)
       }
 
     return windows

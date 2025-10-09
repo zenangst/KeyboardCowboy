@@ -16,17 +16,17 @@ enum NewCommandValidation: Identifiable, Equatable {
 
   var isInvalid: Bool {
     if case .invalid = self {
-      return true
+      true
     } else {
-      return false
+      false
     }
   }
 
   var isValid: Bool {
     if case .valid = self {
-      return true
+      true
     } else {
-      return false
+      false
     }
   }
 }

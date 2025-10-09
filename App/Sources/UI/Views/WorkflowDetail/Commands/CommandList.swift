@@ -24,7 +24,8 @@ struct CommandList: View {
        publisher: CommandsPublisher,
        triggerPublisher: TriggerPublisher,
        selectionManager: SelectionManager<CommandViewModel>,
-       scrollViewProxy: ScrollViewProxy? = nil) {
+       scrollViewProxy: ScrollViewProxy? = nil)
+  {
     _isPrimary = isPrimary
     self.focus = focus
     self.publisher = publisher
@@ -54,8 +55,8 @@ struct CommandList: View {
   }
 }
 
-fileprivate struct BackgroundView: View {
-  @ObservedObject private var publisher: ColorPublisher = ColorPublisher.shared
+private struct BackgroundView: View {
+  @ObservedObject private var publisher: ColorPublisher = .shared
   var body: some View {
     Color.clear
       .background {
@@ -64,7 +65,7 @@ fileprivate struct BackgroundView: View {
             LinearGradient(stops: [
               .init(color: Color.systemGray, location: 0),
               .init(color: Color.clear, location: 0.5),
-            ], startPoint: .top, endPoint: .bottom)
+            ], startPoint: .top, endPoint: .bottom),
           )
       }
       .mask {

@@ -22,15 +22,16 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   private let commandRunner: CommandRunner
 
   init(commandRunner: CommandRunner) {
-    self.bundledRunner = commandRunner.runners.bundled
+    bundledRunner = commandRunner.runners.bundled
     self.commandRunner = commandRunner
     super.init()
   }
 
-  func open(_ snapshot: UserSpace.Snapshot) {
+  func open(_: UserSpace.Snapshot) {
     if window != nil {
       if let menubarOwner = NSWorkspace.shared.runningApplications.first(where: { $0.ownsMenuBar == true }),
-         let bundleURL = menubarOwner.bundleURL {
+         let bundleURL = menubarOwner.bundleURL
+      {
         NSWorkspace.shared.open(bundleURL)
       }
       window?.close()
@@ -45,28 +46,29 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     window.center()
 
     self.window = window
-    self.subscription = subscribe(to: publisher.$query)
+    subscription = subscribe(to: publisher.$query)
   }
 
-  func windowDidBecomeKey(_ notification: Notification) {
+  func windowDidBecomeKey(_: Notification) {
     let keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown, .flagsChanged]) { [weak self] event in
       guard let self else {
         return event
       }
+
       return handleKeyDown(event)
     }
     self.keyMonitor = keyMonitor
   }
 
-  func windowDidResignKey(_ notification: Notification) {
+  func windowDidResignKey(_: Notification) {
     removeMonitorIfNeeded()
     if shouldCloseOnResignKey {
       window?.close()
     }
   }
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
   }
 
   // MARK: Private methods
@@ -77,7 +79,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     }
   }
 
-  private func refreshWindows(updateSelection: Bool = true) {
+  private func refreshWindows(updateSelection _: Bool = true) {
     Task(priority: .userInitiated) {
       if !windows.isEmpty {
         self.filter(windows, query: publisher.query)
@@ -85,8 +87,9 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
 
       let onScreenWindows = WindowStore.shared.getWindows(onScreen: true)
       let ids = Set(onScreenWindows.map(\.windowNumber))
-      let notOnScreenWindows = WindowStore.shared.getWindows(onScreen: false)
-        .filter({ !ids.contains($0.windowNumber) })
+      let notOnScreenWindows = WindowStore.shared
+        .getWindows(onScreen: false)
+        .filter { !ids.contains($0.windowNumber) }
       let rawWindows = onScreenWindows + notOnScreenWindows
       let windows = WindowStore.shared.allApplicationsInSpace(rawWindows, onScreen: false, sorted: false)
 
@@ -101,13 +104,13 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       .dropFirst()
       .debounce(for: .milliseconds(75), scheduler: RunLoop.main)
       .sink { [weak self] newValue in
-      guard let self else { return }
-      self.filter(windows, query: newValue)
-    }
+        guard let self else { return }
+
+        filter(windows, query: newValue)
+      }
   }
 
   private func handleKeyDown(_ event: NSEvent) -> NSEvent? {
-
     if event.type == .flagsChanged {
       if event.modifierFlags.contains(.command) {
         publisher.modifiers = .command
@@ -122,7 +125,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       if event.modifierFlags.contains(.command) {
         if !event.isARepeat,
            event.type == .keyDown, let currentSelection = getCurrentSelection(),
-           let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: currentSelection.app.bundleIdentifier).first {
+           let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: currentSelection.app.bundleIdentifier).first
+        {
           if currentSelection.app.bundleIdentifier == NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
             shouldCloseOnResignKey = false
           }
@@ -157,6 +161,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       return event
     case kVK_UpArrow:
       guard event.type == .keyDown, let currentIndex = getCurrentSelectedIndex() else { return nil }
+
       let nextIndex = currentIndex - 1
       if nextIndex >= 0 {
         publisher.publish([publisher.items[nextIndex].id])
@@ -172,7 +177,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       switch currentItem.kind {
       case .application:
         NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
-      case .window(let window, _):
+      case let .window(window, _):
         if event.modifierFlags.contains(.command) {
           Task {
             var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
@@ -188,7 +193,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
                 machPortEvent: emptyEvent,
                 checkCancellation: false,
                 repeatingEvent: false,
-                runtimeDictionary: &runtimeDictionary
+                runtimeDictionary: &runtimeDictionary,
               )
             }
           }
@@ -204,7 +209,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       window?.close()
 
       if let menubarOwner = NSWorkspace.shared.runningApplications.first(where: { $0.ownsMenuBar == true }),
-         let bundleURL = menubarOwner.bundleURL {
+         let bundleURL = menubarOwner.bundleURL
+      {
         NSWorkspace.shared.open(bundleURL)
       }
       return nil
@@ -234,7 +240,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
 
   private func getCurrentSelectedIndex() -> Int? {
     guard let currentSelection = publisher.selections.first,
-          let currentIndex = publisher.items.firstIndex(where: { $0.id == currentSelection }) else {
+          let currentIndex = publisher.items.firstIndex(where: { $0.id == currentSelection })
+    else {
       return nil
     }
 
@@ -242,7 +249,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   }
 
   private func filter(_ windows: [WindowModel], query: String, updateSelection: Bool = true) {
-    let items = self.createItems(from: windows)
+    let items = createItems(from: windows)
 
     if query.isEmpty {
       if publisher.items != items {
@@ -252,7 +259,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         }
       }
     } else {
-      let words = Set(publisher.query.components(separatedBy: " ")
+      let words = Set(publisher.query
+        .components(separatedBy: " ")
         .map(\.localizedLowercase))
       let currentSelection = publisher.selections
       var needsSelectionUpdate = true
@@ -272,37 +280,35 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         return false
       }
 
-      let openApps = Set(filtered.map { $0.app })
+      let openApps = Set(filtered.map(\.app))
       let apps = ApplicationStore.shared.applications
-      let matchingApps: [Application]
-
-      if filtered.isEmpty {
-          matchingApps = apps.filter { app in
-            if windowBundleIdentifiers.contains(app.bundleIdentifier) {
-              return false
-            }
-
-            if openApps.contains(app) { return false }
-
-            for word in words {
-              return app.displayName.localizedLowercase.contains(word)
-            }
+      let matchingApps: [Application] = if filtered.isEmpty {
+        apps.filter { app in
+          if windowBundleIdentifiers.contains(app.bundleIdentifier) {
             return false
           }
+
+          if openApps.contains(app) { return false }
+
+          for word in words {
+            return app.displayName.localizedLowercase.contains(word)
+          }
+          return false
+        }
       } else if !query.isEmpty {
-        matchingApps = apps.filter { app in
+        apps.filter { app in
           app.displayName.lowercased() == query.lowercased() &&
-          !windowBundleIdentifiers.contains(app.bundleIdentifier)
+            !windowBundleIdentifiers.contains(app.bundleIdentifier)
         }
       } else {
-        matchingApps = []
+        []
       }
 
       let appItems = matchingApps.map { app in
-          WindowSwitcherView.Item(id: app.path, title: app.displayName,
-                                  app: app, kind: .application,
-                                  hints: WindowSwitcherView.Item.Hints(commandKey: ""))
-        }
+        WindowSwitcherView.Item(id: app.path, title: app.displayName,
+                                app: app, kind: .application,
+                                hints: WindowSwitcherView.Item.Hints(commandKey: ""))
+      }
       filtered.append(contentsOf: appItems)
 
       if filtered != publisher.items {
@@ -315,20 +321,20 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     }
   }
 
-  private func createItems(from windows: [WindowModel]) -> [WindowSwitcherView.Item]
-  { var items = [WindowSwitcherView.Item]()
+  private func createItems(from windows: [WindowModel]) -> [WindowSwitcherView.Item] { var items = [WindowSwitcherView.Item]()
     for window in windows {
       guard let process = NSWorkspace.shared.runningApplications.first(where: {
         $0.processIdentifier == window.ownerPid.rawValue
       }),
-            let bundleIdentifier = process.bundleIdentifier,
-            let app = ApplicationStore.shared.application(for: bundleIdentifier) else {
+        let bundleIdentifier = process.bundleIdentifier,
+        let app = ApplicationStore.shared.application(for: bundleIdentifier)
+      else {
         continue
       }
-
       guard let axWindow = try? AppAccessibilityElement(process.processIdentifier)
         .windows()
-        .first(where: { $0.id == window.id }) else {
+        .first(where: { $0.id == window.id })
+      else {
         continue
       }
 
@@ -337,7 +343,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         title: axWindow.title ?? window.name,
         app: app,
         kind: .window(window: axWindow, onScreen: window.isOnScreen),
-        hints: WindowSwitcherView.Item.Hints(commandKey: "Focus on \(app.displayName)")
+        hints: WindowSwitcherView.Item.Hints(commandKey: "Focus on \(app.displayName)"),
       )
 
       items.append(item)
@@ -350,7 +356,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     let styleMask: NSWindow.StyleMask = [
       .titled,
       .fullSizeContentView,
-      .nonactivatingPanel
+      .nonactivatingPanel,
     ]
 
     let window = ZenSwiftUIPanel(styleMask: styleMask, overrides: .init(canBecomeKey: true, canBecomeMain: true)) {

@@ -310,7 +310,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
   }
 
   nonisolated static func convertTimestampToMilliseconds(_ timestamp: UInt64) -> Double {
-    return Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
+    Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
   }
 
   private func postKeyDownAndUp(_ event: MachPortEvent) {

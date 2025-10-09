@@ -1,10 +1,11 @@
-import SwiftUI
-import Inject
 import Bonzai
+import Inject
+import SwiftUI
 
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
-                                                                          Content: View,
-                                                                          SubContent: View {
+  Content: View,
+  SubContent: View
+{
   @ObserveInjection var inject
   private let placeholder: String
 
@@ -17,7 +18,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
        placeholder: String,
        @ViewBuilder icon: @escaping () -> IconContent,
        @ViewBuilder content: @escaping () -> Content,
-       @ViewBuilder subContent: @escaping () -> SubContent = { EmptyView() }) {
+       @ViewBuilder subContent: @escaping () -> SubContent = { EmptyView() })
+  {
     _metaData = .init(initialValue: metaData)
     self.icon = icon
     self.placeholder = placeholder
@@ -81,8 +83,8 @@ private struct HeaderView: View {
         .switchStyle(.small)
 
       let textFieldPlaceholder = metaData.namePlaceholder.isEmpty
-      ? placeholder
-      : metaData.namePlaceholder
+        ? placeholder
+        : metaData.namePlaceholder
 
       TextField(textFieldPlaceholder, text: $metaData.name)
         .textFieldStyle()
@@ -103,7 +105,8 @@ private struct ContentView<IconContent, Content>: View where IconContent: View, 
   private let content: () -> Content
 
   init(icon: @escaping () -> IconContent,
-       content: @escaping () -> Content) {
+       content: @escaping () -> Content)
+  {
     self.icon = icon
     self.content = content
   }
@@ -135,7 +138,8 @@ private struct SubView<Content>: View where Content: View {
   private let content: () -> Content
 
   init(_ metaData: Binding<CommandViewModel.MetaData>,
-       content: @escaping () -> Content) {
+       content: @escaping () -> Content)
+  {
     _metaData = metaData
     self.content = content
   }
@@ -149,7 +153,7 @@ private struct SubView<Content>: View where Content: View {
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
             command.delay = newValue
           }
-        }
+        },
       )
 
       Menu {
@@ -174,10 +178,10 @@ private struct SubView<Content>: View where Content: View {
         HStack {
           Image(systemName: "app.badge")
           switch metaData.notification {
-          case .bezel:        Text("Bezel").font(.caption)
-          case .capsule:      Text("Capsule").font(.caption)
+          case .bezel: Text("Bezel").font(.caption)
+          case .capsule: Text("Capsule").font(.caption)
           case .commandPanel: Text("Command Panel").font(.caption)
-          case .none:         Text("None").font(.caption)
+          case .none: Text("None").font(.caption)
           }
         }
       }
@@ -234,7 +238,8 @@ struct CommandContainerView_Previews: PreviewProvider {
         Text("Content")
       }, subContent: {
         Text("SubContent")
-      })
+      },
+    )
     .designTime()
   }
 }

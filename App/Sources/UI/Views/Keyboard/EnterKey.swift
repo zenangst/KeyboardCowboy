@@ -8,7 +8,7 @@ struct EnterKey: View {
 
   var body: some View {
     ZStack {
-      shape(Color.black.opacity( colorScheme == .light ? 0.3 : 0.9 ),
+      shape(Color.black.opacity(colorScheme == .light ? 0.3 : 0.9),
             size: CGSize(width: width, height: height))
         .transform {
           $0.offset(x: 0, y: 1)
@@ -16,7 +16,7 @@ struct EnterKey: View {
             .scaleEffect(CGSize(width: 0.99, height: 1.0))
         }
 
-      shape(Color.black.opacity( colorScheme == .light ? 0.33 : 0.9 ),
+      shape(Color.black.opacity(colorScheme == .light ? 0.33 : 0.9),
             size: CGSize(width: width, height: height))
         .transform {
           $0.offset(x: 0, y: height * 0.005)
@@ -40,7 +40,7 @@ struct EnterKey: View {
     }.frame(width: width, height: height)
   }
 
-  func shape(_ color: Color, size: CGSize) -> some View {
+  func shape(_ color: Color, size _: CGSize) -> some View {
     Rectangle()
       .fill(color)
       .mask(
@@ -56,11 +56,10 @@ struct EnterKey: View {
             path.addQuadCurve(to: CGPoint(x: ceil(width * segment.curve.x),
                                           y: ceil(height * segment.curve.y)),
                               control: CGPoint(x: ceil(width * segment.control.x),
-                                               y: ceil(height * segment.control.y)
-                              ))
+                                               y: ceil(height * segment.control.y)))
           }
-        }
-    )
+        },
+      )
   }
 
   let gradientStart = Color(red: 239.0 / 255, green: 120.0 / 255, blue: 221.0 / 255)
@@ -86,22 +85,22 @@ struct ShapeParameters {
       Segment(
         line: CGPoint(x: 0.0, y: 0.0 + cornerRadius),
         curve: CGPoint(x: 0.0 + cornerRadius, y: 0.0),
-        control: CGPoint(x: 0.0, y: 0.0)
+        control: CGPoint(x: 0.0, y: 0.0),
       ),
       Segment(
         line: CGPoint(x: 1.0 - cornerRadius, y: 0.0),
         curve: CGPoint(x: 1.0, y: 0.0 + cornerRadius),
-        control: CGPoint(x: 1.0, y: 0.0)
+        control: CGPoint(x: 1.0, y: 0.0),
       ),
       Segment(
         line: CGPoint(x: 1.0, y: 1.0 - cornerRadius),
         curve: CGPoint(x: 1.0 - cornerRadius, y: 1.0),
-        control: CGPoint(x: 1.0, y: 1.0)
+        control: CGPoint(x: 1.0, y: 1.0),
       ),
       Segment(
         line: CGPoint(x: 0.25 + cornerRadius, y: 1.0),
         curve: CGPoint(x: 0.25, y: 1.0 - cornerRadius),
-        control: CGPoint(x: 0.25, y: 1.0)
+        control: CGPoint(x: 0.25, y: 1.0),
       ),
       Segment(
         line: CGPoint(x: 0.25,
@@ -109,12 +108,12 @@ struct ShapeParameters {
         curve: CGPoint(x: 0.25 - cornerRadius,
                        y: 0.45),
         control: CGPoint(x: 0.25,
-                         y: 0.45)
+                         y: 0.45),
       ),
       Segment(
         line: CGPoint(x: 0.0 + cornerRadius, y: 0.45),
         curve: CGPoint(x: 0.0, y: 0.45 - cornerRadius),
-        control: CGPoint(x: 0.0, y: 0.45)
+        control: CGPoint(x: 0.0, y: 0.45),
       ),
     ]
   }

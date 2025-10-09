@@ -36,9 +36,9 @@ struct ConfigurationContainerView: View {
 
   func topPadding() -> CGFloat {
     if #available(macOS 26.0, *) {
-      return 8
+      8
     } else {
-      return 32
+      32
     }
   }
 }

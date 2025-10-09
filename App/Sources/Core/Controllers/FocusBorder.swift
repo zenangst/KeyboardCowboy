@@ -11,9 +11,9 @@ final class FocusBorder {
 
   static var shared: FocusBorder { .init() }
 
-  private init() { }
+  private init() {}
 
-  func show(_ frame: CGRect, for duration: TimeInterval = 0.375) {
+  func show(_ frame: CGRect, for _: TimeInterval = 0.375) {
     guard isEnabled else { return }
 
     let frame = frame.insetBy(dx: -2, dy: -2)
@@ -22,7 +22,8 @@ final class FocusBorder {
       animationBehavior: .none,
       content: FocusBorderView(color: .controlAccentColor,
                                frame: frame,
-                               publisher: publisher))
+                               publisher: publisher),
+    )
 
     dismiss()
 
@@ -30,7 +31,7 @@ final class FocusBorder {
     let workItem = DispatchWorkItem {
       let newFrame = window.frame.insetBy(dx: -2, dy: -2)
       NSAnimationContext.runAnimationGroup { context in
-        context.timingFunction =  CAMediaTimingFunction(name: .easeInEaseOut)
+        context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         context.duration = duration
         context.allowsImplicitAnimation = true
         context.completionHandler = { window.close() }
@@ -61,6 +62,7 @@ final class FocusBorder {
 
   func dismiss() {
     guard let workItem else { return }
+
     previousWindow?.level = .init(-1)
     previousWindow?.orderBack(nil)
     DispatchQueue.main.async(execute: workItem)
@@ -100,28 +102,29 @@ struct FocusBorderView: View {
 }
 
 public final class FocusBorderPanel<Content>: NSPanel where Content: View {
-  public override var canBecomeKey: Bool { false }
-  public override var canBecomeMain: Bool { false }
+  override public var canBecomeKey: Bool { false }
+  override public var canBecomeMain: Bool { false }
 
   public init(animationBehavior: NSWindow.AnimationBehavior,
               contentRect: NSRect = .init(origin: .zero, size: .init(width: 200, height: 200)),
               styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel],
-              content rootView: @autoclosure @escaping () -> Content) {
+              content rootView: @autoclosure @escaping () -> Content)
+  {
     super.init(contentRect: contentRect, styleMask: styleMask, backing: .buffered, defer: false)
 
     self.animationBehavior = animationBehavior
-    self.collectionBehavior.insert(.fullScreenAuxiliary)
-    self.collectionBehavior.insert(.canJoinAllSpaces)
-    self.collectionBehavior.insert(.stationary)
-    self.isOpaque = false
-    self.isFloatingPanel = true
-    self.isMovable = false
-    self.isMovableByWindowBackground = false
-    self.level = .screenSaver
-    self.becomesKeyOnlyIfNeeded = false
-    self.backgroundColor = .clear
-    self.acceptsMouseMovedEvents = false
-    self.hasShadow = false
+    collectionBehavior.insert(.fullScreenAuxiliary)
+    collectionBehavior.insert(.canJoinAllSpaces)
+    collectionBehavior.insert(.stationary)
+    isOpaque = false
+    isFloatingPanel = true
+    isMovable = false
+    isMovableByWindowBackground = false
+    level = .screenSaver
+    becomesKeyOnlyIfNeeded = false
+    backgroundColor = .clear
+    acceptsMouseMovedEvents = false
+    hasShadow = false
 
     let rootView = rootView()
       .ignoresSafeArea()

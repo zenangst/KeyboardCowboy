@@ -9,7 +9,7 @@ enum SBShortcutsError: Error {
 }
 
 // Inspiration for this implementation is credited to https://github.com/swiftbar/SwiftBar 👏
-final class SBShortcuts {
+enum SBShortcuts {
   static func getShortcuts() throws -> [Shortcut] {
     guard let application: SBApp = SBApplication(bundleIdentifier: "com.apple.shortcuts.events") else {
       throw SBShortcutsError.unableToCreateApplication
@@ -22,6 +22,7 @@ final class SBShortcuts {
     for shortcut in sbShortcuts {
       guard let ref = shortcut as? SBShortcut,
             let name = ref.name else { continue }
+
       let shortcut = Shortcut(name: name)
       shortcuts.append(shortcut)
     }
@@ -39,6 +40,7 @@ final class SBShortcuts {
     guard let url = components.url else {
       throw SBShortcutsError.unableToOpenShortcut
     }
+
     NSWorkspace.shared.open(url)
   }
 
@@ -46,15 +48,17 @@ final class SBShortcuts {
     guard let url = URL(string: "shortcuts://create-shortcut") else {
       throw SBShortcutsError.unableToOpenShortcut
     }
+
     NSWorkspace.shared.open(url)
   }
 }
 
-@objc fileprivate protocol SBApp { 
+@objc private protocol SBApp {
   @objc optional var shortcuts: SBElementArray { get }
 }
-extension SBApplication: SBApp { }
-extension SBObject: SBShortcut { }
+
+extension SBApplication: SBApp {}
+extension SBObject: SBShortcut {}
 
 @objc protocol SBShortcut {
   @objc optional var id: String { get }

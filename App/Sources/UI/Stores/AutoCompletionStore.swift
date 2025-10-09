@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 final class AutoCompletionStore: ObservableObject {
-  @Published var completions: [String] = [String]()
+  @Published var completions: [String] = .init()
   @Published var selection: String?
 
   init(_ completions: [String], selection: String?) {

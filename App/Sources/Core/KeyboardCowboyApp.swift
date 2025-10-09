@@ -89,7 +89,7 @@ struct KeyboardCowboyApp: App {
             core.groupCoordinator.handle(action)
             core.workflowCoordinator.handle(action)
             //            focus = .detail(.name)
-          }
+          },
         )
         .environmentObject(core.configurationUpdater)
         .environmentObject(WindowOpener(core: core))
