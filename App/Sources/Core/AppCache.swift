@@ -2,11 +2,12 @@ import Foundation
 
 enum AppCache {
   static var rootDirectory: URL {
-    try! FileManager.default.url(for: .cachesDirectory,
-                                 in: .userDomainMask,
-                                 appropriateFor: nil,
-                                 create: true)
-    .appendingPathComponent(Bundle.main.bundleIdentifier!)
+    try! FileManager.default
+      .url(for: .cachesDirectory,
+           in: .userDomainMask,
+           appropriateFor: nil,
+           create: true)
+      .appendingPathComponent(Bundle.main.bundleIdentifier!)
   }
 
   static func domain(_ name: String) throws -> URL {
@@ -18,7 +19,8 @@ enum AppCache {
       try FileManager.default.createDirectory(
         at: url,
         withIntermediateDirectories: true,
-        attributes: nil)
+        attributes: nil,
+      )
     }
 
     return url
@@ -48,7 +50,7 @@ enum AppCache {
 
   struct Entry {
     let url: URL
-    func write<T: Encodable>(_ object: T) throws {
+    func write(_ object: some Encodable) throws {
       let encoder = JSONEncoder()
       let data = try encoder.encode(object)
       try data.write(to: url)

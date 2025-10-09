@@ -7,7 +7,8 @@ enum WindowManagementIncreaseWindowSize {
                             padding: Int,
                             constrainedToScreen: Bool,
                             currentScreen: NSScreen,
-                            mainDisplay: NSScreen) -> CGRect {
+                            mainDisplay _: NSScreen) -> CGRect
+  {
     let padding = CGFloat(padding)
     let maxWidth = currentScreen.frame.width - padding * 2
     let maxHeight = currentScreen.frame.height - padding * 2

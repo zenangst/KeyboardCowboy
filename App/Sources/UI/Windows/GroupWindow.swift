@@ -7,12 +7,13 @@ final class GroupWindow: NSObject, NSWindowDelegate {
   enum Context: Identifiable, Hashable, Codable {
     var id: String {
       switch self {
-      case .add(let group):
-        return group.id
-      case .edit(let group):
-        return group.id
+      case let .add(group):
+        group.id
+      case let .edit(group):
+        group.id
       }
     }
+
     case add(WorkflowGroup)
     case edit(WorkflowGroup)
   }
@@ -28,7 +29,8 @@ final class GroupWindow: NSObject, NSWindowDelegate {
 
   init(context: Context, applicationStore: ApplicationStore,
        configurationPublisher: ConfigurationPublisher, contentPublisher: GroupDetailPublisher,
-       contentCoordinator: GroupCoordinator, sidebarCoordinator: SidebarCoordinator) {
+       contentCoordinator: GroupCoordinator, sidebarCoordinator: SidebarCoordinator)
+  {
     self.context = context
     self.applicationStore = applicationStore
     self.configurationPublisher = configurationPublisher
@@ -43,7 +45,7 @@ final class GroupWindow: NSObject, NSWindowDelegate {
       switch action {
       case .cancel:
         windowManager.window?.close()
-      case .ok(let updateGroup):
+      case let .ok(updateGroup):
         switch context {
         case .add:
           sidebarCoordinator.handle(.add(updateGroup))
@@ -57,13 +59,13 @@ final class GroupWindow: NSObject, NSWindowDelegate {
         windowManager.window?.close()
       }
     }
-      .environmentObject(configurationPublisher)
-      .environmentObject(windowManager)
+    .environmentObject(configurationPublisher)
+    .environmentObject(windowManager)
 
     let styleMask: NSWindow.StyleMask = [.closable, .miniaturizable, .resizable, .titled, .fullSizeContentView]
     let window = ZenSwiftUIWindow(
       styleMask: styleMask,
-      content: content
+      content: content,
     )
     windowManager.window = window
     let size = window.sizeThatFits(in: .zero)
@@ -80,14 +82,14 @@ final class GroupWindow: NSObject, NSWindowDelegate {
     self.window = window
   }
 
-  func windowWillClose(_ notification: Notification) {
+  func windowWillClose(_: Notification) {
     window = nil
   }
 
   private func resolve(_ context: Context) -> WorkflowGroup {
     switch context {
-    case .add(let group):  group
-    case .edit(let group): group
+    case let .add(group): group
+    case let .edit(group): group
     }
   }
 }

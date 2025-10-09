@@ -7,16 +7,17 @@ enum XcodeMouseRoutineError: Error {
 
 final class XcodeMouseRoutine: MouseRoutine {
   let supportedRoleDescriptions: [KnownAccessibilityRoleDescription] = [
-    .textEntryArea
+    .textEntryArea,
   ]
 
   init?(_ roleDescription: KnownAccessibilityRoleDescription) {
     guard supportedRoleDescriptions.contains(roleDescription) else { return nil }
   }
 
-  func run(_ focusedElement: AnyFocusedAccessibilityElement, 
+  func run(_ focusedElement: AnyFocusedAccessibilityElement,
            kind: MouseCommand.Kind,
-           roleDescription: KnownAccessibilityRoleDescription) throws -> CGRect {
+           roleDescription _: KnownAccessibilityRoleDescription) throws -> CGRect
+  {
     let elementFrame = try AXTextEntryAreaResolver.resolveFocusedElement(focusedElement)
     let frame: CGRect
     if case .center = kind.element.clickLocation {
@@ -27,25 +28,25 @@ final class XcodeMouseRoutine: MouseRoutine {
         CGRect(
           origin: CGPoint(
             x: resolvedFrame.origin.x + 8,
-            y: elementFrame.origin.y
+            y: elementFrame.origin.y,
           ),
-          size: elementFrame.size
+          size: elementFrame.size,
         )
       case .trailing:
         CGRect(
           origin: CGPoint(
             x: resolvedFrame.maxX - 16,
-            y: elementFrame.origin.y
+            y: elementFrame.origin.y,
           ),
-          size: elementFrame.size
+          size: elementFrame.size,
         )
       default:
         CGRect(
           origin: CGPoint(
             x: resolvedFrame.origin.x + 8,
-            y: elementFrame.origin.y
+            y: elementFrame.origin.y,
           ),
-          size: elementFrame.size
+          size: elementFrame.size,
         )
       }
     } else {

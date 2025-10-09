@@ -8,7 +8,7 @@ struct ErrorIconView: View {
         LinearGradient(stops: [
           .init(color: Color(.systemRed.blended(withFraction: 0.25, of: .white)!), location: 0.0),
           .init(color: Color(.systemRed.blended(withFraction: 0.25, of: .black)!), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
+        ], startPoint: .top, endPoint: .bottom),
       )
       .grayscale(0.5)
       .overlay { iconOverlay().opacity(0.65) }
@@ -22,8 +22,8 @@ struct ErrorIconView: View {
             LinearGradient(stops: [
               .init(color: Color(.systemRed.blended(withFraction: 0.25, of: .white)!), location: 0.0),
               .init(color: Color(.systemRed.blended(withFraction: 0.25, of: .black)!), location: 1.0),
-            ], startPoint: .top, endPoint: .bottom)
-            )
+            ], startPoint: .top, endPoint: .bottom),
+          )
           .frame(width: size * 0.65)
           .shadow(radius: 2, y: 2)
           .offset(x: size * 0.0075)

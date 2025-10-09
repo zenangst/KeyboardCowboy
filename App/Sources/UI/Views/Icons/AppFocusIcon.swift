@@ -10,14 +10,14 @@ struct AppFocusIcon: View {
           .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .black)!), location: 0.0),
           .init(color: Color(.purple), location: 0.6),
           .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay {
         LinearGradient(stops: [
           .init(color: Color(.systemTeal), location: 0.5),
           .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 1.0),
         ], startPoint: .topTrailing, endPoint: .bottomTrailing)
-        .opacity(0.6)
+          .opacity(0.6)
       }
       .overlay {
         LinearGradient(stops: [
@@ -43,7 +43,7 @@ struct AppFocusIconGroupView: View {
           .mask {
             LinearGradient(stops: [
               .init(color: .black.opacity(0.6), location: 0),
-              .init(color: .clear, location: 0.5)
+              .init(color: .clear, location: 0.5),
             ], startPoint: .top, endPoint: .bottom)
           }
           .offset(y: -size * 0.145)
@@ -52,7 +52,7 @@ struct AppFocusIconGroupView: View {
           .mask {
             LinearGradient(stops: [
               .init(color: .black.opacity(0.6), location: 0),
-              .init(color: .clear, location: 0.5)
+              .init(color: .clear, location: 0.5),
             ], startPoint: .top, endPoint: .bottom)
           }
           .offset(y: -size * 0.055)
@@ -78,6 +78,7 @@ struct AppFocusIconIllustrationApp: View {
   init(size: CGFloat) {
     self.size = size
   }
+
   var body: some View {
     Image(systemName: "app.fill")
       .resizable()
@@ -89,7 +90,7 @@ struct AppFocusIconIllustrationApp: View {
           stops: [.init(color: .black, location: 0.25),
                   .init(color: .black.opacity(0.5), location: 1)],
           startPoint: .topLeading,
-          endPoint: .bottomTrailing
+          endPoint: .bottomTrailing,
         )
       }
   }

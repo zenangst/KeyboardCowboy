@@ -17,7 +17,7 @@ struct KeyboardCleanerIcon: View {
         LinearGradient(stops: [
           .init(color: Color(.systemGray.blended(withFraction: 0.25, of: .black)!), location: 0.0),
           .init(color: Color(.systemGray.blended(withFraction: 0.5, of: .black)!), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
+        ], startPoint: .top, endPoint: .bottom),
       )
       .overlay { iconOverlay().opacity(0.25) }
       .overlay { iconBorder(size) }
@@ -68,37 +68,38 @@ private struct BubbleSystemView: View {
       Color(NSColor.systemTeal.blended(withFraction: 0.5, of: .white)!),
       Color(NSColor.systemCyan.blended(withFraction: 0.5, of: .white)!),
       Color(NSColor.systemGreen.blended(withFraction: 0.5, of: .white)!),
-      Color(NSColor.systemMint.blended(withFraction: 0.5, of: .white)!)
+      Color(NSColor.systemMint.blended(withFraction: 0.5, of: .white)!),
     ]
     ZStack {
-      ForEach(0..<10, id: \.self) { index in
-        let animationDuration = Double.random(in: 1.0..<6.0)
-        BubbleView(size: size * CGFloat.random(in: 0.25..<0.35))
+      ForEach(0 ..< 10, id: \.self) { index in
+        let animationDuration = Double.random(in: 1.0 ..< 6.0)
+        BubbleView(size: size * CGFloat.random(in: 0.25 ..< 0.35))
           .colorMultiply(colors.randomElement() ?? .white)
           .opacity(isAnimating ? 1 : 0)
           .animation(
             Animation.snappy(duration: animationDuration)
               .repeatForever(autoreverses: true),
-            value: isAnimating
+            value: isAnimating,
           )
           .scaleEffect(isAnimating ? 1 : 0)
           .animation(
             Animation.snappy(duration: animationDuration)
               .repeatForever(autoreverses: true),
-            value: isAnimating
+            value: isAnimating,
           )
-          .rotationEffect(.degrees(isAnimating ? Double.random(in: -45..<45) : 0))
+          .rotationEffect(.degrees(isAnimating ? Double.random(in: -45 ..< 45) : 0))
           .offset(
-            x: isAnimating ? CGFloat.random(in: -size/2..<(size/2)) : 0,
-            y: isAnimating ? CGFloat.random(in: -size/2...(-size/4)) : size / 2
+            x: isAnimating ? CGFloat.random(in: -size / 2 ..< (size / 2)) : 0,
+            y: isAnimating ? CGFloat.random(in: -size / 2 ... (-size / 4)) : size / 2,
           )
           .animation(
             Animation.easeInOut(duration: animationDuration)
               .repeatForever(autoreverses: true),
-            value: isAnimating
+            value: isAnimating,
           )
           .onAppear {
             guard animated else { return }
+
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.1) {
               isAnimating = true
             }
@@ -120,7 +121,7 @@ private struct BubbleView: View {
       Group {
         Circle()
           .stroke(
-            Color.white
+            Color.white,
           )
           .mask {
             LinearGradient(
@@ -129,7 +130,7 @@ private struct BubbleView: View {
                 .init(color: .white, location: 1),
               ],
               startPoint: .bottomLeading,
-              endPoint: .topTrailing
+              endPoint: .topTrailing,
             )
           }
 
@@ -140,7 +141,7 @@ private struct BubbleView: View {
           ],
           center: .center,
           startRadius: 0.16 * size,
-          endRadius: 0.66 * size
+          endRadius: 0.66 * size,
         )
         .mask {
           Circle()
@@ -153,7 +154,7 @@ private struct BubbleView: View {
               .init(color: .white, location: 1.0),
             ],
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
           )
         }
         .compositingGroup()
@@ -166,14 +167,13 @@ private struct BubbleView: View {
           ],
           center: .topLeading,
           startRadius: 0.16 * size,
-          endRadius: 0.66 * size
+          endRadius: 0.66 * size,
         )
         .mask {
           Circle()
             .fill(Color.white)
         }
         .compositingGroup()
-
 
         RadialGradient(
           stops: [
@@ -182,7 +182,7 @@ private struct BubbleView: View {
           ],
           center: .center,
           startRadius: 0.16 * size,
-          endRadius: 0.66 * size
+          endRadius: 0.66 * size,
         )
         .mask {
           Circle()
@@ -195,7 +195,7 @@ private struct BubbleView: View {
               .init(color: .white, location: 1.0),
             ],
             startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            endPoint: .bottomTrailing,
           )
         }
         .compositingGroup()

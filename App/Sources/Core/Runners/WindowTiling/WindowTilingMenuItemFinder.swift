@@ -1,6 +1,6 @@
 import AXEssibility
 
-final class WindowTilingMenuItemFinder {
+enum WindowTilingMenuItemFinder {
   static func find(_ tiling: WindowTiling, in menuItems: [MenuBarItemAccessibilityElement]) -> MenuBarItemAccessibilityElement? {
     var menuBarMatch: MenuBarItemAccessibilityElement?
     switch tiling {
@@ -30,7 +30,8 @@ extension [MenuBarItemAccessibilityElement] {
   var windowMoveAndResizeItems: [MenuBarItemAccessibilityElement] {
     for menuItem in windowMenuBarItems where menuItem.isSubMenu {
       if let submenu = try? menuItem.menuItems().first,
-         let menuItems = try? submenu.menuItems() {
+         let menuItems = try? submenu.menuItems()
+      {
         for item in menuItems where item.isEnabled == true {
           if item.identifier == WindowTiling.left.identifier {
             return menuItems
@@ -46,7 +47,8 @@ extension [MenuBarItemAccessibilityElement] {
     for menuItem in self.reversed() {
       if menuItem.isSubMenu,
          let submenu = try? menuItem.menuItems().first,
-         let menuItems = try? submenu.menuItems() {
+         let menuItems = try? submenu.menuItems()
+      {
         for item in menuItems where item.isEnabled == true {
           if item.identifier == WindowTiling.center.identifier {
             return menuItems

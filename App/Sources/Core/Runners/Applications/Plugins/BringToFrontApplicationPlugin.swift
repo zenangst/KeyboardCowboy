@@ -12,22 +12,23 @@ final class BringToFrontApplicationPlugin {
 
   func execute(checkCancellation: Bool) async throws {
     let source = """
-        tell application "System Events"
-          set frontmostProcess to first process where it is frontmost
-          click (menu item "Bring All to Front" of menu "Window" of menu bar 1 of frontmostProcess)
-        end tell
-        """
+    tell application "System Events"
+      set frontmostProcess to first process where it is frontmost
+      click (menu item "Bring All to Front" of menu "Window" of menu bar 1 of frontmostProcess)
+    end tell
+    """
 
     if checkCancellation { try Task.checkCancellation() }
-    
+
     _ = try await commandRunner.run(
       ScriptCommand(
         name: "BringToFrontApplicationPlugin",
         kind: .appleScript(variant: .regular),
         source: .inline(source),
-        notification: nil
+        notification: nil,
       ),
       snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
-      runtimeDictionary: [:], checkCancellation: checkCancellation)
+      runtimeDictionary: [:], checkCancellation: checkCancellation,
+    )
   }
 }

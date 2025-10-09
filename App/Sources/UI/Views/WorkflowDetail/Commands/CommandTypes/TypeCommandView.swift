@@ -12,11 +12,12 @@ struct TypeCommandView: View {
   private let iconSize: CGSize
 
   init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.TypeModel,
-       iconSize: CGSize) {
+       iconSize: CGSize)
+  {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
-    self.insertEnter = model.actions.contains(.insertEnter)
+    insertEnter = model.actions.contains(.insertEnter)
   }
 
   var body: some View {
@@ -29,16 +30,16 @@ struct TypeCommandView: View {
         TypeCommandContentView(metaData: metaData, model: model)
       }, subContent: {
         HStack {
-
           Spacer()
 
           HStack {
             Toggle(isOn: $insertEnter, label: {})
-              .onChange(of: insertEnter) { newValue in
+              .onChange(of: insertEnter) { _ in
                 updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-                  guard case .text(let textCommand) = command else { return }
+                  guard case let .text(textCommand) = command else { return }
+
                   switch textCommand.kind {
-                  case .insertText(var typeCommand):
+                  case var .insertText(typeCommand):
                     if typeCommand.actions.contains(.insertEnter) {
                       typeCommand.actions.remove(.insertEnter)
                     } else {
@@ -54,16 +55,18 @@ struct TypeCommandView: View {
 
           TypeCommandModeView(mode: model.mode) { newMode in
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-              guard case .text(let textCommand) = command else { return }
+              guard case let .text(textCommand) = command else { return }
+
               switch textCommand.kind {
-              case .insertText(var typeCommand):
+              case var .insertText(typeCommand):
                 typeCommand.mode = newMode
                 command = .text(.init(.insertText(typeCommand)))
               }
             }
           }
         }
-      })
+      },
+    )
     .enableInjection()
   }
 }
@@ -83,12 +86,14 @@ private struct TypeCommandContentView: View {
     ZenTextEditor(
       color: ColorPublisher.shared.color,
       text: $model.input,
-      placeholder: "Enter text...", onCommandReturnKey: nil)
+      placeholder: "Enter text...", onCommandReturnKey: nil,
+    )
     .onChange(of: model.input) { newValue in
       updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-        guard case .text(let textCommand) = command else { return }
+        guard case let .text(textCommand) = command else { return }
+
         switch textCommand.kind {
-        case .insertText(var typeCommand):
+        case var .insertText(typeCommand):
           typeCommand.input = newValue
           command = .text(.init(.insertText(typeCommand)))
         }
@@ -97,7 +102,7 @@ private struct TypeCommandContentView: View {
   }
 }
 
-fileprivate struct TypeCommandModeView: View {
+private struct TypeCommandModeView: View {
   @State var mode: TextCommand.TypeCommand.Mode
   private let onAction: (TextCommand.TypeCommand.Mode) -> Void
 
@@ -131,9 +136,8 @@ fileprivate struct TypeCommandModeView: View {
 struct TypeCommandView_Previews: PreviewProvider {
   static let command = DesignTime.typeCommand
   static var previews: some View {
-    TypeCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) 
+    TypeCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24))
       .designTime()
       .frame(idealHeight: 120, maxHeight: 180)
   }
 }
-

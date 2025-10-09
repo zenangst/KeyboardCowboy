@@ -33,7 +33,7 @@ private struct GroupIconOverlayView: View {
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 14, height: 14)
-              .opacity(!symbol.isEmpty ?  1 : 0)
+              .opacity(!symbol.isEmpty ? 1 : 0)
           }
         }
         .compositingGroup()

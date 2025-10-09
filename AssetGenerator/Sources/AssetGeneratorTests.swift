@@ -1,6 +1,6 @@
-@testable import Keyboard_Cowboy
 import Apps
 import Bonzai
+@testable import Keyboard_Cowboy
 import SwiftUI
 import XCTest
 
@@ -86,7 +86,7 @@ final class AssetGeneratorTests: XCTestCase {
         name: "Xcode",
         color: "#3984F7",
         rule: Rule(allowedBundleIdentifiers: ["com.apple.dt.Xcode"]),
-        userModes: [userMode]
+        userModes: [userMode],
       )
       return EditWorfklowGroupView(applicationStore: ApplicationStore.shared, group: group, action: { _ in })
         .environmentObject(publisher)
@@ -118,8 +118,8 @@ final class AssetGeneratorTests: XCTestCase {
             hideWhenRunning: false,
             ifNotRunning: false,
             addToStage: false,
-            waitForAppToLaunch: false
-          ), iconSize: iconSize
+            waitForAppToLaunch: false,
+          ), iconSize: iconSize,
         )
       }
     }
@@ -132,10 +132,10 @@ final class AssetGeneratorTests: XCTestCase {
             id: UUID().uuidString,
             name: meta.name,
             kind: .appFocus(
-              .init(application: findApplication("Xcode"), tiling: .arrangeLeftQuarters, hideOtherApps: false, createNewWindow: true)
-            )
+              .init(application: findApplication("Xcode"), tiling: .arrangeLeftQuarters, hideOtherApps: false, createNewWindow: true),
+            ),
           ),
-          iconSize: iconSize
+          iconSize: iconSize,
         )
       }
     }
@@ -149,7 +149,7 @@ final class AssetGeneratorTests: XCTestCase {
             findApplication("GitHub"),
             findApplication("Ghostty"),
           ], tiling: .arrangeLeftQuarters, hideOtherApps: true))),
-          iconSize: iconSize
+          iconSize: iconSize,
         )
       }
     }
@@ -163,7 +163,7 @@ final class AssetGeneratorTests: XCTestCase {
             .init(application: findApplication("GitHub"), tiling: .topRight),
             .init(application: findApplication("Ghostty"), tiling: .bottomRight),
           ]))),
-          iconSize: iconSize
+          iconSize: iconSize,
         )
       }
     }
@@ -188,9 +188,9 @@ final class AssetGeneratorTests: XCTestCase {
               .rightArrow,
               .b,
               .a,
-            ], iterations: 1)
+            ], iterations: 1),
           ),
-          iconSize: iconSize
+          iconSize: iconSize,
         )
       }
     }
@@ -256,7 +256,7 @@ final class AssetGeneratorTests: XCTestCase {
         #!/usr/bin/env python3
         import webbrowser
         webbrowser.open("https://github.com/zenangst/KeyboardCowboy")
-        """), scriptExtension: .shellScript, variableName: "", execution: .serial)), iconSize: iconSize, onSubmit: { })
+        """), scriptExtension: .shellScript, variableName: "", execution: .serial)), iconSize: iconSize, onSubmit: {})
       }
     }
 
@@ -275,11 +275,11 @@ final class AssetGeneratorTests: XCTestCase {
     }
   }
 
-  @MainActor private func commandAsset<Content>(_ filename: String, content: () -> Content) async throws where Content: View {
+  @MainActor private func commandAsset(_ filename: String, content: () -> some View) async throws {
     try await AssetGenerator.generate(filename: "Wiki/Commands/\(filename)", useIntrinsicContentSize: true, size: CGSize(width: 24, height: 24), content: content)
   }
 
-  @MainActor private func generateCommandView<Content>(name: String, content: (inout CommandViewModel.MetaData) -> Content) -> some View where Content: View {
+  @MainActor private func generateCommandView(name: String, content: (inout CommandViewModel.MetaData) -> some View) -> some View {
     var meta = CommandViewModel.MetaData(name: name, namePlaceholder: "")
     let content = content(&meta)
       .frame(width: 500)

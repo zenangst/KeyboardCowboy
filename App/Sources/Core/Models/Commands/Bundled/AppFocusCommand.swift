@@ -114,7 +114,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
         checkCancellation: checkCancellation,
         workflowCommands: [
           Command.application(.init(action: .open, application: application, meta: Command.MetaData(delay: nil, name: "Hide All Apps"), modifiers: [])),
-        ]
+        ],
       )
     }
 
@@ -203,7 +203,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
     if let windowTiling, !aerospaceIsRunning {
       commands.append(
-        .windowTiling(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling")))
+        .windowTiling(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling"))),
       )
     }
 
@@ -239,7 +239,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       bundleIdentifer: bundleIdentifer,
       hideOtherApps: hideOtherApps,
       tiling: tiling,
-      createNewWindow: createNewWindow
+      createNewWindow: createNewWindow,
     )
   }
 }

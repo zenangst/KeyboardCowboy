@@ -13,8 +13,8 @@ extension CGPoint {
 
   @MainActor
   func hasDifference(greaterThan tolerance: CGFloat, comparedTo other: CGPoint) -> Bool {
-    let xDiff = abs(self.x - round(other.x))
-    let yDiff = abs(self.y - round(other.y))
+    let xDiff = abs(x - round(other.x))
+    let yDiff = abs(y - round(other.y))
 
     if Self.debug {
       if xDiff > tolerance {

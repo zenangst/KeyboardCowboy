@@ -30,11 +30,11 @@ struct WorkflowGroupIconView: View {
       .shadow(
         color: Color(.sRGBLinear, white: 0, opacity: 0.2),
         radius: 1,
-        y: 1
+        y: 1,
       )
       .cursorOnHover(.pointingHand)
       .onHover { value in
-        self.isHovering = value
+        isHovering = value
       }
   }
 }
@@ -44,7 +44,7 @@ struct WorkflowGroupIconView_Previews: PreviewProvider {
     WorkflowGroupIconView(
       applicationStore: ApplicationStore.shared,
       group: .constant(WorkflowGroup.designTime()),
-      size: 48
+      size: 48,
     )
   }
 }

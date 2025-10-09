@@ -14,10 +14,10 @@ extension KeyboardCommand {
 
     init(from decoder: any Decoder) throws {
       let container: KeyedDecodingContainer<KeyboardCommand.InputSourceCommand.CodingKeys> = try decoder.container(keyedBy: KeyboardCommand.InputSourceCommand.CodingKeys.self)
-      self.id = try container.decode(String.self, forKey: KeyboardCommand.InputSourceCommand.CodingKeys.id)
+      id = try container.decode(String.self, forKey: KeyboardCommand.InputSourceCommand.CodingKeys.id)
       let inputSourceId = try container.decode(String.self, forKey: KeyboardCommand.InputSourceCommand.CodingKeys.inputSourceId)
       self.inputSourceId = inputSourceId
-      self.name = try container.decodeIfPresent(String.self, forKey: KeyboardCommand.InputSourceCommand.CodingKeys.name) ?? inputSourceId
+      name = try container.decodeIfPresent(String.self, forKey: KeyboardCommand.InputSourceCommand.CodingKeys.name) ?? inputSourceId
     }
   }
 }

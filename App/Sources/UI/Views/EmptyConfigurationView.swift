@@ -43,8 +43,8 @@ struct EmptyConfigurationView: View {
               GroupIconView(color: group.color,
                             icon: nil,
                             symbol: group.symbol)
-              .frame(width: 24, height: 24)
-              .shadow(color: .black.opacity(0.3), radius: 1, y: 2)
+                .frame(width: 24, height: 24)
+                .shadow(color: .black.opacity(0.3), radius: 1, y: 2)
             }
           }
         })
@@ -59,17 +59,14 @@ struct EmptyConfigurationView: View {
           GroupIconView(color: "#000",
                         icon: nil,
                         symbol: "app.dashed")
-          .frame(width: 30, height: 30)
-          .shadow(color: .black.opacity(0.3), radius: 1, y: 2)
+            .frame(width: 30, height: 30)
+            .shadow(color: .black.opacity(0.3), radius: 1, y: 2)
 
         })
         .buttonStyle(EmptyConfigurationButtonStyle(title: "Empty",
                                                    subtitle: " ",
                                                    action: .empty,
                                                    selected: $selected))
-
-
-
       }
       .padding(16)
       .frame(maxWidth: .infinity)
@@ -82,7 +79,6 @@ struct EmptyConfigurationView: View {
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 8)
         .padding(.horizontal, 32)
-
 
       Button(action: {
         onAction(selected)
@@ -114,7 +110,7 @@ struct EmptyConfigurationButtonStyle: ButtonStyle {
         .clipped()
         .background(
           EmptyConfigurationBackgroundView(action: action,
-                                           selected: $selected)
+                                           selected: $selected),
         )
       Text(subtitle)
         .font(.footnote)
@@ -138,13 +134,14 @@ struct EmptyConfigurationBackgroundView: View {
         .init(color: Color(color.blended(withFraction: 0.3, of: .black)!), location: 0.025),
         .init(color: Color(color.blended(withFraction: 0.5, of: .black)!), location: 1.0),
       ], startPoint: .top, endPoint: .bottom)
-      .cornerRadius(8)
+        .cornerRadius(8)
     }
     .shadow(
       color: selected
-      ? Color(.systemGreen)
-      : Color(.sRGBLinear, white: 0, opacity: 0.33),
-      radius: 4)
+        ? Color(.systemGreen)
+        : Color(.sRGBLinear, white: 0, opacity: 0.33),
+      radius: 4,
+    )
     .animation(.default, value: selected)
   }
 }

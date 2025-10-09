@@ -8,7 +8,7 @@ final class WorkflowNotificationController: ObservableObject {
   static let shared = WorkflowNotificationController()
   private static let emptyModel = WorkflowNotificationViewModel(
     id: UUID().uuidString,
-    keyboardShortcuts: []
+    keyboardShortcuts: [],
   )
 
   private var workItem: DispatchWorkItem?
@@ -21,7 +21,7 @@ final class WorkflowNotificationController: ObservableObject {
       styleMask: styleMask,
       content: WorkflowNotificationView(publisher: self.publisher)
         .environmentObject(windowManager)
-        .ignoresSafeArea()
+        .ignoresSafeArea(),
     )
     windowManager.window = window
 
@@ -43,7 +43,7 @@ final class WorkflowNotificationController: ObservableObject {
 
   private let publisher: WorkflowNotificationPublisher = .init(WorkflowNotificationController.emptyModel)
 
-  private init() { }
+  private init() {}
 
   func cancelReset() {
     workItem?.cancel()
@@ -57,7 +57,8 @@ final class WorkflowNotificationController: ObservableObject {
         id: UUID().uuidString,
         matches: [],
         glow: false,
-        keyboardShortcuts: [])
+        keyboardShortcuts: [],
+      )
       publisher.publish(emptyModel)
       window.close()
     }
@@ -71,7 +72,7 @@ final class WorkflowNotificationController: ObservableObject {
     guard let screen = NSScreen.main else { return }
 
     let placementRawValue = UserDefaults.standard.string(forKey: "Notifications.Placement") ?? ""
-    let placement = NotificationPlacement.init(rawValue: placementRawValue) ?? .bottomTrailing
+    let placement = NotificationPlacement(rawValue: placementRawValue) ?? .bottomTrailing
 
     publisher.publish(notification)
     window.contentView?.layout()
@@ -80,27 +81,25 @@ final class WorkflowNotificationController: ObservableObject {
     window.setFrame(NSRect(origin: .zero, size: size), display: false)
 
     let menubarHeight: CGFloat = 16
-    let origin: NSPoint
-
-    switch placement {
+    let origin: NSPoint = switch placement {
     case .center:
-      origin = .init(x: screen.frame.midX, y: screen.frame.mainDisplayFlipped.midY)
+      .init(x: screen.frame.midX, y: screen.frame.mainDisplayFlipped.midY)
     case .leading:
-      origin = .init(x: screen.frame.minX, y: screen.frame.mainDisplayFlipped.midY - size.height / 2)
+      .init(x: screen.frame.minX, y: screen.frame.mainDisplayFlipped.midY - size.height / 2)
     case .trailing:
-      origin = .init(x: screen.frame.maxX - size.width, y: screen.frame.mainDisplayFlipped.midY - size.height / 2)
+      .init(x: screen.frame.maxX - size.width, y: screen.frame.mainDisplayFlipped.midY - size.height / 2)
     case .top:
-      origin = .init(x: screen.frame.midX - size.width / 2, y: screen.visibleFrame.mainDisplayFlipped.maxY - size.height - menubarHeight)
+      .init(x: screen.frame.midX - size.width / 2, y: screen.visibleFrame.mainDisplayFlipped.maxY - size.height - menubarHeight)
     case .bottom:
-      origin = .init(x: screen.frame.midX - size.width / 2, y: screen.frame.mainDisplayFlipped.minY)
+      .init(x: screen.frame.midX - size.width / 2, y: screen.frame.mainDisplayFlipped.minY)
     case .topLeading:
-      origin = .init(x: screen.frame.minX, y: screen.visibleFrame.mainDisplayFlipped.maxY - size.height - menubarHeight)
+      .init(x: screen.frame.minX, y: screen.visibleFrame.mainDisplayFlipped.maxY - size.height - menubarHeight)
     case .topTrailing:
-      origin = .init(x: screen.frame.maxX - size.width, y: screen.frame.mainDisplayFlipped.maxY - size.height - menubarHeight)
+      .init(x: screen.frame.maxX - size.width, y: screen.frame.mainDisplayFlipped.maxY - size.height - menubarHeight)
     case .bottomLeading:
-      origin = .init(x: screen.frame.minX, y: screen.frame.mainDisplayFlipped.minY)
+      .init(x: screen.frame.minX, y: screen.frame.mainDisplayFlipped.minY)
     case .bottomTrailing:
-      origin = .init(x: screen.frame.maxX - size.width, y: screen.frame.mainDisplayFlipped.minY)
+      .init(x: screen.frame.maxX - size.width, y: screen.frame.mainDisplayFlipped.minY)
     }
 
     window.setFrame(NSRect(origin: origin, size: size), display: true)

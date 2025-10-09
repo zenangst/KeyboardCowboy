@@ -19,11 +19,11 @@ final class ConfigurationStorage: @unchecked Sendable {
 
   private var subscription: AnyCancellable?
 
-  internal init(_ configLocation: ConfigurationLocation,
-                decoder: JSONDecoder = .init(),
-                encoder: JSONEncoder = .init(),
-                fileManager: FileManager = .init()
-  ) {
+  init(_ configLocation: ConfigurationLocation,
+       decoder: JSONDecoder = .init(),
+       encoder: JSONEncoder = .init(),
+       fileManager: FileManager = .init())
+  {
     self.configLocation = configLocation
     self.encoder = encoder
     self.decoder = decoder
@@ -32,7 +32,7 @@ final class ConfigurationStorage: @unchecked Sendable {
 
   func subscribe(to publisher: Published<[KeyboardCowboyConfiguration]>.Publisher) {
     subscription = publisher
-    // Skip the first empty state and the first time it gets loaded from disk.
+      // Skip the first empty state and the first time it gets loaded from disk.
       .dropFirst(1)
       .debounce(for: 0.5, scheduler: DispatchQueue.global(qos: .utility))
       .removeDuplicates()
@@ -90,7 +90,7 @@ final class ConfigurationStorage: @unchecked Sendable {
       let result = try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
 
       if await Migration.shouldSave {
-         try save(result)
+        try save(result)
       }
       Benchmark.shared.stop("Storage.load")
       return result
@@ -109,7 +109,8 @@ final class ConfigurationStorage: @unchecked Sendable {
 
   func load() async throws -> [WorkflowGroup] {
     guard let data = fileManager.contents(atPath: configLocation.url.path),
-          !data.isEmpty else {
+          !data.isEmpty
+    else {
       throw ConfigurationStorageError.unableToReadContents
     }
 
@@ -121,7 +122,7 @@ final class ConfigurationStorage: @unchecked Sendable {
     let configuration = KeyboardCowboyConfiguration(
       name: "Default configuration",
       userModes: [],
-      groups: groups
+      groups: groups,
     )
     return [configuration]
   }
@@ -131,7 +132,7 @@ final class ConfigurationStorage: @unchecked Sendable {
     do {
       let data = try encoder.encode(configurations)
       fileManager.createFile(atPath: configLocation.url.path, contents: data, attributes: nil)
-    } catch let error {
+    } catch {
       throw ConfigurationStorageError.unableToSaveContents(error)
     }
   }

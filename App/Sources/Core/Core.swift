@@ -10,20 +10,20 @@ final class Core {
     contentStore: contentStore,
     configurationUpdater: configurationUpdater,
     selectionManager: configSelection,
-    store: configurationStore
+    store: configurationStore,
   )
 
   private(set) lazy var sidebarCoordinator = SidebarCoordinator(
     groupStore,
     applicationStore: ApplicationStore.shared,
-    groupSelectionManager: groupSelection
+    groupSelectionManager: groupSelection,
   )
 
   private(set) lazy var groupCoordinator = GroupCoordinator(
     groupStore,
     applicationStore: ApplicationStore.shared,
     groupSelectionManager: groupSelection,
-    workflowsSelectionManager: workflowsSelection
+    workflowsSelectionManager: workflowsSelection,
   )
 
   private(set) lazy var workflowCoordinator = WorkflowCoordinator(
@@ -36,7 +36,7 @@ final class Core {
     groupSelection: groupSelection,
     keyboardCowboyEngine: engine,
     keyboardShortcutSelection: keyboardShortcutSelection,
-    groupStore: contentStore.groupStore
+    groupStore: contentStore.groupStore,
   )
 
   // MARK: - Selection managers
@@ -68,7 +68,7 @@ final class Core {
     shortcutResolver: shortcutResolver,
     recorderStore: recorderStore,
     shortcutStore: shortcutStore,
-    scriptCommandRunner: scriptCommandRunner
+    scriptCommandRunner: scriptCommandRunner,
   )
   private(set) lazy var keyboardCleaner = KeyboardCleaner()
   private(set) lazy var macroCoordinator = MacroCoordinator(keyCodes: keyCodeStore)
@@ -85,7 +85,7 @@ final class Core {
     notifications: notifications,
     shortcutResolver: shortcutResolver,
     tapHeldCoordinator: tapHeldCoordinator,
-    workflowRunner: workflowRunner
+    workflowRunner: workflowRunner,
   )
 
   private(set) lazy var engine = KeyboardCowboyEngine(
@@ -103,7 +103,7 @@ final class Core {
     snippetController: snippetController,
     tapHeld: tapHeldCoordinator,
     uiElementCaptureStore: uiElementCaptureStore,
-    workspace: .shared
+    workspace: .shared,
   )
   private(set) lazy var uiElementCaptureStore = UIElementCaptureStore()
   private(set) lazy var recorderStore = KeyShortcutRecorderStore()
@@ -125,12 +125,12 @@ final class Core {
       configurationStore: configurationStore,
       macroRunner: macroRunner,
       repeatLastWorkflowRunner: repeatLastWorkflowRunner,
-      windowOpener: WindowOpener(core: self)
+      windowOpener: WindowOpener(core: self),
     ),
     scriptCommandRunner: scriptCommandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
     systemCommandRunner: systemCommandRunner,
-    uiElementCommandRunner: uiElementCommandRunner
+    uiElementCommandRunner: uiElementCommandRunner,
   )
   private(set) lazy var systemCommandRunner = SystemCommandRunner(applicationActivityMonitor: applicationActivityMonitor)
   private(set) lazy var keyboardCommandRunner = KeyboardCommandRunner(store: keyCodeStore)
@@ -140,7 +140,7 @@ final class Core {
   private(set) lazy var snippetController = SnippetController(
     commandRunner: commandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
-    store: keyCodeStore
+    store: keyCodeStore,
   )
 
   private(set) lazy var applicationTriggerController = ApplicationTriggerController(workflowRunner)
@@ -170,8 +170,8 @@ final class Core {
         groupCoordinator.handle(.refresh([commit.groupID]))
       }
       configurationStore.update(configuration)
-    }
+    },
   )
 
-  init() { }
+  init() {}
 }

@@ -44,7 +44,7 @@ struct SidebarView: View {
     VStack(alignment: .leading, spacing: 0) {
       ConfigurationContainerView(
         configSelection: configSelection,
-        onAction: onAction
+        onAction: onAction,
       )
       .style(.derived)
 
@@ -70,7 +70,7 @@ struct SidebarView: View {
       $focus,
       configSelection: .init(),
       groupSelection: .init(),
-      workflowSelection: .init()
+      workflowSelection: .init(),
     ) { _ in }
   }
   .designTime()

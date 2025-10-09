@@ -1,14 +1,15 @@
-import Foundation
 import Carbon
 import Cocoa
 import Combine
+import Foundation
 import SwiftUI
 
 @MainActor
 final class SelectionManager<T>: ObservableObject where T: Identifiable,
-                                                        T: Hashable,
-                                                        T: Equatable,
-                                                        T.ID == String {
+  T: Hashable,
+  T: Equatable,
+  T.ID == String
+{
   private var subscriptions: AnyCancellable?
   private var tabIsActive: Bool = false
   typealias StoreType = (Set<T.ID>) -> Void
@@ -20,23 +21,24 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
 
   init(_ selections: Set<T.ID> = [],
        initialSelection: Set<T.ID> = [],
-       store: @escaping StoreType = { _ in }) {
+       store: @escaping StoreType = { _ in })
+  {
     self.store = store
     if let firstSelection = Array(initialSelection).first {
       self.selections = [firstSelection]
-      self.lastSelection = firstSelection
+      lastSelection = firstSelection
     } else {
       self.selections = selections
-      self.lastSelection = nil
+      lastSelection = nil
     }
 
     self.initialSelection = lastSelection ?? selections.first
 
-    subscriptions = LocalEventMonitor.shared.$event
-      .compactMap { $0 }
+    subscriptions = LocalEventMonitor.shared
+      .$event
+      .compactMap(\.self)
       .sink { [weak self] event in
         guard let self else { return }
-
         guard event.keyCode == kVK_Tab else { return }
 
         tabIsActive = switch event.type {
@@ -47,41 +49,46 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   }
 
   func removeLastSelection() {
-    self.lastSelection = nil
+    lastSelection = nil
   }
 
   func setLastSelection(_ selection: T.ID) {
-    self.lastSelection <- selection
-    if self.selections.isEmpty {
-      self.selections <- [selection]
+    lastSelection <- selection
+    if selections.isEmpty {
+      selections <- [selection]
     }
-    self.initialSelection = selection
+    initialSelection = selection
   }
 
   @MainActor
   func publish(_ newSelections: Set<T.ID>) {
-    if self.selections != newSelections {
-      self.selections = newSelections
+    if selections != newSelections {
+      selections = newSelections
     }
-    store(self.selections)
+    store(selections)
   }
 
   func handle(_ direction: MoveCommandDirection,
               _ data: [T],
               proxy: ScrollViewProxy? = nil,
-              vertical: Bool = true) -> T.ID? {
+              vertical: Bool = true) -> T.ID?
+  {
     switch direction {
     case .up:
       guard vertical else { return nil }
+
       return moveSelection(data, proxy: proxy) { max($0 - 1, 0) }
     case .down:
       guard vertical else { return nil }
+
       return moveSelection(data, proxy: proxy) { min($0 + 1, data.count - 1) }
     case .left:
       guard !vertical else { return nil }
+
       return moveSelection(data, proxy: proxy) { max($0 - 1, 0) }
     case .right:
       guard !vertical else { return nil }
+
       return moveSelection(data, proxy: proxy) { min($0 + 1, data.count - 1) }
     default:
       break
@@ -93,9 +100,9 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   func handleOnTap(_ data: [T], element: T) {
     let copyOfSelections = selections
     var newSelections: Set<T.ID> = []
-    if !tabIsActive && NSEvent.modifierFlags.contains(.shift) {
+    if !tabIsActive, NSEvent.modifierFlags.contains(.shift) {
       newSelections = onShiftTap(data, elementID: element.id, selections: copyOfSelections)
-    } else if !tabIsActive && NSEvent.modifierFlags.contains(.command) {
+    } else if !tabIsActive, NSEvent.modifierFlags.contains(.command) {
       newSelections = onCommandTap(element, selections: copyOfSelections)
     } else {
       newSelections = onTap(element)
@@ -109,9 +116,11 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
 
   private func moveSelection(_ data: [T],
                              proxy: ScrollViewProxy? = nil,
-                             transform: (Int) -> Int) -> T.ID? {
+                             transform: (Int) -> Int) -> T.ID?
+  {
     if let currentSelection = lastSelection ?? selections.first ?? data.first?.id,
-       let currentIndex = data.firstIndex(where: { $0.id == currentSelection }) {
+       let currentIndex = data.firstIndex(where: { $0.id == currentSelection })
+    {
       let nextIndex = transform(currentIndex)
 
       let currentElementID = data[currentIndex].id
@@ -164,16 +173,16 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   private func onShiftTap(_ data: [T], elementID: T.ID, selections: Set<T.ID>) -> Set<T.ID> {
     var newSelections = selections
 
-    if newSelections.contains(elementID) && newSelections.count > 1 {
+    if newSelections.contains(elementID), newSelections.count > 1 {
       newSelections.remove(elementID)
     } else {
       newSelections.insert(elementID)
     }
 
     guard let lastSelection else { return newSelections }
-
     guard var startIndex = data.firstIndex(where: { $0.id == lastSelection }),
-          var endIndex = data.firstIndex(where: { $0.id == elementID }) else {
+          var endIndex = data.firstIndex(where: { $0.id == elementID })
+    else {
       return newSelections
     }
 
@@ -183,7 +192,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
       endIndex = copy
     }
 
-    data[startIndex...endIndex].forEach { element in
+    data[startIndex ... endIndex].forEach { element in
       if selections.contains(element.id) {
         if element.id != lastSelection {
           newSelections.remove(element.id)

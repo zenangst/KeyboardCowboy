@@ -12,14 +12,15 @@ struct RelativeFocusIconView: View {
       case .upperRight: "arrow.up.right"
       case .lowerLeft: "arrow.down.left"
       case .lowerRight: "arrow.down.right"
-      case .up:    "arrow.up"
-      case .down:  "arrow.down"
-      case .left:  "arrow.left"
+      case .up: "arrow.up"
+      case .down: "arrow.down"
+      case .left: "arrow.left"
       case .right: "arrow.right"
       case .center: "rectangle.center.inset.filled"
       }
     }
   }
+
   let kind: Kind
   let size: CGFloat
 
@@ -36,7 +37,7 @@ struct RelativeFocusIconView: View {
       .overlay {
         WindowView(.init(width: (size * 0.85) * 0.9, height: (size * 0.85) * 0.9),
                    image: Image(systemName: kind.systemName))
-        .shadow(radius: 2)
+          .shadow(radius: 2)
       }
       .frame(width: size, height: size)
       .fixedSize()
@@ -59,7 +60,7 @@ private struct WindowView: View {
         LinearGradient(stops: [
           .init(color: Color(nsColor: .white), location: 0.0),
           .init(color: Color(nsColor: .white.withSystemEffect(.disabled)), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay { iconOverlay().opacity(0.5) }
       .overlay(alignment: .topLeading) {
@@ -118,7 +119,6 @@ private struct TrafficLightsView: View {
     }
     .frame(width: size.width * 0.3)
     .padding([.leading, .top], size.width * 0.0675)
-
   }
 }
 

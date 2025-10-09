@@ -54,7 +54,6 @@ struct Release3_22_2: View {
                 .init(color: Color.clear, location: 0.8),
                 .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
               ], startPoint: .top, endPoint: .bottom)
-
             }
         }
         .iconShape(size)
@@ -92,7 +91,6 @@ struct Release3_22_2: View {
                   }
                 }
               }
-
             }
             .font(Font.system(.caption2, design: .rounded))
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -104,7 +102,7 @@ struct Release3_22_2: View {
 
         HStack(spacing: 4) {
           Text("Special thanks to")
-          AsyncImage.init(url: URL(string: "https://avatars.githubusercontent.com/u/5180591?v=4")) { image in
+          AsyncImage(url: URL(string: "https://avatars.githubusercontent.com/u/5180591?v=4")) { image in
             image
               .resizable()
               .aspectRatio(contentMode: .fit)

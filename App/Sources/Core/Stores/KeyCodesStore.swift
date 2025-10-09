@@ -2,8 +2,8 @@ import AppKit
 import Carbon
 import Combine
 import Foundation
-import KeyCodes
 import InputSources
+import KeyCodes
 
 protocol CurrentInputSourceProviding {
   @MainActor func inputSource() throws -> TISInputSource
@@ -25,7 +25,7 @@ final class KeyCodesStore {
 
   private let currentInputProvider: CurrentInputSourceProviding
 
-  internal init(_ currentInputProvider: CurrentInputSourceProviding) {
+  init(_ currentInputProvider: CurrentInputSourceProviding) {
     self.currentInputProvider = currentInputProvider
     reloadCurrentSource()
   }
@@ -68,6 +68,7 @@ final class KeyCodesStore {
 
   private func reloadCurrentSource() {
     guard let currentInputSource = try? currentInputProvider.inputSource() else { return }
+
     try? mapKeys(from: currentInputSource)
   }
 

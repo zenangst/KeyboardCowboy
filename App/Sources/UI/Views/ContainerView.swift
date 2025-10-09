@@ -69,7 +69,7 @@ struct ContainerView: View {
           configSelection: configSelection,
           groupSelection: groupsSelection,
           workflowSelection: workflowSelection,
-          onAction: { onAction(.sidebar($0), undoManager) }
+          onAction: { onAction(.sidebar($0), undoManager) },
         )
         .onChange(of: contentState, perform: { newValue in
           guard newValue == .initialized else { return }
@@ -93,7 +93,7 @@ struct ContainerView: View {
             if case .addWorkflow = $0 {
               Task { @MainActor in focus.wrappedValue = .detail(.name) }
             }
-          }
+          },
         )
         .style(.section(.content))
         .environmentObject(detailUpdateTransaction)
@@ -108,14 +108,14 @@ struct ContainerView: View {
           keyboardShortcutSelection: keyboardShortcutSelection,
           triggerPublisher: triggerPublisher,
           infoPublisher: infoPublisher,
-          commandPublisher: commandPublisher
+          commandPublisher: commandPublisher,
         )
         .frame(minHeight: 400)
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
         .style(.section(.detail))
         .environmentObject(detailUpdateTransaction)
         .edgesIgnoringSafeArea(.all)
-      }
+      },
     )
     .navigationSplitViewStyle(.balanced)
     .enableInjection()
@@ -138,7 +138,7 @@ struct ContainerView_Previews: PreviewProvider {
       keyboardShortcutSelection: .init(),
       triggerPublisher: DesignTime.triggerPublisher,
       infoPublisher: DesignTime.infoPublisher,
-      commandPublisher: DesignTime.commandsPublisher
+      commandPublisher: DesignTime.commandsPublisher,
     ) { _, _ in }
       .designTime()
       .frame(width: 900, height: 800)

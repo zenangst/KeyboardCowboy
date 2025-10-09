@@ -17,7 +17,7 @@ struct GroupDetailHeaderView: View {
           .padding(4)
           .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-              .fill(Color(nsColor: .init(hex: groupPublisher.data.color)).opacity(0.4))
+              .fill(Color(nsColor: .init(hex: groupPublisher.data.color)).opacity(0.4)),
           )
         VStack(alignment: .leading) {
           Text(groupPublisher.data.name)
@@ -35,7 +35,7 @@ struct GroupDetailHeaderView: View {
           updater.modifyGroup(using: transaction) { group in
             group.isDisabled = !newValue
           }
-        }), label: { })
+        }), label: {})
           .switchStyle()
           .environment(\.switchForegroundColor, Color(hex: groupPublisher.data.color))
           .environment(\.switchBackgroundColor, Color(hex: groupPublisher.data.color))

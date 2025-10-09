@@ -8,15 +8,17 @@ enum Raycast {
     var watchers = [FileWatcher]()
 
     init() {
-      let userDirectory = FileManager.default.homeDirectoryForCurrentUser
+      let userDirectory = FileManager.default
+        .homeDirectoryForCurrentUser
         .appending(path: ".config/raycast/extensions")
-      self.paths = [userDirectory]
+      paths = [userDirectory]
       do {
         var isDirectory: ObjCBool = true
-        self.watchers = try paths.compactMap {
+        watchers = try paths.compactMap {
           guard FileManager.default.fileExists(atPath: $0.path(), isDirectory: &isDirectory) else {
             return nil
           }
+
           try index($0)
           return try FileWatcher($0, handler: { [weak self] url in
             try? self?.index(url)
@@ -98,18 +100,18 @@ enum Raycast {
       }
 
       init(_ command: Command, path: String) {
-        self.id = command.id
-        self.name = command.name
-        self.title = command.title
+        id = command.id
+        name = command.name
+        title = command.title
         self.path = path
       }
 
       init(from decoder: any Decoder) throws {
         let container: KeyedDecodingContainer<Raycast.Extension.Command.CodingKeys> = try decoder.container(keyedBy: Raycast.Extension.Command.CodingKeys.self)
-        self.name = try container.decode(String.self, forKey: Raycast.Extension.Command.CodingKeys.name)
-        self.title = try container.decode(String.self, forKey: Raycast.Extension.Command.CodingKeys.title)
-        self.id = name + title
-        self.path = ""
+        name = try container.decode(String.self, forKey: Raycast.Extension.Command.CodingKeys.name)
+        title = try container.decode(String.self, forKey: Raycast.Extension.Command.CodingKeys.title)
+        id = name + title
+        path = ""
       }
     }
   }

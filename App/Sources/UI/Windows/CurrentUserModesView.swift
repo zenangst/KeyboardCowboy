@@ -22,7 +22,7 @@ struct CurrentUserModesView: View {
       .init(id: UUID().uuidString, name: "foo", isEnabled: true),
       .init(id: UUID().uuidString, name: "bar", isEnabled: true),
       .init(id: UUID().uuidString, name: "baz", isEnabled: true),
-    ]
+    ],
   )
   return CurrentUserModesView(publisher: publisher)
     .padding()

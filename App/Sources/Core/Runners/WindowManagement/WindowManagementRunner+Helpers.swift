@@ -7,9 +7,10 @@ extension CGRect {
 }
 
 extension CGFloat {
-  static func formula(_ initialValue: CGFloat = 0, 
+  static func formula(_ initialValue: CGFloat = 0,
                       debug prefix: String? = nil,
-                      @GenericBuilder<Math> _ builder: (Math.Type) -> [Math]) -> CGFloat {
+                      @GenericBuilder<Math> _ builder: (Math.Type) -> [Math]) -> CGFloat
+  {
     let instructions = builder(Math.self)
     var result: CGFloat = initialValue.rounded()
 
@@ -17,12 +18,12 @@ extension CGFloat {
 
     for instruction in instructions {
       switch instruction {
-      case .add(let fn):
+      case let .add(fn):
         let value = fn().rounded()
         debugString += " + \(value)"
         result += value
 
-      case .subtract(let fn):
+      case let .subtract(fn):
         let value = fn().rounded()
         debugString += " - \(value)"
         result -= value
@@ -44,7 +45,7 @@ enum Math {
 
 @resultBuilder
 public struct GenericBuilder<T> {
-  static public func buildBlock(_ components: T...) -> [T] {
+  public static func buildBlock(_ components: T...) -> [T] {
     components
   }
 }

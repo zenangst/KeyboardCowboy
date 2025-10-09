@@ -34,20 +34,20 @@ final class ContentStore: ObservableObject {
        shortcutResolver: ShortcutResolver,
        recorderStore: KeyShortcutRecorderStore,
        shortcutStore: ShortcutStore,
-       scriptCommandRunner: ScriptCommandRunner = .init(workspace: .shared),
-       workspace: NSWorkspace = .shared) {
-    self.configurationId = AppStorageContainer.shared.configId
+       scriptCommandRunner _: ScriptCommandRunner = .init(workspace: .shared),
+       workspace _: NSWorkspace = .shared)
+  {
+    configurationId = AppStorageContainer.shared.configId
     self.applicationStore = applicationStore
     self.shortcutStore = shortcutStore
     self.groupStore = groupStore
     self.configurationStore = configurationStore
     self.shortcutResolver = shortcutResolver
     self.preferences = preferences
-    self.storage = ConfigurationStorage(preferences.configLocation)
+    storage = ConfigurationStorage(preferences.configLocation)
     self.recorderStore = recorderStore
 
     guard KeyboardCowboyApp.env() != .previews else { return }
-
     guard !launchArguments.isEnabled(.runningUnitTests) else { return }
 
     UserSpace.shared.subscribe(to: configurationStore.$selectedConfiguration)
@@ -84,12 +84,11 @@ final class ContentStore: ObservableObject {
 
   @MainActor
   func handle(_ action: EmptyConfigurationView.Action) {
-    let configurations: [KeyboardCowboyConfiguration]
-    switch action {
+    let configurations: [KeyboardCowboyConfiguration] = switch action {
     case .empty:
-      configurations = [.empty()]
+      [.empty()]
     case .initial:
-      configurations = [.default()]
+      [.default()]
     }
     setup(configurations)
     try? storage.save(configurationStore.configurations)
@@ -126,7 +125,8 @@ final class ContentStore: ObservableObject {
       .removeDuplicates()
       .sink { [weak self] groups in
         self?.updateConfiguration(groups)
-    }.store(in: &subscriptions)
+      }
+      .store(in: &subscriptions)
   }
 
   private func updateConfiguration(_ groups: [WorkflowGroup]) {

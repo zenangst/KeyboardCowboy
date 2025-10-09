@@ -14,7 +14,7 @@ struct NotificationsSettingsView: View {
       VStack(spacing: 8) {
         RoundedRectangle(cornerRadius: 4)
           .fill(gradient)
-          .aspectRatio(1.54/1, contentMode: .fit)
+          .aspectRatio(1.54 / 1, contentMode: .fit)
           .frame(height: 180)
           .overlay(content: {
             Text("Notification Placement")
@@ -26,7 +26,7 @@ struct NotificationsSettingsView: View {
             }, set: { _ in
               notificationPlacement = .topLeading
             }), label: {})
-            .padding(8)
+              .padding(8)
           }
           .overlay(alignment: .top) {
             Toggle(isOn: Binding(get: {
@@ -34,7 +34,7 @@ struct NotificationsSettingsView: View {
             }, set: { _ in
               notificationPlacement = .top
             }), label: {})
-            .padding(8)
+              .padding(8)
           }
           .overlay(alignment: .topTrailing) {
             Toggle(isOn: Binding(get: {
@@ -42,7 +42,7 @@ struct NotificationsSettingsView: View {
             }, set: { _ in
               notificationPlacement = .topTrailing
             }), label: {})
-            .padding(8)
+              .padding(8)
           }
           .overlay(alignment: .leading) {
             Toggle(isOn: Binding(get: {
@@ -50,7 +50,7 @@ struct NotificationsSettingsView: View {
             }, set: { _ in
               notificationPlacement = .leading
             }), label: {})
-            .padding(8)
+              .padding(8)
           }
           .overlay(alignment: .trailing) {
             Toggle(isOn: Binding(get: {
@@ -58,7 +58,7 @@ struct NotificationsSettingsView: View {
             }, set: { _ in
               notificationPlacement = .trailing
             }), label: {})
-            .padding(8)
+              .padding(8)
           }
           .overlay(alignment: .bottomLeading) {
             Toggle(isOn: Binding(get: {
@@ -66,7 +66,7 @@ struct NotificationsSettingsView: View {
             }, set: { _ in
               notificationPlacement = .bottomLeading
             }), label: {})
-            .padding(8)
+              .padding(8)
           }
           .overlay(alignment: .bottom) {
             Toggle(isOn: Binding(get: {
@@ -74,7 +74,7 @@ struct NotificationsSettingsView: View {
             }, set: { _ in
               notificationPlacement = .bottom
             }), label: {})
-            .padding(8)
+              .padding(8)
           }
           .overlay(alignment: .bottomTrailing) {
             Toggle(isOn: Binding(get: {
@@ -82,7 +82,7 @@ struct NotificationsSettingsView: View {
             }, set: { _ in
               notificationPlacement = .bottomTrailing
             }), label: {})
-            .padding(8)
+              .padding(8)
           }
       }
       .padding(.vertical, 8)
@@ -121,4 +121,3 @@ struct NotificationsSettingsView_Previews: PreviewProvider {
     NotificationsSettingsView()
   }
 }
-

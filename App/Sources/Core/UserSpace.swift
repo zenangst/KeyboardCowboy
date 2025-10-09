@@ -78,7 +78,7 @@ final class UserSpace: @unchecked Sendable {
          windows: WindowStoreSnapshot = WindowStoreSnapshot(
            frontmostApplicationWindows: [],
            visibleWindowsInStage: [],
-           visibleWindowsInSpace: []
+           visibleWindowsInSpace: [],
          ))
     {
       self.documentPath = documentPath
@@ -100,7 +100,7 @@ final class UserSpace: @unchecked Sendable {
         previousApplication: current != frontMostApplication ? frontMostApplication : previousApplication,
         selectedText: selectedText,
         selections: selections,
-        windows: windows
+        windows: windows,
       )
     }
 
@@ -263,7 +263,7 @@ final class UserSpace: @unchecked Sendable {
     keyCodes = KeyCodesStore(InputSourceController())
 
     frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
-      .compactMap { $0 }
+      .compactMap(\.self)
       .sink { [weak self] runningApplication in
         guard let self else { return }
 
@@ -287,7 +287,7 @@ final class UserSpace: @unchecked Sendable {
 
   func subscribe(to publisher: Published<CGEvent?>.Publisher) {
     machPortEventSubscription = publisher
-      .compactMap { $0 }
+      .compactMap(\.self)
       .sink { [weak self] event in
         self?.cgEvent = event
       }
@@ -322,7 +322,7 @@ final class UserSpace: @unchecked Sendable {
           ScriptingBridgeResolver.resolve(
             bundleIdentifier,
             firstUrl: &documentPath,
-            selections: &selections
+            selections: &selections,
           )
         }
       }
@@ -346,7 +346,7 @@ final class UserSpace: @unchecked Sendable {
   func subscribe(to publisher: Published<KeyboardCowboyConfiguration>.Publisher) {
     configurationSubscription = publisher
       .sink { [weak self] configuration in
-        guard let self = self else { return }
+        guard let self else { return }
 
         Task { @MainActor in
           let oldCopy = self.currentUserModes
@@ -388,7 +388,7 @@ final class UserSpace: @unchecked Sendable {
   }
 
   private func currentApplication(for runningApplication: NSRunningApplication) throws -> AppAccessibilityElement {
-    return AppAccessibilityElement(runningApplication.processIdentifier)
+    AppAccessibilityElement(runningApplication.processIdentifier)
   }
 
   private func documentPath(for runningApplication: NSRunningApplication) throws -> String? {
@@ -407,7 +407,7 @@ final class UserSpace: @unchecked Sendable {
         "AXWebArea", "AXGroup",
       ]
 
-      if selectedText == nil && clipboardValidGroups.contains(focusedElement.role ?? "") {
+      if selectedText == nil, clipboardValidGroups.contains(focusedElement.role ?? "") {
         selectedText = try await selectedTextFromClipboard()
       }
 
@@ -465,7 +465,7 @@ extension RunningApplication {
         ref: currentApp,
         bundleIdentifier: Bundle.main.bundleIdentifier!,
         name: entry.name,
-        path: entry.path
+        path: entry.path,
       )
     }
 
@@ -473,13 +473,13 @@ extension RunningApplication {
       ref: Self.currentApp,
       bundleIdentifier: Bundle.main.bundleIdentifier!,
       name: Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "",
-      path: Bundle.main.bundlePath
+      path: Bundle.main.bundlePath,
     )
 
     UserSpace.cache[userSpaceApplication.bundleIdentifier] = .init(
       name: userSpaceApplication.name,
       path: userSpaceApplication.path,
-      bundleIdentifier: userSpaceApplication.bundleIdentifier
+      bundleIdentifier: userSpaceApplication.bundleIdentifier,
     )
 
     return userSpaceApplication
@@ -487,13 +487,13 @@ extension RunningApplication {
 
   @MainActor
   func asApplication() -> UserSpace.Application? {
-    if let bundleIdentifier = bundleIdentifier {
+    if let bundleIdentifier {
       if let userSpaceApplication = UserSpace.cache[bundleIdentifier] {
         return UserSpace.Application(
           ref: self,
           bundleIdentifier: bundleIdentifier,
           name: userSpaceApplication.name,
-          path: userSpaceApplication.path
+          path: userSpaceApplication.path,
         )
       } else if let name = localizedName,
                 let path = bundleURL?.path().removingPercentEncoding
@@ -501,14 +501,14 @@ extension RunningApplication {
         UserSpace.cache[bundleIdentifier] = RunningApplicationCache(
           name: name,
           path: path,
-          bundleIdentifier: bundleIdentifier
+          bundleIdentifier: bundleIdentifier,
         )
 
         return UserSpace.Application(
           ref: self,
           bundleIdentifier: bundleIdentifier,
           name: name,
-          path: path
+          path: path,
         )
       }
     }

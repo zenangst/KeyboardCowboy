@@ -9,7 +9,7 @@ extension NSCursor {
     case easeInOut
   }
 
-  nonisolated(unsafe) private static var currentWorkItem: DispatchWorkItem?
+  private nonisolated(unsafe) static var currentWorkItem: DispatchWorkItem?
 
   static func moveCursor(from startPoint: CGPoint = NSEvent.mouseLocation.mainDisplayFlipped, to point: CGPoint, duration: TimeInterval = 0, interpolation: Interpolation = .easeInOut) {
     currentWorkItem?.cancel() // Cancel any ongoing animation
@@ -28,18 +28,17 @@ extension NSCursor {
     let controlPoint = CGPoint(x: (startPoint.x + targetPoint.x) / 2, y: min(startPoint.y, targetPoint.y) - 100)
 
     let workItem = DispatchWorkItem {
-      for step in 0...steps {
+      for step in 0 ... steps {
         let t = Double(step) / Double(steps)
-        let interpolatedT: Double
-        switch interpolation {
+        let interpolatedT: Double = switch interpolation {
         case .spring:
-          interpolatedT = springInterpolation(t)
+          springInterpolation(t)
         case .easeIn:
-          interpolatedT = easeInInterpolation(t)
+          easeInInterpolation(t)
         case .easeOut:
-          interpolatedT = easeOutInterpolation(t)
+          easeOutInterpolation(t)
         case .easeInOut:
-          interpolatedT = easeInOutInterpolation(t)
+          easeInOutInterpolation(t)
         }
 
         // Calculate the Bézier curve point
@@ -49,8 +48,8 @@ extension NSCursor {
         DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(step)) {
           if currentWorkItem?.isCancelled == false {
             let point = CGPoint(x: newX, y: newY)
-              let mouseEvent = CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: point, mouseButton: .center)
-              mouseEvent?.post(tap: .cghidEventTap)
+            let mouseEvent = CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: point, mouseButton: .center)
+            mouseEvent?.post(tap: .cghidEventTap)
           }
         }
       }
@@ -61,18 +60,18 @@ extension NSCursor {
   }
 
   private static func springInterpolation(_ t: Double) -> Double {
-    return 1 - pow(2.71828, -6 * t) * cos(12 * t)
+    1 - pow(2.71828, -6 * t) * cos(12 * t)
   }
 
   private static func easeInInterpolation(_ t: Double) -> Double {
-    return t * t
+    t * t
   }
 
   private static func easeOutInterpolation(_ t: Double) -> Double {
-    return t * (2 - t)
+    t * (2 - t)
   }
 
   private static func easeInOutInterpolation(_ t: Double) -> Double {
-    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+    t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
   }
 }

@@ -1,5 +1,5 @@
-import IOKit.ps
 import Foundation
+import IOKit.ps
 
 final class BatteryInfo: @unchecked Sendable {
   struct Model: Equatable {
@@ -13,7 +13,8 @@ final class BatteryInfo: @unchecked Sendable {
          currentCapacity: Float,
          isLowPowerModeEnabled: Bool = ProcessInfo.processInfo.isLowPowerModeEnabled,
          isCharging: Bool?,
-         isCharged: Bool?) {
+         isCharged: Bool?)
+    {
       self.acPowered = acPowered
       self.currentCapacity = currentCapacity
       self.isLowPowerModeEnabled = isLowPowerModeEnabled
@@ -22,7 +23,7 @@ final class BatteryInfo: @unchecked Sendable {
     }
   }
 
-  static let shared: BatteryInfo = BatteryInfo()
+  static let shared: BatteryInfo = .init()
 
   @Published private(set) var data: Model?
 
@@ -54,7 +55,8 @@ final class BatteryInfo: @unchecked Sendable {
     for powerSource in powerSources {
       let powerSourceInfo = IOPSGetPowerSourceDescription(powerSourceInfo, powerSource).takeUnretainedValue() as! [String: Any]
       if let currentCapacity = powerSourceInfo[kIOPSCurrentCapacityKey] as? Int,
-         let maxCapacity = powerSourceInfo[kIOPSMaxCapacityKey] as? Int {
+         let maxCapacity = powerSourceInfo[kIOPSMaxCapacityKey] as? Int
+      {
         batteryLevel = Float(currentCapacity) / Float(maxCapacity)
       }
     }
@@ -63,7 +65,7 @@ final class BatteryInfo: @unchecked Sendable {
       acPowered: service.bool("ExternalConnected"),
       currentCapacity: batteryLevel,
       isCharging: service.bool("IsCharging"),
-      isCharged: service.bool("FullyCharged")
+      isCharged: service.bool("FullyCharged"),
     )
   }
 
@@ -72,7 +74,7 @@ final class BatteryInfo: @unchecked Sendable {
       self,
       selector: #selector(batteryLevelDidChange(_:)),
       name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
-      object: nil
+      object: nil,
     )
   }
 
@@ -80,18 +82,18 @@ final class BatteryInfo: @unchecked Sendable {
     NotificationCenter.default.removeObserver(
       self,
       name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
-      object: nil
+      object: nil,
     )
   }
 
-  @objc private func batteryLevelDidChange(_ notification: Notification) {
+  @objc private func batteryLevelDidChange(_: Notification) {
     data = getBatteryInfo()
   }
 }
 
-fileprivate extension io_service_t {
-   func bool(_ forIdentifier: String) -> Bool? {
-     IORegistryEntryCreateCFProperty(self, forIdentifier as CFString, kCFAllocatorDefault, 0)
-       .takeRetainedValue() as? Bool
+private extension io_service_t {
+  func bool(_ forIdentifier: String) -> Bool? {
+    IORegistryEntryCreateCFProperty(self, forIdentifier as CFString, kCFAllocatorDefault, 0)
+      .takeRetainedValue() as? Bool
   }
 }

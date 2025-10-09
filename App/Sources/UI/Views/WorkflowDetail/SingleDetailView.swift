@@ -60,7 +60,7 @@ struct SingleDetailView: View {
             } else {
               focus.wrappedValue = .detail(.commands)
             }
-          }
+          },
         )
       }
       .padding(.top, 12)
@@ -84,7 +84,7 @@ struct SingleDetailView: View {
         publisher: commandPublisher,
         triggerPublisher: triggerPublisher,
         selectionManager: commandSelectionManager,
-        scrollViewProxy: proxy
+        scrollViewProxy: proxy,
       )
     }
     .focusScope(namespace)

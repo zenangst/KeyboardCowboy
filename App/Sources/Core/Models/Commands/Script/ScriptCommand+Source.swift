@@ -6,15 +6,15 @@ extension ScriptCommand {
     var contents: String {
       get {
         switch self {
-        case .path(let contents): contents
-        case .inline(let contents): contents
+        case let .path(contents): contents
+        case let .inline(contents): contents
         }
       }
       set {
         switch self {
-        case .path(let string):
+        case let .path(string):
           self = .path(string)
-        case .inline(let string):
+        case let .inline(string):
           self = .inline(string)
         }
       }

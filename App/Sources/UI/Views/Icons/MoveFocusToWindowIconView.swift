@@ -5,11 +5,13 @@ struct MoveFocusToWindowIconView: View {
     case previous
     case next
   }
+
   enum Scope: CaseIterable {
     case activeApplication
     case visibleWindows
     case allWindows
   }
+
   private let direction: Direction
   private let scope: Scope
   private let size: CGFloat
@@ -32,7 +34,8 @@ struct MoveFocusToWindowIconView: View {
           windows()
             .offset(
               x: windowsXOffset(for: scope),
-              y: windowsYOffset(for: scope))
+              y: windowsYOffset(for: scope),
+            )
             .frame(maxWidth: .infinity)
         }
       })
@@ -49,10 +52,10 @@ struct MoveFocusToWindowIconView: View {
               .init(color: Color(nsColor: .controlAccentColor), location: 0.8),
               .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)), location: 1.0),
             ], startPoint: .top, endPoint: .bottomTrailing)
-            .cornerRadius(size * 0.125)
+              .cornerRadius(size * 0.125),
           )
           .padding([.bottom, .trailing], size * 0.055)
-          .opacity( scope == .activeApplication ? 1 : 0)
+          .opacity(scope == .activeApplication ? 1 : 0)
       }
       .frame(width: size, height: size)
       .fixedSize()
@@ -76,9 +79,9 @@ struct MoveFocusToWindowIconView: View {
   private func baseColor(for scope: Scope) -> Color {
     switch scope {
     case .activeApplication:
-      Color(direction == .next ? .systemBlue   : .systemBlue.withSystemEffect(.disabled))
+      Color(direction == .next ? .systemBlue : .systemBlue.withSystemEffect(.disabled))
     case .visibleWindows:
-      Color(direction == .next ? .systemGreen  : .systemGreen.withSystemEffect(.disabled))
+      Color(direction == .next ? .systemGreen : .systemGreen.withSystemEffect(.disabled))
     case .allWindows:
       Color(direction == .next ? .systemOrange : .systemOrange.withSystemEffect(.disabled))
     }
@@ -103,14 +106,14 @@ struct MoveFocusToWindowIconView: View {
       let focusedSize = CGSize(width: size * 0.45, height: size * 0.6)
       let focusedOpacity = 1.0
       MoveFocusToWindowShapeView(width: direction == .next ? unfocusedSize.width : focusedSize.width,
-                  height: direction == .next ? unfocusedSize.height : focusedSize.height)
-      .opacity(direction == .next ? unfocusedOpacity : focusedOpacity)
-      .grayscale(direction == .next ? 1 : 0)
+                                 height: direction == .next ? unfocusedSize.height : focusedSize.height)
+        .opacity(direction == .next ? unfocusedOpacity : focusedOpacity)
+        .grayscale(direction == .next ? 1 : 0)
       MoveFocusToWindowShapeView(width: direction == .next ? focusedSize.width : unfocusedSize.width,
-                  height: direction == .next ? focusedSize.height : unfocusedSize.height)
-      .opacity(direction == .next ? focusedOpacity : unfocusedOpacity)
-      .grayscale(direction == .next ? 0 : 1)
-      .shadow(radius: 4, y: 2)
+                                 height: direction == .next ? focusedSize.height : unfocusedSize.height)
+        .opacity(direction == .next ? focusedOpacity : unfocusedOpacity)
+        .grayscale(direction == .next ? 0 : 1)
+        .shadow(radius: 4, y: 2)
     }
   }
 }
@@ -176,8 +179,8 @@ private struct MoveFocusToWindowIconBackgroundView: View {
 #Preview {
   VStack {
     ForEach(MoveFocusToWindowIconView.Scope.allCases, id: \.self) { scope in
-    ForEach(MoveFocusToWindowIconView.Direction.allCases, id: \.self) { direction in
-      IconPreview { MoveFocusToWindowIconView(direction: direction, scope: scope, size: $0) }
+      ForEach(MoveFocusToWindowIconView.Direction.allCases, id: \.self) { direction in
+        IconPreview { MoveFocusToWindowIconView(direction: direction, scope: scope, size: $0) }
       }
     }
   }

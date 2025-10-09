@@ -13,33 +13,33 @@ struct NewCommandMenu<Content>: View where Content: View {
   @ViewBuilder let content: () -> Content
 
   var body: some View {
-   Menu {
-     MenuLabel("Commands")
-     ApplicationMenuView()
-     FileMenuView()
-     KeyboardMenuView()
-     MenuBarMenuView()
-     MouseMenuView()
-     ScriptMenuView()
-     ShortcutsMenuView()
-     TextMenuView()
-     UIElementMenuView()
-     URLMenuView()
-     if !userModePublisher.userModes.isEmpty {
-       UserModeMenuView(userModes: userModePublisher.userModes)
-     }
-     WindowMenu()
-     Divider()
-     MenuLabel("Other Apps")
-     RaycastMenu()
-     Divider()
-     Button(action: {
-       updater.modifyWorkflow(using: transaction) { workflow in
-         workflow.commands.append(.builtIn(.init(kind: .repeatLastWorkflow, notification: nil)))
-       }
-     }, label: {
-       Text("Repeat Last Workflow")
-     })
+    Menu {
+      MenuLabel("Commands")
+      ApplicationMenuView()
+      FileMenuView()
+      KeyboardMenuView()
+      MenuBarMenuView()
+      MouseMenuView()
+      ScriptMenuView()
+      ShortcutsMenuView()
+      TextMenuView()
+      UIElementMenuView()
+      URLMenuView()
+      if !userModePublisher.userModes.isEmpty {
+        UserModeMenuView(userModes: userModePublisher.userModes)
+      }
+      WindowMenu()
+      Divider()
+      MenuLabel("Other Apps")
+      RaycastMenu()
+      Divider()
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(.builtIn(.init(kind: .repeatLastWorkflow, notification: nil)))
+        }
+      }, label: {
+        Text("Repeat Last Workflow")
+      })
     } label: {
       content()
     }
@@ -47,7 +47,7 @@ struct NewCommandMenu<Content>: View where Content: View {
   }
 }
 
-fileprivate struct ApplicationMenuView: View {
+private struct ApplicationMenuView: View {
   @ObservedObject var store: ApplicationStore = .shared
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -59,7 +59,7 @@ fileprivate struct ApplicationMenuView: View {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
             .bundled(BundledCommand(.appFocus(command: .init(bundleIdentifer: "", hideOtherApps: false, tiling: nil)),
-                                    meta: Command.MetaData()))
+                                    meta: Command.MetaData())),
           )
         }
       }, label: {
@@ -75,7 +75,7 @@ fileprivate struct ApplicationMenuView: View {
             .bundled(BundledCommand(.workspace(command: WorkspaceCommand(applications: [],
                                                                          defaultForDynamicWorkspace: false,
                                                                          hideOtherApps: true, tiling: nil)),
-                                    meta: Command.MetaData()))
+                                    meta: Command.MetaData())),
           )
         }
       }, label: {
@@ -89,7 +89,7 @@ fileprivate struct ApplicationMenuView: View {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
             .bundled(BundledCommand(.activatePreviousWorkspace(command: ActivatePreviousWorkspaceCommand(id: UUID().uuidString)),
-                                    meta: Command.MetaData()))
+                                    meta: Command.MetaData())),
           )
         }
       }, label: {
@@ -139,13 +139,13 @@ fileprivate struct ApplicationMenuView: View {
   private func performUpdate(_ action: ApplicationCommand.Action, application: Application) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .application(.init(action: action, application: application, meta: Command.MetaData(), modifiers: []))
+        .application(.init(action: action, application: application, meta: Command.MetaData(), modifiers: [])),
       )
     }
   }
 }
 
-fileprivate struct ApplicationLabel: View {
+private struct ApplicationLabel: View {
   private let application: Application
 
   init(_ application: Application) {
@@ -164,7 +164,7 @@ fileprivate struct ApplicationLabel: View {
   }
 }
 
-fileprivate struct ApplicationActionMenuView: View {
+private struct ApplicationActionMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -176,43 +176,43 @@ fileprivate struct ApplicationActionMenuView: View {
       MenuLabel("Actions")
       Button(action: { performUpdate(.open, application: app) },
              label: {
-        HStack {
-          Image(systemName: "power")
-          Text("Open")
-        }
-      })
+               HStack {
+                 Image(systemName: "power")
+                 Text("Open")
+               }
+             })
 
       Button(action: { performUpdate(.peek, application: app) },
              label: {
-        HStack {
-          Image(systemName: "eyes")
-          Text("Peek")
-        }
-      })
+               HStack {
+                 Image(systemName: "eyes")
+                 Text("Peek")
+               }
+             })
 
       Button(action: { performUpdate(.hide, application: app) },
              label: {
-        HStack {
-          Image(systemName: "eye.slash")
-          Text("Hide")
-        }
-      })
+               HStack {
+                 Image(systemName: "eye.slash")
+                 Text("Hide")
+               }
+             })
 
       Button(action: { performUpdate(.unhide, application: app) },
              label: {
-        HStack {
-          Image(systemName: "eye")
-          Text("Unhide")
-        }
-      })
+               HStack {
+                 Image(systemName: "eye")
+                 Text("Unhide")
+               }
+             })
 
       Button(action: { performUpdate(.close, application: app) },
              label: {
-        HStack {
-          Image(systemName: "poweroff")
-          Text("Close")
-        }
-      })
+               HStack {
+                 Image(systemName: "poweroff")
+                 Text("Close")
+               }
+             })
     } label: {
       Text(text)
     }
@@ -221,13 +221,13 @@ fileprivate struct ApplicationActionMenuView: View {
   private func performUpdate(_ action: ApplicationCommand.Action, application: Application) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .application(.init(action: action, application: application, meta: Command.MetaData(), modifiers: []))
+        .application(.init(action: action, application: application, meta: Command.MetaData(), modifiers: [])),
       )
     }
   }
 }
 
-fileprivate struct FileMenuView: View {
+private struct FileMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -237,7 +237,7 @@ fileprivate struct FileMenuView: View {
         OpenPanelController().perform(.selectFile(types: [], handler: { path in
           updater.modifyWorkflow(using: transaction, withAnimation: nil) { workflow in
             workflow.commands.append(
-              .open(.init(application: nil, path: path, meta: Command.MetaData()))
+              .open(.init(application: nil, path: path, meta: Command.MetaData())),
             )
           }
         }))
@@ -251,7 +251,7 @@ fileprivate struct FileMenuView: View {
   }
 }
 
-fileprivate struct KeyboardMenuView: View {
+private struct KeyboardMenuView: View {
   @EnvironmentObject var openWindow: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -262,10 +262,10 @@ fileprivate struct KeyboardMenuView: View {
         let metaData = Command.MetaData()
         updater.modifyWorkflow(using: transaction, handler: { workflow in
           workflow.commands.append(
-            .keyboard(.init(name: "", kind: .key(command: .init(keyboardShortcuts: [], iterations: 1)), meta: metaData))
+            .keyboard(.init(name: "", kind: .key(command: .init(keyboardShortcuts: [], iterations: 1)), meta: metaData)),
           )
         }, postAction: { workflowId in
-            openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: metaData.id))
+          openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: metaData.id))
         })
       }, label: { Text("New Keyboard Shortcut") })
 
@@ -293,7 +293,7 @@ fileprivate struct KeyboardMenuView: View {
   }
 }
 
-fileprivate struct InputSourceMenuView: View {
+private struct InputSourceMenuView: View {
   @EnvironmentObject var store: InputSourceStore
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -303,15 +303,14 @@ fileprivate struct InputSourceMenuView: View {
       ForEach(store.inputSources, id: \.id) { inputSource in
         Button(action: {
           updater.modifyWorkflow(using: transaction) { workflow in
-            let name: String
-            if let localizedName = inputSource.localizedName {
-              name = "Change Input Source to \(localizedName)"
+            let name = if let localizedName = inputSource.localizedName {
+              "Change Input Source to \(localizedName)"
             } else {
-              name = "Change Input Source"
+              "Change Input Source"
             }
 
             workflow.commands.append(
-              .keyboard(.init(name: name, kind: .inputSource(command: .init(inputSourceId: inputSource.id, name: inputSource.localizedName ?? inputSource.id))))
+              .keyboard(.init(name: name, kind: .inputSource(command: .init(inputSourceId: inputSource.id, name: inputSource.localizedName ?? inputSource.id)))),
             )
           }
         }, label: {
@@ -324,7 +323,7 @@ fileprivate struct InputSourceMenuView: View {
   }
 }
 
-fileprivate struct MenuBarMenuView: View {
+private struct MenuBarMenuView: View {
   @EnvironmentObject var openWindow: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -335,7 +334,7 @@ fileprivate struct MenuBarMenuView: View {
         let metaData = Command.MetaData()
         updater.modifyWorkflow(using: transaction, handler: { workflow in
           workflow.commands.append(
-            .menuBar(.init(application: nil, tokens: [], meta: metaData))
+            .menuBar(.init(application: nil, tokens: [], meta: metaData)),
           )
         }, postAction: { workflowId in
           openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: metaData.id))
@@ -348,7 +347,7 @@ fileprivate struct MenuBarMenuView: View {
   }
 }
 
-fileprivate struct MouseMenuView: View {
+private struct MouseMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -366,7 +365,7 @@ fileprivate struct MouseMenuView: View {
   }
 }
 
-fileprivate struct ScriptMenuView: View {
+private struct ScriptMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -376,15 +375,14 @@ fileprivate struct ScriptMenuView: View {
         OpenPanelController().perform(.selectFile(types: ["scpt", "sh"], handler: { path in
           let metaData = Command.MetaData()
           updater.modifyWorkflow(using: transaction, handler: { workflow in
-            let kind: ScriptCommand.Kind
-            if (path as NSString).pathExtension == "scpt" {
-              kind = .appleScript(variant: .regular)
+            let kind: ScriptCommand.Kind = if (path as NSString).pathExtension == "scpt" {
+              .appleScript(variant: .regular)
             } else {
-              kind = .shellScript
+              .shellScript
             }
 
             workflow.commands.append(
-              .script(.init(kind: kind, source: .path(path), meta: metaData))
+              .script(.init(kind: kind, source: .path(path), meta: metaData)),
             )
           })
         }))
@@ -403,26 +401,26 @@ fileprivate struct ScriptMenuView: View {
   private func performUpdate(_ script: ScriptCommand.Kind) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .script(.init(name: "New Script", kind: script, source: .inline("")))
+        .script(.init(name: "New Script", kind: script, source: .inline(""))),
       )
     }
   }
 }
 
-fileprivate struct ShortcutsMenuView: View {
+private struct ShortcutsMenuView: View {
   @EnvironmentObject var shortcutStore: ShortcutStore
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
   var body: some View {
     Menu {
-      Button(action: { }, label: { Text("New Shortcut") })
+      Button(action: {}, label: { Text("New Shortcut") })
       Divider()
       ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in
         Button(shortcut.name, action: {
           updater.modifyWorkflow(using: transaction) { workflow in
             workflow.commands.append(
-              .shortcut(.init(id: UUID().uuidString, shortcutIdentifier: shortcut.name, name: shortcut.name, isEnabled: true))
+              .shortcut(.init(id: UUID().uuidString, shortcutIdentifier: shortcut.name, name: shortcut.name, isEnabled: true)),
             )
           }
         })
@@ -434,7 +432,7 @@ fileprivate struct ShortcutsMenuView: View {
   }
 }
 
-fileprivate struct TextMenuView: View {
+private struct TextMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -443,7 +441,7 @@ fileprivate struct TextMenuView: View {
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
-            .text(.init(.insertText(.init("", mode: .instant, actions: []))))
+            .text(.init(.insertText(.init("", mode: .instant, actions: [])))),
           )
         }
       }, label: { Text("Insert Text") })
@@ -454,7 +452,7 @@ fileprivate struct TextMenuView: View {
   }
 }
 
-fileprivate struct UIElementMenuView: View {
+private struct UIElementMenuView: View {
   @EnvironmentObject var openWindow: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -465,9 +463,9 @@ fileprivate struct UIElementMenuView: View {
         let metaData = Command.MetaData()
         updater.modifyWorkflow(using: transaction, handler: { workflow in
           workflow.commands.append(
-            .uiElement(.init(meta: metaData, predicates: []))
+            .uiElement(.init(meta: metaData, predicates: [])),
           )
-        }, postAction: { workflowId in
+        }, postAction: { _ in
           openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
         })
       }, label: { Text("Capture") })
@@ -478,7 +476,7 @@ fileprivate struct UIElementMenuView: View {
   }
 }
 
-fileprivate struct URLMenuView: View {
+private struct URLMenuView: View {
   @ObserveInjection var inject
   @ObservedObject private var pasteboardPublisher = PasteboardURLPublisher()
   @EnvironmentObject var groupPublisher: GroupPublisher
@@ -502,11 +500,13 @@ fileprivate struct URLMenuView: View {
               }
 
               if let bundleIdentifier = groupPublisher.data.bundleIdentifiers.first,
-                 let url = URL(string: urlString) {
-                var applications =  NSWorkspace.shared.urlsForApplications(toOpen: url)
+                 let url = URL(string: urlString)
+              {
+                var applications = NSWorkspace.shared
+                  .urlsForApplications(toOpen: url)
                   .compactMap { ApplicationStore.shared.application(at: $0) }
                 if url.isWebURL {
-                  let webApps = ApplicationStore.shared.applications.filter({ $0.bundleIdentifier.contains("com.apple.Safari.WebApp") })
+                  let webApps = ApplicationStore.shared.applications.filter { $0.bundleIdentifier.contains("com.apple.Safari.WebApp") }
                   applications.append(contentsOf: webApps)
                 }
 
@@ -516,7 +516,7 @@ fileprivate struct URLMenuView: View {
 
             updater.modifyWorkflow(using: transaction) { workflow in
               workflow.commands.append(
-                .open(.init(application: application, path: urlString))
+                .open(.init(application: application, path: urlString)),
               )
             }
           }
@@ -527,7 +527,7 @@ fileprivate struct URLMenuView: View {
         Button(action: {
           updater.modifyWorkflow(using: transaction) { workflow in
             workflow.commands.append(
-              .open(.init(path: url.absoluteString))
+              .open(.init(path: url.absoluteString)),
             )
           }
         }, label: { Text("From Clipboard: \(url)") })
@@ -541,7 +541,7 @@ fileprivate struct URLMenuView: View {
   }
 }
 
-fileprivate struct URLPrompt: View {
+private struct URLPrompt: View {
   @ObserveInjection var inject
   @FocusState var focus: Bool
   @EnvironmentObject private var windowEnv: WindowEnvironment
@@ -579,7 +579,7 @@ fileprivate struct URLPrompt: View {
   }
 }
 
-fileprivate struct UserModeMenuView: View {
+private struct UserModeMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -609,13 +609,13 @@ fileprivate struct UserModeMenuView: View {
   private func performUpdate(_ userMode: UserMode, action: BuiltInCommand.Kind.Action) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .builtIn(.init(kind: .userMode(mode: userMode, action: action), notification: nil))
+        .builtIn(.init(kind: .userMode(mode: userMode, action: action), notification: nil)),
       )
     }
   }
 }
 
-fileprivate struct WindowMenu: View {
+private struct WindowMenu: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -689,13 +689,13 @@ fileprivate struct WindowMenu: View {
   private func performUpdate(_ system: SystemCommand.Kind) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .systemCommand(.init(name: "", kind: system))
+        .systemCommand(.init(name: "", kind: system)),
       )
     }
   }
 }
 
-fileprivate struct WindowFocusMenuView: View {
+private struct WindowFocusMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -704,11 +704,11 @@ fileprivate struct WindowFocusMenuView: View {
       ForEach(WindowFocusCommand.Kind.allCases) { focus in
         Button(action: { performUpdate(focus) },
                label: {
-          HStack {
-            Image(systemName: focus.symbol)
-            Text(focus.displayValue)
-          }
-        })
+                 HStack {
+                   Image(systemName: focus.symbol)
+                   Text(focus.displayValue)
+                 }
+               })
       }
     } label: {
       Text("Focus")
@@ -718,13 +718,13 @@ fileprivate struct WindowFocusMenuView: View {
   private func performUpdate(_ focus: WindowFocusCommand.Kind) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .windowFocus(.init(kind: focus, meta: Command.MetaData()))
+        .windowFocus(.init(kind: focus, meta: Command.MetaData())),
       )
     }
   }
 }
 
-fileprivate struct WindowManagementMenuView: View {
+private struct WindowManagementMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -745,13 +745,13 @@ fileprivate struct WindowManagementMenuView: View {
   private func performUpdate(_ windowManagement: WindowManagementCommand.Kind) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .windowManagement(.init(kind: windowManagement, meta: Command.MetaData(), animationDuration: 0))
+        .windowManagement(.init(kind: windowManagement, meta: Command.MetaData(), animationDuration: 0)),
       )
     }
   }
 }
 
-fileprivate struct WindowTilingMenuView: View {
+private struct WindowTilingMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -773,13 +773,13 @@ fileprivate struct WindowTilingMenuView: View {
   private func performUpadte(_ tiling: WindowTiling) {
     updater.modifyWorkflow(using: transaction) { workflow in
       workflow.commands.append(
-        .windowTiling(.init(kind: tiling, meta: Command.MetaData()))
+        .windowTiling(.init(kind: tiling, meta: Command.MetaData())),
       )
     }
   }
 }
 
-fileprivate struct MenuLabel: View {
+private struct MenuLabel: View {
   private let text: String
 
   init(_ text: String) {
@@ -792,7 +792,7 @@ fileprivate struct MenuLabel: View {
   }
 }
 
-fileprivate struct RaycastMenu: View {
+private struct RaycastMenu: View {
   @EnvironmentObject var raycast: Raycast.Store
 
   var body: some View {
@@ -821,16 +821,16 @@ fileprivate struct RaycastMenu: View {
   }
 }
 
-fileprivate struct RaycastCoreCommands: View {
+private struct RaycastCoreCommands: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
   let coreCommands: [RaycastCoreCommand] = [
-    RaycastCoreCommand(name: "My Schedule", path: "calendar/my-schedule")
+    RaycastCoreCommand(name: "My Schedule", path: "calendar/my-schedule"),
   ]
 
   var body: some View {
-    let path: String = "raycast://extensions/raycast/"
+    let path = "raycast://extensions/raycast/"
 
     Menu {
       ForEach(coreCommands) { command in
@@ -840,12 +840,11 @@ fileprivate struct RaycastCoreCommands: View {
               $0.bundleIdentifier.contains("com.raycast.macos")
             })
 
-            workflow.commands.append(.open(OpenCommand.init(application: raycast,
-                                                            path: path + command.path,
-                                                            meta: Command.MetaData(name: command.name))))
+            workflow.commands.append(.open(OpenCommand(application: raycast,
+                                                       path: path + command.path,
+                                                       meta: Command.MetaData(name: command.name))))
           }
         }, label: { Text(command.name) })
-
       }
     } label: {
       Text("Calendar")
@@ -859,7 +858,7 @@ struct RaycastCoreCommand: Identifiable, Hashable {
   let path: String
 }
 
-fileprivate struct RaycastCommands: View {
+private struct RaycastCommands: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   let container: Raycast.Container
@@ -873,9 +872,9 @@ fileprivate struct RaycastCommands: View {
             $0.bundleIdentifier.contains("com.raycast.macos")
           })
 
-          workflow.commands.append(.open(OpenCommand.init(application: raycast,
-                                                          path: command.path,
-                                                          meta: Command.MetaData(name: command.title))))
+          workflow.commands.append(.open(OpenCommand(application: raycast,
+                                                     path: command.path,
+                                                     meta: Command.MetaData(name: command.title))))
         }
 
       }, label: {
@@ -886,16 +885,16 @@ fileprivate struct RaycastCommands: View {
 }
 
 @MainActor
-fileprivate class PasteboardURLPublisher: ObservableObject, Sendable {
+private class PasteboardURLPublisher: ObservableObject, Sendable {
   @Published var url: URL? = nil
-  nonisolated(unsafe) private var observer: Any?
+  private nonisolated(unsafe) var observer: Any?
 
   init() {
     // Listen for the app becoming active
     observer = NotificationCenter.default.addObserver(
       forName: NSApplication.didBecomeActiveNotification,
       object: nil,
-      queue: .main
+      queue: .main,
     ) { [weak self] _ in
       Task { @MainActor in
         self?.updateURL()
@@ -904,7 +903,7 @@ fileprivate class PasteboardURLPublisher: ObservableObject, Sendable {
   }
 
   deinit {
-    if let observer = observer {
+    if let observer {
       NotificationCenter.default.removeObserver(observer)
     }
   }
@@ -912,10 +911,11 @@ fileprivate class PasteboardURLPublisher: ObservableObject, Sendable {
   private func updateURL() {
     let pasteboard = NSPasteboard.general
     if let urlString = pasteboard.string(forType: .URL),
-       let url = URL(string: urlString) {
+       let url = URL(string: urlString)
+    {
       self.url = url
     } else {
-      self.url = nil
+      url = nil
     }
   }
 }

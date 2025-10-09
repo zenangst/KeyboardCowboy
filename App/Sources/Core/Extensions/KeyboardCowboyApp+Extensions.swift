@@ -1,20 +1,21 @@
 import AppKit
 
 extension KeyboardCowboyApp {
-#if DEBUG
-  static func env() -> AppEnvironment {
-    guard !isRunningPreview else { return .previews }
+  #if DEBUG
+    static func env() -> AppEnvironment {
+      guard !isRunningPreview else { return .previews }
 
-    if let override = ProcessInfo.processInfo.environment["APP_ENVIRONMENT_OVERRIDE"],
-       let env = AppEnvironment(rawValue: override) {
-      return env
-    } else {
-      return .production
+      if let override = ProcessInfo.processInfo.environment["APP_ENVIRONMENT_OVERRIDE"],
+         let env = AppEnvironment(rawValue: override)
+      {
+        return env
+      } else {
+        return .production
+      }
     }
-  }
-#else
-  static func env() -> AppEnvironment { .production }
-#endif
+  #else
+    static func env() -> AppEnvironment { .production }
+  #endif
 
   static let mainWindowIdentifier = "MainWindow"
   static let permissionsSettingsWindowIdentifier = "PermissionsSettingsWindow"
@@ -36,24 +37,26 @@ extension KeyboardCowboyApp {
   static var keyWindow: NSWindow? {
     KeyboardCowboyApp.app.keyWindow
   }
+
   static var mainWindow: NSWindow? {
-    KeyboardCowboyApp.app.windows
+    KeyboardCowboyApp.app
+      .windows
       .first(where: { $0.identifier?.rawValue.contains(mainWindowIdentifier) == true })
   }
 
   static func activate(setActivationPolicy: Bool = true) {
     if setActivationPolicy {
-      Self.app.setActivationPolicy(.regular)
+      app.setActivationPolicy(.regular)
     }
-    Self.app.activate(ignoringOtherApps: true)
+    app.activate(ignoringOtherApps: true)
     NSWorkspace.shared.open(Bundle.main.bundleURL)
   }
 
   static func deactivate() {
-    Self.app.setActivationPolicy(.accessory)
+    app.setActivationPolicy(.accessory)
   }
 
   // MARK: Private variables
 
-  static private var app: NSApplication = .shared
+  private static var app: NSApplication = .shared
 }

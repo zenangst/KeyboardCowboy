@@ -1,5 +1,5 @@
-import AXEssibility
 import AppKit
+import AXEssibility
 import Foundation
 
 enum AXCollectionResolverError: Error {
@@ -14,15 +14,17 @@ enum AXCollectionResolver {
     var match: AnyAccessibilityElement?
     for section in sections {
       guard let groups: [AnyAccessibilityElement] = try? section.value(.children, as: [AXUIElement].self)
-        .map({ AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }) else {
-          continue
-        }
+        .map({ AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) })
+      else {
+        continue
+      }
 
       for group in groups {
         guard let children: [AnyAccessibilityElement] = try? group.value(.children, as: [AXUIElement].self)
-          .map({ AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }) else {
-            continue
-          }
+          .map({ AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) })
+        else {
+          continue
+        }
 
         for child in children {
           if (try? child.value(.selected, as: Bool.self)) == true {

@@ -13,15 +13,15 @@ struct RepeatLastWorkflowIconView: View {
           .init(color: Color(nsColor: .systemYellow), location: 0.0),
           .init(color: Color(nsColor: .systemMint), location: 1.0),
         ], startPoint: .topLeading, endPoint: .bottom)
-        .mask {
-          Image(systemName: "repeat.1")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .fontWeight(.bold)
-        }
-        .frame(width: size * 0.6)
-        .offset(x: -size * 0.0125, y: size * 0.0125)
-        .shadow(radius: 2)
+          .mask {
+            Image(systemName: "repeat.1")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .fontWeight(.bold)
+          }
+          .frame(width: size * 0.6)
+          .offset(x: -size * 0.0125, y: size * 0.0125)
+          .shadow(radius: 2)
       }
       .frame(width: size, height: size)
       .fixedSize()

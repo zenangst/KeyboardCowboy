@@ -3,8 +3,7 @@ import SwiftUI
 extension View {
   @MainActor
   func designTime() -> some View {
-   self
-      .environmentObject(DesignTime.configurationsPublisher)
+    environmentObject(DesignTime.configurationsPublisher)
       .environmentObject(DesignTime.configurationPublisher)
       .environmentObject(DesignTime.contentPublisher)
       .environmentObject(DesignTime.detailStatePublisher)
@@ -22,7 +21,7 @@ extension View {
 
 public extension View {
   func viewDebugger(border: Bool = false) -> some View {
-    self.modifier(ViewDebugger(border: border))
+    modifier(ViewDebugger(border: border))
   }
 }
 
@@ -71,9 +70,9 @@ public struct ViewDebugger: ViewModifier {
                 .stroke(style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [10]))
                 .foregroundColor(Color(.systemYellow))
             }
-              .compositingGroup()
-              .shadow(radius: 2, y: 1)
-              .opacity(border ? 1 : 0)
+            .compositingGroup()
+            .shadow(radius: 2, y: 1)
+            .opacity(border ? 1 : 0),
           )
         })
     } else {

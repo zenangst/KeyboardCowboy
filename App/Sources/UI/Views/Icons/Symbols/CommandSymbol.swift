@@ -42,7 +42,7 @@ struct CommandSymbolIcon_Previews: PreviewProvider {
     VStack {
       CommandSymbolIcon(background: .white,
                         textColor: Color.green)
-      .frame(width: 128, height: 128)
+        .frame(width: 128, height: 128)
     }.background(Color.black)
   }
 }

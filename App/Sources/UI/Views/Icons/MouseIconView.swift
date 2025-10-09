@@ -16,7 +16,7 @@ struct MouseIconView: View {
       .overlay(alignment: .top) {
         Capsule()
           .fill(
-            Color(.systemGray)
+            Color(.systemGray),
           )
           .overlay {
             LinearGradient(stops: [

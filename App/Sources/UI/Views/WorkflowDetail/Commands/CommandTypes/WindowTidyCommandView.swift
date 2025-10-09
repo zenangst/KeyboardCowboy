@@ -11,7 +11,8 @@ struct WindowTidyCommandView: View {
   private let onRulesChange: ([CommandViewModel.Kind.WindowTidyModel.Rule]) -> Void
 
   init(_ model: CommandViewModel.Kind.WindowTidyModel,
-       onRulesChange: @escaping ([CommandViewModel.Kind.WindowTidyModel.Rule]) -> Void) {
+       onRulesChange: @escaping ([CommandViewModel.Kind.WindowTidyModel.Rule]) -> Void)
+  {
     self.model = model
     self.onRulesChange = onRulesChange
   }
@@ -37,7 +38,7 @@ struct WindowTidyCommandView: View {
       CompatList {
         ForEach(Array(zip(model.rules.indices, model.rules)), id: \.0) { offset, item in
           HStack {
-            IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
+            IconView(icon: Icon(item.application), size: CGSize(width: 18, height: 18))
 
             Text(item.application.displayName)
               .font(.caption)
@@ -77,13 +78,12 @@ struct WindowTidyCommandView: View {
         }
       }
       .frame(minHeight: max(48, min(CGFloat(model.rules.count) * 32, 304)))
-
     }
     .enableInjection()
   }
 }
 
-fileprivate struct TidyWindowTilingMenu: View {
+private struct TidyWindowTilingMenu: View {
   @ObserveInjection var inject
   private static let validWindowTiling: [WindowTiling] = [
     WindowTiling.left,

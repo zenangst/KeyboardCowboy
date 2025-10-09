@@ -23,7 +23,7 @@ struct CommandListHeader: View {
               updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
                 switch execution {
                 case .concurrent: workflow.execution = .concurrent
-                case .serial:     workflow.execution = .serial
+                case .serial: workflow.execution = .serial
                 }
               }
             })

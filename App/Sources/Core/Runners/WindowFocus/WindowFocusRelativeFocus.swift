@@ -75,7 +75,8 @@ final class WindowFocusRelativeFocus {
       NSCursor.moveCursor(to: midPoint)
 
       if let frontmostApplication = NSWorkspace.shared.frontmostApplication,
-         let nextApp = NSRunningApplication(processIdentifier: processIdentifier) {
+         let nextApp = NSRunningApplication(processIdentifier: processIdentifier)
+      {
         if !swap(from: frontmostApplication, to: nextApp) {
           fallback(frame: frame, direction: direction, axWindow: axWindow, nextWindow: nextWindow, previousWindow: activeWindow)
         }
@@ -88,7 +89,8 @@ final class WindowFocusRelativeFocus {
   private func fallback(frame: CGRect,
                         direction: Direction,
                         axWindow: WindowAccessibilityElement,
-                        nextWindow: RelativeWindowModel, previousWindow: RelativeWindowModel) {
+                        nextWindow: RelativeWindowModel, previousWindow: RelativeWindowModel)
+  {
     let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
     let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
     let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect.mainDisplayFlipped) }) ?? NSScreen.screens[0]
@@ -97,7 +99,7 @@ final class WindowFocusRelativeFocus {
     let nextTiling = WindowTilingRunner.calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: nextScreen.visibleFrame.mainDisplayFlipped)
 
     if nextTiling == .fill {
-      if previousScreen != nextScreen  {
+      if previousScreen != nextScreen {
         let midPoint = CGPoint(x: frame.midX,
                                y: frame.midY)
         NSCursor.moveCursor(to: midPoint)
@@ -111,29 +113,29 @@ final class WindowFocusRelativeFocus {
       print("🔀", direction, "from", previousWindow.ownerName, "(\(previousTiling)) to", nextWindow.ownerName, "(\(nextTiling))")
     }
 
-    switch(direction, previousTiling, nextTiling) {
+    switch (direction, previousTiling, nextTiling) {
     case (.down, .topLeft, .left),
-      (.down, .left, .bottomLeft),
-      (.down, .bottomLeft, .left),
-      (.down, .topLeft, .bottomLeft):
+         (.down, .left, .bottomLeft),
+         (.down, .bottomLeft, .left),
+         (.down, .topLeft, .bottomLeft):
       clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
     case (.down, .topRight, .right),
-      (.down, .topLeft, .bottomRight),
-      (.down, .right, .bottomRight),
-      (.down, .right, .right),
-      (.down, .bottomRight, .right),
-      (.down, .topRight, .bottomRight),
-      (.down, .left, .bottomRight),
-      (.right, .left, .bottom),
-      (.right, .left, .right),
-      (.right, .bottomLeft, .right):
+         (.down, .topLeft, .bottomRight),
+         (.down, .right, .bottomRight),
+         (.down, .right, .right),
+         (.down, .bottomRight, .right),
+         (.down, .topRight, .bottomRight),
+         (.down, .left, .bottomRight),
+         (.right, .left, .bottom),
+         (.right, .left, .right),
+         (.right, .bottomLeft, .right):
       clickPoint = CGPoint(x: frame.maxX, y: frame.maxY)
     case (.left, .right, .topRight),
-      (.down, .right, .bottom):
+         (.down, .right, .bottom):
       clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
     case (.down, .left, .bottom),
-      (.left, .bottomRight, .left),
-      (.down, .left, .left):
+         (.left, .bottomRight, .left),
+         (.down, .left, .left):
       clickPoint = CGPoint(x: frame.minX, y: frame.minX)
     case (.right, .bottomLeft, .center):
       clickPoint = CGPoint(x: frame.midX + 1.5, y: frame.midY + 1.5)
@@ -171,7 +173,7 @@ final class WindowFocusRelativeFocus {
     mouseDown?.post(tap: .cghidEventTap)
     mouseUp?.post(tap: .cghidEventTap)
 
-    for _ in 0..<4 {
+    for _ in 0 ..< 4 {
       NSCursor.moveCursor(to: Self.mouseFollow ? targetPoint : originalPoint)
     }
   }
@@ -183,11 +185,10 @@ final class WindowFocusRelativeFocus {
   }
 
   private func swap(from currentApplication: NSRunningApplication, to nextApplication: NSRunningApplication) -> Bool {
-    let result: Bool
-    if #available(macOS 14.0, *) {
-      result = nextApplication.activate(from: currentApplication, options: .activateIgnoringOtherApps)
+    let result: Bool = if #available(macOS 14.0, *) {
+      nextApplication.activate(from: currentApplication, options: .activateIgnoringOtherApps)
     } else {
-      result = nextApplication.activate(options: [.activateIgnoringOtherApps])
+      nextApplication.activate(options: [.activateIgnoringOtherApps])
     }
     return result
   }
@@ -204,12 +205,12 @@ final class WindowFocusRelativeFocus {
     let windows: [WindowModel] = models
       .filter {
         $0.id > 0 &&
-        $0.ownerName != "borders" &&
-        $0.isOnScreen &&
-        $0.rect.size.width > minimumSize.width &&
-        $0.rect.size.height > minimumSize.height &&
-        $0.alpha == 1 &&
-        !excluded.contains($0.ownerName)
+          $0.ownerName != "borders" &&
+          $0.isOnScreen &&
+          $0.rect.size.width > minimumSize.width &&
+          $0.rect.size.height > minimumSize.height &&
+          $0.alpha == 1 &&
+          !excluded.contains($0.ownerName)
       }
 
     return windows.map(RelativeWindowModel.init)
@@ -217,21 +218,20 @@ final class WindowFocusRelativeFocus {
 }
 
 struct RelativeWindowModel: Hashable, Identifiable {
-  public let id: Int
-  public let ownerPid: Int
-  public let ownerName: String
-  public var rect: CGRect
+  let id: Int
+  let ownerPid: Int
+  let ownerName: String
+  var rect: CGRect
 
   init(_ windowModel: WindowModel) {
-    self.id = windowModel.id
-    self.ownerPid = windowModel.ownerPid.rawValue
-    self.ownerName = windowModel.ownerName
-    self.rect = windowModel.rect
+    id = windowModel.id
+    ownerPid = windowModel.ownerPid.rawValue
+    ownerName = windowModel.ownerName
+    rect = windowModel.rect
   }
 }
 
 struct RelativeSystemWindowModel {
-  public let index: Int
-  public let window: RelativeWindowModel
+  let index: Int
+  let window: RelativeWindowModel
 }
-

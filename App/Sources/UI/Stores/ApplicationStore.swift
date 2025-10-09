@@ -1,6 +1,6 @@
 import Apps
-import Combine
 import Cocoa
+import Combine
 
 final class ApplicationStore: ObservableObject, @unchecked Sendable {
   static let domain: String = "ApplicationStore"
@@ -20,24 +20,27 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
       .debounce(for: 1.0, scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         guard let self else { return }
+
         Task { await self.reload(AppStorageContainer.shared.additionalApplicationPaths) }
       }
   }
 
   func apps() -> [Application] {
-    self.applications
+    applications
   }
 
   func applicationsToOpen(_ path: String) -> [Application] {
     guard let url = URL(string: path) else { return [] }
-    var applications =  NSWorkspace.shared.urlsForApplications(toOpen: url)
+
+    var applications = NSWorkspace.shared
+      .urlsForApplications(toOpen: url)
       .compactMap { application(at: $0) }
 
     if url.isWebURL {
-      let webApps = ApplicationStore.shared.applications.filter({ 
+      let webApps = ApplicationStore.shared.applications.filter {
         $0.bundleIdentifier.contains("com.apple.Safari.WebApp") ||
-        $0.bundleIdentifier.contains("com.kagi.kagimacOS.WebApp")
-        })
+          $0.bundleIdentifier.contains("com.kagi.kagimacOS.WebApp")
+      }
 
       applications.append(contentsOf: webApps)
     }
@@ -47,7 +50,7 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
 
   func application(at url: URL) -> Application? {
     let path = String(url.path(percentEncoded: false).dropLast())
-    let application  = applicationsByPath[path]
+    let application = applicationsByPath[path]
     return application
   }
 
@@ -117,7 +120,7 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
       fileWatchers.forEach { $0.stop() }
       var newWatchers = [FileWatcher]()
       for path in monitorPaths {
-        if let fileWatcher = try? FileWatcher(path, handler: { [weak self] url in
+        if let fileWatcher = try? FileWatcher(path, handler: { [weak self] _ in
           self?.passthrough.send(())
         }) {
           newWatchers.append(fileWatcher)
@@ -125,7 +128,7 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
         }
       }
       fileWatchers = newWatchers
-    } catch let error {
+    } catch {
       print(error)
     }
   }

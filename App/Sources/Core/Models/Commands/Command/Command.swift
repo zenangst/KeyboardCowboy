@@ -22,12 +22,12 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   }
 
   struct MetaData: Identifiable, Codable, Hashable, Sendable {
-    public var delay: Double?
-    public var id: String
-    public var name: String
-    public var isEnabled: Bool
-    public var notification: Notification?
-    public var variableName: String?
+    var delay: Double?
+    var id: String
+    var name: String
+    var isEnabled: Bool
+    var notification: Notification?
+    var variableName: String?
 
     enum CodingKeys: String, CodingKey {
       case delay
@@ -43,7 +43,8 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
          name: String = "",
          isEnabled: Bool = true,
          notification: Notification? = nil,
-         variableName: String? = nil) {
+         variableName: String? = nil)
+    {
       self.delay = delay
       self.id = id
       self.name = name
@@ -53,90 +54,90 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     }
 
     func copy() -> MetaData {
-      MetaData(delay: self.delay,
+      MetaData(delay: delay,
                id: UUID().uuidString,
-               name: self.name,
-               isEnabled: self.isEnabled,
-               notification: self.notification,
-               variableName: self.variableName)
+               name: name,
+               isEnabled: isEnabled,
+               notification: notification,
+               variableName: variableName)
     }
 
     init(from decoder: any Decoder) throws {
       let container: KeyedDecodingContainer<Command.MetaData.CodingKeys> = try decoder.container(keyedBy: Command.MetaData.CodingKeys.self)
-      self.delay = try container.decodeIfPresent(Double.self, forKey: Command.MetaData.CodingKeys.delay)
-      self.id = try container.decode(String.self, forKey: Command.MetaData.CodingKeys.id)
-      self.name = try container.decode(String.self, forKey: Command.MetaData.CodingKeys.name)
-      self.isEnabled = try container.decode(Bool.self, forKey: Command.MetaData.CodingKeys.isEnabled)
-      self.notification = try? container.decodeIfPresent(Command.Notification.self, forKey: Command.MetaData.CodingKeys.notification)
-      self.variableName = try container.decodeIfPresent(String.self, forKey: Command.MetaData.CodingKeys.variableName)
+      delay = try container.decodeIfPresent(Double.self, forKey: Command.MetaData.CodingKeys.delay)
+      id = try container.decode(String.self, forKey: Command.MetaData.CodingKeys.id)
+      name = try container.decode(String.self, forKey: Command.MetaData.CodingKeys.name)
+      isEnabled = try container.decode(Bool.self, forKey: Command.MetaData.CodingKeys.isEnabled)
+      notification = try? container.decodeIfPresent(Command.Notification.self, forKey: Command.MetaData.CodingKeys.notification)
+      variableName = try container.decodeIfPresent(String.self, forKey: Command.MetaData.CodingKeys.variableName)
     }
   }
 
   var meta: MetaData {
     get {
       switch self {
-      case .application(let command): command.meta
-      case .builtIn(let command): command.meta
-      case .bundled(let command): command.meta
-      case .keyboard(let command): command.meta
-      case .menuBar(let command): command.meta
-      case .mouse(let command): command.meta
-      case .open(let command): command.meta
-      case .script(let command): command.meta
-      case .shortcut(let command): command.meta
-      case .systemCommand(let command): command.meta
-      case .text(let command): command.meta
-      case .uiElement(let command): command.meta
-      case .windowFocus(let command): command.meta
-      case .windowManagement(let command): command.meta
-      case .windowTiling(let command): command.meta
+      case let .application(command): command.meta
+      case let .builtIn(command): command.meta
+      case let .bundled(command): command.meta
+      case let .keyboard(command): command.meta
+      case let .menuBar(command): command.meta
+      case let .mouse(command): command.meta
+      case let .open(command): command.meta
+      case let .script(command): command.meta
+      case let .shortcut(command): command.meta
+      case let .systemCommand(command): command.meta
+      case let .text(command): command.meta
+      case let .uiElement(command): command.meta
+      case let .windowFocus(command): command.meta
+      case let .windowManagement(command): command.meta
+      case let .windowTiling(command): command.meta
       }
     }
     set {
       switch self {
-      case .application(var command):
+      case var .application(command):
         command.meta = newValue
         self = .application(command)
-      case .builtIn(var command):
+      case var .builtIn(command):
         command.meta = newValue
         self = .builtIn(command)
-      case .bundled(var command):
+      case var .bundled(command):
         command.meta = newValue
         self = .bundled(command)
-      case .keyboard(var command):
+      case var .keyboard(command):
         command.meta = newValue
         self = .keyboard(command)
-      case .menuBar(var command):
+      case var .menuBar(command):
         command.meta = newValue
         self = .menuBar(command)
-      case .mouse(var command):
+      case var .mouse(command):
         command.meta = newValue
         self = .mouse(command)
-      case .open(var command):
+      case var .open(command):
         command.meta = newValue
         self = .open(command)
-      case .shortcut(var command):
+      case var .shortcut(command):
         command.meta = newValue
         self = .shortcut(command)
-      case .script(var command):
+      case var .script(command):
         command.meta = newValue
         self = .script(command)
-      case .text(var command):
+      case var .text(command):
         command.meta = newValue
         self = .text(command)
-      case .systemCommand(var command):
+      case var .systemCommand(command):
         command.meta = newValue
         self = .systemCommand(command)
-      case .uiElement(var command):
+      case var .uiElement(command):
         command.meta = newValue
         self = .uiElement(command)
-      case .windowFocus(var command):
+      case var .windowFocus(command):
         command.meta = newValue
         self = .windowFocus(command)
-      case .windowManagement(var command):
+      case var .windowManagement(command):
         command.meta = newValue
         self = .windowManagement(command)
-      case .windowTiling(var command):
+      case var .windowTiling(command):
         command.meta = newValue
         self = .windowTiling(command)
       }
@@ -180,9 +181,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   var isKeyboardBinding: Bool {
     switch self {
     case .keyboard:
-      return true
+      true
     default:
-      return false
+      false
     }
   }
 
@@ -239,8 +240,8 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
           codingPath: container.codingPath,
-          debugDescription: "Unabled to decode enum."
-        )
+          debugDescription: "Unabled to decode enum.",
+        ),
       )
     }
   }
@@ -248,41 +249,41 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
-    case .application(let command): try container.encode(command, forKey: .application)
-    case .builtIn(let command): try container.encode(command, forKey: .builtIn)
-    case .bundled(let command): try container.encode(command, forKey: .bundled)
-    case .keyboard(let command): try container.encode(command, forKey: .keyboard)
-    case .menuBar(let command): try container.encode(command, forKey: .menuBar)
-    case .mouse(let command): try container.encode(command, forKey: .mouse)
-    case .open(let command): try container.encode(command, forKey: .open)
-    case .script(let command): try container.encode(command, forKey: .script)
-    case .shortcut(let command): try container.encode(command, forKey: .shortcut)
-    case .text(let command): try container.encode(command, forKey: .text)
-    case .systemCommand(let command): try container.encode(command, forKey: .system)
-    case .uiElement(let command): try container.encode(command, forKey: .uiElement)
-    case .windowFocus(let command): try container.encode(command, forKey: .windowFocus)
-    case .windowManagement(let command): try container.encode(command, forKey: .windowManagement)
-    case .windowTiling(let command): try container.encode(command, forKey: .windowTiling)
+    case let .application(command): try container.encode(command, forKey: .application)
+    case let .builtIn(command): try container.encode(command, forKey: .builtIn)
+    case let .bundled(command): try container.encode(command, forKey: .bundled)
+    case let .keyboard(command): try container.encode(command, forKey: .keyboard)
+    case let .menuBar(command): try container.encode(command, forKey: .menuBar)
+    case let .mouse(command): try container.encode(command, forKey: .mouse)
+    case let .open(command): try container.encode(command, forKey: .open)
+    case let .script(command): try container.encode(command, forKey: .script)
+    case let .shortcut(command): try container.encode(command, forKey: .shortcut)
+    case let .text(command): try container.encode(command, forKey: .text)
+    case let .systemCommand(command): try container.encode(command, forKey: .system)
+    case let .uiElement(command): try container.encode(command, forKey: .uiElement)
+    case let .windowFocus(command): try container.encode(command, forKey: .windowFocus)
+    case let .windowManagement(command): try container.encode(command, forKey: .windowManagement)
+    case let .windowTiling(command): try container.encode(command, forKey: .windowTiling)
     }
   }
 
-  func copy(appendCopyToName: Bool = true) -> Self {
+  func copy(appendCopyToName _: Bool = true) -> Self {
     let clone: Self = switch self {
-    case .application(let command):      .application(command.copy())
-    case .builtIn(let command):          .builtIn(command.copy())
-    case .bundled(let command):          .bundled(command.copy())
-    case .keyboard(let command):         .keyboard(command.copy())
-    case .mouse(let command):            .mouse(command.copy())
-    case .menuBar(let command):          .menuBar(command.copy())
-    case .open(let command):             .open(command.copy())
-    case .shortcut(let command):         .shortcut(command.copy())
-    case .script(let command):           .script(command.copy())
-    case .text(let command):             .text(command.copy())
-    case .systemCommand(let command):    .systemCommand(command.copy())
-    case .uiElement(let command):        .uiElement(command.copy())
-    case .windowFocus(let command):      .windowFocus(command.copy())
-    case .windowManagement(let command): .windowManagement(command.copy())
-    case .windowTiling(let command):     .windowTiling(command.copy())
+    case let .application(command): .application(command.copy())
+    case let .builtIn(command): .builtIn(command.copy())
+    case let .bundled(command): .bundled(command.copy())
+    case let .keyboard(command): .keyboard(command.copy())
+    case let .mouse(command): .mouse(command.copy())
+    case let .menuBar(command): .menuBar(command.copy())
+    case let .open(command): .open(command.copy())
+    case let .shortcut(command): .shortcut(command.copy())
+    case let .script(command): .script(command.copy())
+    case let .text(command): .text(command.copy())
+    case let .systemCommand(command): .systemCommand(command.copy())
+    case let .uiElement(command): .uiElement(command.copy())
+    case let .windowFocus(command): .windowFocus(command.copy())
+    case let .windowManagement(command): .windowManagement(command.copy())
+    case let .windowTiling(command): .windowTiling(command.copy())
     }
 
     return clone
@@ -294,21 +295,21 @@ extension Command {
     let id = UUID().uuidString
     let metaData = MetaData(id: id)
     return switch kind {
-    case .application:      Command.application(ApplicationCommand.empty())
-    case .builtIn:          Command.builtIn(.init(kind: .userMode(mode: .init(id: UUID().uuidString, name: "", isEnabled: true), action: .toggle), notification: nil))
-    case .bundled:          Command.bundled(.init(.workspace(command: WorkspaceCommand(applications: [], defaultForDynamicWorkspace: false, hideOtherApps: true, tiling: nil)), meta: metaData))
-    case .keyboard:         Command.keyboard(KeyboardCommand.empty())
-    case .menuBar:          Command.menuBar(MenuBarCommand(application: nil, tokens: []))
-    case .mouse:            Command.mouse(MouseCommand.empty())
-    case .open:             Command.open(.init(path: "", notification: nil))
-    case .script:           Command.script(.init(name: "", kind: .appleScript(variant: .regular), source: .path(""), notification: nil))
-    case .shortcut:         Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: nil))
-    case .text:             Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id), actions: []))))
-    case .system:           Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: nil))
-    case .uiElement:        Command.uiElement(.init(meta: .init(), predicates: [.init(value: "")]))
-    case .windowFocus:      Command.windowFocus(.init(kind: .moveFocusToNextWindow, meta: metaData))
+    case .application: Command.application(ApplicationCommand.empty())
+    case .builtIn: Command.builtIn(.init(kind: .userMode(mode: .init(id: UUID().uuidString, name: "", isEnabled: true), action: .toggle), notification: nil))
+    case .bundled: Command.bundled(.init(.workspace(command: WorkspaceCommand(applications: [], defaultForDynamicWorkspace: false, hideOtherApps: true, tiling: nil)), meta: metaData))
+    case .keyboard: Command.keyboard(KeyboardCommand.empty())
+    case .menuBar: Command.menuBar(MenuBarCommand(application: nil, tokens: []))
+    case .mouse: Command.mouse(MouseCommand.empty())
+    case .open: Command.open(.init(path: "", notification: nil))
+    case .script: Command.script(.init(name: "", kind: .appleScript(variant: .regular), source: .path(""), notification: nil))
+    case .shortcut: Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: nil))
+    case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id), actions: []))))
+    case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: nil))
+    case .uiElement: Command.uiElement(.init(meta: .init(), predicates: [.init(value: "")]))
+    case .windowFocus: Command.windowFocus(.init(kind: .moveFocusToNextWindow, meta: metaData))
     case .windowManagement: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: nil, animationDuration: 0))
-    case .windowTiling:     Command.windowTiling(.init(kind: .arrangeLeftQuarters, meta: metaData))
+    case .windowTiling: Command.windowTiling(.init(kind: .arrangeLeftQuarters, meta: metaData))
     }
   }
 
@@ -321,7 +322,7 @@ extension Command {
       openCommand(id: id),
       urlCommand(id: id, application: nil),
       textCommand(id: id),
-      Command.builtIn(.init(kind: .userMode(mode: .init(id: id, name: "", isEnabled: true), action: .enable), notification: nil))
+      Command.builtIn(.init(kind: .userMode(mode: .init(id: id, name: "", isEnabled: true), action: .enable), notification: nil)),
     ]
 
     return result
@@ -351,10 +352,11 @@ extension Command {
   static func openCommand(id: String) -> Command {
     Command.open(.init(id: id,
                        application: Application(
-                        bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
-                        bundleName: "",
-                        displayName: "",
-                        path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
+                         bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
+                         bundleName: "",
+                         displayName: "",
+                         path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
+                       ),
                        path: "~/Developer/Xcode.project",
                        notification: nil))
   }
@@ -377,11 +379,11 @@ extension Command {
               id: id,
               name: "",
               isEnabled: true,
-              notification: nil
-            ), actions: []
-          )
-        )
-      )
+              notification: nil,
+            ), actions: [],
+          ),
+        ),
+      ),
     )
   }
 }

@@ -38,7 +38,7 @@ struct TypingIconView: View {
           .aspectRatio(contentMode: .fit)
           .foregroundStyle(
             .black.opacity(0.25),
-            .white
+            .white,
           )
           .fontWeight(.heavy)
           .frame(width: size * 0.3)
@@ -49,7 +49,7 @@ struct TypingIconView: View {
               .init(color: Color(nsColor: .controlAccentColor), location: 0.8),
               .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)), location: 1.0),
             ], startPoint: .top, endPoint: .bottomTrailing)
-              .cornerRadius(size * 0.125)
+              .cornerRadius(size * 0.125),
           )
           .compositingGroup()
           .shadow(radius: 3)
@@ -92,8 +92,8 @@ private struct TypingIconTextView: View {
 
   private func color(for index: Int, highlights: [Int]) -> Color {
     highlights.contains(index)
-    ? Color(.systemYellow).opacity(0.4) // Color(nsColor: .controlAccentColor.withSystemEffect(.disabled))
-    : Color.clear
+      ? Color(.systemYellow).opacity(0.4) // Color(nsColor: .controlAccentColor.withSystemEffect(.disabled))
+      : Color.clear
   }
 }
 
@@ -130,7 +130,6 @@ private struct TypingIconLinesView: View {
         .frame(height: 1)
     }
     .padding(.top, size * 0.11)
-
   }
 }
 
@@ -140,8 +139,8 @@ struct TextContent: Identifiable {
   let highlightedWords: [Int]
 
   init(text: String, highlightedWords: [Int]) {
-    self.id = UUID().uuidString
-    self.words = text
+    id = UUID().uuidString
+    words = text
       .split(separator: " ")
       .enumerated()
       .map { offset, element in
@@ -157,7 +156,7 @@ struct TextContent: Identifiable {
     let content: String
 
     init(_ content: String, offset: Int) {
-      self.id = UUID().uuidString
+      id = UUID().uuidString
       self.offset = offset
       self.content = content
     }

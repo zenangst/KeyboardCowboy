@@ -9,7 +9,8 @@ struct ScriptSymbol: View {
   init(cornerRadius: CGFloat = 11,
        foreground: Color,
        background: Color,
-       borderColor: Color) {
+       borderColor: Color)
+  {
     self.cornerRadius = cornerRadius
     self.foreground = foreground
     self.background = background
@@ -29,8 +30,9 @@ struct ScriptSymbol: View {
 
         Text(">_")
           .font(Font.custom(
-                  "Menlo",
-                  fixedSize: proxy.size.width * 0.20))
+            "Menlo",
+            fixedSize: proxy.size.width * 0.20,
+          ))
           .foregroundColor(foreground)
           .contrast(0.75)
           .padding([.top, .leading], proxy.size.height * 0.2)

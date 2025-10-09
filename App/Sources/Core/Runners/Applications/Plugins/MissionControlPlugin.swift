@@ -12,9 +12,11 @@ final class MissionControlPlugin {
     let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as [AnyObject]? ?? []
     let missionControlIsActive = windows.first { entry in
       guard let appName = entry[kCGWindowOwnerName as String] as? String,
-            let layer = entry[kCGWindowLayer as String] as? Int else {
+            let layer = entry[kCGWindowLayer as String] as? Int
+      else {
         return false
       }
+
       return appName == "Dock" && layer == CGWindowLevelKey.desktopIconWindow.rawValue
     } != nil
 

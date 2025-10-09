@@ -8,9 +8,10 @@ final class KeyboardShortcutTriggerTests: XCTestCase {
       passthrough: true,
       holdDuration: 1.0,
       shortcuts: [
-      .init(key: "a", modifiers: [.leftCommand]),
-      .init(key: "b", modifiers: [.rightOption]),
-    ])
+        .init(key: "a", modifiers: [.leftCommand]),
+        .init(key: "b", modifiers: [.rightOption]),
+      ],
+    )
     let copy = subject.copy()
 
     XCTAssertEqual(subject.allowRepeat, copy.allowRepeat)

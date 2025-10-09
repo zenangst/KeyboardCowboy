@@ -10,11 +10,14 @@ final class WindowTidyRunner: Sendable {
     let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
 
     guard let screen = NSScreen.main else { return }
+
     let visibleScreenFrame = screen.visibleFrame.mainDisplayFlipped
-    let windows = snapshot.windows.visibleWindowsInStage
+    let windows = snapshot.windows
+      .visibleWindowsInStage
       .filter { $0.rect.intersects(visibleScreenFrame) }
     guard !windows.isEmpty else { return }
-    let apps: [WindowModel.Pid] = windows.reduce(into: (result: [], set: Set<Int>())) { (ctx, window) in
+
+    let apps: [WindowModel.Pid] = windows.reduce(into: (result: [], set: Set<Int>())) { ctx, window in
       if ctx.set.insert(window.ownerPid.rawValue).inserted {
         ctx.result.append(window.ownerPid)
       }
@@ -25,12 +28,12 @@ final class WindowTidyRunner: Sendable {
       await singleApp(pid, windows: windows, visibleScreenFrame: visibleScreenFrame, snapshot: snapshot)
     } else {
       await multipleApps(rules: command.rules, windows: windows,
-                   visibleScreenFrame: visibleScreenFrame,
-                   snapshot: snapshot)
+                         visibleScreenFrame: visibleScreenFrame,
+                         snapshot: snapshot)
     }
   }
 
-  private func singleApp(_ pid: pid_t, windows: [WindowModel], visibleScreenFrame: CGRect, snapshot: UserSpace.Snapshot) async {
+  private func singleApp(_ pid: pid_t, windows: [WindowModel], visibleScreenFrame: CGRect, snapshot _: UserSpace.Snapshot) async {
     let axApp = AppAccessibilityElement(pid)
     let currentWindow = windows[0]
     let count = windows.count
@@ -38,7 +41,7 @@ final class WindowTidyRunner: Sendable {
     let determinedCurrentTiling = WindowTilingRunner.calculateTiling(
       for: currentWindow.rect,
       ownerName: currentWindow.ownerName,
-      in: visibleScreenFrame
+      in: visibleScreenFrame,
     )
 
     var windows = Array(windows.reversed())
@@ -54,12 +57,11 @@ final class WindowTidyRunner: Sendable {
       }
       windows.removeFirst()
     } else if count == 3 {
-
       let selectedTiling: WindowTiling = switch determinedCurrentTiling {
       case .right, .topRight, .bottomRight, .bottom:
-          .arrangeRightQuarters
+        .arrangeRightQuarters
       default:
-          .arrangeLeftQuarters
+        .arrangeLeftQuarters
       }
 
       windows = [windows.last!]
@@ -72,7 +74,7 @@ final class WindowTidyRunner: Sendable {
         let determinedTiling = WindowTilingRunner.calculateTiling(
           for: window.rect,
           ownerName: window.ownerName,
-          in: visibleScreenFrame
+          in: visibleScreenFrame,
         )
 
         if currentWindow == window {
@@ -93,7 +95,6 @@ final class WindowTidyRunner: Sendable {
           } else {
             computedTilings[offset] = determinedTiling.revesed
           }
-
         }
       }
 
@@ -102,14 +103,15 @@ final class WindowTidyRunner: Sendable {
 
     var menuItems = [MenuBarItemAccessibilityElement]()
     let windowSpacing = UserSettings.WindowManager.tiledWindowSpacing
-    var shouldActivateLastWindow: Bool = false
+    var shouldActivateLastWindow = false
     var lastAxWindow: WindowAccessibilityElement?
     for (offset, window) in windows.enumerated() {
       let tiling = tilings[offset]
 
       guard let axWindow = try? axApp
         .windows()
-        .first(where: { $0.id == window.id }) else {
+        .first(where: { $0.id == window.id })
+      else {
         continue
       }
 
@@ -117,7 +119,7 @@ final class WindowTidyRunner: Sendable {
         lastAxWindow = axWindow
       }
 
-      if tiling != .fill && window.rect.isValid(for: tiling, window: window, in: visibleScreenFrame, spacing: windowSpacing) {
+      if tiling != .fill, window.rect.isValid(for: tiling, window: window, in: visibleScreenFrame, spacing: windowSpacing) {
         continue
       }
 
@@ -128,9 +130,11 @@ final class WindowTidyRunner: Sendable {
       if menuItems.isEmpty {
         guard let resolvedMenuItems = try? axApp
           .menuBar()
-          .menuItems() else {
+          .menuItems()
+        else {
           return
         }
+
         menuItems = resolvedMenuItems
       }
 
@@ -146,18 +150,20 @@ final class WindowTidyRunner: Sendable {
   }
 
   private func multipleApps(rules: [WindowTidyCommand.Rule], windows: [WindowModel],
-                            visibleScreenFrame: CGRect, snapshot: UserSpace.Snapshot) async {
+                            visibleScreenFrame: CGRect, snapshot _: UserSpace.Snapshot) async
+  {
     let currentWindow = windows[0]
     let windowSpacing = UserSettings.WindowManager.tiledWindowSpacing
-    let activeWindows: Array<WindowModel> = windows.reversed()
+    let activeWindows: [WindowModel] = windows.reversed()
 
     var apps: [Int: AppContainer] = [:]
-    var shouldActivateLastWindow: Bool = false
+    var shouldActivateLastWindow = false
     var lastAppContainer: AppContainer?
     var lastAxWindow: WindowAccessibilityElement?
     var quarterTiling: Set<WindowTiling> = [
       .topLeft, .bottomLeft,
-      .topRight, .bottomRight]
+      .topRight, .bottomRight,
+    ]
     var occupiedTiling = Set<WindowTiling>()
 
     for window in activeWindows {
@@ -165,7 +171,8 @@ final class WindowTidyRunner: Sendable {
       let activeTiling: WindowTiling
       if let runningApplication = NSRunningApplication(processIdentifier: pid),
          let bundleIdentifier = runningApplication.bundleIdentifier,
-         let rule = rules.first(where: { $0.bundleIdentifier == bundleIdentifier }) {
+         let rule = rules.first(where: { $0.bundleIdentifier == bundleIdentifier })
+      {
         activeTiling = rule.tiling
         quarterTiling.remove(activeTiling)
 
@@ -180,7 +187,7 @@ final class WindowTidyRunner: Sendable {
         activeTiling = WindowTilingRunner.calculateTiling(
           for: window.rect,
           ownerName: window.ownerName,
-          in: visibleScreenFrame
+          in: visibleScreenFrame,
         )
       }
 
@@ -190,7 +197,7 @@ final class WindowTidyRunner: Sendable {
     var currentWindowTiling = WindowTilingRunner.calculateTiling(
       for: currentWindow.rect,
       ownerName: currentWindow.ownerName,
-      in: visibleScreenFrame
+      in: visibleScreenFrame,
     )
 
     if currentWindowTiling != .left || currentWindowTiling != .right {
@@ -211,14 +218,15 @@ final class WindowTidyRunner: Sendable {
 
         appContainer = AppContainer(
           axElement: app,
-          runningApplication: runningApplication
+          runningApplication: runningApplication,
         )
         apps[window.ownerPid.rawValue] = appContainer
       }
 
       guard let axWindow = try? appContainer.axElement
         .windows()
-        .first(where: { $0.id == window.id }) else {
+        .first(where: { $0.id == window.id })
+      else {
         continue
       }
 
@@ -226,11 +234,11 @@ final class WindowTidyRunner: Sendable {
       let calculatedTiling = WindowTilingRunner.calculateTiling(
         for: window.rect,
         ownerName: window.ownerName,
-        in: visibleScreenFrame
+        in: visibleScreenFrame,
       )
 
       if activeWindows.count > 3, let rule = rules.first(where: { $0.bundleIdentifier == appContainer.runningApplication.bundleIdentifier }) {
-        if offset == activeWindows.count - 2 && occupiedTiling.contains(rule.tiling) && !quarterTiling.isEmpty {
+        if offset == activeWindows.count - 2, occupiedTiling.contains(rule.tiling), !quarterTiling.isEmpty {
           let random = quarterTiling.randomElement()!
           quarterTiling.remove(random)
           tiling = random
@@ -254,12 +262,13 @@ final class WindowTidyRunner: Sendable {
           } else {
             let top = offset % 2 == 1
             tiling = isLeftTiling(currentWindowTiling)
-            ? (top ? .topRight : .bottomRight)
-            : (top ? .topLeft  : .bottomLeft)
+              ? (top ? .topRight : .bottomRight)
+              : (top ? .topLeft : .bottomLeft)
           }
         } else if !quarterTiling.isEmpty,
                   occupiedTiling.contains(calculatedTiling),
-                  let random = quarterTiling.randomElement() {
+                  let random = quarterTiling.randomElement()
+        {
           tiling = random
           quarterTiling.remove(random)
         } else {
@@ -284,10 +293,10 @@ final class WindowTidyRunner: Sendable {
 
       guard let menuItems = try? appContainer.axElement
         .menuBar()
-        .menuItems() else {
+        .menuItems()
+      else {
         continue
       }
-
       guard let match = WindowTilingMenuItemFinder.find(tiling, in: menuItems) else {
         continue
       }
@@ -329,12 +338,13 @@ final class WindowTidyRunner: Sendable {
   }
 }
 
-fileprivate class AppContainer {
+private class AppContainer {
   var axElement: AppAccessibilityElement
   var runningApplication: NSRunningApplication
 
   init(axElement: AppAccessibilityElement,
-       runningApplication: NSRunningApplication) {
+       runningApplication: NSRunningApplication)
+  {
     self.axElement = axElement
     self.runningApplication = runningApplication
   }

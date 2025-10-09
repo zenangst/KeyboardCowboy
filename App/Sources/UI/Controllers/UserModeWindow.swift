@@ -12,7 +12,7 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
   private var subscription: AnyCancellable?
   private var window: SizeFittingWindow?
 
-  private override init() {
+  override private init() {
     super.init()
     debouncer = DebounceManager(for: .milliseconds(250)) { [weak self] userModes in
       self?.publish(userModes)
@@ -62,8 +62,8 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
 
   // MARK: NSWindowDelegate
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
   }
 
   // MARK: Private methods
@@ -77,6 +77,7 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
 
   private func repositionAndSize(_ window: SizeFittingWindow?) {
     guard let window, let screen = NSScreen.main else { return }
+
     window.contentView?.layout()
     let size = window.sizeThatFits(in: CGSize(width: 48, height: 48))
     let screenFrame = screen.frame.mainDisplayFlipped

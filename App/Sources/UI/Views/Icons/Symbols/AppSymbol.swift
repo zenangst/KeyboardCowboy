@@ -85,18 +85,17 @@ struct AppSymbol: View {
         .stroke(Color.white, lineWidth: 0.75)
         .frame(width: 12, height: 12)
         .opacity(0.4)
-
     }
   }
 }
 
 struct AppSymbol_Previews: PreviewProvider {
   static var previews: some View {
-      ZStack {
-        AppSymbol()
-          .background(Color.red)
-      }
-      .padding()
-      .frame(width: 64, height: 64)
+    ZStack {
+      AppSymbol()
+        .background(Color.red)
     }
+    .padding()
+    .frame(width: 64, height: 64)
+  }
 }

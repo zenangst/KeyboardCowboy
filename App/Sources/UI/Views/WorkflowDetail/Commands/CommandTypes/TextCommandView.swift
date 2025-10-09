@@ -8,7 +8,7 @@ struct TextCommandView: View {
 
   var body: some View {
     switch kind {
-    case .type(let model):
+    case let .type(model):
       TypeCommandView(metaData, model: model, iconSize: iconSize)
     }
   }

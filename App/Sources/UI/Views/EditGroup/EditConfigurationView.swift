@@ -58,7 +58,7 @@ struct EditConfigurationView_Previews: PreviewProvider {
     .updateConfigurations([
       KeyboardCowboyConfiguration(name: "Default", userModes: [], groups: []),
       KeyboardCowboyConfiguration(name: "Personal", userModes: [], groups: []),
-      KeyboardCowboyConfiguration(name: "Work", userModes: [], groups: [])
+      KeyboardCowboyConfiguration(name: "Work", userModes: [], groups: []),
     ])
   static var previews: some View {
     EditConfigurationView(store, action: { _ in })

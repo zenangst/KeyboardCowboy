@@ -49,4 +49,3 @@ struct NewCommandImageView: View {
     IconView(icon: .init(bundleIdentifier: path, path: path), size: .init(width: 24, height: 24))
   }
 }
-

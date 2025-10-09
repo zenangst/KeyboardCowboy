@@ -5,15 +5,15 @@ extension MouseCommand {
     var displayValue: String {
       switch self {
       case .focused:
-        return "Focused Element"
+        "Focused Element"
       }
     }
 
     var clickLocation: ClickLocation {
       get {
         switch self {
-        case .focused(let clickLocation):
-          return clickLocation
+        case let .focused(clickLocation):
+          clickLocation
         }
       }
       set {

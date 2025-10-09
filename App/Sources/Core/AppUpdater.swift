@@ -6,15 +6,15 @@ final class AppUpdater: NSObject, ObservableObject, SPUUpdaterDelegate {
 
   override init() {
     super.init()
-    self.sparkle = SPUStandardUpdaterController(updaterDelegate: self, userDriverDelegate: nil)
+    sparkle = SPUStandardUpdaterController(updaterDelegate: self, userDriverDelegate: nil)
   }
 
   @MainActor
   func checkForUpdates() {
     NSApplication.shared.setActivationPolicy(.regular)
     NSApplication.shared.activate(ignoringOtherApps: true)
-    self.sparkle.checkForUpdates(nil)
+    sparkle.checkForUpdates(nil)
   }
 
-  func updater(_ updater: SPUUpdater, mayPerform updateCheck: SPUUpdateCheck) throws { }
+  func updater(_: SPUUpdater, mayPerform _: SPUUpdateCheck) throws {}
 }

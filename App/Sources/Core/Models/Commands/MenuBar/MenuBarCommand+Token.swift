@@ -2,10 +2,10 @@ extension MenuBarCommand {
   enum Token: Identifiable, Equatable, Hashable, Codable, Sendable {
     var id: String {
       switch self {
-      case .menuItem(let value):
-        return value
-      case .menuItems(let lhs, let rhs):
-        return lhs + rhs
+      case let .menuItem(value):
+        value
+      case let .menuItems(lhs, rhs):
+        lhs + rhs
       }
     }
 

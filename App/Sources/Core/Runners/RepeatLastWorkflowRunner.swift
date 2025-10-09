@@ -15,8 +15,7 @@ final class RepeatLastWorkflowRunner {
     guard let workflow = Self.previousWorkflow else {
       throw RepeatLastWorkflowRunnerError.noPreviousWorkflow
     }
-
-    guard let workflowRunner = workflowRunner else {
+    guard let workflowRunner else {
       throw RepeatLastWorkflowRunnerError.noWorkflowRunner
     }
 
@@ -26,7 +25,6 @@ final class RepeatLastWorkflowRunner {
   }
 
   func setWorkflowRunner(_ newRunner: WorkflowRunner) {
-    self.workflowRunner = newRunner
+    workflowRunner = newRunner
   }
 }
-

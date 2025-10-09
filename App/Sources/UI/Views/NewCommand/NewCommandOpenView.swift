@@ -8,6 +8,7 @@ struct NewCommandOpenView: View {
   enum Focus {
     case path
   }
+
   private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#open-commands")!
 
   @EnvironmentObject var applicationStore: ApplicationStore
@@ -88,7 +89,7 @@ struct NewCommandOpenView: View {
       updatePayload()
       focus = .path
     }
-    .onChange(of: self.path, perform: { newValue in
+    .onChange(of: path, perform: { _ in
       updatePayload()
     })
     .enableInjection()
@@ -108,7 +109,8 @@ struct NewCommandOpenView_Previews: PreviewProvider {
       selection: .open,
       payload: .placeholder,
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

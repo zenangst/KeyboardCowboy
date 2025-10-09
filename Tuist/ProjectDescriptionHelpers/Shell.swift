@@ -18,13 +18,12 @@ public final class Shell: Sendable {
     process.standardError = standardError
 
     try process.run()
-    let output: String
-    if let data = try standardOutput.fileHandleForReading.readToEnd() {
-      output = String(data: data, encoding: .utf8)!
+    let output = if let data = try standardOutput.fileHandleForReading.readToEnd() {
+      String(data: data, encoding: .utf8)!
     } else if let data = try standardError.fileHandleForReading.readToEnd() {
-      output = String(data: data, encoding: .utf8)!
+      String(data: data, encoding: .utf8)!
     } else {
-      output = ""
+      ""
     }
 
     process.waitUntilExit()

@@ -2,8 +2,6 @@ import Foundation
 import SwiftUI
 
 struct WindowManagementCommand: MetaDataProviding {
-  
-
   enum Mode: String, Identifiable, Codable, Hashable, CaseIterable {
     var id: String { rawValue }
     case center
@@ -12,9 +10,9 @@ struct WindowManagementCommand: MetaDataProviding {
     var displayValue: String {
       switch self {
       case .center:
-        return "Center"
+        "Center"
       case .relative:
-        return "Relative"
+        "Relative"
       }
     }
   }
@@ -29,12 +27,13 @@ struct WindowManagementCommand: MetaDataProviding {
     case meta
   }
 
-  init(id: String = UUID().uuidString, name: String, 
-       kind: Kind, 
+  init(id: String = UUID().uuidString, name: String,
+       kind: Kind,
        notification: Command.Notification? = nil,
-       animationDuration: Double) {
+       animationDuration: Double)
+  {
     self.kind = kind
-    self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
+    meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
     self.animationDuration = animationDuration
   }
 
@@ -47,12 +46,12 @@ struct WindowManagementCommand: MetaDataProviding {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.kind = try container.decode(Kind.self, forKey: .kind)
-    self.animationDuration = try container.decodeIfPresent(Double.self, forKey: .animationDuration) ?? 0
-    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    kind = try container.decode(Kind.self, forKey: .kind)
+    animationDuration = try container.decodeIfPresent(Double.self, forKey: .animationDuration) ?? 0
+    meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
 
   func copy() -> WindowManagementCommand {
-    WindowManagementCommand(kind: self.kind, meta: self.meta.copy(), animationDuration: self.animationDuration)
+    WindowManagementCommand(kind: kind, meta: meta.copy(), animationDuration: animationDuration)
   }
 }

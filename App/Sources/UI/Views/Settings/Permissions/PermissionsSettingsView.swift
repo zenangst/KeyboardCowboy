@@ -18,7 +18,7 @@ struct PermissionsSettingsView: View {
             icon: "command.circle.fill",
             name: "Accessibility Permissions",
             explanation: "Used to trigger workflows when you press a keyboard shortcut.",
-            color: Color(.systemPurple)
+            color: Color(.systemPurple),
           ) {
             AccessibilityPermission.shared.requestPermission()
           }
@@ -40,7 +40,7 @@ struct PermissionsSettingsView: View {
   }
 }
 
-fileprivate struct PermissionOverviewItem: View {
+private struct PermissionOverviewItem: View {
   @Namespace var namespace
   @Binding var status: AccessibilityPermissionsItemStatus
 

@@ -7,7 +7,8 @@ struct SplashColors {
 
   init(primaryColor: Color,
        secondaryColor: Color,
-       backgroundColor: Color) {
+       backgroundColor: Color)
+  {
     self.primaryColor = primaryColor
     self.secondaryColor = secondaryColor
     self.backgroundColor = backgroundColor
@@ -19,17 +20,18 @@ struct SplashView: View {
   @State var animating: Bool = false
   @Binding var done: Bool
 
-  init(colors: SplashColors = SplashColors(primaryColor: Color(red: 220/255, green: 58/255, blue: 102/255),
-                                           secondaryColor: Color(red: 114/255, green: 59/255, blue: 120/255),
-                                           backgroundColor: Color(red: 22/255, green: 23/255, blue: 48/255)),
-       done: Binding<Bool>) {
+  init(colors: SplashColors = SplashColors(primaryColor: Color(red: 220 / 255, green: 58 / 255, blue: 102 / 255),
+                                           secondaryColor: Color(red: 114 / 255, green: 59 / 255, blue: 120 / 255),
+                                           backgroundColor: Color(red: 22 / 255, green: 23 / 255, blue: 48 / 255)),
+       done: Binding<Bool>)
+  {
     self.colors = colors
     _done = done
   }
 
   var body: some View {
     ZStack {
-      Canvas(rendersAsynchronously: true) { context, size in
+      Canvas(rendersAsynchronously: true) { context, _ in
         context.fill(path(), with: .color(.white))
       }
       .offset(x: animating ? 80 : 180,
@@ -38,7 +40,7 @@ struct SplashView: View {
       .scaleEffect(0.5)
       .animation(.easeInOut(duration: 1.0), value: done)
 
-      Canvas(rendersAsynchronously: true) { context, size in
+      Canvas(rendersAsynchronously: true) { context, _ in
         context.fill(path(), with: .color(colors.secondaryColor))
       }
       .scaleEffect(done ? 4 : 1.75)
@@ -49,13 +51,11 @@ struct SplashView: View {
       .animation(.easeInOut(duration: 5.75).delay(0.15).repeatForever(), value: animating)
       .animation(.easeInOut(duration: 1.0), value: done)
 
-
-      Canvas(rendersAsynchronously: true) { context, size in
+      Canvas(rendersAsynchronously: true) { context, _ in
         context.fill(path(), with: .color(colors.primaryColor))
       }
       .scaleEffect(done ? 2 : 0.75)
       .rotationEffect(.degrees(animating ? 45 : -45))
-
       .offset(x: animating ? 80 : 180,
               y: animating ? 80 : 180)
       .opacity(0.4)
@@ -95,7 +95,7 @@ struct SplashView: View {
   }
 }
 
-fileprivate final class SplashDemo: ObservableObject {
+private final class SplashDemo: ObservableObject {
   @Published var done: Bool = false
 }
 
@@ -124,4 +124,3 @@ struct SplashView_Previews: PreviewProvider {
     }
   }
 }
-

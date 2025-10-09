@@ -13,7 +13,7 @@ final class CommandPanelViewPublisher: ObservableObject {
 
   @MainActor
   func publish(_ newState: CommandPanelView.CommandState) {
-    self.state = newState
+    state = newState
   }
 }
 
@@ -37,7 +37,8 @@ struct CommandPanelView: View {
        command: ScriptCommand,
        onChange: @escaping (String) -> Void,
        onSubmit: @escaping (ScriptCommand) -> Void,
-       action: @escaping () -> Void) {
+       action: @escaping () -> Void)
+  {
     self.command = command
     self.publisher = publisher
     self.onChange = onChange
@@ -50,32 +51,32 @@ struct CommandPanelView: View {
       CommandPanelHeaderView(
         state: publisher.state,
         name: command.name,
-        action: action
+        action: action,
       )
       .roundedStyle(padding: 4)
 
       ScrollView {
         VStack(spacing: 8) {
           switch command.source {
-          case .path(let source):
+          case let .path(source):
             let viewModel = CommandViewModel.Kind.ScriptModel(
               id: command.id,
               source: .path(source),
               scriptExtension: command.kind,
               variableName: "",
-              execution: .concurrent
+              execution: .concurrent,
             )
             ScriptCommandContentView(metaData: .init(name: "Name", namePlaceholder: ""), model: viewModel, onSubmit: {
               onSubmit(command)
             })
-              .roundedStyle(padding: 4)
-          case .inline(let source):
+            .roundedStyle(padding: 4)
+          case let .inline(source):
             let viewModel = CommandViewModel.Kind.ScriptModel(
-                id: command.id,
-                source: .inline(source),
-                scriptExtension: command.kind,
-                variableName: "",
-                execution: .concurrent
+              id: command.id,
+              source: .inline(source),
+              scriptExtension: command.kind,
+              variableName: "",
+              execution: .concurrent,
             )
             ScriptCommandContentView(metaData: .init(name: "Name", namePlaceholder: ""), model: viewModel, onSubmit: {
               onSubmit(command)
@@ -98,10 +99,10 @@ struct CommandPanelView: View {
     let publisher = CommandPanelViewPublisher(state: state)
     return CommandPanelView(publisher: publisher, command: command, onChange: { _ in }, onSubmit: { _ in }) {
       switch publisher.state {
-      case .ready:   publisher.publish(.running)
+      case .ready: publisher.publish(.running)
       case .running: publisher.publish(.error("ops!"))
-      case .error:   publisher.publish(.done("done"))
-      case .done:    publisher.publish(.ready)
+      case .error: publisher.publish(.done("done"))
+      case .done: publisher.publish(.ready)
       }
     }
     .padding()
@@ -121,12 +122,12 @@ private struct CommandPanelHeaderView: View {
       Spacer()
       Button(action: action,
              label: {
-        Text(Self.buttonText(state))
-          .frame(minWidth: 80)
-      })
-      .environment(\.buttonBackgroundColor, Self.buttonColor(state))
-      .fixedSize()
-      .animation(.easeIn, value: state)
+               Text(Self.buttonText(state))
+                 .frame(minWidth: 80)
+             })
+             .environment(\.buttonBackgroundColor, Self.buttonColor(state))
+             .fixedSize()
+             .animation(.easeIn, value: state)
     }
   }
 
@@ -153,17 +154,17 @@ private struct CommandPanelOutputView: View {
   let state: CommandPanelView.CommandState
 
   var body: some View {
-      switch state {
-      case .ready:
-        Color.clear
-      case .running:
-        ProgressView()
-          .padding()
-      case .error(let contents):
-        CommandPanelErrorView(contents: contents)
-      case .done(let contents):
-        CommandPanelSuccessView(contents: contents)
-      }
+    switch state {
+    case .ready:
+      Color.clear
+    case .running:
+      ProgressView()
+        .padding()
+    case let .error(contents):
+      CommandPanelErrorView(contents: contents)
+    case let .done(contents):
+      CommandPanelSuccessView(contents: contents)
+    }
   }
 }
 
@@ -186,7 +187,7 @@ private struct CommandPanelErrorView: View {
           LinearGradient(stops: [
             .init(color: Color(.systemRed).opacity(0.4), location: 0),
             .init(color: Color(.systemRed.withSystemEffect(.disabled)).opacity(0.2), location: 1),
-          ], startPoint: .top, endPoint: .bottom)
+          ], startPoint: .top, endPoint: .bottom),
         )
         ZenDivider()
         Text(contents)
@@ -221,7 +222,7 @@ private struct CommandPanelSuccessView: View {
         LinearGradient(stops: [
           .init(color: Color(.systemGreen).opacity(0.2), location: 0),
           .init(color: Color(.systemGreen.withSystemEffect(.disabled)).opacity(0.1), location: 1),
-        ], startPoint: .top, endPoint: .bottom)
+        ], startPoint: .top, endPoint: .bottom),
       )
 
       ZenDivider()
@@ -240,7 +241,7 @@ private struct CommandPanelSuccessView: View {
 let prCommand = ScriptCommand(
   kind: .shellScript,
   source: .inline("gh pr ls"),
-  meta: .init(name: "This is a script")
+  meta: .init(name: "This is a script"),
 )
 
 let prCommandResult = """
@@ -253,7 +254,7 @@ ID    TITLE                          BRANCH                         CREATED AT
 let prCommandWithJQ = ScriptCommand(
   kind: .shellScript,
   source: .inline("gh pr ls --json url,title,number,headRefName,reviewDecision,changedFiles,deletions"),
-  meta: .init(name: "Run GitHub CLI with jq")
+  meta: .init(name: "Run GitHub CLI with jq"),
 )
 
 let prCommandWithJQResult = """
@@ -288,46 +289,47 @@ extension AttributedString {
     let matches = detector.matches(
       in: originalString,
       options: [],
-      range: NSRange(location: 0, length: originalString.count)
+      range: NSRange(location: 0, length: originalString.count),
     )
 
     for match in matches {
       let range = match.range
       let startIndex = attributedString.index(
         attributedString.startIndex,
-        offsetByCharacters: range.lowerBound
+        offsetByCharacters: range.lowerBound,
       )
       let endIndex = attributedString.index(
         startIndex,
-        offsetByCharacters: range.length
+        offsetByCharacters: range.length,
       )
 
       switch match.resultType {
       case .link:
         if let url = match.url {
-          attributedString[startIndex..<endIndex].link = url
-          attributedString[startIndex..<endIndex].foregroundColor = Color(nsColor: .controlAccentColor.withSystemEffect(.deepPressed))
+          attributedString[startIndex ..< endIndex].link = url
+          attributedString[startIndex ..< endIndex].foregroundColor = Color(nsColor: .controlAccentColor.withSystemEffect(.deepPressed))
         }
       default:
         continue
       }
-
     }
     return attributedString
   }
+
   func syntaxHighlight(searchSets: [SearchSet]) -> AttributedString {
     var attrInText: AttributedString = self
 
     searchSets.forEach { searchSet in
-      searchSet.words?.forEach({ word in
+      searchSet.words?.forEach { word in
         guard let regex = try? Regex<Substring>(searchSet.regexPattern(word))
         else {
           fatalError("Failed to create regular expession")
         }
+
         processMatches(attributedText: &attrInText,
                        regex: regex,
                        color: searchSet.color)
-      })
+      }
     }
 
     return attrInText
@@ -335,7 +337,8 @@ extension AttributedString {
 
   private func processMatches(attributedText: inout AttributedString,
                               regex: Regex<Substring>,
-                              color: Color) {
+                              color: Color)
+  {
     let orignalText: String = (
       attributedText.characters.compactMap { c in
         String(c)
@@ -356,7 +359,8 @@ struct SearchSet {
 
   init(words: [String]? = nil,
        regexPattern: @escaping (String) -> String,
-       color: Color) {
+       color: Color)
+  {
     self.words = words ?? [""]
     self.regexPattern = regexPattern
     self.color = color

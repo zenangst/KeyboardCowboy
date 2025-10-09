@@ -1,6 +1,6 @@
+import Bonzai
 import Inject
 import SwiftUI
-import Bonzai
 
 struct WorkflowsFilterView: View {
   @ObserveInjection var inject
@@ -14,11 +14,12 @@ struct WorkflowsFilterView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
        onClear: @escaping () -> Void,
-       onChange: @escaping (String) -> Void) {
+       onChange: @escaping (String) -> Void)
+  {
     self.namespace = namespace
     self.focus = focus
     self.onClear = onClear
-    self.debounce = DebounceController("", kind: .keyDown, milliseconds: 150, onUpdate: { snapshot in
+    debounce = DebounceController("", kind: .keyDown, milliseconds: 150, onUpdate: { snapshot in
       onChange(snapshot)
     })
   }
@@ -27,12 +28,12 @@ struct WorkflowsFilterView: View {
     HStack(spacing: 6) {
       Group {
         Image(systemName: searchTerm.isEmpty
-              ? "line.3.horizontal.decrease.circle"
-              : "line.3.horizontal.decrease.circle.fill")
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .foregroundColor(ColorPublisher.shared.color)
-        .frame(width: 12)
+          ? "line.3.horizontal.decrease.circle"
+          : "line.3.horizontal.decrease.circle.fill")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .foregroundColor(ColorPublisher.shared.color)
+          .frame(width: 12)
         TextField("Filter", text: $searchTerm)
           .environment(\.textFieldCalm, true)
           .environment(\.textFieldForegroundColor, ColorPublisher.shared.color)
@@ -57,11 +58,11 @@ struct WorkflowsFilterView: View {
         searchTerm = ""
         onClear()
       }, label: { Text("Clear") })
-      .environment(\.buttonBackgroundColor, .systemGray)
-      .font(.caption2)
-      .opacity(!searchTerm.isEmpty ? 1 : 0)
-      .frame(width: searchTerm.isEmpty ? 0 : nil, height: 25)
-      .animation(.linear, value: searchTerm.isEmpty)
+        .environment(\.buttonBackgroundColor, .systemGray)
+        .font(.caption2)
+        .opacity(!searchTerm.isEmpty ? 1 : 0)
+        .frame(width: searchTerm.isEmpty ? 0 : nil, height: 25)
+        .animation(.linear, value: searchTerm.isEmpty)
     }
   }
 }
@@ -71,6 +72,6 @@ struct ContentListFilterView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
     WorkflowsFilterView($focus, namespace: namespace, onClear: {}, onChange: { _ in })
-    .designTime()
+      .designTime()
   }
 }

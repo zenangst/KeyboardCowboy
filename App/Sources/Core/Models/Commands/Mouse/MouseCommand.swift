@@ -5,7 +5,7 @@ struct MouseCommand: Identifiable, Codable, MetaDataProviding {
   var kind: Kind
 
   func copy() -> MouseCommand {
-    MouseCommand(meta: self.meta.copy(), kind: self.kind)
+    MouseCommand(meta: meta.copy(), kind: kind)
   }
 
   static func empty() -> MouseCommand {

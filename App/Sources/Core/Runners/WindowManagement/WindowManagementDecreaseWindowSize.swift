@@ -4,9 +4,10 @@ enum WindowManagementDecreaseWindowSize {
   static func calculateRect(_ originFrame: CGRect,
                             byValue: Int,
                             in direction: WindowManagementCommand.Direction,
-                            constrainedToScreen: Bool,
-                            currentScreen: NSScreen,
-                            mainDisplay: NSScreen) -> CGRect {
+                            constrainedToScreen _: Bool,
+                            currentScreen _: NSScreen,
+                            mainDisplay _: NSScreen) -> CGRect
+  {
     let newValue = CGFloat(byValue)
     var newFrame = originFrame
 

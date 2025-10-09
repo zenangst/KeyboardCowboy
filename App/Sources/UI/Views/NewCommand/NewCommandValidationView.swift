@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct NewCommandValidationView: View {
   @Binding var validation: NewCommandValidation
@@ -17,7 +17,7 @@ struct NewCommandValidationView: View {
             .stroke(Color(.systemRed.withAlphaComponent(0.5)), lineWidth: 2)
             .shadow(color: redColor, radius: 2)
             .frame(width: proxy.size.width, height: proxy.size.height)
-          if case .invalid(let reason) = validation, let reason {
+          if case let .invalid(reason) = validation, let reason {
             HStack {
               Text(reason)
                 .font(.caption)
@@ -49,12 +49,12 @@ struct NewCommandValidationView: View {
                     .init(color: redColor, location: 0.0),
                     .init(color: Color(nsColor: .systemRed.blended(withFraction: 0.5, of: .black)!), location: 1.0),
                   ], startPoint: .top, endPoint: .bottom)
-                  .cornerRadius(8)
-                  .shadow(radius: 4)
-                  .frame(width: proxy.size.width, height: proxy.size.height - 16)
+                    .cornerRadius(8)
+                    .shadow(radius: 4)
+                    .frame(width: proxy.size.width, height: proxy.size.height - 16)
                 }
                 .offset(x: 8, y: 0)
-              }
+              },
             )
           }
         }

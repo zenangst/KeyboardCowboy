@@ -1,11 +1,11 @@
-import SwiftUI
 import Cocoa
+import SwiftUI
 
 struct FolderSymbol: View {
-  private let inset: EdgeInsets = EdgeInsets.init(top: 0.075,
-                                                  leading: 0.025,
-                                                  bottom: 0.1,
-                                                  trailing: 0.025)
+  private let inset: EdgeInsets = .init(top: 0.075,
+                                        leading: 0.025,
+                                        bottom: 0.1,
+                                        trailing: 0.025)
   let cornerRadius: CGFloat
   let textColor: Color
   private let tabWidth: CGFloat = 0.4
@@ -68,7 +68,6 @@ struct FolderSymbol: View {
                               radius: cornerRadius(proxy),
                               startAngle: Angle(degrees: 180),
                               delta: Angle(degrees: 90))
-
         }
         .fill(gradient())
         .colorScheme(.light)
@@ -94,7 +93,7 @@ struct FolderSymbol: View {
           .init(color: Color(.gridColor).opacity(0.75), location: 1.0),
         ]),
       startPoint: .top,
-      endPoint: .bottom
+      endPoint: .bottom,
     )
   }
 

@@ -51,26 +51,26 @@ struct KeyViewerView: View {
 
         if proxy.size.width > 0 {
           HStack(spacing: spacing) {
-            ModifierKeyIcon(key: .function, glowColor: .white, glow: .readonly({
+            ModifierKeyIcon(key: .function, glowColor: .white, glow: .readonly {
               publisher.modifiers.contains(.function)
-            }))
+            })
             .frame(width: smallerKeyWidth, height: keyHeight)
-            ModifierKeyIcon(key: .leftShift, glowColor: .white, glow: .readonly({
+            ModifierKeyIcon(key: .leftShift, glowColor: .white, glow: .readonly {
               publisher.modifiers.contains(.leftShift) || publisher.modifiers.contains(.rightShift)
-            }))
-              .frame(width: largerKeyWidth, height: keyHeight)
-            ModifierKeyIcon(key: .leftControl, glowColor: .white, glow: .readonly({
+            })
+            .frame(width: largerKeyWidth, height: keyHeight)
+            ModifierKeyIcon(key: .leftControl, glowColor: .white, glow: .readonly {
               publisher.modifiers.contains(.leftControl) || publisher.modifiers.contains(.rightControl)
-            }))
-              .frame(width: smallerKeyWidth, height: keyHeight)
-            ModifierKeyIcon(key: .leftOption, glowColor: .white, glow: .readonly({
+            })
+            .frame(width: smallerKeyWidth, height: keyHeight)
+            ModifierKeyIcon(key: .leftOption, glowColor: .white, glow: .readonly {
               publisher.modifiers.contains(.leftOption) || publisher.modifiers.contains(.rightOption)
-            }))
-              .frame(width: smallerKeyWidth, height: keyHeight)
-            ModifierKeyIcon(key: .leftCommand, glowColor: .white, glow: .readonly({
+            })
+            .frame(width: smallerKeyWidth, height: keyHeight)
+            ModifierKeyIcon(key: .leftCommand, glowColor: .white, glow: .readonly {
               publisher.modifiers.contains(.leftCommand) || publisher.modifiers.contains(.rightCommand)
-            }))
-              .frame(width: largerKeyWidth, height: keyHeight)
+            })
+            .frame(width: largerKeyWidth, height: keyHeight)
           }
           .frame(maxHeight: .infinity, alignment: .bottom)
         }
@@ -88,7 +88,7 @@ struct KeyViewerView: View {
                 .init(color: .clear, location: 1),
               ],
               startPoint: .top,
-              endPoint: .bottom
+              endPoint: .bottom,
             )
           }
         ZenVisualEffectView(material: .contentBackground)
@@ -99,10 +99,10 @@ struct KeyViewerView: View {
                 .init(color: .black, location: 0.75),
               ],
               startPoint: .top,
-              endPoint: .bottom
+              endPoint: .bottom,
             )
           }
-      }
+      },
     )
     .ignoresSafeArea(.all)
     .frame(maxWidth: 420)

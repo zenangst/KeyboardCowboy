@@ -15,8 +15,9 @@ final class ShortcutStore: ObservableObject, @unchecked Sendable {
   func subscribe(to application: Published<UserSpace.Application>.Publisher) {
     subscription = application
       .filter { $0.bundleIdentifier == "com.apple.shortcuts" }
-      .sink { [weak self] application in
+      .sink { [weak self] _ in
         guard let self else { return }
+
         Task {
           await self.index()
         }
@@ -27,7 +28,7 @@ final class ShortcutStore: ObservableObject, @unchecked Sendable {
     let shellScript = ScriptCommand(
       name: "List Shortcuts",
       kind: .shellScript,
-      source: .inline("shortcuts list")
+      source: .inline("shortcuts list"),
     )
 
     do {
@@ -35,8 +36,9 @@ final class ShortcutStore: ObservableObject, @unchecked Sendable {
       guard let output = try await scriptCommandRunner.run(
         shellScript,
         snapshot: snapshot,
-        runtimeDictionary: await snapshot.terminalEnvironment(),
-        checkCancellation: true) else {
+        runtimeDictionary: snapshot.terminalEnvironment(),
+        checkCancellation: true,
+      ) else {
         return
       }
 

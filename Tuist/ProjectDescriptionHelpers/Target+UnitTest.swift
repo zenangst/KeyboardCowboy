@@ -11,18 +11,17 @@ public extension Target {
       infoPlist: .file(path: .relativeToRoot("UnitTests/Info.plist")),
       sources: SourceFilesList(arrayLiteral: sources("UnitTests")),
       dependencies: [
-        .target(name: "Keyboard-Cowboy")
+        .target(name: "Keyboard-Cowboy"),
       ],
       settings:
-        Settings.settings(base: [
-          "BUNDLE_LOADER": "$(TEST_HOST)",
-          "CODE_SIGN_IDENTITY": "Apple Development",
-          "CODE_SIGN_STYLE": "-",
-          "DEVELOPMENT_TEAM": env["TEAM_ID"],
-          "PRODUCT_BUNDLE_IDENTIFIER": "\(bundleId).UnitTests",
-          "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Keyboard Cowboy.app/Contents/MacOS/Keyboard Cowboy",
-        ])
+      Settings.settings(base: [
+        "BUNDLE_LOADER": "$(TEST_HOST)",
+        "CODE_SIGN_IDENTITY": "Apple Development",
+        "CODE_SIGN_STYLE": "-",
+        "DEVELOPMENT_TEAM": env["TEAM_ID"],
+        "PRODUCT_BUNDLE_IDENTIFIER": "\(bundleId).UnitTests",
+        "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Keyboard Cowboy.app/Contents/MacOS/Keyboard Cowboy",
+      ]),
     )
-
   }
 }

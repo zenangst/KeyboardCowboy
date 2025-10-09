@@ -26,16 +26,16 @@ struct MainView: View {
       keyboardShortcutSelection: core.keyboardShortcutSelection,
       triggerPublisher: core.workflowCoordinator.triggerPublisher,
       infoPublisher: core.workflowCoordinator.infoPublisher,
-      commandPublisher: core.workflowCoordinator.commandsPublisher
+      commandPublisher: core.workflowCoordinator.commandsPublisher,
     ) { action, undoManager in
       let oldConfiguration = core.configurationStore.selectedConfiguration
 
       switch action {
-      case .openScene(let scene):
+      case let .openScene(scene):
         onSceneAction(scene)
-      case .sidebar(let sidebarAction):
+      case let .sidebar(sidebarAction):
         switch sidebarAction {
-        case .openScene(let scene):
+        case let .openScene(scene):
           onSceneAction(scene)
         default:
           core.configCoordinator.handle(sidebarAction)
@@ -43,7 +43,7 @@ struct MainView: View {
           core.groupCoordinator.handle(sidebarAction)
           core.workflowCoordinator.handle(sidebarAction)
         }
-      case .content(let contentAction):
+      case let .content(contentAction):
         core.groupCoordinator.handle(contentAction)
         core.workflowCoordinator.handle(contentAction)
       }

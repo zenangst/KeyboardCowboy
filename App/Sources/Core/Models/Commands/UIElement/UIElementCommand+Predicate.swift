@@ -25,6 +25,7 @@ extension UIElementCommand {
 
       func run(lhs: String?, rhs: String) -> Bool {
         guard let lhs else { return false }
+
         switch self {
         case .equals: return lhs == rhs
         case .contains: return lhs.contains(rhs)
@@ -65,7 +66,8 @@ extension UIElementCommand {
 
     init(id: String = UUID().uuidString, value: String,
          compare: Compare = .equals, kind: Kind = .any,
-         properties: [Properties] = [.description, .title, .value]) {
+         properties: [Properties] = [.description, .title, .value])
+    {
       self.id = id
       self.value = value
       self.compare = compare

@@ -11,10 +11,11 @@ struct CommandLineIconView: View {
         LinearGradient(
           stops: [
             .init(color: Color(nsColor: .windowBackgroundColor.withSystemEffect(.disabled)), location: 0),
-            .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.4, of: .black)!), location: 1.0)
+            .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.4, of: .black)!), location: 1.0),
           ],
           startPoint: .top,
-          endPoint: .bottom)
+          endPoint: .bottom,
+        ),
       )
       .overlay { iconOverlay().opacity(0.25) }
       .overlay {
@@ -32,12 +33,12 @@ struct CommandLineIconView: View {
                   .fill(
                     LinearGradient(stops: [
                       .init(color: .white.opacity(0.7), location: 0),
-                      .init(color: .white.opacity(0.2), location: 0.8)
-                    ], startPoint: .leading, endPoint: .trailing)
+                      .init(color: .white.opacity(0.2), location: 0.8),
+                    ], startPoint: .leading, endPoint: .trailing),
                   )
                   .frame(width: size * 0.5, height: size * 0.05, alignment: .leading)
               }
-              .shadow(color: Color(nsColor: .controlAccentColor.blended(withFraction: 0.5, of: .white)!),radius: 5, y: 2)
+              .shadow(color: Color(nsColor: .controlAccentColor.blended(withFraction: 0.5, of: .white)!), radius: 5, y: 2)
             }
             .frame(width: size * 0.8, height: size * 0.15, alignment: .leading)
             .roundedStyle(cornerRadius, padding: 0)
@@ -70,7 +71,7 @@ struct CommandLineIconView: View {
             LinearGradient(stops: [
               .init(color: Color(.systemYellow.withSystemEffect(.rollover)), location: 0),
               .init(color: Color(.systemYellow), location: 0.5),
-            ], startPoint: .top, endPoint: .bottom)
+            ], startPoint: .top, endPoint: .bottom),
           )
           .frame(width: size * 0.7, height: size * 0.2)
           .offset(x: size * 0.2, y: -size * 0.1)

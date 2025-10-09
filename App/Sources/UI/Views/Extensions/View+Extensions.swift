@@ -2,8 +2,7 @@ import SwiftUI
 
 extension View {
   func iconShape(_ size: CGFloat) -> some View {
-    self
-      .clipShape(RoundedRectangle(cornerRadius: size * 0.2))
+    clipShape(RoundedRectangle(cornerRadius: size * 0.2))
   }
 
   func iconOverlay() -> some View {
@@ -14,7 +13,7 @@ extension View {
     IconBorderView(size)
   }
 
-  func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
+  func transform(_ transform: (Self) -> some View) -> some View {
     transform(self)
   }
 
@@ -34,20 +33,18 @@ extension View {
   }
 
   func debugID<Element: Identifiable>(_ element: Element) -> some View where Element.ID == String {
-    self
-      .overlay(content: {
-        Text(element.id)
-          .foregroundColor(.black)
-          .background(.yellow)
-          .lineLimit(1)
-          .minimumScaleFactor(0.7)
-          .allowsHitTesting(false)
-      })
+    overlay(content: {
+      Text(element.id)
+        .foregroundColor(.black)
+        .background(.yellow)
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .allowsHitTesting(false)
+    })
   }
 
   func onFrameChange(space: CoordinateSpace = .global, perform: @escaping (CGRect) -> Void) -> some View {
-    self
-      .modifier(GeometryPreferenceKeyView<FramePreferenceKey>(space: space, transform: { $0.frame(in: space) }))
+    modifier(GeometryPreferenceKeyView<FramePreferenceKey>(space: space, transform: { $0.frame(in: space) }))
       .onPreferenceChange(FramePreferenceKey.self, perform: perform)
   }
 }
@@ -64,10 +61,10 @@ private struct IconBorderView: View {
       .init(color: Color(.white).opacity(0.15), location: 0.25),
       .init(color: Color(.black).opacity(0.25), location: 1.0),
     ], startPoint: .top, endPoint: .bottom)
-    .mask {
-      RoundedRectangle(cornerRadius: size * 0.2)
-        .stroke(lineWidth: size * 0.025)
-    }
+      .mask {
+        RoundedRectangle(cornerRadius: size * 0.2)
+          .stroke(lineWidth: size * 0.025)
+      }
   }
 }
 
@@ -107,6 +104,7 @@ struct DebugView<Content>: View where Content: View {
       .popover(isPresented: $isHovered, content: popover)
       .onHover {
         guard NSEvent.modifierFlags.contains(.option) else { return }
+
         isHovered = $0
       }
   }
@@ -141,7 +139,7 @@ struct DebugView<Content>: View where Content: View {
         Color(.black).opacity(0.8),
         Color(.black).opacity(0.95),
       ], startPoint: .top, endPoint: .bottom)
-      .padding(-16)
+        .padding(-16),
     )
   }
 }

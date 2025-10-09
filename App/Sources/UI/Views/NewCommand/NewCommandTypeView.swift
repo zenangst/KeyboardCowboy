@@ -15,13 +15,15 @@ struct NewCommandTypeView: View {
 
   init(_ payload: Binding<NewCommandPayload>,
        validation: Binding<NewCommandValidation>,
-       onSubmit: @escaping () -> Void) {
+       onSubmit: @escaping () -> Void)
+  {
     _payload = payload
     _validation = validation
     self.onSubmit = onSubmit
 
-    if case .text(let model) = _payload.wrappedValue,
-       case .insertText(let textModel) = model.kind {
+    if case let .text(model) = _payload.wrappedValue,
+       case let .insertText(textModel) = model.kind
+    {
       _text = .init(initialValue: textModel.input)
       _mode = .init(initialValue: textModel.mode)
       _actions = .init(initialValue: textModel.actions)
@@ -37,13 +39,13 @@ struct NewCommandTypeView: View {
           Text("Actions:")
           HStack {
             Toggle(isOn: $insertEnter, label: {})
-              .onChange(of: insertEnter) { newValue in
+              .onChange(of: insertEnter) { _ in
                 if actions.contains(.insertEnter) {
                   actions.remove(.insertEnter)
                 } else {
                   actions.insert(.insertEnter)
                 }
-                self.validation = updateAndValidatePayload()
+                validation = updateAndValidatePayload()
               }
             Text(TextCommand.TypeCommand.Action.insertEnter.displayValue)
             Spacer()
@@ -54,9 +56,9 @@ struct NewCommandTypeView: View {
           Menu(content: {
             ForEach(TextCommand.TypeCommand.Mode.allCases) { mode in
               Button(action: {
-                self.mode = mode
-                self.validation = updateAndValidatePayload()
-              },
+                       self.mode = mode
+                       validation = updateAndValidatePayload()
+                     },
                      label: { Text(mode.rawValue) })
             }
           }, label: {
@@ -65,9 +67,8 @@ struct NewCommandTypeView: View {
         }
       }
       .roundedStyle()
-      
     }
-    .onChange(of: text) { newValue in
+    .onChange(of: text) { _ in
       validation = updateAndValidatePayload()
     }
   }
@@ -91,7 +92,8 @@ struct NewCommandTypeView_Previews: PreviewProvider {
       selection: .text,
       payload: .text(.init(.insertText(.init("", mode: .instant, actions: [])))),
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

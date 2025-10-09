@@ -16,22 +16,23 @@ struct OpenCommand: MetaDataProviding {
   var isUrl: Bool {
     if let url = URL(string: path) {
       if url.host == nil || url.isFileURL {
-        return false
+        false
       } else {
-        return true
+        true
       }
     } else {
-      return false
+      false
     }
   }
 
-  public init(id: String = UUID().uuidString,
-              name: String = "",
-              application: Application? = nil, path: String,
-              notification: Command.Notification? = nil) {
+  init(id: String = UUID().uuidString,
+       name: String = "",
+       application: Application? = nil, path: String,
+       notification: Command.Notification? = nil)
+  {
     self.application = application
     self.path = path
-    self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
+    meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
   }
 
   init(application: Application?, path: String, meta: Command.MetaData) {
@@ -40,12 +41,12 @@ struct OpenCommand: MetaDataProviding {
     self.meta = meta
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.application = try container.decodeIfPresent(Application.self, forKey: .application)
-    self.path = try container.decode(String.self, forKey: .path)
-    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    application = try container.decodeIfPresent(Application.self, forKey: .application)
+    path = try container.decode(String.self, forKey: .path)
+    meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
 
   func copy() -> OpenCommand {

@@ -16,9 +16,9 @@ struct WorkflowImages: View {
         .compositingGroup()
         .opacity(images.isEmpty ? 0.5 : 0)
 
-        ForEach(images) { image in
-          WorkflowImage(image: image, size: size, stacked: $stacked)
-        }
+      ForEach(images) { image in
+        WorkflowImage(image: image, size: size, stacked: $stacked)
+      }
     }
     .frame(width: size, height: size)
   }

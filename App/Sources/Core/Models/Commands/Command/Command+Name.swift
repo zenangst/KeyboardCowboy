@@ -4,86 +4,86 @@ extension Command {
   var name: String {
     get {
       switch self {
-      case .application(let command): return command.name.isEmpty ? "\(command.action.displayValue) \(command.application.displayName)" : command.name
-      case .builtIn(let command): return command.name
-      case .bundled(let command): return command.name
-      case .keyboard(let command):
+      case let .application(command): return command.name.isEmpty ? "\(command.action.displayValue) \(command.application.displayName)" : command.name
+      case let .builtIn(command): return command.name
+      case let .bundled(command): return command.name
+      case let .keyboard(command):
         switch command.kind {
-        case .key(let keyCommand):
-          var keyboardShortcutString: String = ""
+        case let .key(keyCommand):
+          var keyboardShortcutString = ""
           keyCommand.keyboardShortcuts.forEach { keyboardShortcut in
             keyboardShortcutString += keyboardShortcut.modifiers.map(\.pretty).joined()
             keyboardShortcutString += keyboardShortcut.key
           }
 
           return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcutString)" : command.name
-        case .inputSource(let command):
+        case let .inputSource(command):
           return command.name
         }
-      case .open(let command):
+      case let .open(command):
         if !command.name.isEmpty { return command.name }
         if command.isUrl {
           return "Open a URL: \(command.path)"
         } else {
           return "Open a file: \(command.path)"
         }
-      case .shortcut(let command):         return command.name
-      case .script(let command):           return command.name
-      case .text(let command):             return command.name
-      case .systemCommand(let command):    return command.name
-      case .menuBar(let command):          return command.name
-      case .mouse(let command):            return command.name
-      case .uiElement(let command):        return command.name
-      case .windowFocus(let command):      return command.name
-      case .windowManagement(let command): return command.name
-      case .windowTiling(let command):     return command.name
+      case let .shortcut(command): return command.name
+      case let .script(command): return command.name
+      case let .text(command): return command.name
+      case let .systemCommand(command): return command.name
+      case let .menuBar(command): return command.name
+      case let .mouse(command): return command.name
+      case let .uiElement(command): return command.name
+      case let .windowFocus(command): return command.name
+      case let .windowManagement(command): return command.name
+      case let .windowTiling(command): return command.name
       }
     }
     set {
       switch self {
-      case .application(var command):
+      case var .application(command):
         command.name = newValue
         self = .application(command)
-      case .builtIn(var command):
+      case var .builtIn(command):
         command.name = newValue
         self = .builtIn(command)
-      case .bundled(var command):
+      case var .bundled(command):
         command.name = newValue
         self = .bundled(command)
-      case .keyboard(var command):
+      case var .keyboard(command):
         command.name = newValue
         self = .keyboard(command)
-      case .open(var command):
+      case var .open(command):
         command.name = newValue
         self = .open(command)
-      case .script(var command):
+      case var .script(command):
         command.name = newValue
         self = .script(command)
-      case .shortcut(var command):
+      case var .shortcut(command):
         command.name = newValue
         self = .shortcut(command)
-      case .text(var command):
+      case var .text(command):
         command.name = newValue
         self = .text(command)
-      case .systemCommand(var command):
+      case var .systemCommand(command):
         command.name = newValue
         self = .systemCommand(command)
-      case .menuBar(var command):
+      case var .menuBar(command):
         command.name = newValue
         self = .menuBar(command)
-      case .mouse(var command):
+      case var .mouse(command):
         command.name = newValue
         self = .mouse(command)
-      case .uiElement(var command):
+      case var .uiElement(command):
         command.name = newValue
         self = .uiElement(command)
-      case .windowFocus(var command):
+      case var .windowFocus(command):
         command.name = newValue
         self = .windowFocus(command)
-      case .windowManagement(var command):
+      case var .windowManagement(command):
         command.name = newValue
         self = .windowManagement(command)
-      case .windowTiling(var command):
+      case var .windowTiling(command):
         command.name = newValue
         self = .windowTiling(command)
       }

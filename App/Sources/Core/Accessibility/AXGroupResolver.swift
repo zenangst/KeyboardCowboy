@@ -1,5 +1,5 @@
-import AXEssibility
 import AppKit
+import AXEssibility
 import Foundation
 
 enum AXGroupResolverError: Error {
@@ -31,8 +31,7 @@ enum AXGroupResolver {
     guard let match, let frame = match.frame else {
       throw AXGroupResolverError.noResult
     }
-    
+
     return frame
   }
 }
-

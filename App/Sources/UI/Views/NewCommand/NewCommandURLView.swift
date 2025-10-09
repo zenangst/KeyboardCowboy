@@ -1,12 +1,12 @@
 import Apps
-import Inject
 import Bonzai
+import Inject
 import SwiftUI
 
 struct NewCommandURLView: View {
   @ObserveInjection var inject
   enum Focus: String, Identifiable, Hashable {
-    var id: String { self.rawValue }
+    var id: String { rawValue }
     case `protocol`
     case address
   }
@@ -26,7 +26,8 @@ struct NewCommandURLView: View {
 
   init(_ payload: Binding<NewCommandPayload>,
        validation: Binding<NewCommandValidation>,
-       onSubmitAddress: @escaping () -> Void) {
+       onSubmitAddress: @escaping () -> Void)
+  {
     _payload = payload
     _validation = validation
     self.onSubmitAddress = onSubmitAddress
@@ -69,8 +70,8 @@ struct NewCommandURLView: View {
       .onChange(of: address, perform: { newValue in
         if let components = URLComponents(string: newValue),
            let host = components.host,
-           let scheme = components.scheme {
-
+           let scheme = components.scheme
+        {
           stringProtocol = scheme
 
           var newString = host + components.path
@@ -86,12 +87,13 @@ struct NewCommandURLView: View {
       })
       .onChange(of: validation, perform: { newValue in
         guard newValue == .needsValidation else { return }
+
         validation = updateAndValidatePayload()
       })
       .padding(.horizontal, 2)
       .background(
         RoundedRectangle(cornerRadius: 4)
-          .stroke(Color( validation.isInvalid ? .systemRed : .white.withAlphaComponent(0.2)), lineWidth: 1)
+          .stroke(Color(validation.isInvalid ? .systemRed : .white.withAlphaComponent(0.2)), lineWidth: 1),
       )
       .overlay(NewCommandValidationView($validation))
       .zIndex(2)
@@ -130,9 +132,11 @@ struct NewCommandURLView: View {
   @discardableResult
   private func updateAndValidatePayload() -> NewCommandValidation {
     guard !address.isEmpty,
-          let url = URL(string: "\(stringProtocol)://\(address)") else {
+          let url = URL(string: "\(stringProtocol)://\(address)")
+    else {
       return .invalid(reason: "Not a valid URL")
     }
+
     payload = .url(targetUrl: url, application: application)
     return .valid
   }
@@ -147,7 +151,8 @@ struct NewCommandURLView_Previews: PreviewProvider {
       selection: .url,
       payload: .url(targetUrl: URL(filePath: "~/"), application: nil),
       onDismiss: {},
-      onSave: { _, _ in })
+      onSave: { _, _ in },
+    )
     .designTime()
   }
 }

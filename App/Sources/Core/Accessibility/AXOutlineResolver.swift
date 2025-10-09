@@ -1,5 +1,5 @@
-import AXEssibility
 import AppKit
+import AXEssibility
 import Foundation
 
 enum AXOutlineResolverError: Error {
@@ -14,6 +14,7 @@ enum AXOutlineResolver {
     var match: AnyAccessibilityElement?
     for child in children {
       guard (try? child.value(.selected, as: Bool.self)) == true else { continue }
+
       match = child
       break
     }

@@ -82,7 +82,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         applicationActivityMonitor: applicationActivityMonitor,
         scriptCommandRunner: scriptCommandRunner,
         keyboard: keyboardCommandRunner,
-        workspace: workspace
+        workspace: workspace,
       ),
       builtIn: builtInCommandRunner,
       bundled: BundledCommandRunner(applicationStore: applicationStore,
@@ -100,7 +100,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       uiElement: uiElementCommandRunner,
       windowFocus: windowFocus,
       windowManagement: WindowManagementCommandRunner(),
-      windowTiling: WindowTilingCommandRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus)
+      windowTiling: WindowTilingCommandRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus),
     )
     self.workspace = workspace
 
@@ -173,10 +173,10 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
-            try await self.run(command, workflowCommands: commands, snapshot: &snapshot,
-                               machPortEvent: machPortEvent,
-                               checkCancellation: checkCancellation,
-                               repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
+            try await run(command, workflowCommands: commands, snapshot: &snapshot,
+                          machPortEvent: machPortEvent,
+                          checkCancellation: checkCancellation,
+                          repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
             if case .bundled = command {
               await runners.windowFocus.resetFocusComponents()
             }
@@ -265,9 +265,9 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }
-          try await self.run(command, workflowCommands: commands, snapshot: &snapshot,
-                             machPortEvent: machPortEvent, checkCancellation: checkCancellation,
-                             repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
+          try await run(command, workflowCommands: commands, snapshot: &snapshot,
+                        machPortEvent: machPortEvent, checkCancellation: checkCancellation,
+                        repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
         } catch {
           switch command.notification {
           case .bezel:
@@ -307,7 +307,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       output = try await runners.builtIn.run(
         builtInCommand,
         snapshot: snapshot,
-        machPortEvent: machPortEvent
+        machPortEvent: machPortEvent,
       )
     case let .bundled(bundledCommand):
       output = try await runners.bundled.run(
@@ -318,7 +318,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         machPortEvent: machPortEvent,
         checkCancellation: checkCancellation,
         repeatingEvent: repeatingEvent,
-        runtimeDictionary: &runtimeDictionary
+        runtimeDictionary: &runtimeDictionary,
       )
       snapshot = await snapshot.updateFrontmostApplication()
     case let .keyboard(command):
@@ -328,7 +328,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
           keyboardCommand.keyboardShortcuts,
           originalEvent: nil,
           iterations: keyboardCommand.iterations,
-          with: eventSource
+          with: eventSource,
         )
         try await Task.sleep(for: .milliseconds(1))
         output = command.name
@@ -355,7 +355,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         scriptCommand,
         snapshot: snapshot,
         runtimeDictionary: runtimeDictionary,
-        checkCancellation: checkCancellation
+        checkCancellation: checkCancellation,
       )
 
       output = if let result {
@@ -387,7 +387,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         machPortEvent: machPortEvent,
         applicationRunner: runners.application,
         runtimeDictionary: runtimeDictionary,
-        checkCancellation: checkCancellation, snapshot: snapshot
+        checkCancellation: checkCancellation, snapshot: snapshot,
       )
       output = command.name
     case let .uiElement(uiElementCommand):
@@ -450,7 +450,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         icon: nil,
         title: LocalizedStringKey(stringLiteral: command.name),
         description: "Running…",
-        style: NSScreen.main!.isMirrored() ? .floating(cornerRadius: 20) : .auto
+        style: NSScreen.main!.isMirrored() ? .floating(cornerRadius: 20) : .auto,
       )
       await setNotchInfo(notchInfo)
 
@@ -514,7 +514,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
   private func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
     subscription = publisher
-      .compactMap { $0 }
+      .compactMap(\.self)
       .sink { [weak self] machPortEvent in
         let emptyFlags = machPortEvent.event.flags == CGEventFlags.maskNonCoalesced
 
@@ -531,18 +531,18 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 }
 
-extension Collection where Element == Command {
+extension Collection<Command> {
   var shouldAutoCancelledPreviousCommands: Bool {
     contains(where: { command in
       switch command {
       case let .bundled(bundledCommand):
         switch bundledCommand.kind {
-        case .assignToWorkspace, .moveToWorkspace: return false
+        case .assignToWorkspace, .moveToWorkspace: false
         case .activatePreviousWorkspace, .appFocus, .workspace, .tidy:
-          return true
+          true
         }
       default:
-        return false
+        false
       }
     })
   }
@@ -554,15 +554,15 @@ extension Collection where Element == Command {
       {
         switch typeCommand.mode {
         case .instant:
-          return true
+          true
         case .typing:
-          return false
+          false
         }
       } else {
-        return false
+        false
       }
     })
   }
 }
 
-extension CGEventSource: @unchecked @retroactive Sendable { }
+extension CGEventSource: @unchecked @retroactive Sendable {}

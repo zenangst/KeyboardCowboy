@@ -1,19 +1,18 @@
 import Foundation
 import SwiftUI
 
-final class AssetGenerator {
+enum AssetGenerator {
   @MainActor
-  static func generate<T: View>(filename: String, useIntrinsicContentSize: Bool = false, size: CGSize, content: @autoclosure () -> T) async throws {
+  static func generate(filename: String, useIntrinsicContentSize: Bool = false, size: CGSize, content: @autoclosure () -> some View) async throws {
     try await generate(filename: filename, useIntrinsicContentSize: useIntrinsicContentSize, size: size, content: content)
   }
 
   @MainActor
-  static func generate<T: View>(filename: String, useIntrinsicContentSize: Bool = false, size: CGSize, content: () -> T) async throws {
+  static func generate(filename: String, useIntrinsicContentSize: Bool = false, size: CGSize, content: () -> some View) async throws {
     guard let assetRoot = ProcessInfo.processInfo.environment["ASSET_PATH"] else { return }
 
     let hostingView = NSHostingView(rootView: content()
-      .environment(\.colorScheme, .dark)
-    )
+      .environment(\.colorScheme, .dark))
     hostingView.frame = NSRect(origin: .zero, size: size)
 
     if useIntrinsicContentSize { hostingView.frame = NSRect(origin: .zero, size: hostingView.intrinsicContentSize) }
@@ -37,7 +36,7 @@ final class AssetGenerator {
       try fileManager.createDirectory(
         atPath: folder,
         withIntermediateDirectories: true,
-        attributes: nil
+        attributes: nil,
       )
     }
 

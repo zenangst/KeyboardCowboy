@@ -11,14 +11,14 @@ struct InputSourceIcon: View {
           .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .black)!), location: 0.0),
           .init(color: Color(.systemMint), location: 0.6),
           .init(color: Color(.systemMint.blended(withFraction: 0.6, of: .white)!), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay {
         LinearGradient(stops: [
           .init(color: Color(.systemTeal), location: 0.5),
           .init(color: Color(.systemBlue.blended(withFraction: 0.3, of: .white)!), location: 1.0),
         ], startPoint: .topTrailing, endPoint: .bottomTrailing)
-        .opacity(0.6)
+          .opacity(0.6)
       }
       .overlay {
         LinearGradient(stops: [
@@ -59,6 +59,7 @@ struct InputSourceIconIllustration: View {
   init(size: CGFloat) {
     self.size = size
   }
+
   var body: some View {
     Image(systemName: "app.fill")
       .resizable()
@@ -70,7 +71,7 @@ struct InputSourceIconIllustration: View {
           stops: [.init(color: .black, location: 0.25),
                   .init(color: .black.opacity(0.5), location: 1)],
           startPoint: .topLeading,
-          endPoint: .bottomTrailing
+          endPoint: .bottomTrailing,
         )
       }
   }

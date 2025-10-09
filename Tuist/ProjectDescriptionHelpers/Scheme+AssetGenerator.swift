@@ -14,9 +14,10 @@ public extension Scheme {
             "SOURCE_ROOT": .environmentVariable(value: Router.sourceRoot, isEnabled: true),
           ],
           launchArguments: [
-            .launchArgument(name: "-running-unit-tests", isEnabled: true)
-          ])
-      )
+            .launchArgument(name: "-running-unit-tests", isEnabled: true),
+          ],
+        ),
+      ),
     )
   }
 }

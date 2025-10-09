@@ -10,7 +10,8 @@ struct ScriptCommandView: View {
   private let onSubmit: () -> Void
 
   init(_ metaData: CommandViewModel.MetaData, model: Binding<CommandViewModel.Kind.ScriptModel>,
-       iconSize: CGSize, onSubmit: @escaping () -> Void) {
+       iconSize: CGSize, onSubmit: @escaping () -> Void)
+  {
     _model = model
     self.metaData = metaData
     self.iconSize = iconSize
@@ -27,7 +28,8 @@ struct ScriptCommandView: View {
       },
       subContent: {
         ScriptCommandSubContentView(model: model, metaData: metaData)
-      })
+      },
+    )
   }
 }
 
@@ -44,9 +46,9 @@ struct ScriptCommandContentView: View {
     self.metaData = metaData
     self.model = model
     self.onSubmit = onSubmit
-    self.text = switch model.source {
-    case .inline(let source): source
-    case .path(let source): source
+    text = switch model.source {
+    case let .inline(source): source
+    case let .path(source): source
     }
   }
 
@@ -56,12 +58,12 @@ struct ScriptCommandContentView: View {
                               variableName: model.variableName,
                               execution: model.execution,
                               onVariableNameChange: { variableName in
-        performUpdate { $0.variableName = variableName }
-      }, onScriptChange: { newValue in
-        performUpdate { $0.source = .inline(newValue) }
-      }, onSubmit: onSubmit)
-      .opacity(model.source.isInline ? 1 : 0)
-      .frame(height: model.source.isInline ? nil : 0)
+                                performUpdate { $0.variableName = variableName }
+                              }, onScriptChange: { newValue in
+                                performUpdate { $0.source = .inline(newValue) }
+                              }, onSubmit: onSubmit)
+        .opacity(model.source.isInline ? 1 : 0)
+        .frame(height: model.source.isInline ? nil : 0)
 
       ScriptCommandPathView(
         text, variableName: model.variableName,
@@ -75,7 +77,8 @@ struct ScriptCommandContentView: View {
           }))
         }, onUpdate: { newPath in
           performUpdate { $0.source = .path(newPath) }
-        })
+        },
+      )
       .opacity(model.source.isInline ? 0 : 1)
       .frame(height: model.source.isInline ? 0 : nil)
     }
@@ -83,7 +86,8 @@ struct ScriptCommandContentView: View {
 
   private func performUpdate(_ update: (inout ScriptCommand) -> Void) {
     updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-      guard case .script(var scriptCommand) = command else { return }
+      guard case var .script(scriptCommand) = command else { return }
+
       update(&scriptCommand)
       command = .script(scriptCommand)
     }
@@ -103,7 +107,8 @@ private struct ScriptCommandInlineView: View {
        execution: Workflow.Execution,
        onVariableNameChange: @escaping (String) -> Void,
        onScriptChange: @escaping (String) -> Void,
-       onSubmit: @escaping () -> Void) {
+       onSubmit: @escaping () -> Void)
+  {
     self.text = text
     self.variableName = variableName
     self.execution = execution
@@ -118,7 +123,7 @@ private struct ScriptCommandInlineView: View {
                     text: $text,
                     placeholder: "Script goes here…",
                     font: Font.system(.body, design: .monospaced), onCommandReturnKey: onSubmit)
-      .onChange(of: text, perform: onScriptChange)
+        .onChange(of: text, perform: onScriptChange)
 
       ZenDivider()
       HStack(spacing: 2) {
@@ -130,7 +135,7 @@ private struct ScriptCommandInlineView: View {
             ForEach(UserSpace.EnvironmentKey.allCases, id: \.rawValue) { env in
               Button(action: { text.append(env.asTextVariable) },
                      label: { Text(env.asTextVariable) })
-              .help("\(env.asTextVariable): \(env.help)")
+                .help("\(env.asTextVariable): \(env.help)")
             }
           }
         }
@@ -160,7 +165,8 @@ private struct ScriptCommandPathView: View {
        execution: Workflow.Execution,
        onVariableNameChange: @escaping (String) -> Void,
        onBrowse: @escaping () -> Void,
-       onUpdate: @escaping (String) -> Void) {
+       onUpdate: @escaping (String) -> Void)
+  {
     _text = .init(initialValue: text)
     self.execution = execution
     self.onBrowse = onBrowse
@@ -174,7 +180,7 @@ private struct ScriptCommandPathView: View {
       HStack {
         TextField("Path", text: $text)
           .onChange(of: text) { newPath in
-            self.text = newPath
+            text = newPath
             onUpdate(newPath)
           }
         Button("Browse", action: onBrowse)
@@ -183,7 +189,7 @@ private struct ScriptCommandPathView: View {
       ScriptCommandAssignToVariableView(
         variableName: variableName,
         execution: execution,
-        onVariableNameChange: onVariableNameChange
+        onVariableNameChange: onVariableNameChange,
       )
       .opacity(execution == .serial ? 1 : 0)
       .frame(maxHeight: execution == .serial ? nil : 0)
@@ -206,7 +212,7 @@ private struct ScriptCommandSubContentView: View {
   var body: some View {
     HStack {
       switch model.source {
-      case .path(let source):
+      case let .path(source):
         Spacer()
         Button("Open", action: {
           NSWorkspace.shared.open(URL(fileURLWithPath: source))
@@ -258,7 +264,7 @@ private struct ScriptCommandAssignToVariableView: View {
   }
 }
 
-fileprivate extension ScriptCommand.Source {
+private extension ScriptCommand.Source {
   var isInline: Bool {
     switch self {
     case .path: false
@@ -274,7 +280,7 @@ struct ScriptCommandView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
       ScriptCommandView(inlineCommand.model.meta, model: .constant(inlineCommand.kind),
-                        iconSize: .init(width: 24, height: 24), onSubmit: { })
+                        iconSize: .init(width: 24, height: 24), onSubmit: {})
         .previewDisplayName("Inline")
       ScriptCommandView(pathCommand.model.meta, model: .constant(pathCommand.kind),
                         iconSize: .init(width: 24, height: 24), onSubmit: {})

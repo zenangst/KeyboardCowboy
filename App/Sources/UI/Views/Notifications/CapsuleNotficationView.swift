@@ -91,7 +91,7 @@ struct CapsuleNotificationView: View {
             .stroke(publisher.state.borderColor.opacity(0.05), lineWidth: 2)
         }
         .opacity(publisher.state == .idle ? 0 : 1)
-        .animation(.smooth(duration: 0.1), value: publisher.state)
+        .animation(.smooth(duration: 0.1), value: publisher.state),
       )
       .background(
         Capsule(style: .continuous)
@@ -99,10 +99,10 @@ struct CapsuleNotificationView: View {
             LinearGradient(stops: [
               .init(color: publisher.state.backgroundColor.opacity(0.8), location: 0),
               .init(color: publisher.state.backgroundColor.opacity(0.9), location: 0.8),
-            ], startPoint: .top, endPoint: .bottom)
+            ], startPoint: .top, endPoint: .bottom),
           )
           .opacity(publisher.state == .idle ? 0 : 1)
-          .animation(.smooth(duration: 0.1), value: publisher.state)
+          .animation(.smooth(duration: 0.1), value: publisher.state),
       )
       .frame(minWidth: 128, maxWidth: .infinity)
       .opacity(publisher.state == .idle ? 0 : 1)
@@ -136,7 +136,7 @@ private struct AnimatedText: View {
         AnimatedCharacterView(
           char: char,
           index: idx,
-          shouldAnimate: animatingIndices.contains(idx)
+          shouldAnimate: animatingIndices.contains(idx),
         )
         .id("\(idx)-\(char)")
       }
@@ -182,7 +182,7 @@ private struct AnimatedCharacterView: View {
       .animation(
         shouldAnimate ?
           .smooth.delay(Double(index) * 0.001) : .none,
-        value: animating
+        value: animating,
       )
       .onAppear {
         animating = true
@@ -210,16 +210,16 @@ private struct CustomProgressViewStyle: ProgressViewStyle {
             Color(.controlAccentColor.withSystemEffect(.disabled)),
             .accentColor,
           ]),
-          center: .center
+          center: .center,
         ),
-        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+        style: StrokeStyle(lineWidth: 2.5, lineCap: .round),
       )
       .padding(1)
       .rotationEffect(isSpinning ? .degrees(360) : .degrees(0))
       .animation(
         Animation.linear(duration: 1.0)
           .repeatForever(autoreverses: false),
-        value: isSpinning
+        value: isSpinning,
       )
       .onAppear {
         isSpinning = true

@@ -1,6 +1,6 @@
 import Apps
-import Inject
 import Bonzai
+import Inject
 import SwiftUI
 
 @MainActor
@@ -11,7 +11,7 @@ struct NewCommandMenuBarView: View {
   }
 
   enum Kind: String, CaseIterable, Hashable, Identifiable {
-    var id: String { self.rawValue }
+    var id: String { rawValue }
     case menuItem = "Select menu"
     case menuItems = "Toggle menu"
   }
@@ -35,17 +35,18 @@ struct NewCommandMenuBarView: View {
   @State private var tokens = [TokenContainer]()
 
   @State private var menuItem: String = ""
-  @State private var menuItems: (String, String) = ("","")
+  @State private var menuItems: (String, String) = ("", "")
   @State private var application: Application?
 
   init(_ payload: Binding<NewCommandPayload>,
        validation: Binding<NewCommandValidation>,
-       kind: Kind = .menuItem) {
+       kind: Kind = .menuItem)
+  {
     _payload = payload
     _validation = validation
     _kind = .init(initialValue: kind)
 
-    if case .menuBar(let tokens, let application) = payload.wrappedValue {
+    if case let .menuBar(tokens, application) = payload.wrappedValue {
       _tokens = .init(initialValue: tokens.map(TokenContainer.init))
       _application = .init(initialValue: application)
     } else {
@@ -66,21 +67,21 @@ struct NewCommandMenuBarView: View {
           ForEach(tokens) { container in
             HStack {
               switch container.token {
-              case .menuItem(let value):
+              case let .menuItem(value):
                 NewCommandMenuBarTokenMenuItemView(value: Binding(get: { value }, set: {
                   var container = container
                   container.token = .menuItem(name: $0)
                   tokens.replace(container)
                   validation = updateAndValidatePayload()
                 }), onSubmit: {})
-              case .menuItems(let lhs, let rhs):
+              case let .menuItems(lhs, rhs):
                 NewCommandMenuBarTokenMenuItemsView(lhs: Binding(get: { lhs }, set: {
                   var container = container
                   container.token = .menuItems(name: $0, fallbackName: rhs)
                   tokens.replace(container)
                   validation = updateAndValidatePayload()
                 }),
-                                                 rhs: Binding(get: { rhs }, set: {
+                rhs: Binding(get: { rhs }, set: {
                   var container = container
                   container.token = .menuItems(name: lhs, fallbackName: $0)
                   tokens.replace(container)
@@ -117,6 +118,7 @@ struct NewCommandMenuBarView: View {
     }
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
+
       withAnimation { validation = updateAndValidatePayload() }
     })
     .onAppear {
@@ -134,7 +136,7 @@ struct NewCommandMenuBarView: View {
   private func updateAndValidatePayload() -> NewCommandValidation {
     guard !tokens.isEmpty else { return .invalid(reason: "You need to add at least one menu item.") }
 
-    payload = .menuBar(tokens: tokens.map { $0.token }, application: application)
+    payload = .menuBar(tokens: tokens.map(\.token), application: application)
 
     return .valid
   }
@@ -164,9 +166,9 @@ struct NewCommandMenuBarView: View {
           .focused($focus, equals: .add)
       case .menuItems:
         NewCommandMenuBarTokenMenuItemsView(lhs: Binding(get: { menuItems.0 }, set: { menuItems.0 = $0 }),
-                                         rhs: Binding(get: { menuItems.1 }, set: { menuItems.1 = $0 }),
+                                            rhs: Binding(get: { menuItems.1 }, set: { menuItems.1 = $0 }),
                                             onSubmit: { onSubmit() })
-        .focused($focus, equals: .add)
+          .focused($focus, equals: .add)
       }
 
       Menu {
@@ -189,10 +191,12 @@ struct NewCommandMenuBarView: View {
       switch kind {
       case .menuItem:
         guard !menuItem.isEmpty else { return }
+
         tokens.append(.init(token: .menuItem(name: menuItem)))
         menuItem = ""
       case .menuItems:
-        guard !menuItems.0.isEmpty && !menuItems.1.isEmpty else { return }
+        guard !menuItems.0.isEmpty, !menuItems.1.isEmpty else { return }
+
         tokens.append(.init(token: .menuItems(name: menuItems.0, fallbackName: menuItems.1)))
         menuItems = ("", "")
       }
@@ -221,6 +225,7 @@ private struct NewCommandMenuBarTokenMenuItemsView: View {
   enum Focus: Hashable {
     case lhs, rhs
   }
+
   @Namespace var namespace
   @FocusState var focus: Focus?
   @Binding var lhs: String
@@ -255,9 +260,9 @@ struct NewCommandMenuBarView_Previews: PreviewProvider {
         selection: .menuBar,
         payload: .placeholder,
         onDismiss: {},
-        onSave: { _, _ in })
+        onSave: { _, _ in },
+      )
       .previewDisplayName("Empty")
-
 
       NewCommandView(
         workflowId: UUID().uuidString,
@@ -267,13 +272,13 @@ struct NewCommandMenuBarView_Previews: PreviewProvider {
         payload: .menuBar(tokens: [
           .menuItem(name: "View"),
           .menuItem(name: "Navigators"),
-          .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
+          .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator"),
         ], application: nil),
         onDismiss: {},
-        onSave: { _, _ in })
+        onSave: { _, _ in },
+      )
       .previewDisplayName("With instructions")
     }
     .designTime()
   }
 }
-

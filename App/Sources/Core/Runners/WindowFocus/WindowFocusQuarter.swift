@@ -24,8 +24,9 @@ final class WindowFocusQuarter: @unchecked Sendable {
   private var initialWindows = [WindowModel]()
   @MainActor lazy var debugWindow: NSWindow = ZenWindow(
     animationBehavior: .none,
-    content: RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor, lineWidth: 4))
-  @MainActor lazy var debugWindowController: NSWindowController = NSWindowController(window: debugWindow)
+    content: RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor, lineWidth: 4),
+  )
+  @MainActor lazy var debugWindowController: NSWindowController = .init(window: debugWindow)
 
   init() {
     initialWindows = indexWindowsInStage(getWindows())
@@ -35,6 +36,7 @@ final class WindowFocusQuarter: @unchecked Sendable {
     consumedWindows.removeAll()
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
       guard let self else { return }
+
       initialWindows = indexWindowsInStage(getWindows())
     }
     previousQuarter = nil
@@ -103,6 +105,7 @@ final class WindowFocusQuarter: @unchecked Sendable {
 
     let processIdentifier = pid_t(matchedWindow.ownerPid.rawValue)
     guard let runningApplication = NSRunningApplication(processIdentifier: processIdentifier) else { return }
+
     let appElement = AppAccessibilityElement(processIdentifier)
     let match = try appElement.windows().first(where: { $0.id == matchedWindow.id })
 
@@ -133,12 +136,12 @@ final class WindowFocusQuarter: @unchecked Sendable {
     let windows: [WindowModel] = models
       .filter {
         $0.id > 0 &&
-        $0.ownerName != "borders" &&
-        $0.isOnScreen &&
-        $0.rect.size.width > minimumSize.width &&
-        $0.rect.size.height > minimumSize.height &&
-        $0.alpha == 1 &&
-        !excluded.contains($0.ownerName)
+          $0.ownerName != "borders" &&
+          $0.isOnScreen &&
+          $0.rect.size.width > minimumSize.width &&
+          $0.rect.size.height > minimumSize.height &&
+          $0.alpha == 1 &&
+          !excluded.contains($0.ownerName)
       }
 
     return windows
@@ -179,8 +182,8 @@ extension WindowFocusQuarter.Quarter {
 extension CGRect {
   func invertedYCoordinate(on screen: NSScreen) -> CGRect {
     let screenFrame = screen.visibleFrame
-    let invertedY = screenFrame.maxY - self.origin.y - self.height
+    let invertedY = screenFrame.maxY - origin.y - height
 
-    return CGRect(x: self.origin.x, y: invertedY, width: self.width, height: self.height)
+    return CGRect(x: origin.x, y: invertedY, width: width, height: height)
   }
 }

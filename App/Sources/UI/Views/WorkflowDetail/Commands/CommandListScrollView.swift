@@ -1,5 +1,5 @@
-import Inject
 import Bonzai
+import Inject
 import SwiftUI
 
 struct CommandListScrollView: View {
@@ -21,7 +21,8 @@ struct CommandListScrollView: View {
        namespace: Namespace.ID,
        workflowId: String,
        selectionManager: SelectionManager<CommandViewModel>,
-       scrollViewProxy: ScrollViewProxy? = nil) {
+       scrollViewProxy: ScrollViewProxy? = nil)
+  {
     self.focus = focus
     self.publisher = publisher
     self.triggerPublisher = triggerPublisher
@@ -39,52 +40,52 @@ struct CommandListScrollView: View {
         CommandView(focus, command: Binding.readonly { command },
                     publisher: publisher, selectionManager: selectionManager,
                     workflowId: workflowId)
-        .dropDestination(CommandListDropItem.self,
-                         color: .accentColor,
-                         kind: dropKind,
-                         onDrop: { items, location in
-          var urls = [URL]()
-          for item in items {
-            switch item {
-            case .command:
-              let ids = Array(selectionManager.selections)
-              guard let (from, destination) = publisher.data.commands.moveOffsets(
-                for: command,
-                with: ids
-              ) else {
-                return false
-              }
+          .dropDestination(CommandListDropItem.self,
+                           color: .accentColor,
+                           kind: dropKind,
+                           onDrop: { items, _ in
+                             var urls = [URL]()
+                             for item in items {
+                               switch item {
+                               case .command:
+                                 let ids = Array(selectionManager.selections)
+                                 guard let (from, destination) = publisher.data.commands.moveOffsets(
+                                   for: command,
+                                   with: ids,
+                                 ) else {
+                                   return false
+                                 }
 
-              withAnimation(CommandList.animation) {
-                publisher.data.commands.move(fromOffsets: from, toOffset: destination)
-              }
-              updater.modifyWorkflow(using: transaction) { workflow in
-                workflow.commands.move(fromOffsets: from, toOffset: destination)
-              }
-            case .url(let url):
-              urls.append(url)
-            }
-          }
+                                 withAnimation(CommandList.animation) {
+                                   publisher.data.commands.move(fromOffsets: from, toOffset: destination)
+                                 }
+                                 updater.modifyWorkflow(using: transaction) { workflow in
+                                   workflow.commands.move(fromOffsets: from, toOffset: destination)
+                                 }
+                               case let .url(url):
+                                 urls.append(url)
+                               }
+                             }
 
-          if !urls.isEmpty {
-            updater.modifyWorkflow(using: transaction) { workflow in
-              let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
-              workflow.commands.append(contentsOf: commands)
+                             if !urls.isEmpty {
+                               updater.modifyWorkflow(using: transaction) { workflow in
+                                 let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
+                                 workflow.commands.append(contentsOf: commands)
+                               }
+                             }
+                             return true
+                           })
+          .contextMenu(menuItems: {
+            CommandListContextualMenu(command, publisher: publisher, selectionManager: selectionManager) { commandId in
+              focus.wrappedValue = .detail(.command(commandId))
+              DispatchQueue.main.async {
+                scrollViewProxy?.scrollTo(commandId)
+              }
             }
+          })
+          .focusable(focus, as: .detail(.command(command.id))) {
+            selectionManager.handleOnTap(publisher.data.commands, element: command)
           }
-          return true
-        })
-        .contextMenu(menuItems: {
-          CommandListContextualMenu(command, publisher: publisher, selectionManager: selectionManager) { commandId in
-            focus.wrappedValue = .detail(.command(commandId))
-            DispatchQueue.main.async {
-              scrollViewProxy?.scrollTo(commandId)
-            }
-          }
-        })
-        .focusable(focus, as: .detail(.command(command.id))) {
-          selectionManager.handleOnTap(publisher.data.commands, element: command)
-        }
       }
       .padding(.bottom, 6)
       .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
@@ -105,7 +106,8 @@ struct CommandListScrollView: View {
       })
       .onMoveCommand(perform: { direction in
         if let elementID = selectionManager.handle(direction, publisher.data.commands,
-                                                   proxy: scrollViewProxy) {
+                                                   proxy: scrollViewProxy)
+        {
           focus.wrappedValue = .detail(.command(elementID))
         }
       })

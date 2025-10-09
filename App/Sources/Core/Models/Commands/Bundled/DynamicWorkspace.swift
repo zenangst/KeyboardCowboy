@@ -41,8 +41,8 @@ final class DynamicWorkspace {
       .sink { [weak self] runningApplication in
         guard let self, let bundleIdentifier = runningApplication?.bundleIdentifier else { return }
 
-        self.removeClosedApps()
-        self.reorderCurrentWorkspace(bundleIdentifier)
+        removeClosedApps()
+        reorderCurrentWorkspace(bundleIdentifier)
       }
       .store(in: &subscriptions)
   }
@@ -130,13 +130,13 @@ final class DynamicWorkspace {
                 .moveToWorkspace(
                   command: MoveToWorkspaceCommand(
                     id: UUID().uuidString,
-                    workspace: first
-                  )
+                    workspace: first,
+                  ),
                 ),
-                meta: Command.MetaData()
-              )
+                meta: Command.MetaData(),
+              ),
             ),
-          ]
+          ],
         )
         onCreate(key, .exact(workflow))
       }
@@ -150,7 +150,7 @@ final class DynamicWorkspace {
 
     let pids = Set(
       indexWindowsInStage(getWindows([.optionOnScreenOnly, .excludeDesktopElements]))
-        .map { pid_t($0.ownerPid.rawValue) }
+        .map { pid_t($0.ownerPid.rawValue) },
     )
     let excludedBundleIdentifiers: Set<String> = ["com.apple.finder"]
     let bundleUrls = NSWorkspace.shared
@@ -177,8 +177,8 @@ final class DynamicWorkspace {
           application: application,
           using: AssignWorkspaceCommand(
             id: UUID().uuidString,
-            workspaceID: workspace.id
-          )
+            workspaceID: workspace.id,
+          ),
         )
       }
     }

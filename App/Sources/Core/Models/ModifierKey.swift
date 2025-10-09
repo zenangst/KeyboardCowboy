@@ -3,20 +3,20 @@ import Cocoa
 import KeyCodes
 
 public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
-  public var id: String { return rawValue }
+  public var id: String { rawValue }
 
   var keyCode: Int? {
     switch self {
-    case .function: return KeyShortcut.keyCode(for: "fn")
-    case .capsLock: return KeyShortcut.keyCode(for: "⇪")
-    case .leftShift: return KeyShortcut.keyCode(for: "⇧L")
-    case .leftControl: return KeyShortcut.keyCode(for: "⌃L")
-    case .leftOption: return KeyShortcut.keyCode(for: "⌥L")
-    case .leftCommand: return KeyShortcut.keyCode(for: "⌘L")
-    case .rightShift: return KeyShortcut.keyCode(for: "⇧R")
-    case .rightControl: return KeyShortcut.keyCode(for: "⌃R")
-    case .rightOption: return KeyShortcut.keyCode(for: "⌥R")
-    case .rightCommand: return KeyShortcut.keyCode(for: "⌘R")
+    case .function: KeyShortcut.keyCode(for: "fn")
+    case .capsLock: KeyShortcut.keyCode(for: "⇪")
+    case .leftShift: KeyShortcut.keyCode(for: "⇧L")
+    case .leftControl: KeyShortcut.keyCode(for: "⌃L")
+    case .leftOption: KeyShortcut.keyCode(for: "⌥L")
+    case .leftCommand: KeyShortcut.keyCode(for: "⌘L")
+    case .rightShift: KeyShortcut.keyCode(for: "⇧R")
+    case .rightControl: KeyShortcut.keyCode(for: "⌃R")
+    case .rightOption: KeyShortcut.keyCode(for: "⌥R")
+    case .rightCommand: KeyShortcut.keyCode(for: "⌘R")
     }
   }
 
@@ -42,7 +42,7 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
   }
 
   public static var allCases: [ModifierKey] {
-    return [
+    [
       .function,
       .leftShift,
       .rightShift,
@@ -52,7 +52,7 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
       .rightOption,
       .leftCommand,
       .rightCommand,
-      .capsLock
+      .capsLock,
     ]
   }
 
@@ -71,10 +71,10 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     switch self {
     case .function: ""
     case .leftShift, .rightShift: ""
-    case .leftControl, .rightControl:        "control"
-    case .leftOption, .rightOption:          "option"
-    case .leftCommand, .rightCommand:        "command"
-    case .capsLock:         ""
+    case .leftControl, .rightControl: "control"
+    case .leftOption, .rightOption: "option"
+    case .leftCommand, .rightCommand: "command"
+    case .capsLock: ""
     }
   }
 
@@ -82,31 +82,31 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     switch self {
     case .function: "function"
     case .leftShift, .rightShift: "shift"
-    case .leftControl, .rightControl:        "control"
-    case .leftOption, .rightOption:          "option"
-    case .leftCommand, .rightCommand:        "command"
-    case .capsLock:         ""
+    case .leftControl, .rightControl: "control"
+    case .leftOption, .rightOption: "option"
+    case .leftCommand, .rightCommand: "command"
+    case .capsLock: ""
     }
   }
 
   public var keyValue: String {
     switch self {
-    case .function:     "fn"
-    case .leftShift:    "⇧"
-    case .rightShift:   "⇧"
+    case .function: "fn"
+    case .leftShift: "⇧"
+    case .rightShift: "⇧"
     case .leftControl, .rightControl: "⌃"
-    case .leftOption, .rightOption:   "⌥"
+    case .leftOption, .rightOption: "⌥"
     case .leftCommand, .rightCommand: "⌘"
-    case .capsLock:     "⇪"
+    case .capsLock: "⇪"
     }
   }
 
   public var pretty: String {
     switch self {
-    case .function:"ƒ"
-    case .leftShift, .rightShift:   "⇧"
+    case .function: "ƒ"
+    case .leftShift, .rightShift: "⇧"
     case .leftControl, .rightControl: "⌃"
-    case .leftOption, .rightOption:  "⌥"
+    case .leftOption, .rightOption: "⌥"
     case .leftCommand, .rightCommand: "⌘"
     case .capsLock: "⇪"
     }
@@ -114,20 +114,16 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
 
   public var key: Int {
     switch self {
-    case .function: return kVK_Function   // Fn key
-    case .capsLock: return kVK_CapsLock  // Caps Lock key
-
-    case .leftShift: return kVK_Shift    // Left Shift key
-    case .rightShift: return kVK_RightShift // Right Shift key
-
-    case .leftControl: return kVK_Control  // Left Control key
-    case .rightControl: return kVK_RightControl // Right Control key
-
-    case .leftOption: return kVK_Option  // Left Option (Alt) key
-    case .rightOption: return kVK_RightOption // Right Option (Alt) key
-
-    case .leftCommand: return kVK_Command // Left Command (⌘) key
-    case .rightCommand: return kVK_RightCommand // Right Command (⌘) key
+    case .function: kVK_Function // Fn key
+    case .capsLock: kVK_CapsLock // Caps Lock key
+    case .leftShift: kVK_Shift // Left Shift key
+    case .rightShift: kVK_RightShift // Right Shift key
+    case .leftControl: kVK_Control // Left Control key
+    case .rightControl: kVK_RightControl // Right Control key
+    case .leftOption: kVK_Option // Left Option (Alt) key
+    case .rightOption: kVK_RightOption // Right Option (Alt) key
+    case .leftCommand: kVK_Command // Left Command (⌘) key
+    case .rightCommand: kVK_RightCommand // Right Command (⌘) key
     }
   }
 
@@ -171,13 +167,13 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     switch self {
     case .function: nil
     case .capsLock: nil
-    case .leftShift:    .rightShift
-    case .leftControl:  .rightControl
-    case .leftOption:   .rightOption
-    case .leftCommand:  .rightCommand
-    case .rightShift:   .leftShift
+    case .leftShift: .rightShift
+    case .leftControl: .rightControl
+    case .leftOption: .rightOption
+    case .leftCommand: .rightCommand
+    case .rightShift: .leftShift
     case .rightControl: .leftControl
-    case .rightOption:  .leftOption
+    case .rightOption: .leftOption
     case .rightCommand: .leftCommand
     }
   }
@@ -185,18 +181,23 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
   init(keyCode: Int) {
     switch keyCode {
     case kVK_Function: self = .function
+
     case kVK_CapsLock: self = .capsLock
 
     case kVK_Shift: self = .leftShift
+
     case kVK_RightShift: self = .rightShift
 
     case kVK_Control: self = .leftControl
+
     case kVK_RightControl: self = .rightControl
 
     case kVK_Option: self = .leftOption
+
     case kVK_RightOption: self = .rightOption
 
     case kVK_Command: self = .leftCommand
+
     case kVK_RightCommand: self = .rightCommand
 
     default:
@@ -205,7 +206,7 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
   }
 }
 
-extension Array<ModifierKey> {
+extension [ModifierKey] {
   var keyCode: Int? {
     if count == 1 { return self[0].keyCode }
     return compactMap(\.keyCode).reduce(-255, +)
@@ -213,7 +214,7 @@ extension Array<ModifierKey> {
 
   var cgModifiers: CGEventFlags {
     var flags = CGEventFlags.maskNonCoalesced
-    self.forEach { flags.insert($0.cgEventFlags) }
+    forEach { flags.insert($0.cgEventFlags) }
     return flags
   }
 }

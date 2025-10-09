@@ -33,7 +33,7 @@ struct PromoView: View {
                 .frame(width: 117, height: 117)
                 .padding(8)
                 .background(
-                  WorkspaceBackgroundView()
+                  WorkspaceBackgroundView(),
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
@@ -41,11 +41,9 @@ struct PromoView: View {
                 .frame(width: 117, height: 117)
                 .padding(8)
                 .background(
-                  AppFocusBackground()
+                  AppFocusBackground(),
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
-
-
             }
             KeyboardCowboyView()
           }
@@ -71,7 +69,7 @@ struct PromoView: View {
               .frame(width: 128, height: 128)
               .shadow(radius: 2)
               .background(
-                WindowManagementIconBackgroundView()
+                WindowManagementIconBackgroundView(),
               )
               .clipShape(RoundedRectangle(cornerRadius: 16))
               .padding(8)
@@ -85,7 +83,7 @@ struct PromoView: View {
           .frame(width: 200, height: 148)
           .padding(16)
           .background(
-            WindowTilingBackgroundView()
+            WindowTilingBackgroundView(),
           )
           .clipShape(RoundedRectangle(cornerRadius: 16))
 
@@ -191,14 +189,14 @@ private struct AppFocusBackground: View {
           .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .black)!), location: 0.0),
           .init(color: Color(.purple), location: 0.6),
           .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay {
         LinearGradient(stops: [
           .init(color: Color(.systemTeal), location: 0.5),
           .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 1.0),
         ], startPoint: .topTrailing, endPoint: .bottomTrailing)
-        .opacity(0.6)
+          .opacity(0.6)
       }
       .overlay {
         LinearGradient(stops: [
@@ -217,14 +215,14 @@ private struct WindowTilingBackgroundView: View {
           .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 0.3),
           .init(color: Color(.cyan), location: 0.6),
           .init(color: Color.blue, location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay {
         LinearGradient(stops: [
           .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 0.5),
           .init(color: Color.blue, location: 1.0),
         ], startPoint: .topTrailing, endPoint: .bottomTrailing)
-        .opacity(0.6)
+          .opacity(0.6)
       }
       .overlay {
         LinearGradient(stops: [
@@ -243,14 +241,14 @@ private struct WorkspaceBackgroundView: View {
           .init(color: Color.blue, location: 0.0),
           .init(color: Color(.cyan), location: 0.6),
           .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay {
         LinearGradient(stops: [
           .init(color: Color.blue, location: 0.5),
           .init(color: Color(.systemTeal.blended(withFraction: 0.3, of: .white)!), location: 1.0),
         ], startPoint: .topTrailing, endPoint: .bottomTrailing)
-        .opacity(0.6)
+          .opacity(0.6)
       }
       .overlay {
         LinearGradient(stops: [
@@ -315,7 +313,6 @@ private struct MacrosPromoView: View {
   }
 }
 
-
 private struct AutomationView: View {
   var body: some View {
     VStack(spacing: 16) {
@@ -325,7 +322,6 @@ private struct AutomationView: View {
     }
   }
 }
-
 
 private struct ApplicationLauncherView: View {
   @FocusState var focus: AppFocus?
@@ -337,9 +333,8 @@ private struct ApplicationLauncherView: View {
                   publisher: DesignTime.commandsPublisher,
                   selectionManager: SelectionManager<CommandViewModel>(),
                   workflowId: UUID().uuidString)
-      .frame(minWidth: 390, maxWidth: 390)
-      .designTime()
-
+        .frame(minWidth: 390, maxWidth: 390)
+        .designTime()
     }
   }
 }
@@ -353,8 +348,8 @@ private struct ScriptRunnerView: View {
                   publisher: DesignTime.commandsPublisher,
                   selectionManager: SelectionManager<CommandViewModel>(),
                   workflowId: UUID().uuidString)
-      .frame(width: 384, height: 220)
-      .designTime()
+        .frame(width: 384, height: 220)
+        .designTime()
 
       Text("Script Runner")
     }
@@ -401,7 +396,7 @@ private struct KeyboardCowboyView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       HStack(spacing: 0) {
-        Image.init(.applicationIcon)
+        Image(.applicationIcon)
           .resizable()
           .aspectRatio(contentMode: .fit)
           .frame(width: 148)
@@ -414,7 +409,6 @@ private struct KeyboardCowboyView: View {
           }
           .frame(maxWidth: .infinity, alignment: .leading)
           .font(.system(size: 48, design: .rounded))
-
         }
       }
       ZenDivider()
@@ -440,14 +434,14 @@ private struct KeyboardCowboyView: View {
         .init(color: Color(.systemGray.blended(withFraction: 0.1, of: .black)!).opacity(0.8), location: 0),
         .init(color: Color(.systemGray.blended(withFraction: 0.6, of: .black)!).opacity(0.9), location: 0.5),
         .init(color: Color(.systemGray.blended(withFraction: 0.7, of: .black)!), location: 1.0),
-      ], startPoint: .topLeading, endPoint: .bottom)
+      ], startPoint: .topLeading, endPoint: .bottom),
     )
     .clipShape(RoundedRectangle(cornerRadius: 16))
   }
 }
 
-fileprivate struct BackgroundView: View {
-  @ObservedObject private var publisher: ColorPublisher = ColorPublisher.shared
+private struct BackgroundView: View {
+  @ObservedObject private var publisher: ColorPublisher = .shared
   var body: some View {
     Color.clear
       .background {
@@ -458,7 +452,7 @@ fileprivate struct BackgroundView: View {
               .init(color: Color.systemOrange, location: 0.5),
               .init(color: Color.systemTeal, location: 0.75),
               .init(color: Color.black, location: 1),
-            ], startPoint: .top, endPoint: .bottom)
+            ], startPoint: .top, endPoint: .bottom),
           )
       }
       .mask {
@@ -486,7 +480,7 @@ private struct WindowManagementView: View {
           LinearGradient(stops: [
             .init(color: Color(nsColor: .white), location: 0.0),
             .init(color: Color(nsColor: .white.withSystemEffect(.disabled)), location: 1.0),
-          ], startPoint: .topLeading, endPoint: .bottom)
+          ], startPoint: .topLeading, endPoint: .bottom),
         )
         .overlay { iconOverlay().opacity(0.25) }
         .overlay(alignment: .topLeading) {
@@ -543,7 +537,6 @@ private struct MinimizeAllWindowTrafficLightsView: View {
     }
     .frame(width: size.width * 0.4)
     .padding([.leading, .top], size.width * 0.0675)
-
   }
 }
 

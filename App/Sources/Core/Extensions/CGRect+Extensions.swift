@@ -7,7 +7,7 @@ extension CGRect {
   var mainDisplayFlipped: CGRect {
     CGRect(
       origin: CGPoint(x: origin.x, y: NSScreen.mainDisplay!.frame.maxY - maxY),
-      size: size
+      size: size,
     )
   }
 
@@ -24,7 +24,7 @@ extension CGRect {
 
     let foundDiff = hasDifference(greaterThan: spacing, comparedTo: tilingRect)
 
-    if Self.debug && foundDiff {
+    if Self.debug, foundDiff {
       print("xxxxxxxxxxxxxxxx (\(foundDiff))")
       print(window.ownerName, tiling)
       print("windowRect", self)
@@ -38,8 +38,8 @@ extension CGRect {
 
   @MainActor
   func hasDifference(greaterThan tolerance: CGFloat, comparedTo other: CGRect) -> Bool {
-    let originDiff = self.origin.hasDifference(greaterThan: tolerance, comparedTo: other.origin)
-    let sizeDiff = self.size.hasDifference(greaterThan: tolerance, comparedTo: other.size)
+    let originDiff = origin.hasDifference(greaterThan: tolerance, comparedTo: other.origin)
+    let sizeDiff = size.hasDifference(greaterThan: tolerance, comparedTo: other.size)
 
     if Self.debug {
       if originDiff {
@@ -52,5 +52,4 @@ extension CGRect {
 
     return originDiff || sizeDiff
   }
-
 }

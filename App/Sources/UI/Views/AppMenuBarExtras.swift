@@ -14,8 +14,8 @@ struct AppMenuBarExtras: Scene {
 
   private var applicationName: String {
     switch KeyboardCowboyApp.env() {
-    case .previews:    "Keyboard Cowboy (designTime)"
-    case .production:  "Keyboard Cowboy"
+    case .previews: "Keyboard Cowboy (designTime)"
+    case .production: "Keyboard Cowboy"
     case .development: "Keyboard Cowboy (dev)"
     }
   }
@@ -32,7 +32,7 @@ struct AppMenuBarExtras: Scene {
   init(core: Core, contentStore: ContentStore, keyboardCleaner: KeyboardCleaner, onAction: @escaping (Action) -> Void) {
     self.core = core
     self.contentStore = contentStore
-    self.machPortCoordinator = core.machPortCoordinator
+    machPortCoordinator = core.machPortCoordinator
     self.onAction = onAction
     _keyboardCleaner = .init(initialValue: keyboardCleaner)
   }
@@ -57,14 +57,14 @@ struct AppMenuBarExtras: Scene {
       HelpMenu { onAction(.helpMenu($0)) }
       Divider()
       Text("Version: \(KeyboardCowboyApp.marketingVersion) (\(KeyboardCowboyApp.buildNumber))")
-#if DEBUG
-      Button(action: { onAction(.reveal) }, label: {
-        Text("Reveal")
-      })
-      if !Bundle.main.bundlePath.hasPrefix("/Applications") {
-        Button(action: { onAction(.install) }, label: { Text("Move to Applications Folder") })
-      }
-#endif
+      #if DEBUG
+        Button(action: { onAction(.reveal) }, label: {
+          Text("Reveal")
+        })
+        if !Bundle.main.bundlePath.hasPrefix("/Applications") {
+          Button(action: { onAction(.install) }, label: { Text("Move to Applications Folder") })
+        }
+      #endif
       Button(action: {
         NSApplication.shared.terminate(nil)
       }, label: {

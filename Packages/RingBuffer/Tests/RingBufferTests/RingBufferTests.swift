@@ -1,5 +1,5 @@
-@testable import RingBuffer
 import Foundation
+@testable import RingBuffer
 import Testing
 
 @Suite("RingBufferTests")

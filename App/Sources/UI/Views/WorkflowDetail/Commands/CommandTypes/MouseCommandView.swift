@@ -42,8 +42,8 @@ private struct MouseCommandInternalView: View {
       content: {
         MouseCommandContentView(metaData: metaData, model: $model)
       },
-      subContent: {
-      })
+      subContent: {},
+    )
   }
 }
 
@@ -61,23 +61,23 @@ private struct MouseCommandContentView: View {
     _model = model
 
     switch model.wrappedValue.kind {
-    case .click(let element):
+    case let .click(element):
       switch element.clickLocation {
-      case .custom(let x, let y):
+      case let .custom(x, y):
         _xString = .init(initialValue: String(x))
         _yString = .init(initialValue: String(y))
       default: break
       }
-    case .doubleClick(let element):
+    case let .doubleClick(element):
       switch element.clickLocation {
-      case .custom(let x, let y):
+      case let .custom(x, y):
         _xString = .init(initialValue: String(x))
         _yString = .init(initialValue: String(y))
       default: break
       }
-    case .rightClick(let element):
+    case let .rightClick(element):
       switch element.clickLocation {
-      case .custom(let x, let y):
+      case let .custom(x, y):
         _xString = .init(initialValue: String(x))
         _yString = .init(initialValue: String(y))
       default: break
@@ -102,13 +102,14 @@ private struct MouseCommandContentView: View {
       })
       .onChange(of: model.kind, perform: { newValue in
         updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-          guard case .mouse(var mouseCommand) = command else { return }
+          guard case var .mouse(mouseCommand) = command else { return }
+
           mouseCommand.kind = newValue
           command = .mouse(mouseCommand)
         }
       })
 
-      if case .focused(let location) = model.kind.element {
+      if case let .focused(location) = model.kind.element {
         HStack {
           Menu(content: {
             ForEach(MouseCommand.ClickLocation.allCases) { location in

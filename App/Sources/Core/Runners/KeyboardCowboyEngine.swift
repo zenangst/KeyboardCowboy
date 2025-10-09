@@ -111,7 +111,7 @@ final class KeyboardCowboyEngine {
           if !$0.isRepeat, keyCache.noKeysPressed() {
             tapHeld.reset()
           }
-        }
+        },
       )
       commandRunner.eventSource = newMachPortController.eventSource
       subscribe(to: workspace)

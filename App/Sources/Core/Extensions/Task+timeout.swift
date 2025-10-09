@@ -16,6 +16,7 @@ extension Task where Failure == Error {
         guard let success = try await group.next() else {
           throw _Concurrency.CancellationError()
         }
+
         group.cancelAll()
         return success
       }

@@ -58,7 +58,6 @@ struct Release3_23_1: View {
                     .init(color: Color.clear, location: 0.8),
                     .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
                   ], startPoint: .top, endPoint: .bottom)
-
                 }
             }
             .iconShape(size)
@@ -114,7 +113,7 @@ struct Release3_23_1: View {
                     Text("Perfected the duplicate function, ensuring all ID-based data remains unique and conflict-free.")
                     Text("Ensured the main window graciously appears when launching Keyboard Cowboy via Spotlight, Raycast, Alfred, or Finder — just as intended by the digital deities.")
                   }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                  .frame(maxWidth: .infinity, alignment: .leading)
                   Divider()
                 }
               }
@@ -139,7 +138,7 @@ struct Release3_23_1: View {
                     Text("Enhanced UI element commands for bulletproof reliability, no longer solely dependent on focused elements. If nothing's in focus, we smartly switch to the focused window.")
                     Text("Open commands now dazzle in the workflow notification component, making them impossible to miss.")
                   }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                  .frame(maxWidth: .infinity, alignment: .leading)
                   Divider()
                 }
               }
@@ -163,7 +162,7 @@ struct Release3_23_1: View {
 
         HStack(spacing: 4) {
           Text("Special thanks to")
-          AsyncImage.init(url: URL(string: "https://avatars.githubusercontent.com/u/4262050?v=4")) { image in
+          AsyncImage(url: URL(string: "https://avatars.githubusercontent.com/u/4262050?v=4")) { image in
             image
               .resizable()
               .aspectRatio(contentMode: .fit)

@@ -19,8 +19,8 @@ struct WorkspaceCommandView: View {
        onDefaultForDynamicWorkspace: @escaping (Bool) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void,
        onSelectedAppsChange: @escaping ([CommandViewModel.Kind.WorkspaceModel.WorkspaceApplication]) -> Void,
-       onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
-       ) {
+       onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void)
+  {
     self.model = model
     self.onAppToggleModifiers = onAppToggleModifiers
     self.onDefaultForDynamicWorkspace = onDefaultForDynamicWorkspace
@@ -37,12 +37,12 @@ struct WorkspaceCommandView: View {
         Menu {
           ForEach(applicationStore.applications) { application in
             Button(action: {
-              model.applications.append(.init(name: application.displayName,
-                                              bundleIdentifier: application.bundleIdentifier,
-                                              path: application.path,
-                                              options: []))
-              onSelectedAppsChange(model.applications)
-            },
+                     model.applications.append(.init(name: application.displayName,
+                                                     bundleIdentifier: application.bundleIdentifier,
+                                                     path: application.path,
+                                                     options: []))
+                     onSelectedAppsChange(model.applications)
+                   },
                    label: { Text(application.displayName) })
           }
         } label: {
@@ -53,10 +53,10 @@ struct WorkspaceCommandView: View {
 
       if model.applications.isEmpty {
         Text("Dynamic Workspace, empty Workspaces are dynamic and applications that are opened in them will be automatically added to the Workspace.")
-        .font(.footnote)
-        .foregroundStyle(.primary)
-        .frame(maxWidth: .infinity)
-        .style(.derived)
+          .font(.footnote)
+          .foregroundStyle(.primary)
+          .frame(maxWidth: .infinity)
+          .style(.derived)
       }
 
       ZenDivider()
@@ -124,7 +124,7 @@ struct WorkspaceCommandView: View {
             case .arrangeRightLeft: WindowTilingIcon(kind: .arrangeRightLeft, size: 20)
             case .arrangeTopBottom: WindowTilingIcon(kind: .arrangeTopBottom, size: 20)
             case .arrangeBottomTop: WindowTilingIcon(kind: .arrangeBottomTop, size: 20)
-            case .arrangeLeftQuarters:  WindowTilingIcon(kind: .arrangeLeftQuarters, size: 20)
+            case .arrangeLeftQuarters: WindowTilingIcon(kind: .arrangeLeftQuarters, size: 20)
             case .arrangeDynamicQuarters: WindowTilingIcon(kind: .arrangeLeftQuarters, size: 20)
             case .arrangeRightQuarters: WindowTilingIcon(kind: .arrangeRightQuarters, size: 20)
             case .arrangeTopQuarters: WindowTilingIcon(kind: .arrangeTopQuarters, size: 20)
@@ -200,12 +200,12 @@ struct WorkspaceCommandView: View {
               .style(.derived)
             Menu {
               let modifiers: [ModifierKey] = [
-                .leftShift, .leftCommand, .leftOption, .leftControl, .function
+                .leftShift, .leftCommand, .leftOption, .leftControl, .function,
               ]
               ForEach(modifiers) { modifier in
                 let isOn = Binding<Bool>(
                   get: { model.appToggleModifiers.contains(where: { $0 == modifier }) },
-                  set: { newValue in
+                  set: { _ in
                     if model.appToggleModifiers.contains(where: { $0 == modifier }) {
                       model.appToggleModifiers.removeAll { $0 == modifier.pair || $0 == modifier }
                     } else {
@@ -215,7 +215,8 @@ struct WorkspaceCommandView: View {
                       }
                     }
                     onAppToggleModifiers(model.appToggleModifiers)
-                  })
+                  },
+                )
                 Toggle(isOn: isOn) {
                   Text(modifier.keyValue + " " + modifier.writtenValue.capitalized)
                 }
@@ -244,7 +245,7 @@ struct WorkspaceCommandView: View {
   }
 }
 
-fileprivate extension WorkspaceCommand.Tiling {
+private extension WorkspaceCommand.Tiling {
   var name: String {
     switch self {
     case .arrangeLeftRight: "Left & Right"
@@ -266,6 +267,6 @@ fileprivate extension WorkspaceCommand.Tiling {
 private extension Array {
   func unique<T: Hashable>(by keyPath: KeyPath<Element, T>) -> [Element] {
     var seen = Set<T>()
-    return self.filter { seen.insert($0[keyPath: keyPath]).inserted }
+    return filter { seen.insert($0[keyPath: keyPath]).inserted }
   }
 }

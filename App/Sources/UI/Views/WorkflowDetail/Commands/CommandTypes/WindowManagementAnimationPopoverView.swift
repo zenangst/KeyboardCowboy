@@ -12,7 +12,8 @@ struct WindowManagementAnimationPopoverView: View {
 
   init(_ windowCommand: Binding<CommandViewModel.Kind.WindowManagementModel>,
        isShown: Binding<Bool>,
-       onChange: @escaping (Double) -> Void) {
+       onChange: @escaping (Double) -> Void)
+  {
     _windowCommand = windowCommand
     _isShown = isShown
     _animationDuration = .init(initialValue: String(windowCommand.wrappedValue.animationDuration))
@@ -22,9 +23,10 @@ struct WindowManagementAnimationPopoverView: View {
   var body: some View {
     HStack {
       TextField("Animation duration", text: $animationDuration) { isEditing in
-        guard isShown else { return}
+        guard isShown else { return }
+
         if !isEditing {
-          if let value = Double(self.animationDuration) {
+          if let value = Double(animationDuration) {
             if value > 0 {
               windowCommand.animationDuration = value
             } else {
@@ -50,15 +52,16 @@ struct WindowManagementAnimationPopoverView: View {
 }
 
 struct WindowManagementAnimationPopoverView_Previews: PreviewProvider {
-  static let command = CommandViewModel.Kind.WindowManagementModel.init(
+  static let command = CommandViewModel.Kind.WindowManagementModel(
     id: UUID().uuidString,
     kind: .center,
-    animationDuration: 0
+    animationDuration: 0,
   )
   static var previews: some View {
     WindowManagementAnimationPopoverView(
       .constant(command),
       isShown: .constant(true),
-      onChange: { _ in })
+      onChange: { _ in },
+    )
   }
 }

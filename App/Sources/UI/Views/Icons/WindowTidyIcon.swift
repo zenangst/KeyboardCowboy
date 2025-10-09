@@ -10,22 +10,22 @@ struct WindowTidyIcon: View {
           .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 0.3),
           .init(color: Color(.cyan), location: 0.6),
           .init(color: Color.blue, location: 1.0),
-        ], startPoint: .bottomTrailing, endPoint: .topLeading)
+        ], startPoint: .bottomTrailing, endPoint: .topLeading),
       )
       .overlay {
         LinearGradient(stops: [
           .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 0.5),
           .init(color: Color.blue, location: 1.0),
         ], startPoint: .topTrailing, endPoint: .bottomTrailing)
-        .opacity(0.6)
-        .rotationEffect(.degrees(180))
+          .opacity(0.6)
+          .rotationEffect(.degrees(180))
       }
       .overlay {
         LinearGradient(stops: [
           .init(color: Color(.systemOrange.blended(withFraction: 0.3, of: .white)!), location: 0.2),
           .init(color: Color.clear, location: 0.8),
         ], startPoint: .topTrailing, endPoint: .bottomLeading)
-        .rotationEffect(.degrees(180))
+          .rotationEffect(.degrees(180))
       }
       .overlay {
         WindowsGridView(size: size)
@@ -38,7 +38,7 @@ struct WindowTidyIcon: View {
   }
 }
 
-fileprivate struct WindowsGridView: View {
+private struct WindowsGridView: View {
   let size: CGFloat
 
   var body: some View {
@@ -54,12 +54,11 @@ fileprivate struct WindowsGridView: View {
         WindowTidyIconIllustrationApp(size: size * 0.38)
       }
       .clipped()
-
     }
     .mask {
       LinearGradient(stops: [
         .init(color: .black.opacity(0.5), location: 0),
-        .init(color: .black, location: 1)
+        .init(color: .black, location: 1),
       ], startPoint: .top, endPoint: .bottom)
     }
   }
@@ -73,7 +72,7 @@ struct BlurredElement: View {
   var body: some View {
     RoundedRectangle(cornerRadius: size * 0.1)
       .fill(
-        LinearGradient(stops: stops, startPoint: .top, endPoint: .bottom)
+        LinearGradient(stops: stops, startPoint: .top, endPoint: .bottom),
       )
       .frame(width: size * 0.15, height: size * 0.3)
       .blur(radius: blurRadius)
@@ -89,7 +88,7 @@ struct WindowTidyIconGroupView: View {
           .mask {
             LinearGradient(stops: [
               .init(color: .black.opacity(0.6), location: 0),
-              .init(color: .clear, location: 0.5)
+              .init(color: .clear, location: 0.5),
             ], startPoint: .top, endPoint: .bottom)
           }
           .offset(y: -size * 0.145)
@@ -98,7 +97,7 @@ struct WindowTidyIconGroupView: View {
           .mask {
             LinearGradient(stops: [
               .init(color: .black.opacity(0.6), location: 0),
-              .init(color: .clear, location: 0.5)
+              .init(color: .clear, location: 0.5),
             ], startPoint: .top, endPoint: .bottom)
           }
           .offset(y: -size * 0.055)
@@ -118,6 +117,7 @@ struct WindowTidyIconIllustrationApp: View {
   init(size: CGFloat) {
     self.size = size
   }
+
   var body: some View {
     Image(systemName: "app.fill")
       .resizable()
@@ -147,7 +147,7 @@ struct WindowTidyIconIllustrationApp: View {
           stops: [.init(color: .black, location: 0.25),
                   .init(color: .black.opacity(0.5), location: 1)],
           startPoint: .topLeading,
-          endPoint: .bottomTrailing
+          endPoint: .bottomTrailing,
         )
       }
       .mask {

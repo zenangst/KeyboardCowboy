@@ -1,5 +1,5 @@
-import Combine
 import Cocoa
+import Combine
 
 final class JXAPlugin: @unchecked Sendable {
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
@@ -25,10 +25,10 @@ final class JXAPlugin: @unchecked Sendable {
     return output
   }
 
-  func executeScript(at path: String, withId key: String, environment: [String: String], checkCancellation: Bool) async throws -> String? {
+  func executeScript(at path: String, withId _: String, environment: [String: String], checkCancellation _: Bool) async throws -> String? {
     let source = """
-osascript -l JavaScript \(path)
-"""
+    osascript -l JavaScript \(path)
+    """
 
     let output = try await shellScript.executeScript(source,
                                                      environment: environment,

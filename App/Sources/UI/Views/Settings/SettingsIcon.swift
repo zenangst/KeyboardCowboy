@@ -5,7 +5,7 @@ struct SettingsIcon: View {
   let symbolName: String
 
   init(_ nsColor: NSColor, symbolName: String) {
-    self.color = Color(nsColor: nsColor)
+    color = Color(nsColor: nsColor)
     self.symbolName = symbolName
   }
 
@@ -27,7 +27,7 @@ struct SettingsIcon: View {
             .init(color: color.blended(withFraction: 0.25, of: .black), location: 1),
           ],
           startPoint: .top,
-          endPoint: .bottom
+          endPoint: .bottom,
         )
       }
       .overlay { iconOverlay() }

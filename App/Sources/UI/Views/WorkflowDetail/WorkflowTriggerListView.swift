@@ -17,7 +17,8 @@ struct WorkflowTriggerListView: View {
        publisher: TriggerPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
-       onTab: @escaping () -> Void) {
+       onTab: @escaping () -> Void)
+  {
     self.focus = focus
     self.publisher = publisher
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
@@ -29,7 +30,7 @@ struct WorkflowTriggerListView: View {
   var body: some View {
     Group {
       switch publisher.data {
-      case .keyboardShortcuts(let trigger):
+      case let .keyboardShortcuts(trigger):
         WorkflowTriggerHeaderView("Keyboard Shortcuts Sequence")
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowKeyboardTriggerView(
@@ -37,26 +38,27 @@ struct WorkflowTriggerListView: View {
           workflowId: workflowId,
           focus: focus,
           trigger: trigger,
-          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager)
-      case .applications(let triggers):
+          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+        )
+      case let .applications(triggers):
         WorkflowTriggerHeaderView("Application Trigger")
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowApplicationTrigger(focus, data: triggers,
                                    selectionManager: applicationTriggerSelectionManager,
                                    onTab: onTab)
-        .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
-      case .snippet(let snippet):
+          .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
+      case let .snippet(snippet):
         WorkflowTriggerHeaderView("Add Snippet")
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
-        WorkflowSnippetTriggerView(focus, snippet: snippet) 
-        .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
+        WorkflowSnippetTriggerView(focus, snippet: snippet)
+          .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .modifier:
         WorkflowTriggerHeaderView("Add Modifier Trigger")
       case .empty:
         WorkflowTriggerHeaderView("Add Trigger", showRemoveButton: false)
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowTrigger(focus, isGrayscale: .readonly { publisher.data != .empty })
-        .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
+          .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       }
     }
     .style(.derived)
@@ -120,10 +122,10 @@ struct WorkflowTriggerListView_Previews: PreviewProvider {
       WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
                               publisher: .init(DesignTime.detail.trigger),
                               applicationTriggerSelectionManager: .init(),
-                              keyboardShortcutSelectionManager: .init(), onTab: {}) 
+                              keyboardShortcutSelectionManager: .init(), onTab: {})
     }
-      .designTime()
-      .padding()
-      .frame(minHeight: 500)
+    .designTime()
+    .padding()
+    .frame(minHeight: 500)
   }
 }

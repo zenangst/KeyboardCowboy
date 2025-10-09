@@ -2,9 +2,8 @@ import ProjectDescription
 
 public enum PackageResolver {
   public static func packages(_ env: EnvHelper) -> [Package] {
-    let packages: [Package]
-    if env["PACKAGE_DEVELOPMENT"] == "true" {
-      packages = [
+    let packages: [Package] = if env["PACKAGE_DEVELOPMENT"] == "true" {
+      [
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.5.2"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
         .package(path: "../AXEssibility"),
@@ -21,7 +20,7 @@ public enum PackageResolver {
         .package(path: "Packages/RingBuffer"),
       ]
     } else {
-      packages = [
+      [
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.5.2"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
         .package(url: "https://github.com/zenangst/AXEssibility.git", .branch("main")),

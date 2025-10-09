@@ -24,7 +24,8 @@ struct CommandView: View {
        command: Binding<CommandViewModel>,
        publisher: CommandsPublisher,
        selectionManager: SelectionManager<CommandViewModel>,
-       workflowId: String) {
+       workflowId: String)
+  {
     _command = command
     self.focus = focus
     self.publisher = publisher
@@ -67,22 +68,22 @@ struct CommandResolverView: View {
 
   var body: some View {
     switch command.kind {
-    case .application(let model):      ApplicationCommandView(command.meta, model: model, iconSize: iconSize)
-    case .builtIn(let model):          BuiltInCommandView(command.meta, model: model, iconSize: iconSize)
-    case .bundled(let model):          BundledCommandView(command.meta, model: model, iconSize: iconSize)
-    case .inputSource(let model):      InputSourceCommandView(command.meta, model: model, iconSize: iconSize)
-    case .keyboard(let model):         KeyboardCommandView(focus, metaData: command.meta, model: model, iconSize: iconSize)
-    case .menuBar(let model):          MenuBarCommandView(command.meta, model: model, iconSize: iconSize)
-    case .mouse(let model):            MouseCommandView(command.meta, model: model, iconSize: iconSize)
-    case .open(let model):             OpenCommandView(command.meta, model: model, iconSize: iconSize)
-    case .script(let model):           ScriptCommandView(command.meta, model: .constant(model), iconSize: iconSize, onSubmit: {})
-    case .shortcut(let model):         ShortcutCommandView(command.meta, model: model, iconSize: iconSize)
-    case .systemCommand(let model):    SystemCommandView(command.meta, model: model, iconSize: iconSize)
-    case .text(let textModel):         TextCommandView(kind: textModel.kind, metaData: command.meta, iconSize: iconSize)
-    case .uiElement(let model):        UIElementCommandView(metaData: command.meta, model: Binding<UIElementCommand>(get: { model }, set: { _ in }), iconSize: iconSize)
-    case .windowFocus(let model):      WindowFocusCommandView(command.meta, model: model, iconSize: iconSize)
-    case .windowManagement(let model): WindowManagementCommandView(command.meta, model: model, iconSize: iconSize)
-    case .windowTiling(let model):     WindowTilingCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .application(model): ApplicationCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .builtIn(model): BuiltInCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .bundled(model): BundledCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .inputSource(model): InputSourceCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .keyboard(model): KeyboardCommandView(focus, metaData: command.meta, model: model, iconSize: iconSize)
+    case let .menuBar(model): MenuBarCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .mouse(model): MouseCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .open(model): OpenCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .script(model): ScriptCommandView(command.meta, model: .constant(model), iconSize: iconSize, onSubmit: {})
+    case let .shortcut(model): ShortcutCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .systemCommand(model): SystemCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .text(textModel): TextCommandView(kind: textModel.kind, metaData: command.meta, iconSize: iconSize)
+    case let .uiElement(model): UIElementCommandView(metaData: command.meta, model: Binding<UIElementCommand>(get: { model }, set: { _ in }), iconSize: iconSize)
+    case let .windowFocus(model): WindowFocusCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .windowManagement(model): WindowManagementCommandView(command.meta, model: model, iconSize: iconSize)
+    case let .windowTiling(model): WindowTilingCommandView(command.meta, model: model, iconSize: iconSize)
     }
   }
 }

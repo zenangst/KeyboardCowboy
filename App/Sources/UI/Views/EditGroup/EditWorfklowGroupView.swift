@@ -7,9 +7,9 @@ struct EditWorfklowGroupView: View {
     var id: String {
       switch self {
       case let .add(group):
-        return group.id
+        group.id
       case let .edit(group):
-        return group.id
+        group.id
       }
     }
 
@@ -55,7 +55,7 @@ struct EditWorfklowGroupView: View {
           .prefersDefaultFocus(in: namespace)
           .focused($focus, equals: .name)
 
-        Toggle(isOn: Binding<Bool>(get: { !group.isDisabled }, set: { group.isDisabled = !$0 }), label: { })
+        Toggle(isOn: Binding<Bool>(get: { !group.isDisabled }, set: { group.isDisabled = !$0 }), label: {})
           .switchStyle()
       }
       .padding(.top, 24)
@@ -176,7 +176,7 @@ private struct Background: View {
   var body: some View {
     Rectangle()
       .fill(
-        LinearGradient(stops: gradientStops(), startPoint: .top, endPoint: .bottom)
+        LinearGradient(stops: gradientStops(), startPoint: .top, endPoint: .bottom),
       )
   }
 
@@ -209,7 +209,7 @@ struct EditWorfklowGroupView_Previews: PreviewProvider {
     EditWorfklowGroupView(
       applicationStore: ApplicationStore.shared,
       group: group,
-      action: { _ in }
+      action: { _ in },
     )
     .designTime()
   }

@@ -63,6 +63,7 @@ final class GroupStore: ObservableObject, @unchecked Sendable {
     var newGroups = oldGroups
     for group in groups {
       guard let index = oldGroups.firstIndex(where: { $0.id == group.id }) else { return }
+
       newGroups[index] = group
     }
     commitGroups(newGroups)
@@ -125,9 +126,7 @@ final class GroupStore: ObservableObject, @unchecked Sendable {
         group.workflows.map(\.id).contains(newWorkflow.id)
       })
       else { continue }
-
       guard let groupIndex = newGroups.firstIndex(of: group) else { continue }
-
       guard let workflowIndex = group.workflows.firstIndex(where: { $0.id == newWorkflow.id })
       else {
         newGroups[groupIndex].workflows.append(newWorkflow)
@@ -142,10 +141,9 @@ final class GroupStore: ObservableObject, @unchecked Sendable {
       newGroups[groupIndex].workflows[workflowIndex] = newWorkflow
     }
     return newGroups
-
   }
 
   private func updateOrAddWorkflows(with newWorkflows: [Workflow]) async -> [WorkflowGroup] {
-    updateOrAddWorkflows(newWorkflows, oldGroups: await groups)
+    await updateOrAddWorkflows(newWorkflows, oldGroups: groups)
   }
 }

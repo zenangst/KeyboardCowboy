@@ -16,14 +16,15 @@ struct ShortcutCommandView: View {
     self.metaData = metaData
     self.iconSize = iconSize
   }
-  
+
   var body: some View {
     CommandContainerView(metaData, placeholder: model.placeholder, icon: {
       ShortcutCommandIconView(iconSize: iconSize)
     }, content: {
       ShortcutCommandContentView(model: $model) { shortcut in
         updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-          guard case .shortcut(var shortcutCommand) = command else { return }
+          guard case var .shortcut(shortcutCommand) = command else { return }
+
           shortcutCommand.name = shortcut.name
           command = .shortcut(shortcutCommand)
         }
@@ -33,7 +34,7 @@ struct ShortcutCommandView: View {
       ShortcutCommandSubContentView {
         try? SBShortcuts.createShortcut()
       } onCreateShortcut: {
-        try? SBShortcuts.openShortcut(self.metaData.name)
+        try? SBShortcuts.openShortcut(metaData.name)
       }
 
     })
@@ -61,7 +62,8 @@ private struct ShortcutCommandContentView: View {
   private let onSelect: (Shortcut) -> Void
 
   init(model: Binding<CommandViewModel.Kind.ShortcutModel>,
-       onSelect: @escaping (Shortcut) -> Void) {
+       onSelect: @escaping (Shortcut) -> Void)
+  {
     _model = model
     self.onSelect = onSelect
   }
@@ -86,13 +88,13 @@ private struct ShortcutCommandContentView: View {
   }
 }
 
-
 private struct ShortcutCommandSubContentView: View {
   private let onOpenShortcut: () -> Void
   private let onCreateShortcut: () -> Void
 
   init(onOpenShortcut: @escaping () -> Void,
-       onCreateShortcut: @escaping () -> Void) {
+       onCreateShortcut: @escaping () -> Void)
+  {
     self.onOpenShortcut = onOpenShortcut
     self.onCreateShortcut = onCreateShortcut
   }
@@ -108,7 +110,7 @@ private struct ShortcutCommandSubContentView: View {
 struct ShortcutCommandView_Previews: PreviewProvider {
   static let command = DesignTime.shortcutCommand
   static var previews: some View {
-    ShortcutCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) 
+    ShortcutCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24))
       .designTime()
   }
 }

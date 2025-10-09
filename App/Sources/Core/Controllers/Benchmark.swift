@@ -8,7 +8,7 @@ final class Benchmark {
 
   nonisolated(unsafe) static let shared: Benchmark = .init()
 
-  private init() { }
+  private init() {}
 
   nonisolated func start(_ identifier: @autoclosure @Sendable () -> String,
                          value _: @autoclosure @Sendable () -> String = "", forceEnable: Bool = false)

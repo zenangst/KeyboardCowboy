@@ -7,7 +7,8 @@ enum WindowManagementMoveWindow {
                             padding: Int,
                             constrainedToScreen: Bool,
                             currentScreen: NSScreen,
-                            mainDisplay: NSScreen) -> CGRect {
+                            mainDisplay: NSScreen) -> CGRect
+  {
     let padding = CGFloat(padding)
     let newValue = CGFloat(byValue)
     let dockSize = getDockSize(mainDisplay)
@@ -56,8 +57,8 @@ enum WindowManagementMoveWindow {
       var minX = max(currentScreen.frame.origin.x + dockLeftSize,
                      newFrame.origin.x)
       var maxY = currentScreen.isMainDisplay
-      ? currentScreen.frame.maxY - newFrame.height  - dockBottomSize
-      : mainDisplay.frame.maxY - currentScreen.visibleFrame.origin.y - originFrame.height
+        ? currentScreen.frame.maxY - newFrame.height - dockBottomSize
+        : mainDisplay.frame.maxY - currentScreen.visibleFrame.origin.y - originFrame.height
       var minY: CGFloat = newFrame.origin.y
 
       switch direction {

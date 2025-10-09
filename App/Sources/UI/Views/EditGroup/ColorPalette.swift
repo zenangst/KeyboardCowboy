@@ -3,7 +3,8 @@ import SwiftUI
 struct ColorPalette: View {
   private let colorStrings: [String] = [
     "#EB5545", "#F2A23C", "#F9D64A", "#6BD35F", "#3984F7",
-    "#B263EA", "#5D5FDE", "#A78F6D", "#98989D", "#EB4B63"]
+    "#B263EA", "#5D5FDE", "#A78F6D", "#98989D", "#EB4B63",
+  ]
 
   var items: [GridItem] {
     Array(repeating: .init(.fixed(size)), count: 5)

@@ -10,9 +10,10 @@ struct CommandListContextualMenu: View {
   private let onDuplicate: (Command.ID) -> Void
 
   init(_ command: CommandViewModel, publisher: CommandsPublisher,
-       selectionManager: SelectionManager<CommandViewModel>, onDuplicate: @escaping (Command.ID) -> Void) {
+       selectionManager: SelectionManager<CommandViewModel>, onDuplicate: @escaping (Command.ID) -> Void)
+  {
     self.command = command
-    self.detailPublisher = publisher
+    detailPublisher = publisher
     self.selectionManager = selectionManager
     self.onDuplicate = onDuplicate
   }
@@ -21,11 +22,12 @@ struct CommandListContextualMenu: View {
     Button("Duplicate", action: {
       updater.modifyWorkflow(using: transaction) { workflow in
         let commandIds = !selectionManager.selections.isEmpty
-        ? selectionManager.selections
-        : Set(arrayLiteral: command.id)
+          ? selectionManager.selections
+          : Set(arrayLiteral: command.id)
         var lastCopyId: Command.ID?
         for commandId in commandIds {
           guard let index = workflow.commands.firstIndex(where: { $0.id == commandId }) else { continue }
+
           let copy = workflow.commands[index].copy()
           workflow.commands.insert(copy, at: index)
           lastCopyId = copy.id
@@ -38,8 +40,8 @@ struct CommandListContextualMenu: View {
     Button("Remove", action: {
       updater.modifyWorkflow(using: transaction) { workflow in
         let commandIds = !selectionManager.selections.isEmpty
-        ? selectionManager.selections
-        : Set(arrayLiteral: command.id)
+          ? selectionManager.selections
+          : Set(arrayLiteral: command.id)
         if !selectionManager.selections.isEmpty {
           workflow.commands.removeAll(where: { commandIds.contains($0.id) })
         } else {
@@ -49,4 +51,3 @@ struct CommandListContextualMenu: View {
     })
   }
 }
-

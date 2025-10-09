@@ -1,7 +1,7 @@
 extension ApplicationCommand {
   enum Modifier: String, Codable, Hashable, CaseIterable, Sendable {
-    public var id: String { return self.rawValue }
-    public var displayValue: String {
+    var id: String { rawValue }
+    var displayValue: String {
       switch self {
       case .background: "Open in background"
       case .hidden: "Hide when opening"
@@ -10,6 +10,7 @@ extension ApplicationCommand {
       case .waitForAppToLaunch: "Wait for app to launch"
       }
     }
+
     case background
     case hidden
     case onlyIfNotRunning

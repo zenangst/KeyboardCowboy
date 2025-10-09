@@ -8,6 +8,7 @@ struct UserModesView: View {
     case delete(UserMode.ID)
     case rename(UserMode.ID, String)
   }
+
   @ObserveInjection var inject
   @EnvironmentObject var publisher: ConfigurationPublisher
   @State private var isAddingNew = false
@@ -34,7 +35,7 @@ struct UserModesView: View {
 
       FlowLayout(itemSpacing: 2, lineSpacing: 2) {
         ForEach(publisher.data.userModes) { userMode in
-          FlowItem(userMode: userMode, onAction: { }, onDelete: {
+          FlowItem(userMode: userMode, onAction: {}, onDelete: {
             onAction(.delete(userMode.id))
           }, onRename: {
             onAction(.rename(userMode.id, $0))
@@ -61,7 +62,7 @@ struct FlowItem: View {
     userMode: UserMode,
     onAction: @escaping () -> Void,
     onDelete: @escaping () -> Void,
-    onRename: @escaping (String) -> Void
+    onRename: @escaping (String) -> Void,
   ) {
     self.userMode = userMode
     self.onAction = onAction
@@ -120,7 +121,7 @@ struct FlowItem: View {
         Button(action: { areYouSure = false }, label: {
           Text("Cancel")
         })
-        Button(action: { 
+        Button(action: {
           areYouSure = true
           onDelete()
         }, label: {

@@ -10,15 +10,14 @@ struct MinimizeAllIconView: View {
       .overlay { iconBorder(size) }
       .overlay {
         MinimizeAllWindowView(.init(width: (size * 0.85) * 0.8,
-                     height: (size * 0.75) * 0.8))
-        .offset(y: -size * 0.1)
-        .shadow(radius: 2)
-
+                                    height: (size * 0.75) * 0.8))
+          .offset(y: -size * 0.1)
+          .shadow(radius: 2)
 
         MinimizeAllWindowView(.init(width: (size * 0.85) * 0.9,
-                     height: (size * 0.75) * 0.9))
-        .offset(y: -size * 0.025)
-        .shadow(radius: 2)
+                                    height: (size * 0.75) * 0.9))
+          .offset(y: -size * 0.025)
+          .shadow(radius: 2)
 
         MinimizeAllWindowView(.init(width: size * 0.85, height: size * 0.75))
           .offset(y: size * 0.05)
@@ -43,7 +42,7 @@ private struct MinimizeAllWindowView: View {
         LinearGradient(stops: [
           .init(color: Color(nsColor: .white), location: 0.0),
           .init(color: Color(nsColor: .white.withSystemEffect(.disabled)), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay { iconOverlay().opacity(0.5) }
       .overlay(alignment: .topLeading) {
@@ -102,7 +101,6 @@ private struct MinimizeAllWindowTrafficLightsView: View {
     }
     .frame(width: size.width * 0.4)
     .padding([.leading, .top], size.width * 0.0675)
-
   }
 }
 

@@ -1,6 +1,6 @@
-import SwiftUI
-import Inject
 import Bonzai
+import Inject
+import SwiftUI
 
 struct EmptyWorkflowList: View {
   @EnvironmentObject private var publisher: GroupDetailPublisher
@@ -53,6 +53,6 @@ struct EmptyWorkflowList: View {
 #Preview {
   @Namespace var namespace
   return EmptyWorkflowList(namespace) { _ in }
-      .designTime()
-      .frame(width: 200, height: 100)
+    .designTime()
+    .frame(width: 200, height: 100)
 }

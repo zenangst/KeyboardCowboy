@@ -57,7 +57,7 @@ actor BundledCommandRunner: Sendable {
       let application = await UserSpace.shared.frontmostApplication
       let movedToWorkspace = await DynamicWorkspace.shared.moveOrRemove(
         application: application.asApplication(),
-        using: workspaceCommand
+        using: workspaceCommand,
       )
 
       // Don't active the same workspace if the app was just moved there.

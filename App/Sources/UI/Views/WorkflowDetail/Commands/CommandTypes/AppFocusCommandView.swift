@@ -18,8 +18,8 @@ struct AppFocusCommandView: View {
        onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        onSelectedAppsChange: @escaping (Application) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void,
-       onCreateWindowChange: @escaping (Bool) -> Void
-  ) {
+       onCreateWindowChange: @escaping (Bool) -> Void)
+  {
     self.model = model
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange
@@ -61,12 +61,12 @@ struct AppFocusCommandView: View {
 
                 ForEach(applicationStore.applications) { application in
                   Button(action: {
-                    model.application = application
-                    onSelectedAppsChange(application)
-                  },
+                           model.application = application
+                           onSelectedAppsChange(application)
+                         },
                          label: {
-                    Text(application.displayName)
-                  })
+                           Text(application.displayName)
+                         })
                 }
               } label: {
                 Group {
@@ -163,8 +163,8 @@ struct AppFocusCommandView: View {
                 .padding(.leading, 4)
               Toggle(isOn: $model.createNewWindow, label: {})
                 .onChange(of: model.createNewWindow) { newValue in
-                onCreateWindowChange(newValue)
-              }
+                  onCreateWindowChange(newValue)
+                }
             }
           }
         }
@@ -174,7 +174,7 @@ struct AppFocusCommandView: View {
   }
 }
 
-fileprivate extension WorkspaceCommand.Tiling {
+private extension WorkspaceCommand.Tiling {
   var name: String {
     switch self {
     case .arrangeLeftRight: "Left & Right"

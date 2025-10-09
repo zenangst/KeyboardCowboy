@@ -5,7 +5,7 @@ import Foundation
 final class CommandPanelCoordinator: NSObject, ObservableObject, NSWindowDelegate {
   private var cache = [ScriptCommand.ID: NSWindowController]()
 
-  init(cache: [ScriptCommand.ID : NSWindowController] = [ScriptCommand.ID: NSWindowController]()) {
+  init(cache: [ScriptCommand.ID: NSWindowController] = [ScriptCommand.ID: NSWindowController]()) {
     self.cache = cache
   }
 
@@ -30,12 +30,12 @@ final class CommandPanelCoordinator: NSObject, ObservableObject, NSWindowDelegat
     var command = command
     let view = CommandPanelView(publisher: publisher, command: command,
                                 onChange: { newContents in
-      command.source = .inline(newContents)
-    }, onSubmit: { _ in
-      runner.run(command, for: publisher)
-    }, action: { [runner, publisher] in
-      runner.run(command, for: publisher)
-    })
+                                  command.source = .inline(newContents)
+                                }, onSubmit: { _ in
+                                  runner.run(command, for: publisher)
+                                }, action: { [runner, publisher] in
+                                  runner.run(command, for: publisher)
+                                })
     let window = CommandPanel(identifier: command.id, runner: runner, minSize: .zero, rootView: view)
     window.eventDelegate = self
     window.delegate = self
@@ -119,10 +119,10 @@ final class CommandPanelRunner {
       do {
         let output: String?
         switch (command.kind, command.source) {
-        case (.shellScript, .path(let source)):
+        case let (.shellScript, .path(source)):
           output = try await plugin.executeScript(at: source, environment: snapshot.terminalEnvironment(),
-                                                  checkCancellation:  true)
-        case (.shellScript, .inline(let script)):
+                                                  checkCancellation: true)
+        case let (.shellScript, .inline(script)):
           output = try await plugin.executeScript(script, environment: snapshot.terminalEnvironment(),
                                                   checkCancellation: true)
         default:
@@ -133,12 +133,11 @@ final class CommandPanelRunner {
 
         publisher.publish(.done(output ?? "No output"))
       } catch let error as ShellScriptPlugin.ShellScriptPluginError {
-        let newState: CommandPanelView.CommandState
-        switch error {
+        let newState: CommandPanelView.CommandState = switch error {
         case .noData:
-          newState = .error(error.localizedDescription)
-        case .scriptError(let scriptError):
-          newState = .error(scriptError)
+          .error(error.localizedDescription)
+        case let .scriptError(scriptError):
+          .error(scriptError)
         }
 
         publisher.publish(newState)

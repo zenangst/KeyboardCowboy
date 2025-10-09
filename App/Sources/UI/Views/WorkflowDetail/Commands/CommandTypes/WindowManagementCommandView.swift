@@ -13,7 +13,8 @@ struct WindowManagementCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
-       iconSize: CGSize) {
+       iconSize: CGSize)
+  {
     _model = .init(initialValue: model)
     self.metaData = metaData
     self.iconSize = iconSize
@@ -33,13 +34,15 @@ struct WindowManagementCommandView: View {
           WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
             model.animationDuration = newDuration
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-              guard case .windowManagement(var windowCommand) = command else { return }
+              guard case var .windowManagement(windowCommand) = command else { return }
+
               windowCommand.animationDuration = newDuration
               command = .windowManagement(windowCommand)
             }
           }
         }
-      })
+      },
+    )
   }
 }
 
@@ -57,26 +60,27 @@ struct WindowManagementCommandInternalView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
-       iconSize: CGSize) {
+       iconSize: CGSize)
+  {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.iconSize = iconSize
 
     switch model.kind {
-    case  .increaseSize(let value, _, let padding, let constrainedToScreen),
-        .move(let value, _, let padding, let constrainedToScreen):
+    case let .increaseSize(value, _, padding, constrainedToScreen),
+         let .move(value, _, padding, constrainedToScreen):
       _pixels = .init(initialValue: String(value))
       _constrainToScreen = .init(initialValue: constrainedToScreen)
       _padding = .init(initialValue: String(padding))
-    case .decreaseSize(let value, _, let constrainedToScreen):
+    case let .decreaseSize(value, _, constrainedToScreen):
       _pixels = .init(initialValue: String(value))
       _constrainToScreen = .init(initialValue: constrainedToScreen)
       _padding = .init(initialValue: "0")
-    case .fullscreen(let padding):
+    case let .fullscreen(padding):
       _padding = .init(initialValue: String(padding))
       _pixels = .init(initialValue: "0")
       _constrainToScreen = .init(initialValue: true)
-    case .anchor(_, let padding):
+    case let .anchor(_, padding):
       _padding = .init(initialValue: String(padding))
       _pixels = .init(initialValue: String(padding))
       _constrainToScreen = .init(initialValue: false)
@@ -114,12 +118,12 @@ struct WindowManagementCommandInternalView: View {
            .move, .anchor:
         HStack(spacing: 16) {
           let models = WindowManagementCommand.Direction.allCases
-          LazyVGrid(columns: (0..<3).map {
+          LazyVGrid(columns: (0 ..< 3).map {
             _ in GridItem(.fixed(24), spacing: 1)
           },
-                    alignment: .center,
-                    spacing: 2,
-                    content: {
+          alignment: .center,
+          spacing: 2,
+          content: {
             ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
               if offset == 4 {
                 Image(systemName: "macwindow")
@@ -131,13 +135,13 @@ struct WindowManagementCommandInternalView: View {
               Button {
                 let kind: WindowManagementCommand.Kind
                 switch model.kind {
-                case .increaseSize(let value, _, let padding, let constrainedToScreen):
+                case let .increaseSize(value, _, padding, constrainedToScreen):
                   kind = .increaseSize(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
-                case .decreaseSize(let value, _, let constrainedToScreen):
+                case let .decreaseSize(value, _, constrainedToScreen):
                   kind = .decreaseSize(by: value, direction: element, constrainedToScreen: constrainedToScreen)
-                case .move(let value, _, let padding, let constrainedToScreen):
+                case let .move(value, _, padding, constrainedToScreen):
                   kind = .move(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
-                case .anchor(_, let padding):
+                case let .anchor(_, padding):
                   kind = .anchor(position: element, padding: padding)
                 default:
                   return
@@ -163,29 +167,30 @@ struct WindowManagementCommandInternalView: View {
               GridRow {
                 NumberTextField(text: $pixels, onValidChange: { newValue in
                   guard let pixels = Int(newValue) else { return }
+
                   let kind: WindowManagementCommand.Kind
                   switch model.kind {
-                  case .increaseSize(_, let direction, let padding, let constrainedToScreen):
+                  case let .increaseSize(_, direction, padding, constrainedToScreen):
                     kind = .increaseSize(
                       by: pixels,
                       direction: direction,
                       padding: padding,
-                      constrainedToScreen: constrainedToScreen
+                      constrainedToScreen: constrainedToScreen,
                     )
-                  case .decreaseSize(_, let direction, let constrainedToScreen):
+                  case let .decreaseSize(_, direction, constrainedToScreen):
                     kind = .decreaseSize(
                       by: pixels,
                       direction: direction,
-                      constrainedToScreen: constrainedToScreen
+                      constrainedToScreen: constrainedToScreen,
                     )
-                  case .move(_, let direction, let padding, let constrainedToScreen):
+                  case let .move(_, direction, padding, constrainedToScreen):
                     kind = .move(
                       by: pixels,
                       direction: direction,
                       padding: padding,
-                      constrainedToScreen: constrainedToScreen
+                      constrainedToScreen: constrainedToScreen,
                     )
-                  case .anchor(let position, _):
+                  case let .anchor(position, _):
                     kind = .anchor(position: position, padding: pixels)
                   default:
                     return
@@ -202,38 +207,39 @@ struct WindowManagementCommandInternalView: View {
             GridRow {
               NumberTextField(text: $padding,
                               onValidChange: { newValue in
-                guard let padding = Int(newValue) else { return }
-                let kind: WindowManagementCommand.Kind
-                switch model.kind {
-                case .increaseSize(let pixels, let direction, _, let constrainedToScreen):
-                  kind = .increaseSize(
-                    by: pixels,
-                    direction: direction,
-                    padding: padding,
-                    constrainedToScreen: constrainedToScreen
-                  )
-                case .decreaseSize(let pixels, let direction, let constrainedToScreen):
-                  kind = .decreaseSize(
-                    by: pixels,
-                    direction: direction,
-                    constrainedToScreen: constrainedToScreen
-                  )
-                case .move(let pixels, let direction, _, let constrainedToScreen):
-                  kind = .move(
-                    by: pixels,
-                    direction: direction,
-                    padding: padding,
-                    constrainedToScreen: constrainedToScreen
-                  )
-                case .anchor(let position, _):
-                  kind = .anchor(position: position, padding: padding)
-                default:
-                  return
-                }
-                model.kind = kind
-                performUpdate(kind)
-              })
-              .fixedSize()
+                                guard let padding = Int(newValue) else { return }
+
+                                let kind: WindowManagementCommand.Kind
+                                switch model.kind {
+                                case let .increaseSize(pixels, direction, _, constrainedToScreen):
+                                  kind = .increaseSize(
+                                    by: pixels,
+                                    direction: direction,
+                                    padding: padding,
+                                    constrainedToScreen: constrainedToScreen,
+                                  )
+                                case let .decreaseSize(pixels, direction, constrainedToScreen):
+                                  kind = .decreaseSize(
+                                    by: pixels,
+                                    direction: direction,
+                                    constrainedToScreen: constrainedToScreen,
+                                  )
+                                case let .move(pixels, direction, _, constrainedToScreen):
+                                  kind = .move(
+                                    by: pixels,
+                                    direction: direction,
+                                    padding: padding,
+                                    constrainedToScreen: constrainedToScreen,
+                                  )
+                                case let .anchor(position, _):
+                                  kind = .anchor(position: position, padding: padding)
+                                default:
+                                  return
+                                }
+                                model.kind = kind
+                                performUpdate(kind)
+                              })
+                              .fixedSize()
               Text("Padding").font(.caption)
             }
 
@@ -242,32 +248,31 @@ struct WindowManagementCommandInternalView: View {
                 EmptyView()
                 EmptyView()
               } else {
-
                 Toggle(isOn: $constrainToScreen, label: {})
                   .onChange(of: constrainToScreen) { constrainedToScreen in
                     let kind: WindowManagementCommand.Kind
                     switch model.kind {
-                    case .increaseSize(let pixels, let direction, let padding, _):
+                    case let .increaseSize(pixels, direction, padding, _):
                       kind = .increaseSize(
                         by: pixels,
                         direction: direction,
                         padding: padding,
-                        constrainedToScreen: constrainedToScreen
+                        constrainedToScreen: constrainedToScreen,
                       )
-                    case .decreaseSize(let pixels, let direction, _):
+                    case let .decreaseSize(pixels, direction, _):
                       kind = .decreaseSize(
                         by: pixels,
                         direction: direction,
-                        constrainedToScreen: constrainedToScreen
+                        constrainedToScreen: constrainedToScreen,
                       )
-                    case .move(let pixels, let direction, let padding, _):
+                    case let .move(pixels, direction, padding, _):
                       kind = .move(
                         by: pixels,
                         direction: direction,
                         padding: padding,
-                        constrainedToScreen: constrainedToScreen
+                        constrainedToScreen: constrainedToScreen,
                       )
-                    case .anchor(let position, let padding):
+                    case let .anchor(position, padding):
                       kind = .anchor(position: position, padding: padding)
                     default:
                       return
@@ -285,6 +290,7 @@ struct WindowManagementCommandInternalView: View {
         HStack(spacing: 12) {
           NumberTextField(text: $padding, onValidChange: { newValue in
             guard let newPadding = Int(newValue) else { return }
+
             let kind: WindowManagementCommand.Kind
             switch model.kind {
             case .fullscreen:
@@ -302,12 +308,12 @@ struct WindowManagementCommandInternalView: View {
         EmptyView()
       }
     }
-
   }
 
   private func performUpdate(_ newKind: WindowManagementCommand.Kind) {
     updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-      guard case .windowManagement(var windowCommand) = command else { return }
+      guard case var .windowManagement(windowCommand) = command else { return }
+
       windowCommand.kind = newKind
       command = .windowManagement(windowCommand)
     }
@@ -315,44 +321,44 @@ struct WindowManagementCommandInternalView: View {
 
   private func resolveAlignment(_ kind: WindowManagementCommand.Kind) -> Alignment {
     switch kind {
-    case .increaseSize(_, let direction, _, _),
-        .decreaseSize(_, let direction, _),
-        .move(_, let direction, _, _),
-        .anchor(let direction, _):
+    case let .increaseSize(_, direction, _, _),
+         let .decreaseSize(_, direction, _),
+         let .move(_, direction, _, _),
+         let .anchor(direction, _):
       switch direction {
       case .leading:
-        return .leading
+        .leading
       case .topLeading:
-        return .topLeading
+        .topLeading
       case .top:
-        return .top
+        .top
       case .topTrailing:
-        return .topTrailing
+        .topTrailing
       case .trailing:
-        return .trailing
+        .trailing
       case .bottomTrailing:
-        return .bottomTrailing
+        .bottomTrailing
       case .bottom:
-        return .bottom
+        .bottom
       case .bottomLeading:
-        return .bottomLeading
+        .bottomLeading
       }
     case .fullscreen:
-      return .center
+      .center
     case .center:
-      return .center
+      .center
     case .moveToNextDisplay:
-      return .center
+      .center
     }
   }
 
   func illustrationIcon() -> some View {
     ZStack {
       switch model.kind {
-      case  .increaseSize(_, let direction, _, _),
-          .decreaseSize(_, let direction, _),
-          .move(_, let direction, _, _),
-          .anchor(let direction, _):
+      case let .increaseSize(_, direction, _, _),
+           let .decreaseSize(_, direction, _),
+           let .move(_, direction, _, _),
+           let .anchor(direction, _):
         RoundedRectangle(cornerSize: .init(width: 4, height: 4))
           .stroke(Color(.controlAccentColor).opacity(0.475), lineWidth: 1)
           .padding(1)
@@ -429,8 +435,8 @@ struct WindowManagementCommandView_Previews: PreviewProvider {
           model: .init(
             id: container.model.id,
             kind: container.kind,
-            animationDuration: 0
-          ), iconSize: .init(width: 24, height: 24)
+            animationDuration: 0,
+          ), iconSize: .init(width: 24, height: 24),
         )
         Divider()
       }

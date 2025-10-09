@@ -51,7 +51,6 @@ struct Release3_23_0: View {
                     .init(color: Color.clear, location: 0.8),
                     .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
                   ], startPoint: .top, endPoint: .bottom)
-
                 }
             }
             .iconShape(size)

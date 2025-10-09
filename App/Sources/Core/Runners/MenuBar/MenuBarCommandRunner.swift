@@ -9,10 +9,9 @@ enum MenuBarCommandRunnerError: Error {
 
 @MainActor
 final class MenuBarCommandRunner {
-
   private var previousMatch: MenuBarItemAccessibilityElement?
 
-  nonisolated init() { }
+  nonisolated init() {}
 
   func execute(_ command: MenuBarCommand, repeatingEvent: Bool) async throws {
     if repeatingEvent, let previousMatch {
@@ -55,7 +54,8 @@ final class MenuBarCommandRunner {
   }
 
   private func recursiveSearch(_ tokens: [MenuBarCommand.Token],
-                               items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement {
+                               items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement
+  {
     guard let token = tokens.first else { throw MenuBarCommandRunnerError.ranOutOfTokens }
 
     var nextTokens = tokens
@@ -83,14 +83,14 @@ final class MenuBarCommandRunner {
       guard item.isEnabled == true else { return false }
 
       switch token {
-      case .menuItem(let title):
-        return item.title == title 
-        || item.title?.hasPrefix(title) == true
-      case .menuItems(let title1, let title2):
-        return item.title == title1 
-        || item.title == title2
-        || item.title?.hasPrefix(title1) == true
-        || item.title?.hasPrefix(title2) == true
+      case let .menuItem(title):
+        return item.title == title
+          || item.title?.hasPrefix(title) == true
+      case let .menuItems(title1, title2):
+        return item.title == title1
+          || item.title == title2
+          || item.title?.hasPrefix(title1) == true
+          || item.title?.hasPrefix(title2) == true
       }
     })
   }

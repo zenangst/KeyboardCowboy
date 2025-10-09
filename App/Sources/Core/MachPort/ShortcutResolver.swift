@@ -22,7 +22,7 @@ protocol LookupToken {
   var signature: CGEventSignature { get }
 }
 
-extension KeyCodesStore: KeycodeLocating { }
+extension KeyCodesStore: KeycodeLocating {}
 
 extension MachPortEvent: LookupToken {
   var flags: CGEventFlags { event.flags }
@@ -121,7 +121,7 @@ extension MachPortEvent: LookupToken {
       return lookup(
         FallbackLookupToken(keyCode: token.keyCode, flags: newFlags),
         bundleIdentifier: bundleIdentifier,
-        fallback: newFallback
+        fallback: newFallback,
       )
     } else {
       return nil
@@ -164,7 +164,7 @@ extension MachPortEvent: LookupToken {
 
       let shortcuts = Array(trigger.shortcuts.suffix(max(trigger.shortcuts.count - shortcutIndexPrefix, 0)))
       workflows[offset].trigger = .keyboardShortcuts(.init(
-        shortcuts: shortcuts
+        shortcuts: shortcuts,
       ))
     }
 
@@ -232,7 +232,7 @@ extension MachPortEvent: LookupToken {
                   flags: flags,
                   bundleIdentifier: allowedBundleIdentifier,
                   userModeKey: "",
-                  previousKey: currentPreviousKey
+                  previousKey: currentPreviousKey,
                 ) { newKey, match in
                   newCache[newKey] = match
                 }
@@ -270,7 +270,7 @@ extension MachPortEvent: LookupToken {
                     flags: flags,
                     bundleIdentifier: allowedBundleIdentifier,
                     userModeKey: userModeKey,
-                    previousKey: currentPreviousKey
+                    previousKey: currentPreviousKey,
                   ) { newKey, match in
                     newCache[newKey] = match
                   }

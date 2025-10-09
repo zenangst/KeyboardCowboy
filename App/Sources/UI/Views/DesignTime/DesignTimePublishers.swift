@@ -12,19 +12,19 @@ enum DesignTime {
         id: UUID().uuidString,
         name: UUID().uuidString,
         selected: false,
-        userModes: []
+        userModes: [],
       ),
       ConfigurationViewModel(
         id: UUID().uuidString,
         name: UUID().uuidString,
         selected: false,
-        userModes: []
+        userModes: [],
       ),
     ]
   }
 
   static var configurationPublisher = ConfigurationPublisher(.init(id: UUID().uuidString, name: UUID().uuidString, selected: false, userModes: [
-    .init(id: UUID().uuidString, name: "Vim mode", isEnabled: false)
+    .init(id: UUID().uuidString, name: "Vim mode", isEnabled: false),
   ]))
 
   static var groupsPublisher = GroupsPublisher {
@@ -43,94 +43,94 @@ enum DesignTime {
   static let groupPublisher = GroupPublisher(GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", bundleIdentifiers: [], userModes: [], count: 10))
   static let infoPublisher: InfoPublisher = .init(.init(id: "empty", name: "", isEnabled: false))
   static let triggerPublisher: TriggerPublisher = .init(.keyboardShortcuts(.init(allowRepeat: true, keepLastPartialMatch: false, leaderKey: false, passthrough: false, holdDuration: nil, shortcuts: [
-    .init(key: "a", modifiers: [.leftCommand])
+    .init(key: "a", modifiers: [.leftCommand]),
   ])))
   static let commandsPublisher: CommandsPublisher = .init(.init(id: "empty", commands: [
     Self.applicationCommand.model,
     Self.menuBarCommand.model,
-    Self.typeCommand.model
+    Self.typeCommand.model,
   ], execution: .concurrent))
 
   static var contentPublisher = GroupDetailPublisher {
     [
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Application Trigger", images: [], overlayImages: [], badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open News", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/News.app", path: "/System/Applications/News.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/News.app", path: "/System/Applications/News.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒSpace"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Podcast", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Podcasts.app", path: "/System/Applications/Podcasts.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Podcasts.app", path: "/System/Applications/Podcasts.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒU"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Music", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Music.app", path: "/System/Applications/Music.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Music.app", path: "/System/Applications/Music.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒY"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Home", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Home.app", path: "/System/Applications/Home.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Home.app", path: "/System/Applications/Home.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒH"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Twitterific", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Twitterrific.app", path: "/Applications/Twitterrific.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Twitterrific.app", path: "/Applications/Twitterrific.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒT"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open System Settings", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/System Settings.app", path: "/System/Applications/System Settings.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/System Settings.app", path: "/System/Applications/System Settings.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒ."), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Contacts", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Contacts.app", path: "/System/Applications/Contacts.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Contacts.app", path: "/System/Applications/Contacts.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒA"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Terminal", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Utilities/Terminal.app", path: "/System/Applications/Utilities/Terminal.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Utilities/Terminal.app", path: "/System/Applications/Utilities/Terminal.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒ§"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Discord", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Discord.app", path: "/Applications/Discord.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Discord.app", path: "/Applications/Discord.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒD"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Preview", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Preview.app", path: "/System/Applications/Preview.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Preview.app", path: "/System/Applications/Preview.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒP"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Teams", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Microsoft Teams.app", path: "/Applications/Microsoft Teams.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Microsoft Teams.app", path: "/Applications/Microsoft Teams.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒG"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Slack", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Slack.app", path: "/Applications/Slack.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Slack.app", path: "/Applications/Slack.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒV"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Find My", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/FindMy.app", path: "/System/Applications/FindMy.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/FindMy.app", path: "/System/Applications/FindMy.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒB"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Messages", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Messages.app", path: "/System/Applications/Messages.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Messages.app", path: "/System/Applications/Messages.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒD"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Mail", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Mail.app", path: "/System/Applications/Mail.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Mail.app", path: "/System/Applications/Mail.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒM"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Calendar", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Calendar.app", path: "/System/Applications/Calendar.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Calendar.app", path: "/System/Applications/Calendar.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒC"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Reminders", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Reminders.app", path: "/System/Applications/Reminders.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Reminders.app", path: "/System/Applications/Reminders.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒR"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Notes", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Notes.app", path: "/System/Applications/Notes.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Notes.app", path: "/System/Applications/Notes.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒN"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Finder", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Library/CoreServices/Finder.app", path: "/System/Library/CoreServices/Finder.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Library/CoreServices/Finder.app", path: "/System/Library/CoreServices/Finder.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒF"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Photos", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Photos.app", path: "/System/Applications/Photos.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Photos.app", path: "/System/Applications/Photos.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒI"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Stocks", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Stocks.app", path: "/System/Applications/Stocks.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Stocks.app", path: "/System/Applications/Stocks.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒS"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Keyboard Cowboy", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Keyboard Cowboy.app", path: "/Applications/Keyboard Cowboy.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Keyboard Cowboy.app", path: "/Applications/Keyboard Cowboy.app"))),
       ], overlayImages: [], trigger: .keyboard("⌥ƒ0"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Numbers", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Numbers.app", path: "/System/Applications/Numbers.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Numbers.app", path: "/System/Applications/Numbers.app"))),
       ], overlayImages: [], trigger: .keyboard("⌥ƒN"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Pages", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Pages.app", path: "/System/Applications/Pages.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Pages.app", path: "/System/Applications/Pages.app"))),
       ], overlayImages: [], trigger: .keyboard("⌥ƒP"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Keynote", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Keynote.app", path: "/System/Applications/Keynote.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Keynote.app", path: "/System/Applications/Keynote.app"))),
       ], overlayImages: [], trigger: .keyboard("⌥ƒK"), badge: 0, badgeOpacity: 0, isEnabled: true),
       GroupDetailViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Quick Run", images: [
-        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Stocks.app", path: "/System/Applications/Stocks.app")))
+        GroupDetailViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Stocks.app", path: "/System/Applications/Stocks.app"))),
       ], overlayImages: [], trigger: .keyboard("ƒK"), badge: 0, badgeOpacity: 0, isEnabled: true),
     ]
   }
@@ -146,7 +146,8 @@ enum DesignTime {
       isEnabled: true,
       notification: notification,
       icon: icon,
-      variableName: "")
+      variableName: "",
+    )
   }
 
   static var applicationCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.ApplicationModel) {
@@ -154,7 +155,7 @@ enum DesignTime {
                                                       inBackground: false, hideWhenRunning: false,
                                                       ifNotRunning: false, addToStage: false, waitForAppToLaunch: false)
     return (.init(meta: metadata(name: "Xcode", icon: .init(bundleIdentifier: "com.apple.dt.Xcode",
-                                                           path: "/Applications/Xcode.app")),
+                                                            path: "/Applications/Xcode.app")),
                   kind: .application(kind)), kind)
   }
 
@@ -170,7 +171,7 @@ enum DesignTime {
     let kind = CommandViewModel.Kind.MenuBarModel(id: UUID().uuidString, tokens: [
       .menuItem(name: "View"),
       .menuItem(name: "Navigators"),
-      .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
+      .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator"),
     ])
     return (.init(meta: metadata(name: "", icon: nil), kind: .menuBar(kind)), kind)
   }
@@ -180,25 +181,27 @@ enum DesignTime {
     let kind = CommandViewModel.Kind.OpenModel(id: UUID().uuidString, path: homeDirectory, applications: [])
 
     return (.init(meta: metadata(
-      name: "Home Folder",
-      icon: .init(bundleIdentifier: homeDirectory, path: homeDirectory)),
-                  kind: .open(kind)), kind)
+        name: "Home Folder",
+        icon: .init(bundleIdentifier: homeDirectory, path: homeDirectory),
+      ),
+      kind: .open(kind)), kind)
   }
 
   static var mouseCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.MouseModel) {
     let kind = CommandViewModel.Kind.MouseModel(
       id: UUID().uuidString,
-      kind: .click(.focused(.center))
+      kind: .click(.focused(.center)),
     )
     let path = "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns"
     return (
       .init(
         meta: metadata(
           name: "Left Click",
-          icon: .init(bundleIdentifier: path, path: path)),
-        kind: .mouse(kind)
+          icon: .init(bundleIdentifier: path, path: path),
+        ),
+        kind: .mouse(kind),
       ),
-      kind
+      kind,
     )
   }
 
@@ -224,7 +227,7 @@ enum DesignTime {
   }
 
   static var rebindingCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.KeyboardModel) {
-    let kind = CommandViewModel.Kind.KeyboardModel.init(
+    let kind = CommandViewModel.Kind.KeyboardModel(
       id: UUID().uuidString,
       command: KeyboardCommand.KeyCommand(keyboardShortcuts: [
         .upArrow,
@@ -236,26 +239,27 @@ enum DesignTime {
         .leftArrow,
         .rightArrow,
         .b,
-        .a
-      ], iterations: 1))
+        .a,
+      ], iterations: 1),
+    )
     return (.init(meta: metadata(name: "Rebind esc to enter", icon: nil),
-           kind: .keyboard(kind)), kind)
+                  kind: .keyboard(kind)), kind)
   }
 
   static var shortcutCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.ShortcutModel) {
     let kind = CommandViewModel.Kind.ShortcutModel(id: UUID().uuidString, shortcutIdentifier: "Run shortcut")
     return (.init(meta: metadata(name: "Run shortcut", icon: nil),
-                 kind: .shortcut(kind)), kind)
+                  kind: .shortcut(kind)), kind)
   }
 
   static var systemCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.SystemModel) {
     let kind = CommandViewModel.Kind.SystemModel(id: UUID().uuidString, kind: .hideAllApps)
     return (.init(meta: metadata(name: "Run shortcut", icon: nil),
-                 kind: .systemCommand(kind)), kind)
+                  kind: .systemCommand(kind)), kind)
   }
 
   static var typeCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.TypeModel) {
-    let kind = CommandViewModel.Kind.TypeModel(id: UUID().uuidString, 
+    let kind = CommandViewModel.Kind.TypeModel(id: UUID().uuidString,
                                                mode: .instant,
                                                input: "typing ...", actions: [])
     return (.init(meta: metadata(name: "Typing...", icon: nil), kind: .text(.init(kind: .type(.init(id: UUID().uuidString, mode: .instant, input: "", actions: []))))), kind)
@@ -269,7 +273,7 @@ enum DesignTime {
   static var emptyDetail: DetailViewModel {
     DetailViewModel(
       info: .init(id: UUID().uuidString, name: UUID().uuidString, isEnabled: false),
-      commandsInfo: .init(id: UUID().uuidString, commands: [], execution: .concurrent)
+      commandsInfo: .init(id: UUID().uuidString, commands: [], execution: .concurrent),
     )
   }
 
@@ -278,19 +282,19 @@ enum DesignTime {
       info: .init(
         id: UUID().uuidString,
         name: "Open News",
-        isEnabled: true
+        isEnabled: true,
       ),
       commandsInfo: .init(
         id: UUID().uuidString,
         commands: [
-          Self.menuBarCommand.model,
-          Self.applicationCommand.model,
-          Self.openCommand.model,
-          Self.scriptCommandWithPath.model,
-          Self.scriptCommandInline.model,
-          Self.rebindingCommand.model
+          menuBarCommand.model,
+          applicationCommand.model,
+          openCommand.model,
+          scriptCommandWithPath.model,
+          scriptCommandInline.model,
+          rebindingCommand.model,
         ],
-        execution: .serial
+        execution: .serial,
       ),
       trigger: .keyboardShortcuts(
         .init(
@@ -300,10 +304,10 @@ enum DesignTime {
           passthrough: false,
           shortcuts: [.init(
             key: "f",
-            modifiers: [.function]
-          )]
-        )
-      )
-      )
+            modifiers: [.function],
+          )],
+        ),
+      ),
+    )
   }
 }

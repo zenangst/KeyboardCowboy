@@ -14,13 +14,12 @@ final class OpenApplicationWithNoWindowsSystemRoutine: SystemRoutine {
       // Invoke the `openApplication` so that application opens a new window.
       let configuration = NSWorkspace.OpenConfiguration()
       configuration.activates = true
-      let _ = NSWorkspace.shared.openApplication(
+      _ = NSWorkspace.shared.openApplication(
         at: URL(filePath: application.path),
-        configuration: configuration
+        configuration: configuration,
       )
     default:
       break
     }
   }
-
 }

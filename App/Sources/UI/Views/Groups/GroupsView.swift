@@ -13,7 +13,8 @@ struct GroupsView: View {
        groupSelection: SelectionManager<GroupViewModel>,
        workflowSelection: SelectionManager<GroupDetailViewModel>,
        onAction: @escaping (SidebarView.Action) -> Void,
-       focus: FocusState<AppFocus?>.Binding) {
+       focus: FocusState<AppFocus?>.Binding)
+  {
     self.namespace = namespace
     self.groupSelection = groupSelection
     self.workflowSelection = workflowSelection
@@ -25,23 +26,24 @@ struct GroupsView: View {
     GroupsHeaderView(namespace,
                      isVisible: .readonly { !publisher.data.isEmpty },
                      onAddGroup: { onAction(.openScene(.addGroup)) })
-    .style(.derived)
+      .style(.derived)
 
     GroupsList(focus, namespace: namespace,
                groupSelection: groupSelection,
-               workflowSelection: workflowSelection) { action in
+               workflowSelection: workflowSelection)
+    { action in
       switch action {
-      case .selectGroups(let ids):
+      case let .selectGroups(ids):
         onAction(.selectGroups(ids))
-      case .moveGroups(let source, let destination):
+      case let .moveGroups(source, destination):
         onAction(.moveGroups(source: source, destination: destination))
-      case .removeGroups(let ids):
+      case let .removeGroups(ids):
         onAction(.removeGroups(ids))
-      case .openScene(let scene):
+      case let .openScene(scene):
         onAction(.openScene(scene))
-      case .moveWorkflows(let workflowIds, let groupId):
+      case let .moveWorkflows(workflowIds, groupId):
         onAction(.moveWorkflows(workflowIds: workflowIds, groupId: groupId))
-      case .copyWorkflows(let workflowIds, let groupId):
+      case let .copyWorkflows(workflowIds, groupId):
         onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
       }
     }
@@ -65,7 +67,7 @@ private struct GroupsHeaderView: View {
       Spacer()
       SidebarAddGroupButtonView(isVisible: $isVisible,
                                 namespace: namespace, onAction: onAddGroup)
-      .opacity(isVisible ? 1 : 0)
+        .opacity(isVisible ? 1 : 0)
     }
   }
 }

@@ -8,31 +8,31 @@ final class NotificationWindow<Content>: NSWindow where Content: View {
   override var canBecomeMain: Bool { false }
 
   init(animationBehavior: NSWindow.AnimationBehavior,
-       content rootView: @autoclosure @escaping () -> Content) {
-    self.manager = WindowManager()
+       content rootView: @autoclosure @escaping () -> Content)
+  {
+    manager = WindowManager()
     let contentRect = NSScreen.main?.frame ?? .init(origin: .zero, size: .init(width: 200, height: 200))
     super.init(contentRect: contentRect, styleMask: [
-      .borderless, .nonactivatingPanel
+      .borderless, .nonactivatingPanel,
     ], backing: .buffered, defer: false)
 
     self.animationBehavior = animationBehavior
-    self.collectionBehavior.insert(.fullScreenAuxiliary)
-    self.isOpaque = false
-    self.isMovable = false
-    self.isMovableByWindowBackground = false
-    self.level = .screenSaver
-    self.backgroundColor = .clear
-    self.acceptsMouseMovedEvents = false
-    self.hasShadow = false
+    collectionBehavior.insert(.fullScreenAuxiliary)
+    isOpaque = false
+    isMovable = false
+    isMovableByWindowBackground = false
+    level = .screenSaver
+    backgroundColor = .clear
+    acceptsMouseMovedEvents = false
+    hasShadow = false
 
-    self.manager.window = self
+    manager.window = self
 
     let rootView = rootView()
       .environmentObject(manager)
       .ignoresSafeArea()
 
-    self.contentViewController = NSHostingController(rootView: rootView)
+    contentViewController = NSHostingController(rootView: rootView)
     setFrame(contentRect, display: false)
   }
 }
-

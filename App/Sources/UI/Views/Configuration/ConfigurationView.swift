@@ -8,6 +8,7 @@ struct ConfigurationView: View {
     case updateName(name: String)
     case selectConfiguration(ConfigurationViewModel.ID)
   }
+
   @ObserveInjection private var inject
   @EnvironmentObject private var publisher: ConfigurationsPublisher
   @ObservedObject var selectionManager: SelectionManager<ConfigurationViewModel>
@@ -33,7 +34,7 @@ struct ConfigurationView: View {
           }, label: { Text(configuration.name) })
         }
       } label: {
-        Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value" )
+        Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value")
           .font(.callout)
           .lineLimit(1)
           .fixedSize(horizontal: false, vertical: true)
@@ -66,19 +67,19 @@ struct ConfigurationView: View {
       .popover(isPresented: $deleteConfigurationPopover,
                arrowEdge: .bottom,
                content: {
-        SidebarDeleteConfigurationPopoverView($deleteConfigurationPopover,
-                                              id: selectionManager.selections.first ?? "",
-                                              configurationName: publisher.data.first(where: { $0.selected })?.name ?? "",
-                                              selectionManager: selectionManager,
-                                              onAction: { onAction(.deleteConfiguration(id: $0)) })
-      })
+                 SidebarDeleteConfigurationPopoverView($deleteConfigurationPopover,
+                                                       id: selectionManager.selections.first ?? "",
+                                                       configurationName: publisher.data.first(where: { $0.selected })?.name ?? "",
+                                                       selectionManager: selectionManager,
+                                                       onAction: { onAction(.deleteConfiguration(id: $0)) })
+               })
       .popover(isPresented: $updateConfigurationNamePopover,
                arrowEdge: .bottom,
                content: {
-        SidebarUpdateConfigurationNamePopoverView($updateConfigurationNamePopover, configurationName: $configurationName, onAction: {
-          onAction(.updateName(name: $0))
-        })
-      })
+                 SidebarUpdateConfigurationNamePopoverView($updateConfigurationNamePopover, configurationName: $configurationName, onAction: {
+                   onAction(.updateName(name: $0))
+                 })
+               })
       .popover(isPresented: $newConfigurationPopover, arrowEdge: .bottom) {
         SidebarNewConfigurationPopoverView($newConfigurationPopover, configurationName: "", onAction: {
           onAction(.addConfiguration(name: $0))

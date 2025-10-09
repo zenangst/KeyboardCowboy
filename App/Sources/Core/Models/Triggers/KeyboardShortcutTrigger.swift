@@ -14,7 +14,8 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
        leaderKey: Bool = false,
        passthrough: Bool = false,
        holdDuration: Double? = nil,
-       shortcuts: [KeyShortcut]) {
+       shortcuts: [KeyShortcut])
+  {
     self.allowRepeat = allowRepeat
     self.holdDuration = holdDuration
     self.keepLastPartialMatch = keepLastPartialMatch
@@ -30,17 +31,18 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
       leaderKey: leaderKey,
       passthrough: passthrough,
       holdDuration: holdDuration,
-      shortcuts: shortcuts.map { $0.copy() })
+      shortcuts: shortcuts.map { $0.copy() },
+    )
   }
 
   init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.passthrough = try container.decodeIfPresent(Bool.self, forKey: .passthrough) ?? false
-    self.allowRepeat = try container.decodeIfPresent(Bool.self, forKey: .allowRepeat) ?? true
-    self.keepLastPartialMatch = try container.decodeIfPresent(Bool.self, forKey: .keepLastPartialMatch) ?? false
-    self.holdDuration = try container.decodeIfPresent(Double.self, forKey: .holdDuration)
-    self.shortcuts = try container.decode([KeyShortcut].self, forKey: .shortcuts)
-    self.leaderKey = try container.decodeIfPresent(Bool.self, forKey: .leaderKey) ?? false
+    passthrough = try container.decodeIfPresent(Bool.self, forKey: .passthrough) ?? false
+    allowRepeat = try container.decodeIfPresent(Bool.self, forKey: .allowRepeat) ?? true
+    keepLastPartialMatch = try container.decodeIfPresent(Bool.self, forKey: .keepLastPartialMatch) ?? false
+    holdDuration = try container.decodeIfPresent(Double.self, forKey: .holdDuration)
+    shortcuts = try container.decode([KeyShortcut].self, forKey: .shortcuts)
+    leaderKey = try container.decodeIfPresent(Bool.self, forKey: .leaderKey) ?? false
   }
 
   enum CodingKeys: CodingKey {
@@ -55,22 +57,22 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     if passthrough {
-      try container.encode(self.passthrough, forKey: .passthrough)
+      try container.encode(passthrough, forKey: .passthrough)
     }
 
     if allowRepeat == false {
-      try container.encode(self.allowRepeat, forKey: .allowRepeat)
+      try container.encode(allowRepeat, forKey: .allowRepeat)
     }
 
     if keepLastPartialMatch == true {
-      try container.encode(self.keepLastPartialMatch, forKey: .keepLastPartialMatch)
+      try container.encode(keepLastPartialMatch, forKey: .keepLastPartialMatch)
     }
 
     if leaderKey == true {
-      try container.encode(self.leaderKey, forKey: .leaderKey)
+      try container.encode(leaderKey, forKey: .leaderKey)
     }
 
-    try container.encodeIfPresent(self.holdDuration, forKey: .holdDuration)
-    try container.encode(self.shortcuts, forKey: .shortcuts)
+    try container.encodeIfPresent(holdDuration, forKey: .holdDuration)
+    try container.encode(shortcuts, forKey: .shortcuts)
   }
 }

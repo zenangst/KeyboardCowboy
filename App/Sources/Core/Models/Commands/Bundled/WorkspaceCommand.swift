@@ -135,15 +135,15 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       return whenStageManagerIsActive(applications, dynamicApps: dynamicApps)
     }
 
-    let bundleIdentifiers = dynamicApps.map { $0.bundleIdentifier } + self.applications.compactMap { app in
+    let bundleIdentifiers = dynamicApps.map(\.bundleIdentifier) + self.applications.compactMap { app in
       if app.options.contains(.onlyWhenRunning) {
         if !NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier).isEmpty {
-          return app.bundleIdentifier
+          app.bundleIdentifier
         } else {
-          return nil
+          nil
         }
       } else {
-        return app.bundleIdentifier
+        app.bundleIdentifier
       }
     }
 
@@ -169,7 +169,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
         return Int($0.processIdentifier)
       }
 
-    let windowPids = windows.map { $0.ownerPid.rawValue }
+    let windowPids = windows.map(\.ownerPid.rawValue)
     let runningTargetAppsSet = Set(runningTargetApps)
     let windowPidsSet = Set(windowPids)
     let perfectBundleMatch = runningTargetAppsSet == windowPidsSet
@@ -178,7 +178,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
     let hideAllAppsCommand = Command.systemCommand(SystemCommand(
       kind: .hideAllApps,
-      meta: Command.MetaData(delay: tiling != nil ? 40 : nil, name: "Hide All Apps")
+      meta: Command.MetaData(delay: tiling != nil ? 40 : nil, name: "Hide All Apps"),
     ))
 
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
@@ -225,7 +225,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             action: .open,
             application: application,
             meta: Command.MetaData(delay: nil, name: "Activate \(application.displayName)"),
-            modifiers: [.waitForAppToLaunch]
+            modifiers: [.waitForAppToLaunch],
           )))
       } else if isFrontmost {
         commands.append(
@@ -233,7 +233,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             action: .unhide,
             application: application,
             meta: Command.MetaData(delay: nil, name: "Unhide frontmost application \(application.displayName)"),
-            modifiers: [.waitForAppToLaunch]
+            modifiers: [.waitForAppToLaunch],
           )))
       } else if !appIsRunning {
         commands.append(
@@ -241,14 +241,14 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             action: .open,
             application: application,
             meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
-            modifiers: [.waitForAppToLaunch]
+            modifiers: [.waitForAppToLaunch],
           )))
       } else {
         commands.append(
           .application(ApplicationCommand(
             action: action,
             application: application,
-            meta: Command.MetaData(delay: nil, name: name), modifiers: [.waitForAppToLaunch, .background]
+            meta: Command.MetaData(delay: nil, name: name), modifiers: [.waitForAppToLaunch, .background],
           )))
       }
     }
@@ -287,7 +287,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       applications: applications,
       defaultForDynamicWorkspace: defaultForDynamicWorkspace,
       hideOtherApps: hideOtherApps,
-      tiling: tiling
+      tiling: tiling,
     )
   }
 
@@ -295,7 +295,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
   private func whenStageManagerIsActive(_ applications: [Application], dynamicApps: [Application]) -> [Command] {
     var commands: [Command] = []
-    let runningApplications = NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier }
+    let runningApplications = NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
 
     var bundleIdentifiers: [String] = self.applications.map(\.bundleIdentifier)
     for dynamicApp in dynamicApps {
@@ -329,7 +329,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     [
       Command.systemCommand(SystemCommand(
         kind: .hideAllApps,
-        meta: Command.MetaData(delay: nil, name: "Clean Workspace")
+        meta: Command.MetaData(delay: nil, name: "Clean Workspace"),
       )),
     ]
   }
@@ -358,7 +358,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
 private extension NSRunningApplication {
   var action: ApplicationCommand.Action {
-    return if isHidden {
+    if isHidden {
       .unhide
     } else {
       .open

@@ -38,7 +38,7 @@ struct WorkflowInfoView: View {
           }
         }
       Spacer()
-      Toggle(isOn: $publisher.data.isEnabled, label: { })
+      Toggle(isOn: $publisher.data.isEnabled, label: {})
         .onChange(of: publisher.data.isEnabled) { newValue in
           updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
             workflow.isDisabled = !newValue
@@ -58,7 +58,7 @@ struct WorkflowInfoView: View {
 struct WorkflowInfo_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowInfoView($focus, publisher: .init(DesignTime.detail.info), onInsertTab: { })
+    WorkflowInfoView($focus, publisher: .init(DesignTime.detail.info), onInsertTab: {})
       .padding()
   }
 }

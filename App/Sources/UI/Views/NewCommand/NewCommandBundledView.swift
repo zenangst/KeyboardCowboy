@@ -12,8 +12,8 @@ struct NewCommandBundledView: View {
           applications: [],
           defaultForDynamicWorkspace: false,
           hideOtherApps: true,
-          tiling: nil
-        )
+          tiling: nil,
+        ),
       ),
       .tidy(command: WindowTidyCommand(rules: [])),
     ]
@@ -63,7 +63,7 @@ struct NewCommandBundledView: View {
             command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
                                      hideOtherApps: command.hideOtherApps,
                                      tiling: tiling,
-                                     createNewWindow: command.createNewWindow)
+                                     createNewWindow: command.createNewWindow),
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onSelectedAppsChange: { bundleIdentifier in
@@ -71,7 +71,7 @@ struct NewCommandBundledView: View {
             command: AppFocusCommand(bundleIdentifer: bundleIdentifier,
                                      hideOtherApps: command.hideOtherApps,
                                      tiling: command.tiling,
-                                     createNewWindow: command.createNewWindow)
+                                     createNewWindow: command.createNewWindow),
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
           validation = updateAndValidatePayload()
@@ -80,7 +80,7 @@ struct NewCommandBundledView: View {
             command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
                                      hideOtherApps: hideOtherApps,
                                      tiling: command.tiling,
-                                     createNewWindow: command.createNewWindow)
+                                     createNewWindow: command.createNewWindow),
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onCreateNewWindowChange: { createWindow in
@@ -88,7 +88,7 @@ struct NewCommandBundledView: View {
             command: AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
                                      hideOtherApps: command.hideOtherApps,
                                      tiling: command.tiling,
-                                     createNewWindow: createWindow)
+                                     createNewWindow: createWindow),
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         }
@@ -98,7 +98,7 @@ struct NewCommandBundledView: View {
             applications: workspaceCommand.applications,
             defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: workspaceCommand.hideOtherApps,
-            tiling: tiling
+            tiling: tiling,
           ))
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         } onSelectedAppsChange: { selectedApps in
@@ -106,7 +106,7 @@ struct NewCommandBundledView: View {
             applications: selectedApps.map { WorkspaceCommand.WorkspaceApplication(bundleIdentifier: $0.application.bundleIdentifier, options: []) },
             defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: workspaceCommand.hideOtherApps,
-            tiling: workspaceCommand.tiling
+            tiling: workspaceCommand.tiling,
           ))
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
           validation = updateAndValidatePayload()
@@ -115,7 +115,7 @@ struct NewCommandBundledView: View {
             applications: workspaceCommand.applications,
             defaultForDynamicWorkspace: workspaceCommand.defaultForDynamicWorkspace,
             hideOtherApps: hideOtherApps,
-            tiling: workspaceCommand.tiling
+            tiling: workspaceCommand.tiling,
           ))
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         }

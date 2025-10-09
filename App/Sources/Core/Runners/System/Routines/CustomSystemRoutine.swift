@@ -10,7 +10,7 @@ enum CustomSystemRoutine: String {
     switch self {
     case .finder, .mail, .news,
          .notes, .safari, .xcode:
-      return OpenApplicationWithNoWindowsSystemRoutine(application: application)
+      OpenApplicationWithNoWindowsSystemRoutine(application: application)
     }
   }
 }

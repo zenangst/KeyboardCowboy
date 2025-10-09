@@ -1,14 +1,15 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct EmptyGroupsList: View {
   @Binding private var isVisible: Bool
   private let onAction: (GroupsList.Action) -> Void
   private let namespace: Namespace.ID
 
-  init(_ namespace: Namespace.ID, 
+  init(_ namespace: Namespace.ID,
        isVisible: Binding<Bool>,
-       onAction: @escaping (GroupsList.Action) -> Void) {
+       onAction: @escaping (GroupsList.Action) -> Void)
+  {
     _isVisible = isVisible
     self.namespace = namespace
     self.onAction = onAction

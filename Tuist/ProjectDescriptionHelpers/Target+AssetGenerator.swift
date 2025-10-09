@@ -11,17 +11,17 @@ public extension Target {
       infoPlist: .file(path: .relativeToRoot("AssetGenerator/Info.plist")),
       sources: SourceFilesList(arrayLiteral: sources("AssetGenerator")),
       dependencies: [
-        .target(name: "Keyboard-Cowboy")
+        .target(name: "Keyboard-Cowboy"),
       ],
       settings:
-        Settings.settings(base: [
-          "BUNDLE_LOADER": "$(TEST_HOST)",
-          "CODE_SIGN_IDENTITY": "Apple Development",
-          "CODE_SIGN_STYLE": "-",
-          "DEVELOPMENT_TEAM": env["TEAM_ID"],
-          "PRODUCT_BUNDLE_IDENTIFIER": "\(bundleId).AssetGenerator",
-          "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Keyboard Cowboy.app/Contents/MacOS/Keyboard Cowboy",
-        ])
+      Settings.settings(base: [
+        "BUNDLE_LOADER": "$(TEST_HOST)",
+        "CODE_SIGN_IDENTITY": "Apple Development",
+        "CODE_SIGN_STYLE": "-",
+        "DEVELOPMENT_TEAM": env["TEAM_ID"],
+        "PRODUCT_BUNDLE_IDENTIFIER": "\(bundleId).AssetGenerator",
+        "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Keyboard Cowboy.app/Contents/MacOS/Keyboard Cowboy",
+      ]),
     )
   }
 }

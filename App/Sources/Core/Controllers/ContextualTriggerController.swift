@@ -17,12 +17,12 @@ final class ContextualTriggerController {
     systemInfoSubscription = publisher
       .debounce(for: 0.5, scheduler: DispatchQueue.main)
       .sink { [weak self] context in
-      self?.evaluate(context)
-    }
+        self?.evaluate(context)
+      }
   }
 
   private func receive(_ groups: [WorkflowGroup]) {
-    let workflows = groups.flatMap({ $0.workflows })
+    let workflows = groups.flatMap(\.workflows)
 
     workflows.forEach { workflow in
       guard workflow.isEnabled else { return }
@@ -32,6 +32,6 @@ final class ContextualTriggerController {
   }
 
   private func evaluate(_ context: SystemInfo.Context) {
-    self.currentContext = context
+    currentContext = context
   }
 }

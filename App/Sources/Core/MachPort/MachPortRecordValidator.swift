@@ -18,11 +18,11 @@ final class MachPortRecordValidator {
     }
 
     let virtualModifiers = VirtualModifierKey.modifiers(for: keyCode, flags: machPortEvent.event.flags, specialKeys: Array(store.specialKeys().keys))
-    let modifiers = virtualModifiers.compactMap({ ModifierKey(rawValue: $0.rawValue) })
+    let modifiers = virtualModifiers.compactMap { ModifierKey(rawValue: $0.rawValue) }
     let keyboardShortcut = KeyShortcut(
       id: UUID().uuidString,
       key: displayValue,
-      modifiers: modifiers
+      modifiers: modifiers,
     )
 
     if allowAllKeys {

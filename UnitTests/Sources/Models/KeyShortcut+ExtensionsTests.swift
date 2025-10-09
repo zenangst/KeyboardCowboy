@@ -1,8 +1,8 @@
 import Carbon
-import Testing
 @testable import Keyboard_Cowboy
+import Testing
 
-fileprivate let tests: [Test] = [
+private let tests: [Test] = [
   // Standard ANSI characters
   Test(key: "a", isEqualTo: kVK_ANSI_A),
   Test(key: "A", isEqualTo: kVK_ANSI_A),
@@ -156,7 +156,7 @@ private func verifyKeyCode(_ test: Test) {
   #expect(KeyShortcut(key: test.key).keyCode == test.keyCode)
 }
 
-fileprivate struct Test {
+private struct Test {
   let key: String
   let keyCode: Int
 

@@ -16,8 +16,7 @@ struct DockIconView: View {
       .overlay(alignment: .bottom) {
         RoundedRectangle(cornerRadius: size * 0.0425)
           .frame(width: size * 0.75, height: size * 0.15)
-          .overlay(alignment: .top) {
-          }
+          .overlay(alignment: .top) {}
           .offset(y: -size * 0.075)
           .rotation3DEffect(.degrees(15), axis: (x: 1.0, y: 0.0, z: 0.0))
       }

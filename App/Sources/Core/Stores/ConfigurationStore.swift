@@ -14,19 +14,19 @@ final class ConfigurationStore: ObservableObject, @unchecked Sendable {
     _selectedId = .init(initialValue: AppStorageContainer.shared.configId)
 
     if let configuration = configurations.first(where: { $0.id == selectedId }) {
-      self.selectedConfiguration = configuration
-      self.selectedId = configuration.id
-    } else if let configuration = configurations.first  {
-      self.selectedConfiguration = configuration
-      self.selectedId = configuration.id
+      selectedConfiguration = configuration
+      selectedId = configuration.id
+    } else if let configuration = configurations.first {
+      selectedConfiguration = configuration
+      selectedId = configuration.id
     } else {
       let configuration = KeyboardCowboyConfiguration(
         name: "Default configuration",
         userModes: [],
-        groups: []
+        groups: [],
       )
-      self.selectedConfiguration = configuration
-      self.selectedId = configuration.id
+      selectedConfiguration = configuration
+      selectedId = configuration.id
       self.configurations = [configuration]
     }
     return self
@@ -62,7 +62,7 @@ final class ConfigurationStore: ObservableObject, @unchecked Sendable {
       return
     }
 
-    var newConfigurations = self.configurations
+    var newConfigurations = configurations
 
     guard newConfigurations[index] != configuration else { return }
 
@@ -70,6 +70,6 @@ final class ConfigurationStore: ObservableObject, @unchecked Sendable {
     if KeyboardCowboyApp.env() == .production {
       select(configuration)
     }
-    self.configurations = newConfigurations
+    configurations = newConfigurations
   }
 }

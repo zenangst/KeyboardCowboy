@@ -30,14 +30,14 @@ public struct EnvHelper: Sendable {
       }
     } else {
       env = [
-        "APP_NAME" : "Keyboard Cowboy",
-        "APP_SCHEME" : "Keyboard-Cowboy",
-        "APP_BUNDLE_IDENTIFIER" : "com.zenangst.Keyboard-Cowboy",
-        "TEAM_ID" : "XXXXXXXXXX",
-        "PACKAGE_DEVELOPMENT" : "false",
+        "APP_NAME": "Keyboard Cowboy",
+        "APP_SCHEME": "Keyboard-Cowboy",
+        "APP_BUNDLE_IDENTIFIER": "com.zenangst.Keyboard-Cowboy",
+        "TEAM_ID": "XXXXXXXXXX",
+        "PACKAGE_DEVELOPMENT": "false",
       ]
     }
 
-    self.dictionary = env
+    dictionary = env
   }
 }

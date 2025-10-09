@@ -4,7 +4,7 @@ extension KeyboardCowboyConfiguration {
   @discardableResult mutating func update<Value>(
     groupID: WorkflowGroup.ID,
     keyPath: WritableKeyPath<WorkflowGroup, Value>,
-    newValue: Value
+    newValue: Value,
   ) -> Bool {
     guard let groupIndex = resolveIndex(groupID: groupID) else { return false }
 
@@ -14,9 +14,10 @@ extension KeyboardCowboyConfiguration {
 
   @discardableResult mutating func modify(
     groupID: WorkflowGroup.ID,
-    modify: (inout WorkflowGroup) -> Void
+    modify: (inout WorkflowGroup) -> Void,
   ) -> Bool {
     guard let groupIndex = resolveIndex(groupID: groupID) else { return false }
+
     var group = groups[groupIndex]
     let oldGroup = group
     modify(&group)
@@ -29,9 +30,10 @@ extension KeyboardCowboyConfiguration {
 
   @discardableResult mutating func replace(
     groupID: WorkflowGroup.ID,
-    group newGroup: WorkflowGroup
+    group newGroup: WorkflowGroup,
   ) -> Bool {
     guard let groupIndex = resolveIndex(groupID: groupID) else { return false }
+
     groups[groupIndex] = newGroup
     return true
   }

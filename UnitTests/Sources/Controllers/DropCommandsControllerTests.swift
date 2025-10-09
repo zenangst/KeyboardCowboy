@@ -1,5 +1,5 @@
-@testable import Keyboard_Cowboy
 import Apps
+@testable import Keyboard_Cowboy
 import XCTest
 
 class DropCommandsControllerTests: XCTestCase {
@@ -11,14 +11,14 @@ class DropCommandsControllerTests: XCTestCase {
 
   func testGeneratingApplicationCommand() {
     let commands = DropCommandsController.generateCommands(from: [
-      URL(fileURLWithPath: "/System/Applications/Notes.app")
+      URL(fileURLWithPath: "/System/Applications/Notes.app"),
     ], applications: [
       Application(bundleIdentifier: "com.apple.Notes",
                   bundleName: "Notes",
-                  path: "/System/Applications/Notes.app")
+                  path: "/System/Applications/Notes.app"),
     ])
 
-    guard case .application(let applicationCommand) = commands.first else {
+    guard case let .application(applicationCommand) = commands.first else {
       XCTFail("Expected application command")
       return
     }
@@ -33,9 +33,9 @@ class DropCommandsControllerTests: XCTestCase {
       .appendingPathComponent("AppleScript.scpt")
 
     let commands = DropCommandsController.generateCommands(from: [
-      URL(fileURLWithPath: path.absoluteString)
+      URL(fileURLWithPath: path.absoluteString),
     ], applications: [])
-    guard case .script(let scriptCommand) = commands.first else {
+    guard case let .script(scriptCommand) = commands.first else {
       XCTFail("Expected script command")
       return
     }
@@ -50,10 +50,10 @@ class DropCommandsControllerTests: XCTestCase {
       .appendingPathComponent("script.sh")
 
     let commands = DropCommandsController.generateCommands(from: [
-      URL(fileURLWithPath: path.absoluteString)
+      URL(fileURLWithPath: path.absoluteString),
     ], applications: [])
 
-    guard case .script(let scriptCommand) = commands.first else {
+    guard case let .script(scriptCommand) = commands.first else {
       XCTFail("Expected script command")
       return
     }
@@ -68,10 +68,10 @@ class DropCommandsControllerTests: XCTestCase {
       .appendingPathComponent("file")
 
     let commands = DropCommandsController.generateCommands(from: [
-      URL(fileURLWithPath: path.absoluteString)
+      URL(fileURLWithPath: path.absoluteString),
     ], applications: [])
 
-    guard case .open(let openCommand) = commands.first else {
+    guard case let .open(openCommand) = commands.first else {
       XCTFail("Expected open command")
       return
     }
@@ -83,7 +83,7 @@ class DropCommandsControllerTests: XCTestCase {
     let commands = DropCommandsController.generateCommands(from: [URL(string: "https://www.apple.com")!],
                                                            applications: [])
 
-    guard case .open(let openCommand) = commands.first else {
+    guard case let .open(openCommand) = commands.first else {
       XCTFail("Expected open command")
       return
     }

@@ -28,7 +28,7 @@ enum WindowTiling: String, Identifiable, CaseIterable, Codable, Hashable {
 
   var displayValue: String {
     switch self {
-    case .left:  "Left"
+    case .left: "Left"
     case .right: "Right"
     case .top: "Top"
     case .bottom: "Bottom"
@@ -84,28 +84,28 @@ enum WindowTiling: String, Identifiable, CaseIterable, Codable, Hashable {
 extension WindowTiling {
   var revesed: WindowTiling {
     switch self {
-    case .left:                   .right
-    case .right:                  .left
-    case .top:                    .bottom
-    case .bottom:                 .top
-    case .topLeft:                .topRight
-    case .topRight:               .topLeft
-    case .bottomLeft:             .bottomRight
-    case .bottomRight:            .bottomLeft
-    case .center:                 .center
-    case .fill:                   .fill
-    case .zoom:                   .zoom
-    case .arrangeLeftRight:       .arrangeRightLeft
-    case .arrangeRightLeft:       .arrangeLeftRight
-    case .arrangeTopBottom:       .arrangeBottomTop
-    case .arrangeBottomTop:       .arrangeTopBottom
-    case .arrangeLeftQuarters:    .arrangeRightQuarters
-    case .arrangeRightQuarters:   .arrangeLeftQuarters
-    case .arrangeTopQuarters:     .arrangeBottomQuarters
-    case .arrangeBottomQuarters:  .arrangeTopQuarters
+    case .left: .right
+    case .right: .left
+    case .top: .bottom
+    case .bottom: .top
+    case .topLeft: .topRight
+    case .topRight: .topLeft
+    case .bottomLeft: .bottomRight
+    case .bottomRight: .bottomLeft
+    case .center: .center
+    case .fill: .fill
+    case .zoom: .zoom
+    case .arrangeLeftRight: .arrangeRightLeft
+    case .arrangeRightLeft: .arrangeLeftRight
+    case .arrangeTopBottom: .arrangeBottomTop
+    case .arrangeBottomTop: .arrangeTopBottom
+    case .arrangeLeftQuarters: .arrangeRightQuarters
+    case .arrangeRightQuarters: .arrangeLeftQuarters
+    case .arrangeTopQuarters: .arrangeBottomQuarters
+    case .arrangeBottomQuarters: .arrangeTopQuarters
     case .arrangeDynamicQuarters: .arrangeDynamicQuarters
-    case .arrangeQuarters:        .arrangeQuarters
-    case .previousSize:           .previousSize
+    case .arrangeQuarters: .arrangeQuarters
+    case .previousSize: .previousSize
     }
   }
 
@@ -125,64 +125,64 @@ extension WindowTiling {
         origin: CGPoint(x: minX, y: minY),
         size: CGSize(
           width: halfWidth - spacingX,
-          height: visibleFrame.height - spacingY
-        )
+          height: visibleFrame.height - spacingY,
+        ),
       )
     case .right:
       return CGRect(
         origin: CGPoint(x: midX, y: minY),
         size: CGSize(
           width: halfWidth - spacingX,
-          height: visibleFrame.height - spacingY
-        )
+          height: visibleFrame.height - spacingY,
+        ),
       )
     case .top:
       return CGRect(
         origin: CGPoint(x: minX, y: minY),
         size: CGSize(
           width: visibleFrame.width - spacingX,
-          height: halfHeight - spacingY
-        )
+          height: halfHeight - spacingY,
+        ),
       )
     case .bottom:
       return CGRect(
         origin: CGPoint(x: minX, y: maxY),
         size: CGSize(
           width: visibleFrame.width - spacingX,
-          height: halfHeight - spacingY
-        )
+          height: halfHeight - spacingY,
+        ),
       )
     case .topLeft:
       return CGRect(
         origin: CGPoint(x: minX, y: minY),
         size: CGSize(
           width: halfWidth - spacingX,
-          height: halfHeight - spacingY
-        )
+          height: halfHeight - spacingY,
+        ),
       )
     case .topRight:
       return CGRect(
         origin: CGPoint(x: midX, y: minY),
         size: CGSize(
           width: halfWidth - spacingX,
-          height: halfHeight - spacingY
-        )
+          height: halfHeight - spacingY,
+        ),
       )
     case .bottomLeft:
       return CGRect(
         origin: CGPoint(x: minX, y: maxY),
         size: CGSize(
           width: halfWidth - spacingX,
-          height: halfHeight - spacingY
-        )
+          height: halfHeight - spacingY,
+        ),
       )
     case .bottomRight:
       return CGRect(
         origin: CGPoint(x: midX, y: maxY),
         size: CGSize(
           width: halfWidth - spacingX,
-          height: halfHeight - spacingY
-        )
+          height: halfHeight - spacingY,
+        ),
       )
     case .fill:
       return visibleFrame

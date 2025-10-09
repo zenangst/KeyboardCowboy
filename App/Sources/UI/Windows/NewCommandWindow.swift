@@ -7,16 +7,17 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
   enum Context: Identifiable, Hashable, Codable {
     var id: String {
       switch self {
-      case .newCommand(let workflowId):
-        return workflowId
-      case .editCommand(let workflowId, let commandId):
-        return workflowId + commandId
+      case let .newCommand(workflowId):
+        workflowId
+      case let .editCommand(workflowId, commandId):
+        workflowId + commandId
       }
     }
 
     case newCommand(workflowId: Workflow.ID)
     case editCommand(workflowId: Workflow.ID, commandId: Command.ID)
   }
+
   private var window: NSWindow?
 
   private let onSave: (_ workflowId: Workflow.ID,
@@ -35,13 +36,15 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     hideWhenRunning: false,
     ifNotRunning: false,
     waitForAppToLaunch: false,
-    addToStage: false)
+    addToStage: false,
+  )
 
   init(context: NewCommandWindow.Context,
        contentStore: ContentStore,
        uiElementCaptureStore: UIElementCaptureStore,
        configurationPublisher: ConfigurationPublisher,
-       onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void) {
+       onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void)
+  {
     self.context = context
     self.contentStore = contentStore
     self.configurationPublisher = configurationPublisher
@@ -59,7 +62,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     ]
     let window = ZenSwiftUIWindow(styleMask: styleMask) {
       switch context {
-      case .editCommand(let workflowId, let commandId):
+      case let .editCommand(workflowId, commandId):
         if let command = contentStore.groupStore.command(withId: commandId, workflowId: workflowId) {
           contentView(workflowId,
                       title: command.name,
@@ -70,7 +73,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
           contentView(workflowId, title: "Untitled command", selection: defaultSelection,
                       payload: defaultPayload, commandId: nil)
         }
-      case .newCommand(let workflowId):
+      case let .newCommand(workflowId):
         contentView(workflowId, title: "Untitled command", selection: defaultSelection,
                     payload: defaultPayload, commandId: nil)
       }
@@ -90,7 +93,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
 
   // MARK: NSWindowDelegate
 
-  func windowWillClose(_ notification: Notification) {
+  func windowWillClose(_: Notification) {
     window = nil
   }
 
@@ -101,7 +104,8 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
                            title: String,
                            selection: NewCommandView.Kind,
                            payload: NewCommandPayload,
-                           commandId: Command.ID?) -> some View {
+                           commandId: Command.ID?) -> some View
+  {
     NewCommandView(
       workflowId: workflowId,
       commandId: commandId,
@@ -112,9 +116,11 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
         self.window?.close()
       }, onSave: { [weak self] payload, title in
         guard let self else { return }
-        self.onSave(workflowId, commandId, title, payload)
-        self.window?.close()
-      })
+
+        onSave(workflowId, commandId, title, payload)
+        window?.close()
+      },
+    )
     .environmentObject(contentStore.recorderStore)
     .environmentObject(contentStore.shortcutStore)
     .environmentObject(contentStore.applicationStore)
@@ -126,11 +132,11 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
 
   private func payload(for command: Command) -> NewCommandPayload {
     switch command {
-    case .application(let applicationCommand):
+    case let .application(applicationCommand):
       let action: NewCommandApplicationView.ApplicationAction = switch applicationCommand.action {
-      case .open:  .open
+      case .open: .open
       case .close: .close
-      case .hide:  .hide
+      case .hide: .hide
       case .unhide: .unhide
       case .peek: .peek
       }
@@ -150,52 +156,52 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
                           addToStage: addToStage)
     case .builtIn, .bundled:
       return .placeholder
-    case .menuBar(let command):
+    case let .menuBar(command):
       return .menuBar(tokens: command.tokens, application: command.application)
-    case .mouse(let command):
+    case let .mouse(command):
       return .mouse(kind: command.kind)
-    case .keyboard(let command):
+    case let .keyboard(command):
       switch command.kind {
-      case .key(let command):
+      case let .key(command):
         return .keyboardShortcut(command.keyboardShortcuts)
-      case .inputSource(let command):
+      case let .inputSource(command):
         return .inputSource(id: command.id, name: command.name)
       }
-    case .open(let openCommand):
+    case let .open(openCommand):
       return .open(path: openCommand.path, application: openCommand.application)
-    case .shortcut(let shortcutCommand):
+    case let .shortcut(shortcutCommand):
       return .shortcut(name: shortcutCommand.name)
-    case .script(let scriptCommand):
+    case let .script(scriptCommand):
       let source: String
       let kind: NewCommandScriptView.Kind
       let scriptExtension: NewCommandScriptView.ScriptExtension
 
       switch (scriptCommand.kind, scriptCommand.source) {
-      case (.appleScript, .inline(let newSource)):
+      case let (.appleScript, .inline(newSource)):
         source = newSource
         kind = .source
         scriptExtension = .appleScript
-      case (.appleScript, .path(let path)):
+      case let (.appleScript, .path(path)):
         source = path
         kind = .file
         scriptExtension = .appleScript
-      case (.shellScript, .inline(let newSource)):
+      case let (.shellScript, .inline(newSource)):
         source = newSource
         kind = .source
         scriptExtension = .shellScript
-      case (.shellScript, .path(let path)):
+      case let (.shellScript, .path(path)):
         source = path
         kind = .file
         scriptExtension = .shellScript
       }
 
       return .script(value: source, kind: kind, scriptExtension: scriptExtension)
-    case .text(let textCommand):
+    case let .text(textCommand):
       switch textCommand.kind {
-      case .insertText(let typeCommand):
+      case let .insertText(typeCommand):
         return .text(.init(.insertText(typeCommand)))
       }
-    case .systemCommand(let systemCommand):
+    case let .systemCommand(systemCommand):
       return switch systemCommand.kind {
       case .activateLastApplication: .systemCommand(kind: .activateLastApplication)
       case .applicationWindows: .systemCommand(kind: .applicationWindows)
@@ -205,11 +211,11 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
       case .missionControl: .systemCommand(kind: .missionControl)
       case .showDesktop: .systemCommand(kind: .showDesktop)
       }
-    case .uiElement(let model):
+    case let .uiElement(model):
       return .uiElement(predicates: model.predicates)
-    case .windowFocus(let command): return .windowFocus(kind: command.kind)
-    case .windowManagement(let command): return .windowManagement(kind: command.kind)
-    case .windowTiling(let command): return .windowTiling(kind: command.kind)
+    case let .windowFocus(command): return .windowFocus(kind: command.kind)
+    case let .windowManagement(command): return .windowManagement(kind: command.kind)
+    case let .windowTiling(command): return .windowTiling(kind: command.kind)
     }
   }
 
@@ -231,5 +237,6 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     default: .windowManagement
     }
   }
-#warning("Should we implement this?")
+
+  #warning("Should we implement this?")
 }

@@ -6,11 +6,12 @@ extension KeyboardCowboyConfiguration {
     workflowID: Workflow.ID,
     commandID: Command.ID,
     keyPath: WritableKeyPath<Command, Value>,
-    newValue: Value
+    newValue: Value,
   ) -> Bool {
     guard let (groupIndex, workflowIndex, commandIndex) = resolveIndexes(groupID: groupID, workflowID: workflowID, commandID: commandID) else {
       return false
     }
+
     groups[groupIndex].workflows[workflowIndex].commands[commandIndex][keyPath: keyPath] = newValue
     return true
   }
@@ -19,11 +20,12 @@ extension KeyboardCowboyConfiguration {
     groupID: WorkflowGroup.ID,
     workflowID: Workflow.ID,
     commandID: Command.ID,
-    modify: (inout Command) -> Void
+    modify: (inout Command) -> Void,
   ) -> Bool {
     guard let (groupIndex, workflowIndex, commandIndex) = resolveIndexes(groupID: groupID, workflowID: workflowID, commandID: commandID) else {
       return false
     }
+
     var command = groups[groupIndex].workflows[workflowIndex].commands[commandIndex]
     let oldCommand = command
 
@@ -39,7 +41,7 @@ extension KeyboardCowboyConfiguration {
     groupID: WorkflowGroup.ID,
     workflowID: Workflow.ID,
     commandID: Command.ID,
-    command newCommand: Command
+    command newCommand: Command,
   ) -> Bool {
     guard let (groupIndex, workflowIndex, commandIndex) = resolveIndexes(groupID: groupID, workflowID: workflowID, commandID: commandID) else {
       return false
@@ -52,11 +54,12 @@ extension KeyboardCowboyConfiguration {
   @discardableResult mutating func append(
     groupID: WorkflowGroup.ID,
     workflowID: Workflow.ID,
-    command newCommand: Command
+    command newCommand: Command,
   ) -> Bool {
     guard let (groupIndex, workflowIndex) = resolveIndexes(groupID: groupID, workflowID: workflowID) else {
       return false
     }
+
     groups[groupIndex].workflows[workflowIndex].commands.append(newCommand)
     return true
   }
@@ -65,7 +68,7 @@ extension KeyboardCowboyConfiguration {
     groupID: WorkflowGroup.ID,
     workflowID: Workflow.ID,
     command newCommand: Command,
-    at index: Int
+    at index: Int,
   ) -> Bool {
     guard let (groupIndex, workflowIndex) = resolveIndexes(groupID: groupID, workflowID: workflowID) else {
       return false

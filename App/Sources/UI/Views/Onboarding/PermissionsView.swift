@@ -1,6 +1,6 @@
+import Bonzai
 import Inject
 import SwiftUI
-import Bonzai
 
 struct PermissionsView: View {
   @ObserveInjection var inject
@@ -8,6 +8,7 @@ struct PermissionsView: View {
     case github
     case requestPermissions
   }
+
   @State var animated: Bool = false
   @State var done: Bool = false
 
@@ -89,8 +90,8 @@ struct PermissionsView: View {
 }
 
 struct PermissionsView_Previews: PreviewProvider {
-    static var previews: some View {
-      PermissionsView(onAction: { _ in })
-        .previewLayout(.sizeThatFits)
-    }
+  static var previews: some View {
+    PermissionsView(onAction: { _ in })
+      .previewLayout(.sizeThatFits)
+  }
 }

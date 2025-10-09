@@ -10,14 +10,14 @@ struct ImprovementIconView: View {
           .init(color: Color(.systemOrange.blended(withFraction: 0.6, of: .black)!), location: 0.0),
           .init(color: Color(.systemYellow), location: 0.6),
           .init(color: Color(.systemRed.blended(withFraction: 0.6, of: .white)!), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
+        ], startPoint: .topLeading, endPoint: .bottom),
       )
       .overlay {
         LinearGradient(stops: [
           .init(color: Color(.systemOrange), location: 0.5),
           .init(color: Color(.systemRed.blended(withFraction: 0.3, of: .white)!), location: 1.0),
         ], startPoint: .topTrailing, endPoint: .bottomTrailing)
-        .opacity(0.6)
+          .opacity(0.6)
       }
       .overlay {
         LinearGradient(stops: [
@@ -43,4 +43,3 @@ struct ImprovementIconView: View {
 #Preview {
   IconPreview { ImprovementIconView(size: $0) }
 }
-

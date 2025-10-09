@@ -14,10 +14,10 @@ struct UIElementIconView: View {
         UIElementIconViewFinderView(size)
         UIElementIconEllipsisView(size)
       }
-    .compositingGroup()
-    .frame(width: size, height: size)
-    .fixedSize()
-    .iconShape(size)
+      .compositingGroup()
+      .frame(width: size, height: size)
+      .fixedSize()
+      .iconShape(size)
   }
 }
 
@@ -29,7 +29,7 @@ struct UIElementIconGradientView: View {
         .init(color: .clear, location: 0.75),
       ]),
       startPoint: .topTrailing,
-      endPoint: .bottomLeading
+      endPoint: .bottomLeading,
     )
 
     LinearGradient(
@@ -38,7 +38,7 @@ struct UIElementIconGradientView: View {
         .init(color: .clear, location: 0.5),
       ]),
       startPoint: .topLeading,
-      endPoint: .bottomTrailing
+      endPoint: .bottomTrailing,
     )
 
     LinearGradient(
@@ -47,7 +47,7 @@ struct UIElementIconGradientView: View {
         .init(color: .clear, location: 0.4),
       ]),
       startPoint: .top,
-      endPoint: .bottom
+      endPoint: .bottom,
     )
 
     LinearGradient(
@@ -56,7 +56,7 @@ struct UIElementIconGradientView: View {
         .init(color: .clear, location: 1.0),
       ]),
       startPoint: .trailing,
-      endPoint: .leading
+      endPoint: .leading,
     )
   }
 }
@@ -79,7 +79,8 @@ private struct UIElementIconEllipsisView: View {
           .init(color: Color(.systemYellow), location: 0.3),
           .init(color: Color(.systemOrange), location: 0.6),
           .init(color: Color(.systemRed), location: 1.0),
-        ], startPoint: .top, endPoint: .bottomTrailing))
+        ], startPoint: .top, endPoint: .bottomTrailing),
+      )
       .shadow(radius: 5)
       .frame(width: size * 0.64, height: size * 0.64)
       .offset(x: size * 0.0125)
@@ -108,4 +109,3 @@ private struct UIElementIconViewFinderView: View {
 #Preview {
   IconPreview { UIElementIconView(size: $0) }
 }
-

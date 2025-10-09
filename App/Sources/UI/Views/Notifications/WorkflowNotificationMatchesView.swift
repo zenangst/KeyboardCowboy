@@ -6,11 +6,11 @@ extension AnyTransition {
   static var moveAndFade: AnyTransition {
     .asymmetric(
       insertion:
-          .scale(scale: 0.1, anchor: .trailing)
-          .combined(with: .opacity)
-      ,
+      .scale(scale: 0.1, anchor: .trailing)
+        .combined(with: .opacity),
+
       removal:
-          .scale.combined(with: .opacity)
+      .scale.combined(with: .opacity),
     )
   }
 }
@@ -24,12 +24,13 @@ struct WorkflowNotificationMatchesView: View {
       lhs.trigger.keyShortcutsCount < rhs.trigger.keyShortcutsCount
     })
     let columnCount = (maxWorkflow?.trigger.keyShortcutsCount ?? 0) + 1
-    var gridItems: [GridItem] = [ ]
-    let _ = Array(0..<columnCount - 1).forEach { offset in
+    var gridItems: [GridItem] = []
+    let _ = Array(0 ..< columnCount - 1).forEach { _ in
       gridItems.append(GridItem(
         .flexible(minimum: 36, maximum: .infinity),
         spacing: 8,
-        alignment: .trailing))
+        alignment: .trailing,
+      ))
     }
     let _ = gridItems.append(GridItem(.fixed(26), alignment: .trailing))
 
@@ -48,7 +49,7 @@ struct WorkflowNotificationMatchesView: View {
             Grid(alignment: .trailing) {
               GridRow {
                 switch workflow.trigger {
-                case .keyboardShortcuts(let trigger):
+                case let .keyboardShortcuts(trigger):
                   ForEach(Array(zip(trigger.shortcuts.indices, trigger.shortcuts)), id: \.1) { offset, shortcut in
                     WorkflowNotificationKeyView(keyShortcut: shortcut, glow: .constant(false))
                       .roundedStyle(4, padding: 1)
@@ -69,14 +70,14 @@ struct WorkflowNotificationMatchesView: View {
         .padding(8)
         .background(
           Color.clear
-          .roundedStyle(8, padding: 2)
-          .mask {
-            LinearGradient(stops: [
-              Gradient.Stop(color: .black.opacity(0.8), location: 0.0),
-              Gradient.Stop(color: .black, location: 0.4),
-            ], startPoint: .top, endPoint: .bottom)
-            .padding(-8)
-          }
+            .roundedStyle(8, padding: 2)
+            .mask {
+              LinearGradient(stops: [
+                Gradient.Stop(color: .black.opacity(0.8), location: 0.0),
+                Gradient.Stop(color: .black, location: 0.4),
+              ], startPoint: .top, endPoint: .bottom)
+                .padding(-8)
+            },
         )
         .shadow(radius: 3)
       }
@@ -88,11 +89,10 @@ struct WorkflowNotificationMatchesView: View {
     .enableInjection()
   }
 
-
   @ViewBuilder
   func padding(_ workflow: Workflow, columnCount: Int) -> some View {
-    let count = (columnCount) - workflow.trigger.keyShortcutsCount
-    let padding = (0..<count).map { Padding(id: "\($0)_\(workflow.id)") }
+    let count = columnCount - workflow.trigger.keyShortcutsCount
+    let padding = (0 ..< count).map { Padding(id: "\($0)_\(workflow.id)") }
     ForEach(padding) { _ in
       Spacer()
     }
@@ -109,9 +109,9 @@ struct WorkflowNotificationMatchesView_Previews: PreviewProvider {
       glow: false,
       keyboardShortcuts: [
         KeyShortcut(key: "d", modifiers: [.leftControl, .leftOption, .leftCommand]),
-        KeyShortcut(key: "d")
-      ]
-    )
+        KeyShortcut(key: "d"),
+      ],
+    ),
   )
   static var previews: some View {
     WorkflowNotificationMatchesView(publisher: publisher)
@@ -125,8 +125,8 @@ private struct Padding: Hashable, Identifiable {
 private extension Workflow.Trigger? {
   var keyShortcutsCount: Int {
     switch self {
-    case .keyboardShortcuts(let keyboardShortcutTrigger):
-       keyboardShortcutTrigger.shortcuts.count
+    case let .keyboardShortcuts(keyboardShortcutTrigger):
+      keyboardShortcutTrigger.shortcuts.count
     case .application, .snippet, .none, .modifier: 0
     }
   }

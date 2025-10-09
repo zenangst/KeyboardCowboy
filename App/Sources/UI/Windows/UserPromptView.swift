@@ -8,7 +8,7 @@ import SwiftUI
 final class UserPromptWindow: NSObject, NSWindowDelegate {
   private var window: NSWindow?
 
-  func open<Content>(_ content: () -> Content) where Content: View {
+  func open(_ content: () -> some View) {
     if window != nil {
       window?.orderFrontRegardless()
       return
@@ -25,13 +25,13 @@ final class UserPromptWindow: NSObject, NSWindowDelegate {
     self.window = window
   }
 
-  func windowWillClose(_ notification: Notification) {
-    self.window = nil
+  func windowWillClose(_: Notification) {
+    window = nil
   }
 
   // MARK: Private methods
 
-  private func createWindow<Content>(_ content: () -> Content) -> NSWindow where Content: View {
+  private func createWindow(_ content: () -> some View) -> NSWindow {
     let styleMask: NSWindow.StyleMask = [.titled, .closable, .resizable, .fullSizeContentView]
     let windowEnv = WindowEnvironment()
     let window = ZenSwiftUIWindow(contentRect: .zero, styleMask: styleMask) {
@@ -49,7 +49,7 @@ final class UserPromptWindow: NSObject, NSWindowDelegate {
                     .init(color: .clear, location: 1),
                   ],
                   startPoint: .top,
-                  endPoint: .bottom
+                  endPoint: .bottom,
                 )
               }
             ZenVisualEffectView(material: .contentBackground)
@@ -60,13 +60,13 @@ final class UserPromptWindow: NSObject, NSWindowDelegate {
                     .init(color: .black, location: 0.75),
                   ],
                   startPoint: .top,
-                  endPoint: .bottom
+                  endPoint: .bottom,
                 )
               }
-          }
-      )
-      .ignoresSafeArea(.all)
-      .environmentObject(windowEnv)
+          },
+        )
+        .ignoresSafeArea(.all)
+        .environmentObject(windowEnv)
     }
     window.setFrame(NSRect(origin: .zero, size: .zero), display: false)
 

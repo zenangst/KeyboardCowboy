@@ -32,16 +32,13 @@ public extension Scheme {
       case .development: true
       }
     }
-
   }
 
   static func app(_ kind: Kind, appTarget: Target, unitTestTarget: Target? = nil) -> Scheme {
-    let testableTargets: [TestableTarget]
-
-    if let unitTestTarget {
-      testableTargets = [.testableTarget(target: .target(unitTestTarget.name))]
+    let testableTargets: [TestableTarget] = if let unitTestTarget {
+      [.testableTarget(target: .target(unitTestTarget.name))]
     } else {
-      testableTargets = []
+      []
     }
 
     return Scheme.scheme(
@@ -57,13 +54,14 @@ public extension Scheme {
             "SOURCE_ROOT": .environmentVariable(value: Router.sourceRoot, isEnabled: true),
           ],
           launchArguments: [
-            .launchArgument(name: "-running-unit-tests", isEnabled: true)
-          ])
-        ,
+            .launchArgument(name: "-running-unit-tests", isEnabled: true),
+          ],
+        ),
+
         options: .options(
           coverage: true,
-          codeCoverageTargets: [.target(appTarget.name)]
-        )
+          codeCoverageTargets: [.target(appTarget.name)],
+        ),
       ),
       runAction: .runAction(
         executable: .target(appTarget.name),
@@ -77,10 +75,10 @@ public extension Scheme {
             .launchArgument(name: "-debugEditing", isEnabled: false),
             .launchArgument(name: "-injection", isEnabled: kind.injection),
             .launchArgument(name: "-disableMachPorts", isEnabled: kind.disableMachPorts),
-            .launchArgument(name: "-openWindowAtLaunch", isEnabled: kind.openWindowAtLaunch)
-          ]
-        )
-      )
+            .launchArgument(name: "-openWindowAtLaunch", isEnabled: kind.openWindowAtLaunch),
+          ],
+        ),
+      ),
     )
   }
 }

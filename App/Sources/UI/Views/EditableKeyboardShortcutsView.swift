@@ -6,16 +6,15 @@ extension AnyTransition {
   static var keyboardTransition: AnyTransition {
     .asymmetric(
       insertion:
-          .scale(scale: 0.1, anchor: .bottom)
-          .combined(with: .move(edge: .bottom))
-          .combined(with: .opacity)
-      ,
+      .scale(scale: 0.1, anchor: .bottom)
+        .combined(with: .move(edge: .bottom))
+        .combined(with: .opacity),
+
       removal:
-          .scale.combined(with: .opacity)
+      .scale.combined(with: .opacity),
     )
   }
 }
-
 
 struct EditableKeyboardShortcutsView<T: Hashable>: View {
   enum CurrentState: Hashable {
@@ -60,7 +59,8 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
        state: CurrentState? = nil,
        selectionManager: SelectionManager<KeyShortcut>,
        recordOnAppearIfEmpty: Bool = false,
-       onTab: @escaping (Bool) -> Void) {
+       onTab: @escaping (Bool) -> Void)
+  {
     self.focus = focus
     self.mode = mode
     self.draggableEnabled = draggableEnabled
@@ -89,11 +89,11 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                   _ = withAnimation(animation) {
                     keyboardShortcuts.remove(at: index)
                   }
-                }
+                },
               )
               .modifier(DraggableToggle(isEnabled: draggableEnabled, model: keyboardShortcut.wrappedValue))
               .contentShape(Rectangle())
-              .dropDestination(KeyShortcut.self, alignment: .horizontal, color: .accentColor, onDrop: { items, location in
+              .dropDestination(KeyShortcut.self, alignment: .horizontal, color: .accentColor, onDrop: { items, _ in
                 let ids: [KeyShortcut.ID] = if selectionManager.selections.isEmpty {
                   items.map(\.id)
                 } else {
@@ -130,7 +130,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
               })
               .simultaneousGesture(
                 TapGesture(count: 2)
-                  .onEnded { _ in handleEdit(keyboardShortcut.id) }
+                  .onEnded { _ in handleEdit(keyboardShortcut.id) },
               )
               .id(keyboardShortcut.id)
             }
@@ -148,14 +148,15 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                 direction,
                 keyboardShortcuts,
                 proxy: proxy,
-                vertical: false) {
+                vertical: false,
+              ) {
                 focus.wrappedValue = focusBinding(elementID)
               }
             })
             .onDeleteCommand {
               let fromOffsets = IndexSet(keyboardShortcuts.enumerated()
                 .filter { selectionManager.selections.contains($0.element.id) }
-                .map { $0.offset })
+                .map(\.offset))
 
               withAnimation(animation) {
                 keyboardShortcuts.remove(atOffsets: fromOffsets)
@@ -192,8 +193,9 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     })
     .onChange(of: recorderStore.recording, perform: { newValue in
       guard state == .recording, let newValue else { return }
+
       switch newValue {
-      case .valid(let newKeyboardShortcut):
+      case let .valid(newKeyboardShortcut):
         withAnimation(animation) {
           if let replacing, let index = keyboardShortcuts.firstIndex(where: { $0.id == replacing }) {
             keyboardShortcuts[index] = newKeyboardShortcut
@@ -213,7 +215,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
 
   private func handleEdit(_ id: KeyShortcut.ID) {
     switch mode {
-    case .externalEdit(let then):
+    case let .externalEdit(then):
       then()
     case .inlineEdit:
       replacing = id
@@ -225,8 +227,8 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     ZStack {
       RoundedRectangle(cornerRadius: 6)
         .stroke(isGlowing
-                ? Color(.systemRed) .opacity(0.5)
-                : Color.clear, lineWidth: 2)
+          ? Color(.systemRed).opacity(0.5)
+          : Color.clear, lineWidth: 2)
         .shadow(color: Color(.systemRed).opacity(isGlowing ? 1 : 0), radius: 6)
         .animation(Animation
           .easeInOut(duration: 1.25)
@@ -298,7 +300,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   }
 }
 
-fileprivate struct EditableKeyboardShortcutsButtons<T: Hashable>: View {
+private struct EditableKeyboardShortcutsButtons<T: Hashable>: View {
   @Binding var keyboardShortcuts: [KeyShortcut]
   @Binding var state: EditableKeyboardShortcutsView<T>.CurrentState?
   private let mode: EditableKeyboardShortcutsView<T>.Mode
@@ -310,7 +312,7 @@ fileprivate struct EditableKeyboardShortcutsButtons<T: Hashable>: View {
     state: Binding<EditableKeyboardShortcutsView<T>.CurrentState?>,
     mode: EditableKeyboardShortcutsView<T>.Mode,
     onInsertAnyKey: @escaping () -> Void,
-    onRecordButton: @escaping () -> Void
+    onRecordButton: @escaping () -> Void,
   ) {
     _keyboardShortcuts = keyboardShortcuts
     _state = state
@@ -329,13 +331,13 @@ fileprivate struct EditableKeyboardShortcutsButtons<T: Hashable>: View {
       .opacity((state == .recording && $keyboardShortcuts.count > 1) ? 1 : 0)
 
       RecordButton(mode: mode, state: $state, onAction: onRecordButton)
-      .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
-      .opacity(mode.features.contains(.record) ? 1 : 0)
+        .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
+        .opacity(mode.features.contains(.record) ? 1 : 0)
     }
   }
 }
 
-fileprivate struct RecordButton<T: Hashable>: View {
+private struct RecordButton<T: Hashable>: View {
   @Binding private var state: EditableKeyboardShortcutsView<T>.CurrentState?
 
   let mode: EditableKeyboardShortcutsView<T>.Mode
@@ -343,7 +345,8 @@ fileprivate struct RecordButton<T: Hashable>: View {
 
   init(mode: EditableKeyboardShortcutsView<T>.Mode,
        state: Binding<EditableKeyboardShortcutsView<T>.CurrentState?>,
-       onAction: @escaping () -> Void) {
+       onAction: @escaping () -> Void)
+  {
     self.mode = mode
     _state = state
     self.onAction = onAction
@@ -357,7 +360,7 @@ fileprivate struct RecordButton<T: Hashable>: View {
         .aspectRatio(contentMode: .fit)
         .foregroundStyle(
           state == .recording ? Color(.white) : Color(.systemRed).opacity(0.8),
-          state == .recording ? Color(.systemRed) : Color(nsColor: .darkGray)
+          state == .recording ? Color(.systemRed) : Color(nsColor: .darkGray),
         )
         .animation(.smooth, value: state)
         .frame(maxWidth: 14, maxHeight: 14)
@@ -390,11 +393,12 @@ struct EditableKeyboardShortcutsView_Previews: PreviewProvider {
       $focus,
       focusBinding: { .detail(.keyboardShortcut($0)) },
       mode: .inlineEdit,
-      keyboardShortcuts: .constant([ ]),
+      keyboardShortcuts: .constant([]),
       draggableEnabled: false,
       state: .recording,
-      selectionManager: SelectionManager<KeyShortcut>.init(),
-      onTab: { _ in })
+      selectionManager: SelectionManager<KeyShortcut>(),
+      onTab: { _ in },
+    )
     .designTime()
     .padding()
   }

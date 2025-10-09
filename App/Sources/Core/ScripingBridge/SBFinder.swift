@@ -1,9 +1,10 @@
 import ScriptingBridge
 
-final class SBFinder {
+enum SBFinder {
   @MainActor
   static func getSelections(_ firstUrl: inout String?,
-                            selections: inout [String]) {
+                            selections: inout [String])
+  {
     guard let application: SBApp = SBApplication(bundleIdentifier: "com.apple.finder") else { return }
 
     if let items = application.selection?.get() as? [SBObject] {
@@ -29,18 +30,18 @@ final class SBFinder {
   }
 }
 
-@objc fileprivate protocol SBApp {
+@objc private protocol SBApp {
   @objc optional var selection: SBElementArray { get }
   @objc optional var windows: SBElementArray { get }
 }
 
-@objc fileprivate protocol SBWindow {
+@objc private protocol SBWindow {
   @objc optional var target: SBFile { get }
   @objc optional var name: String { get }
   @objc optional var index: Int { get }
 }
 
-@objc fileprivate protocol SBFile {
+@objc private protocol SBFile {
   @objc optional var name: String { get }
   @objc optional var URL: String { get }
 }

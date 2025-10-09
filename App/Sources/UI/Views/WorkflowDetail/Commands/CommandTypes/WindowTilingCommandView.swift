@@ -12,7 +12,8 @@ struct WindowTilingCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowTilingModel,
-       iconSize: CGSize) {
+       iconSize: CGSize)
+  {
     _model = Binding<CommandViewModel.Kind.WindowTilingModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize
@@ -26,13 +27,15 @@ struct WindowTilingCommandView: View {
       content: {
         ContentView(model: $model) { kind in
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            guard case .windowTiling(var focusCommand) = command else { return }
+            guard case var .windowTiling(focusCommand) = command else { return }
+
             focusCommand.kind = kind
             command = .windowTiling(focusCommand)
           }
         }
       },
-      subContent: { })
+      subContent: {},
+    )
     .id(model.id)
     .enableInjection()
   }

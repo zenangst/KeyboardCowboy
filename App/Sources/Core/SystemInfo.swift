@@ -13,8 +13,8 @@ final class SystemInfo {
   let batteryInfo = BatteryInfo.shared
   var subscriptions = [AnyCancellable]()
 
-  init() { 
-    self.context = .init()
+  init() {
+    context = .init()
     wifiInfo.$data
       .removeDuplicates()
       .sink { [weak self] in self?.context.wifi = $0 }

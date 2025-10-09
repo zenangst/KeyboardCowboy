@@ -17,7 +17,8 @@ struct WorkflowApplicationTrigger: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        data: [DetailViewModel.ApplicationTrigger],
        selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       onTab: @escaping () -> Void) {
+       onTab: @escaping () -> Void)
+  {
     self.focus = focus
     _data = .init(initialValue: data)
     self.selectionManager = selectionManager
@@ -56,7 +57,7 @@ struct WorkflowApplicationTrigger: View {
             })
           }
         } label: {
-         Text("Add Application")
+          Text("Add Application")
         }
         .environment(\.buttonGrayscaleEffect, !data.isEmpty)
         .environment(\.buttonHoverEffect, !data.isEmpty)
@@ -73,22 +74,22 @@ struct WorkflowApplicationTrigger: View {
           LazyVStack {
             ForEach($data, id: \.id) { element in
               ApplicationTriggerItem(element, data: $data, selectionManager: selectionManager)
-              .contentShape(Rectangle())
-              .dropDestination(DetailViewModel.ApplicationTrigger.self, color: .accentColor, onDrop: { items, location in
-                let ids = Array(selectionManager.selections)
-                guard let (from, destination) = data.moveOffsets(for: element.wrappedValue, with: ids) else {
-                  return false
-                }
+                .contentShape(Rectangle())
+                .dropDestination(DetailViewModel.ApplicationTrigger.self, color: .accentColor, onDrop: { _, _ in
+                  let ids = Array(selectionManager.selections)
+                  guard let (from, destination) = data.moveOffsets(for: element.wrappedValue, with: ids) else {
+                    return false
+                  }
 
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-                  data.move(fromOffsets: IndexSet(from), toOffset: destination)
+                  withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+                    data.move(fromOffsets: IndexSet(from), toOffset: destination)
+                  }
+                  updateApplicationTriggers(data)
+                  return false
+                })
+                .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
+                  selectionManager.handleOnTap(data, element: element.wrappedValue)
                 }
-                updateApplicationTriggers(data)
-                return false
-              })
-              .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
-                selectionManager.handleOnTap(data, element: element.wrappedValue)
-              }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               onTab()
@@ -143,11 +144,10 @@ struct WorkflowApplicationTrigger: View {
   }
 
   private func maxHeight(_ count: Int, itemHeight: CGFloat) -> CGFloat {
-    let result: CGFloat
-    if count > 1 {
-      result = min(CGFloat(count) * itemHeight, 300)
+    let result: CGFloat = if count > 1 {
+      min(CGFloat(count) * itemHeight, 300)
     } else {
-      result = itemHeight
+      itemHeight
     }
     return result
   }
@@ -156,9 +156,9 @@ struct WorkflowApplicationTrigger: View {
 extension DetailViewModel.ApplicationTrigger.Context {
   var appTriggerContext: ApplicationTrigger.Context {
     switch self {
-    case .launched:        .launched
-    case .closed:          .closed
-    case .frontMost:       .frontMost
+    case .launched: .launched
+    case .closed: .closed
+    case .frontMost: .frontMost
     case .resignFrontMost: .resignFrontMost
     }
   }
@@ -173,7 +173,7 @@ extension DetailViewModel.ApplicationTrigger.Context {
       .init(id: "2", name: "Calendar", application: .calendar(), contexts: []),
     ],
     selectionManager: SelectionManager(),
-    onTab: { }
+    onTab: {},
   )
   .environmentObject(ApplicationStore.shared)
   .padding()

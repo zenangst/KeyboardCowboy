@@ -14,17 +14,19 @@ final class SystemCommandRunner: @unchecked Sendable {
   private let applicationStore: ApplicationStore
   private let workspace: WorkspaceProviding
 
-  init(_ applicationStore: ApplicationStore = .shared, 
+  init(_ applicationStore: ApplicationStore = .shared,
        applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
-       workspace: WorkspaceProviding = NSWorkspace.shared) {
+       workspace: WorkspaceProviding = NSWorkspace.shared)
+  {
     self.applicationStore = applicationStore
     self.applicationActivityMonitor = applicationActivityMonitor
     self.workspace = workspace
   }
 
   func run(_ command: SystemCommand, workflowCommands: [Command], machPortEvent: MachPortEvent, applicationRunner: ApplicationCommandRunner,
-           runtimeDictionary: [String: String],
-           checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws {
+           runtimeDictionary _: [String: String],
+           checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws
+  {
     Task { @MainActor in
       switch command.kind {
       case .activateLastApplication:
@@ -43,13 +45,15 @@ final class SystemCommandRunner: @unchecked Sendable {
       case .hideAllApps:
         let targetApplication: Application? = workflowCommands.compactMap {
           switch $0 {
-          case .application(let command): command.application
+          case let .application(command): command.application
           default: nil
           }
-        }.last
+        }
+        .last
         try await SystemHideAllAppsRunner.run(targetApplication: targetApplication, checkCancellation: checkCancellation, workflowCommands: workflowCommands)
       case .minimizeAllOpenWindows:
         guard let machPort else { return }
+
         try SystemMinimizeAllWindows.run(snapshot, machPort: machPort)
       case .showDesktop:
         Dock.run(.showDesktop)

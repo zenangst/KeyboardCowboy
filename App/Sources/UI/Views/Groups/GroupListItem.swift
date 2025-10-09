@@ -9,7 +9,8 @@ struct GroupListItem: View {
 
   init(_ group: GroupViewModel,
        selectionManager: SelectionManager<GroupViewModel>,
-       onAction: @escaping (GroupsList.Action) -> Void) {
+       onAction: @escaping (GroupsList.Action) -> Void)
+  {
     self.group = group
     self.selectionManager = selectionManager
     self.onAction = onAction
@@ -19,7 +20,7 @@ struct GroupListItem: View {
     GroupItemInternalView(
       group,
       selectionManager: selectionManager,
-      onAction: onAction
+      onAction: onAction,
     )
   }
 }
@@ -33,7 +34,8 @@ private struct GroupItemInternalView: View {
 
   init(_ group: GroupViewModel,
        selectionManager: SelectionManager<GroupViewModel>,
-       onAction: @escaping (GroupsList.Action) -> Void) {
+       onAction: @escaping (GroupsList.Action) -> Void)
+  {
     self.selectionManager = selectionManager
     self.group = group
     self.onAction = onAction
@@ -95,9 +97,10 @@ private struct ContextualMenuView: View {
   private let group: GroupViewModel
   private let onAction: (GroupsList.Action) -> Void
 
-  init(selectionManager: SelectionManager<GroupViewModel>, 
+  init(selectionManager: SelectionManager<GroupViewModel>,
        group: GroupViewModel,
-       onAction: @escaping (GroupsList.Action) -> Void) {
+       onAction: @escaping (GroupsList.Action) -> Void)
+  {
     self.selectionManager = selectionManager
     self.group = group
     self.onAction = onAction
@@ -106,21 +109,21 @@ private struct ContextualMenuView: View {
   var body: some View {
     let isSelected: Bool = selectionManager.selections.contains(group.id)
 
-    Menu(content: { contextualMenu(for: group, onAction: onAction) }) {
-    }
-    .opacity(isSelected ? 1 : 0)
-    .frame(maxWidth: isSelected ? nil : 0)
-    .environment(\.menuCalm, true)
-    .environment(\.menuBackgroundColor, Color(.init(hex: group.color)))
-    .environment(\.menuPadding, .small)
-    .environment(\.menuUnfocusedOpacity, 0)
-    .fixedSize()
-    .enableInjection()
+    Menu(content: { contextualMenu(for: group, onAction: onAction) }) {}
+      .opacity(isSelected ? 1 : 0)
+      .frame(maxWidth: isSelected ? nil : 0)
+      .environment(\.menuCalm, true)
+      .environment(\.menuBackgroundColor, Color(.init(hex: group.color)))
+      .environment(\.menuPadding, .small)
+      .environment(\.menuUnfocusedOpacity, 0)
+      .fixedSize()
+      .enableInjection()
   }
 
   @ViewBuilder
   private func contextualMenu(for group: GroupViewModel,
-                              onAction: @escaping (GroupsList.Action) -> Void) -> some View {
+                              onAction: @escaping (GroupsList.Action) -> Void) -> some View
+  {
     Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
     Divider()
     Button("Remove", action: {
@@ -128,4 +131,3 @@ private struct ContextualMenuView: View {
     })
   }
 }
-

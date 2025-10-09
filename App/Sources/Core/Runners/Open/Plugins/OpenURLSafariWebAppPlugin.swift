@@ -1,5 +1,5 @@
-import AXEssibility
 import Apps
+import AXEssibility
 import Cocoa
 import Foundation
 
@@ -10,10 +10,10 @@ final class OpenURLSafariWebAppPlugin: Sendable {
     self.commandRunner = commandRunner
   }
 
-
-  func execute(_ path: String, application: Application, checkCancellation: Bool) async throws {
+  func execute(_ path: String, application: Application, checkCancellation _: Bool) async throws {
     guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: application.bundleIdentifier).first,
           let url = URL(string: path) else { return }
+
     let configuration = NSWorkspace.OpenConfiguration()
     configuration.activates = true
     try await NSWorkspace.shared.open([url], withApplicationAt: URL(fileURLWithPath: application.path), configuration: configuration)
@@ -33,7 +33,8 @@ final class OpenURLSafariWebAppPlugin: Sendable {
       let windows = try axApp.windows()
       for window in windows {
         if let url: URL = window.findAttribute(.url, of: "AXWebArea"),
-           url.absoluteString.contains(path) {
+           url.absoluteString.contains(path)
+        {
           window.main = true
           window.performAction(.raise)
           timeout = 0

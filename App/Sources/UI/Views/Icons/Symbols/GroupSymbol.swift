@@ -29,7 +29,6 @@ struct GroupSymbol: View {
             return rect
           }, color: .white)
             .offset(x: 0, y: proxy.size.height / 5.0)
-
         }
         .offset(x: 0, y: -proxy.size.height / 10.0)
       }
@@ -65,7 +64,7 @@ struct GroupSymbol: View {
           .init(color: color.opacity(0.75), location: 1.0),
         ]),
       startPoint: .top,
-      endPoint: .bottom
+      endPoint: .bottom,
     )
   }
 }

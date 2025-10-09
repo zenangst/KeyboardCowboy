@@ -24,14 +24,15 @@ final class InputSourceStore: ObservableObject {
     let forbiddenIds = [
       "com.apple.PressAndHold",
       "com.apple.CharacterPaletteIM",
-      "com.apple.inputmethod.ironwood"
+      "com.apple.inputmethod.ironwood",
     ]
 
-    self.inputSources = controller.fetchInputSources(includeAllInstalled: false)
+    inputSources = controller.fetchInputSources(includeAllInstalled: false)
       .reduce(into: [InputSource]()) { partialResult, inputSource in
-        guard !forbiddenIds.contains(inputSource.id)
-           && inputSource.isSelectCapable
-           && inputSource.isASCIICapable else { return }
+        guard !forbiddenIds.contains(inputSource.id),
+              inputSource.isSelectCapable,
+              inputSource.isASCIICapable else { return }
+
         partialResult.append(inputSource)
       }
       .sorted { ($0.localizedName ?? "") < ($1.localizedName ?? "") }

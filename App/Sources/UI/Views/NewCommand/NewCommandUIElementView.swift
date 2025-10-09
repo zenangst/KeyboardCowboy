@@ -48,13 +48,13 @@ struct NewCommandUIElementView: View {
                 Menu {
                   ForEach(UIElementCommand.Predicate.Compare.allCases, id: \.displayName) { compare in
                     Button(action: {
-                      predicates[index].compare = compare
-                      validation = updateAndValidatePayload()
-                    },
+                             predicates[index].compare = compare
+                             validation = updateAndValidatePayload()
+                           },
                            label: {
-                      Text(compare.displayName)
-                        .font(.callout)
-                    })
+                             Text(compare.displayName)
+                               .font(.callout)
+                           })
                   }
                 } label: {
                   Text(predicates[index].compare.displayName)
@@ -63,15 +63,15 @@ struct NewCommandUIElementView: View {
                 .fixedSize()
 
                 TextField("", text: $predicates[index].value)
-                  .onChange(of: predicates[index].value, perform: { value in
+                  .onChange(of: predicates[index].value, perform: { _ in
                     validation = updateAndValidatePayload()
                   })
-
 
                 Button(action: {
                   withAnimation {
                     guard index < predicates.count else { return }
-                    _ = self.predicates.remove(at: index)
+
+                    _ = predicates.remove(at: index)
                   }
                   validation = updateAndValidatePayload()
                 }, label: {
@@ -93,13 +93,13 @@ struct NewCommandUIElementView: View {
                 Menu {
                   ForEach(UIElementCommand.Kind.allCases, id: \.displayName) { kind in
                     Button(action: {
-                      predicates[index].kind = kind
-                      validation = updateAndValidatePayload()
-                    },
+                             predicates[index].kind = kind
+                             validation = updateAndValidatePayload()
+                           },
                            label: {
-                      Text(kind.displayName)
-                        .font(.callout)
-                    })
+                             Text(kind.displayName)
+                               .font(.callout)
+                           })
                   }
                 } label: {
                   Text(predicates[index].kind.displayName)
@@ -117,7 +117,7 @@ struct NewCommandUIElementView: View {
                           predicates[index].properties.removeAll(where: { $0 == property })
                         }
                         validation = updateAndValidatePayload()
-                      }
+                      },
                     ), label: {
                       Text(property.displayName)
                     })
@@ -282,7 +282,7 @@ struct NewCommandUIElementView: View {
           .aspectRatio(contentMode: .fit)
           .foregroundStyle(
             captureStore.isCapturing ? Color(.white) : Color(.systemGreen).opacity(0.8),
-            captureStore.isCapturing ? Color(.systemGreen) : Color(nsColor: .darkGray)
+            captureStore.isCapturing ? Color(.systemGreen) : Color(nsColor: .darkGray),
           )
           .animation(.smooth, value: captureStore.isCapturing)
           .frame(width: 14, height: 14)
@@ -301,31 +301,32 @@ struct NewCommandUIElementView: View {
     guard !predicates.filter({ !$0.value.isEmpty }).isEmpty else {
       return .invalid(reason: "You need a value to match.")
     }
+
     payload = .uiElement(predicates: predicates)
     return .valid
   }
 }
 
 #if DEBUG
-#Preview("Empty") {
-  NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly { .needsValidation })
-    .padding()
-    .environmentObject(
-      UIElementCaptureStore(
-        isCapturing: false,
-        capturedElement: nil
+  #Preview("Empty") {
+    NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly { .needsValidation })
+      .padding()
+      .environmentObject(
+        UIElementCaptureStore(
+          isCapturing: false,
+          capturedElement: nil,
+        ),
       )
-    )
-}
+  }
 
-#Preview("Captured UI Element") {
-  NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly {.needsValidation })
-    .padding()
-    .environmentObject(
-      UIElementCaptureStore(
-        isCapturing: false,
-        capturedElement: .init(description: nil, identifier: "foo", title: nil, value: nil, role: nil, subrole: nil)
+  #Preview("Captured UI Element") {
+    NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly { .needsValidation })
+      .padding()
+      .environmentObject(
+        UIElementCaptureStore(
+          isCapturing: false,
+          capturedElement: .init(description: nil, identifier: "foo", title: nil, value: nil, role: nil, subrole: nil),
+        ),
       )
-    )
-}
+  }
 #endif

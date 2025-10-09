@@ -37,10 +37,10 @@ extension TextCommand {
 
     init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
-      self.input = try container.decode(String.self, forKey: .input)
-      self.mode = try container.decodeIfPresent(Mode.self, forKey: .mode) ?? .instant
-      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-      self.actions = try container.decodeIfPresent(Set<TypeCommand.Action>.self, forKey: .actions) ?? []
+      input = try container.decode(String.self, forKey: .input)
+      mode = try container.decodeIfPresent(Mode.self, forKey: .mode) ?? .instant
+      meta = try container.decode(Command.MetaData.self, forKey: .meta)
+      actions = try container.decodeIfPresent(Set<TypeCommand.Action>.self, forKey: .actions) ?? []
     }
 
     enum CodingKeys: CodingKey {
@@ -52,11 +52,11 @@ extension TextCommand {
 
     func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: TextCommand.TypeCommand.CodingKeys.self)
-      try container.encode(self.input, forKey: TextCommand.TypeCommand.CodingKeys.input)
-      try container.encode(self.mode, forKey: TextCommand.TypeCommand.CodingKeys.mode)
-      try container.encode(self.meta, forKey: TextCommand.TypeCommand.CodingKeys.meta)
+      try container.encode(input, forKey: TextCommand.TypeCommand.CodingKeys.input)
+      try container.encode(mode, forKey: TextCommand.TypeCommand.CodingKeys.mode)
+      try container.encode(meta, forKey: TextCommand.TypeCommand.CodingKeys.meta)
 
-      let sortedActions = self.actions.sorted(by: { $0.rawValue < $1.rawValue  })
+      let sortedActions = actions.sorted(by: { $0.rawValue < $1.rawValue })
       try container.encode(sortedActions, forKey: TextCommand.TypeCommand.CodingKeys.actions)
     }
 

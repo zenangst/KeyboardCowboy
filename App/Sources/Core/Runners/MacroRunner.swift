@@ -10,7 +10,7 @@ final class MacroRunner: Sendable {
     self.coordinator = coordinator
   }
 
-  func run(_ macroAction: MacroAction, machPortEvent: MachPortEvent) async -> String {
+  func run(_ macroAction: MacroAction, machPortEvent _: MachPortEvent) async -> String {
     let output: String
     let currentState = await coordinator.state
     switch macroAction.kind {

@@ -22,8 +22,8 @@ struct NewCommandAppFocusView: View {
        onTilingChange: @escaping (Tiling?) -> Void,
        onSelectedAppsChange: @escaping (String) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void,
-       onCreateNewWindowChange: @escaping (Bool) -> Void
-  ) {
+       onCreateNewWindowChange: @escaping (Bool) -> Void)
+  {
     _validation = validation
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange
@@ -44,9 +44,9 @@ struct NewCommandAppFocusView: View {
         }, label: { Text("Current Application") })
         ForEach(applicationStore.applications) { application in
           Button(action: {
-            selectedApp = AppFocusApplicationItem(application)
-            onSelectedAppsChange(application.bundleIdentifier)
-          },
+                   selectedApp = AppFocusApplicationItem(application)
+                   onSelectedAppsChange(application.bundleIdentifier)
+                 },
                  label: { Text(application.displayName) })
         }
       } label: {
@@ -116,7 +116,7 @@ struct AppFocusApplicationItem {
   }
 }
 
-fileprivate extension WorkspaceCommand.Tiling {
+private extension WorkspaceCommand.Tiling {
   var name: String {
     switch self {
     case .arrangeLeftRight: "Left & Right"
@@ -134,4 +134,3 @@ fileprivate extension WorkspaceCommand.Tiling {
     }
   }
 }
-
