@@ -67,17 +67,10 @@ struct CapsuleNotificationView: View {
   }
 
   var body: some View {
-    TextContainerView(publisher: publisher)
+    TextContainerView()
       .animation(.none, value: publisher.state)
       .font(.system(.title2, design: .rounded, weight: .regular))
       .padding(.leading, publisher.state == .running ? 24 : 0)
-      .overlay(alignment: .leading) {
-        ProgressView()
-          .progressViewStyle(CustomProgressViewStyle())
-          .frame(width: 18)
-          .opacity(publisher.state == .running ? 1 : 0)
-          .animation(nil, value: publisher.state)
-      }
       .foregroundStyle(publisher.state.foregroundColor)
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
@@ -107,11 +100,12 @@ struct CapsuleNotificationView: View {
       .frame(minWidth: 128, maxWidth: .infinity)
       .opacity(publisher.state == .idle ? 0 : 1)
       .animation(.smooth(duration: 0.275), value: publisher.state)
+      .environmentObject(publisher)
   }
 }
 
 private struct TextContainerView: View {
-  @ObservedObject var publisher: CapsuleNotificationPublisher
+  @EnvironmentObject var publisher: CapsuleNotificationPublisher
 
   var body: some View {
     Group {
@@ -194,35 +188,6 @@ private struct AnimatedCharacterView: View {
             animating = true
           }
         }
-      }
-  }
-}
-
-private struct CustomProgressViewStyle: ProgressViewStyle {
-  @State private var isSpinning: Bool = false
-
-  func makeBody(configuration _: Configuration) -> some View {
-    Circle()
-      .trim(from: 0.2, to: 1.0)
-      .stroke(
-        AngularGradient(
-          gradient: Gradient(colors: [
-            Color(.controlAccentColor.withSystemEffect(.disabled)),
-            .accentColor,
-          ]),
-          center: .center,
-        ),
-        style: StrokeStyle(lineWidth: 2.5, lineCap: .round),
-      )
-      .padding(1)
-      .rotationEffect(isSpinning ? .degrees(360) : .degrees(0))
-      .animation(
-        Animation.linear(duration: 1.0)
-          .repeatForever(autoreverses: false),
-        value: isSpinning,
-      )
-      .onAppear {
-        isSpinning = true
       }
   }
 }
