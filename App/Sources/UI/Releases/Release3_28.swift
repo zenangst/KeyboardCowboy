@@ -2,7 +2,7 @@ import Bonzai
 import Inject
 import SwiftUI
 
-private let currentVersion: Version = .v3280
+private let currentVersion: Version = .v3282
 
 struct Release3_28: View {
   @ObserveInjection var inject
@@ -79,6 +79,7 @@ private struct HeaderView: View {
   var body: some View {
     HStack(alignment: .bottom, spacing: -16) {
       let iconSize: CGFloat = 96
+
       WorkspaceIcon(.regular, size: iconSize)
         .rotation3DEffect(.degrees(10), axis: (x: 1, y: 1, z: -1))
         .zIndex(9)
@@ -163,6 +164,30 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes a performance bug when using Capusle Notifications",
+           version: .v3282),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes a bug with keyboard shortcuts using the passthrough modifier.",
+           version: .v3281),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes faulty migrations of script- and keyboard workflows, for some users.",
+           version: .v3281),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "Adds support for denied applications when using Groups.",
+           version: .v3281),
+
+    Change(icon: { WindowTilingIcon(kind: .arrangeLeftQuarters, size: 24).anyView },
+           text: "Improves reliability when tiling windows.",
+           version: .v3281),
+
+    Change(icon: { WindowFocusIconBuilder.icon(.moveFocusToNextWindowGlobal, size: 24).anyView },
+           text: "Improves reliability when switching focus between windows.",
+           version: .v3281),
+
     Change(icon: { WorkspaceIcon(.regular, size: 24).anyView },
            text: "Performance improvements when switching workspaces.",
            version: .v3280),
@@ -360,6 +385,12 @@ private struct SupportersView: View {
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/2263015?v=4"),
       githubHandle: "hakonk",
     ),
+
+    Supporter(
+      index: 18,
+      imageUrl: URL(string: "https://avatars.githubusercontent.com/u/49613199?v=4"),
+      githubHandle: "vlntn-t",
+    ),
   ]
 
   var body: some View {
@@ -426,11 +457,15 @@ private struct Supporter: Hashable {
 }
 
 private enum Version: String, Equatable {
+  case v3282 = "3.28.2"
+  case v3281 = "3.28.1"
   case v3280 = "3.28.0"
 
   var color: Color {
     switch self {
     case .v3280: Color(.systemPurple)
+    case .v3281: Color(.systemRed)
+    case .v3282: Color(.systemOrange)
     }
   }
 }
