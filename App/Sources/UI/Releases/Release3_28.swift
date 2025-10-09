@@ -165,7 +165,7 @@ private struct ChangesView: View {
 
   private let changes: [Change<AnyView>] = [
     Change(icon: { BugFixIconView(size: 24).anyView },
-           text: "Fixes a performance bug when using Capusle Notifications",
+           text: "Fixes a performance bug when using Capsule Notifications",
            version: .v3282),
 
     Change(icon: { BugFixIconView(size: 24).anyView },
