@@ -200,9 +200,36 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
         }
       }
 
+      var deadzones = [CGRect]()
+      var useDeadZones = false
+      if UserSettings.WindowManager.tiledWindowSpacing > 0 {
+        let mainFrame = NSScreen.main!.frame
+        let horizontalDeadspace = CGRect(origin: CGPoint(x: mainFrame.minX,
+                                                         y: mainFrame.midY),
+                                         size: CGSize(width: mainFrame.width,
+                                                      height: UserSettings.WindowManager.tiledWindowSpacing))
+        let verticalDeadspace = CGRect(origin: CGPoint(x: mainFrame.midX - UserSettings.WindowManager.tiledWindowSpacing / 2,
+                                                       y: mainFrame.minY),
+                                       size: CGSize(width: UserSettings.WindowManager.tiledWindowSpacing,
+                                                    height: mainFrame.height))
+        deadzones.append(verticalDeadspace)
+        deadzones.append(horizontalDeadspace)
+        useDeadZones = true
+      }
+
       // Use accessibility to verify the location of the window.
       let elementOrigin = CGPoint(x: fieldOfViewRect.midX, y: fieldOfViewRect.midY)
-      if let accessWindow = systemElement.element(at: elementOrigin, as: AnyAccessibilityElement.self)?.window,
+
+      var shouldSkip = false
+      if useDeadZones {
+        for deadzone in deadzones {
+          if deadzone.contains(elementOrigin) {
+            shouldSkip = true
+          }
+        }
+      }
+
+      if !shouldSkip, let accessWindow = systemElement.element(at: elementOrigin, as: AnyAccessibilityElement.self)?.window,
          let firstMatch = systemWindows.first(where: { $0.window.id == accessWindow.id })
       {
         updateDebugWindow(firstMatch.window.rect)
