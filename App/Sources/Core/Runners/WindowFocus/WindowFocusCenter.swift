@@ -93,6 +93,10 @@ final class WindowFocusCenter: @unchecked Sendable {
       consumedWindows.removeAll()
     }
 
+    validQuarterWindows = validQuarterWindows.filter {
+      NSRunningApplication(processIdentifier: pid_t($0.ownerPid.rawValue))?.isHidden == false
+    }
+
     FocusBorder.shared.dismiss()
     guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) ?? activeWindow else {
       return
