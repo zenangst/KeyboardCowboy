@@ -97,7 +97,12 @@ final class WindowFocusQuarter: @unchecked Sendable {
       consumedWindows.removeAll()
     }
 
-    guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) ?? activeWindow else { return }
+    validQuarterWindows = validQuarterWindows.filter {
+      NSRunningApplication(processIdentifier: pid_t($0.ownerPid.rawValue))?.isHidden == false
+    }
+
+    guard let matchedWindow = validQuarterWindows
+      .first(where: quarterFilter) ?? activeWindow else { return }
 
     FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
 
