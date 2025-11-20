@@ -164,6 +164,18 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "Improve window focus reliability when using macOS Spaces",
+           version: .v3283),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes SwiftUI crash related to adding new UI element recordings",
+           version: .v3283),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes minor UI glitch with capsule notifications",
+           version: .v3283),
+
     Change(icon: { BugFixIconView(size: 24).anyView },
            text: "Fixes a performance bug when using Capsule Notifications",
            version: .v3282),
