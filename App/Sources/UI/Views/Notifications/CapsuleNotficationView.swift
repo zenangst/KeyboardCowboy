@@ -70,7 +70,6 @@ struct CapsuleNotificationView: View {
     TextContainerView()
       .animation(.none, value: publisher.state)
       .font(.system(.title2, design: .rounded, weight: .regular))
-      .padding(.leading, publisher.state == .running ? 24 : 0)
       .foregroundStyle(publisher.state.foregroundColor)
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
