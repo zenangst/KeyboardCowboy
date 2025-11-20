@@ -467,7 +467,7 @@ private enum Version: String, Equatable {
     case .v3280: Color(.systemPurple)
     case .v3281: Color(.systemRed)
     case .v3282: Color(.systemOrange)
-    case .v3282: Color(.systemOrange)
+    case .v3283: Color(.systemYellow)
     }
   }
 }
