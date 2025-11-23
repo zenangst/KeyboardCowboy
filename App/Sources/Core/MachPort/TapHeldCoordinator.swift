@@ -31,8 +31,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
     willSet {
       if case .idle = newValue,
          case let .event(kind, _) = state,
-         kind == .held
-      {
+         kind == .held {
         delegate?.tapHeldDidResign()
       }
     }
@@ -114,8 +113,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
   private func handleIdle(_ partialMatch: PartialMatch?, machPortEvent: MachPortEvent) -> Bool {
     leaderItem?.cancel()
     if machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged,
-       let partialMatch, let workflow = partialMatch.workflow
-    {
+       let partialMatch, let workflow = partialMatch.workflow {
       if let (_, holdDuration) = condition(partialMatch) {
         leaderEvent = machPortEvent
         state = .event(.tap, holdDuration: holdDuration)
@@ -180,8 +178,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
   private func handleKeyDown(_ kind: State.Kind,
                              newEvent: MachPortEvent,
                              leaderEvent: MachPortEvent,
-                             holdDuration: Double)
-  {
+                             holdDuration: Double) {
     guard !newEvent.isRepeat else {
       return
     }
@@ -189,8 +186,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
     // Opt-out if the leader key is interrupted by a flags change.
     if leaderEvent.flags.rawValue != newEvent.flags.rawValue,
        case let .event(kind, _) = state,
-       kind == .tap
-    {
+       kind == .tap {
       state = .idle
       newEvent.result = nil
       resetTime()
@@ -199,8 +195,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
 
     guard isLeader(newEvent) else {
       if case let .event(kind, _) = state,
-         kind == .tap
-      {
+         kind == .tap {
         switchedEvents[leaderEvent.keyCode] = newEvent.keyCode
         newEvent.set(leaderEvent.keyCode, type: .keyUp)
         newEvent.result = nil
@@ -228,8 +223,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
   private func handleKeyUp(_ kind: State.Kind,
                            newEvent: MachPortEvent,
                            leaderEvent: MachPortEvent,
-                           holdDuration: Double)
-  {
+                           holdDuration: Double) {
     if isLeader(newEvent) {
       switch kind {
       case .tap:
@@ -283,8 +277,7 @@ final class TapHeldCoordinator: @unchecked Sendable {
        workflow.machPortConditions.hasHoldForDelay,
        case let .keyboardShortcuts(keyboardShortcut) = workflow.trigger,
        partialMatch.rawValue != defaultPartialMatch.rawValue,
-       let holdDuration = keyboardShortcut.holdDuration, holdDuration > 0
-    {
+       let holdDuration = keyboardShortcut.holdDuration, holdDuration > 0 {
       return (workflow: workflow, holdDuration: holdDuration)
     }
     return nil

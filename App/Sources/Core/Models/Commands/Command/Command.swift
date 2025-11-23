@@ -43,8 +43,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
          name: String = "",
          isEnabled: Bool = true,
          notification: Notification? = nil,
-         variableName: String? = nil)
-    {
+         variableName: String? = nil) {
       self.delay = delay
       self.id = id
       self.name = name
