@@ -38,20 +38,27 @@ struct WorkflowInfoView: View {
           }
         }
       Spacer()
-      Toggle(isOn: $publisher.data.isEnabled, label: {})
-        .onChange(of: publisher.data.isEnabled) { newValue in
-          updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
-            workflow.isDisabled = !newValue
-          }
-        }
-        .switchStyle()
-        .environment(\.switchStyle, .regular)
+        .frame(width: 48)
     }
     .onChange(of: publisher.data.name) { newValue in
       guard newValue != name else { return }
 
       name = newValue
     }
+    .toolbar {
+      ToolbarItem(placement: .primaryAction) {
+        Toggle(isOn: $publisher.data.isEnabled, label: {})
+          .onChange(of: publisher.data.isEnabled) { newValue in
+            updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
+              workflow.isDisabled = !newValue
+            }
+          }
+          .switchStyle()
+          .environment(\.switchStyle, .regular)
+          .padding(.horizontal, 8)
+      }
+    }
+    .enableInjection()
   }
 }
 

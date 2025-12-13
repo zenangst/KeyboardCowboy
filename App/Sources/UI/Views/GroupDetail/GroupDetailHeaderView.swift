@@ -29,17 +29,23 @@ struct GroupDetailHeaderView: View {
             .font(.caption)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-
+        Spacer()
+          .frame(width: 48)
+      }
+    }
+    .toolbar {
+      ToolbarItem {
         Toggle(isOn: Binding<Bool>(get: { groupPublisher.data.isEnabled }, set: { newValue in
           groupPublisher.data.isDisabled = !newValue
           updater.modifyGroup(using: transaction) { group in
             group.isDisabled = !newValue
           }
         }), label: {})
-          .switchStyle()
-          .environment(\.switchForegroundColor, Color(hex: groupPublisher.data.color))
-          .environment(\.switchBackgroundColor, Color(hex: groupPublisher.data.color))
-          .id("group.toggle.\(groupPublisher.data.id)")
+        .switchStyle()
+        .environment(\.switchForegroundColor, Color(hex: groupPublisher.data.color))
+        .environment(\.switchBackgroundColor, Color(hex: groupPublisher.data.color))
+        .id("group.toggle.\(groupPublisher.data.id)")
+        .padding(.horizontal, 8)
       }
     }
     .enableInjection()

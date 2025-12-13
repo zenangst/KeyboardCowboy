@@ -42,8 +42,7 @@ struct ContainerView: View {
        triggerPublisher: TriggerPublisher,
        infoPublisher: InfoPublisher,
        commandPublisher: CommandsPublisher,
-       onAction: @escaping (Action, UndoManager?) -> Void)
-  {
+       onAction: @escaping (Action, UndoManager?) -> Void) {
     _contentState = contentState
     self.focus = focus
     self.publisher = publisher
@@ -79,7 +78,9 @@ struct ContainerView: View {
         })
         .style(.section(.sidebar))
         .navigationSplitViewColumnWidth(ideal: 250)
-        .edgesIgnoringSafeArea(.top)
+        .toolbar {
+          Spacer()
+        }
       },
       content: {
         GroupDetailView(
@@ -97,7 +98,7 @@ struct ContainerView: View {
         )
         .style(.section(.content))
         .environmentObject(detailUpdateTransaction)
-        .navigationSplitViewColumnWidth(min: 200, ideal: 250)
+        .navigationSplitViewColumnWidth(min: 250, ideal: 300)
         .edgesIgnoringSafeArea(.top)
       },
       detail: {
@@ -115,6 +116,11 @@ struct ContainerView: View {
         .style(.section(.detail))
         .environmentObject(detailUpdateTransaction)
         .edgesIgnoringSafeArea(.all)
+        .toolbar {
+          ToolbarItem(placement: .status) {
+            Spacer()
+          }
+        }
       },
     )
     .navigationSplitViewStyle(.balanced)
