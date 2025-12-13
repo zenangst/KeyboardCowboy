@@ -14,8 +14,7 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
        leaderKey: Bool = false,
        passthrough: Bool = false,
        holdDuration: Double? = nil,
-       shortcuts: [KeyShortcut])
-  {
+       shortcuts: [KeyShortcut]) {
     self.allowRepeat = allowRepeat
     self.holdDuration = holdDuration
     self.keepLastPartialMatch = keepLastPartialMatch
