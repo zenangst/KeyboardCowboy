@@ -2,7 +2,7 @@ import Bonzai
 import HotSwiftUI
 import SwiftUI
 
-private let currentVersion: Version = .v3283
+private let currentVersion: Version = .v3284
 
 struct Release3_28: View {
   @ObserveInjection var inject
@@ -164,6 +164,10 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "Fixes bug related to macOS Tahoe",
+           version: .v3284),
+
     Change(icon: { ImprovementIconView(size: 24).anyView },
            text: "Improve window focus reliability when using macOS Spaces",
            version: .v3283),
@@ -469,6 +473,7 @@ private struct Supporter: Hashable {
 }
 
 private enum Version: String, Equatable {
+  case v3284 = "3.28.4"
   case v3283 = "3.28.3"
   case v3282 = "3.28.2"
   case v3281 = "3.28.1"
@@ -480,6 +485,7 @@ private enum Version: String, Equatable {
     case .v3281: Color(.systemRed)
     case .v3282: Color(.systemOrange)
     case .v3283: Color(.systemYellow)
+    case .v3284: Color(.systemGreen)
     }
   }
 }
