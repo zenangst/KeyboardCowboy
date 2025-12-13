@@ -34,13 +34,20 @@ struct ConfigurationView: View {
           }, label: { Text(configuration.name) })
         }
       } label: {
-        Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value")
-          .font(.callout)
-          .lineLimit(1)
-          .fixedSize(horizontal: false, vertical: true)
-          .allowsTightening(true)
-          .contentShape(Rectangle())
-          .frame(maxWidth: .infinity)
+        HStack {
+          Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value")
+            .font(.callout)
+            .lineLimit(1)
+            .fixedSize(horizontal: false, vertical: true)
+            .allowsTightening(true)
+            .contentShape(Rectangle())
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+          Image(systemName: "chevron.down")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 8)
+        }
       }
 
       Spacer()
@@ -62,6 +69,7 @@ struct ConfigurationView: View {
       }, label: {
         Image(systemName: "ellipsis.circle")
           .resizable()
+          .aspectRatio(contentMode: .fit)
       })
       .fixedSize()
       .popover(isPresented: $deleteConfigurationPopover,

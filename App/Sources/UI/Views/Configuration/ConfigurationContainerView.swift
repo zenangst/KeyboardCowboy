@@ -8,8 +8,7 @@ struct ConfigurationContainerView: View {
   private let onAction: (SidebarView.Action) -> Void
 
   init(configSelection: SelectionManager<ConfigurationViewModel>,
-       onAction: @escaping (SidebarView.Action) -> Void)
-  {
+       onAction: @escaping (SidebarView.Action) -> Void) {
     self.configSelection = configSelection
     self.onAction = onAction
   }
@@ -30,15 +29,6 @@ struct ConfigurationContainerView: View {
         }
       }
     }
-    .padding(.top, topPadding())
     .enableInjection()
-  }
-
-  func topPadding() -> CGFloat {
-    if #available(macOS 26.0, *) {
-      8
-    } else {
-      32
-    }
   }
 }

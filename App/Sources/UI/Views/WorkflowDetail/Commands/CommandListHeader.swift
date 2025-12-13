@@ -29,16 +29,28 @@ struct CommandListHeader: View {
             })
           }
         }, label: {
-          Text(publisher.data.execution.rawValue)
-            .font(.callout)
-            .bold()
+          HStack(spacing: 4) {
+            Text(publisher.data.execution.rawValue)
+              .font(.callout)
+              .bold()
+            Image(systemName: "chevron.down")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 8)
+          }
         })
         .fixedSize()
 
         NewCommandMenu {
-          Text("New Command")
-            .font(.callout)
-            .bold()
+          HStack(spacing: 4) {
+            Text("New Command")
+              .font(.callout)
+              .bold()
+            Image(systemName: "chevron.down")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 8)
+          }
         }
         .fixedSize()
         .help("Add Command")
