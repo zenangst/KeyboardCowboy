@@ -1,4 +1,4 @@
-import Inject
+import HotSwiftUI
 import SwiftUI
 
 struct TextCommandView: View {

@@ -1,6 +1,6 @@
 import Apps
 import Bonzai
-import Inject
+import HotSwiftUI
 import SwiftUI
 
 struct NewCommandMenu<Content>: View where Content: View {

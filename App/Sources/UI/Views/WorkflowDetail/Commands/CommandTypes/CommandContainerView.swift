@@ -1,5 +1,5 @@
 import Bonzai
-import Inject
+import HotSwiftUI
 import SwiftUI
 
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,

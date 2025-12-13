@@ -31,7 +31,7 @@ public extension Target {
         .package(product: "Bonzai"),
         .package(product: "Dock"),
         .package(product: "DynamicNotchKit"),
-        .package(product: "Inject"),
+        .package(product: "HotSwiftUI"),
         .package(product: "InputSources"),
         .package(product: "Intercom"),
         .package(product: "KeyCodes"),

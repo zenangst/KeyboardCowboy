@@ -2,7 +2,7 @@ import Apps
 import AXEssibility
 import Bonzai
 import Cocoa
-import Inject
+import HotSwiftUI
 import SwiftUI
 
 @MainActor

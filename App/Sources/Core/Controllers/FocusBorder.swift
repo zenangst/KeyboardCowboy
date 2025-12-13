@@ -1,6 +1,6 @@
 import AppKit
 import Bonzai
-import Inject
+import HotSwiftUI
 import SwiftUI
 
 @MainActor

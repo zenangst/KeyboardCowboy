@@ -1,6 +1,6 @@
 import AXEssibility
 import Cocoa
-@preconcurrency import Inject
+@_exported import HotSwiftUI
 import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -11,7 +11,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
   func applicationDidFinishLaunching(_: Notification) {
     NSApp.appearance = NSAppearance(named: .darkAqua)
-    InjectConfiguration.animation = .spring()
 
 //    if #available(macOS 14.0, *) {
 //      do {

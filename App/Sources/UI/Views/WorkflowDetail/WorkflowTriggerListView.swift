@@ -1,6 +1,6 @@
 import Bonzai
 import Combine
-import Inject
+import HotSwiftUI
 import SwiftUI
 
 struct WorkflowTriggerListView: View {

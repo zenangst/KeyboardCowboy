@@ -3,7 +3,7 @@ import AXEssibility
 import Bonzai
 import Cocoa
 import Combine
-@_exported import Inject
+@_exported import HotSwiftUI
 import InputSources
 import LaunchArguments
 import SwiftUI
@@ -34,8 +34,6 @@ struct KeyboardCowboyApp: App {
     }
 
     appDelegate.openWindow = windowOpener
-
-    if launchArguments.isEnabled(.injection) { _ = InjectConfiguration.load }
   }
 
   var body: some Scene {

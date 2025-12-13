@@ -1,6 +1,6 @@
 import AXEssibility
 import Bonzai
-import Inject
+import HotSwiftUI
 import SwiftUI
 
 struct PermissionsSettingsView: View {

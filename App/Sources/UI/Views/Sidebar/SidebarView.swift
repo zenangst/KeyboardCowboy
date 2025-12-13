@@ -1,5 +1,5 @@
 import Bonzai
-import Inject
+import HotSwiftUI
 import SwiftUI
 
 struct SidebarView: View {
@@ -31,8 +31,7 @@ struct SidebarView: View {
        configSelection: SelectionManager<ConfigurationViewModel>,
        groupSelection: SelectionManager<GroupViewModel>,
        workflowSelection: SelectionManager<GroupDetailViewModel>,
-       onAction: @escaping (Action) -> Void)
-  {
+       onAction: @escaping (Action) -> Void) {
     self.focus = focus
     self.configSelection = configSelection
     self.groupSelection = groupSelection
