@@ -59,8 +59,7 @@ struct NewCommandView: View {
        payload: NewCommandPayload,
        validation: NewCommandValidation = .needsValidation,
        onDismiss: @escaping () -> Void,
-       onSave: @escaping (NewCommandPayload, String) -> Void)
-  {
+       onSave: @escaping (NewCommandPayload, String) -> Void) {
     _selection = .init(initialValue: selection)
     _payload = .init(initialValue: payload)
     _title = .init(initialValue: title)
@@ -255,8 +254,7 @@ struct NewCommandView: View {
       case .application:
         if case let .application(application, action, inBackground,
                                  hideWhenRunning, ifNotRunning,
-                                 waitForAppToLaunch, addToStage) = payload
-        {
+                                 waitForAppToLaunch, addToStage) = payload {
           NewCommandApplicationView($payload, application: application, action: action,
                                     inBackground: inBackground, hideWhenRunning: hideWhenRunning,
                                     ifNotRunning: ifNotRunning, waitForAppToLaunch: waitForAppToLaunch,

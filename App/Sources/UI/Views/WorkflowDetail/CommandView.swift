@@ -24,8 +24,7 @@ struct CommandView: View {
        command: Binding<CommandViewModel>,
        publisher: CommandsPublisher,
        selectionManager: SelectionManager<CommandViewModel>,
-       workflowId: String)
-  {
+       workflowId: String) {
     _command = command
     self.focus = focus
     self.publisher = publisher

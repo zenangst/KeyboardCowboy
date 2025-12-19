@@ -112,6 +112,7 @@ private extension Workflow {
       case .text: true
       case let .systemCommand(systemCommand):
         switch systemCommand.kind {
+        case .showNotificationCenter: false
         case .activateLastApplication: true
         case .applicationWindows: false
         case .hideAllApps: false

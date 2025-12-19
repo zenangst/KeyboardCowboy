@@ -12,8 +12,7 @@ struct SystemCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.SystemModel,
-       iconSize: CGSize)
-  {
+       iconSize: CGSize) {
     _model = Binding<CommandViewModel.Kind.SystemModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize
@@ -66,11 +65,20 @@ private struct SystemCommandContentView: View {
           })
         }
       }, label: {
-        Image(systemName: model.kind.symbol)
-        Text(model.kind.displayValue)
-          .font(.subheadline)
-          .truncationMode(.middle)
-          .allowsTightening(true)
+        HStack {
+          Image(systemName: model.kind.symbol)
+          Text(model.kind.displayValue)
+            .font(.subheadline)
+            .truncationMode(.middle)
+            .allowsTightening(true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+          Image(systemName: "chevron.down")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 8)
+        }
+        .padding(.horizontal, 2)
       })
     }
   }

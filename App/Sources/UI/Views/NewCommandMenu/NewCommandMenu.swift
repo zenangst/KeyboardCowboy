@@ -500,8 +500,7 @@ private struct URLMenuView: View {
               }
 
               if let bundleIdentifier = groupPublisher.data.bundleIdentifiers.first,
-                 let url = URL(string: urlString)
-              {
+                 let url = URL(string: urlString) {
                 var applications = NSWorkspace.shared
                   .urlsForApplications(toOpen: url)
                   .compactMap { ApplicationStore.shared.application(at: $0) }
@@ -640,6 +639,13 @@ private struct WindowMenu: View {
           Text("Show Desktop")
         }
       })
+      Button(action: { performUpdate(.showNotificationCenter) }, label: {
+        HStack {
+          Image(systemName: "app.badge")
+          Text("Show Notification Center")
+        }
+      })
+
       MenuLabel("Commands")
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
@@ -911,8 +917,7 @@ private class PasteboardURLPublisher: ObservableObject, Sendable {
   private func updateURL() {
     let pasteboard = NSPasteboard.general
     if let urlString = pasteboard.string(forType: .URL),
-       let url = URL(string: urlString)
-    {
+       let url = URL(string: urlString) {
       self.url = url
     } else {
       url = nil

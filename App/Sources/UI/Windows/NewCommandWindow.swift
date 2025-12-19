@@ -43,8 +43,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
        contentStore: ContentStore,
        uiElementCaptureStore: UIElementCaptureStore,
        configurationPublisher: ConfigurationPublisher,
-       onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void)
-  {
+       onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void) {
     self.context = context
     self.contentStore = contentStore
     self.configurationPublisher = configurationPublisher
@@ -104,8 +103,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
                            title: String,
                            selection: NewCommandView.Kind,
                            payload: NewCommandPayload,
-                           commandId: Command.ID?) -> some View
-  {
+                           commandId: Command.ID?) -> some View {
     NewCommandView(
       workflowId: workflowId,
       commandId: commandId,
@@ -210,6 +208,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
       case .fillAllOpenWindows: .systemCommand(kind: .fillAllOpenWindows)
       case .missionControl: .systemCommand(kind: .missionControl)
       case .showDesktop: .systemCommand(kind: .showDesktop)
+      case .showNotificationCenter: .systemCommand(kind: .showNotificationCenter)
       }
     case let .uiElement(model):
       return .uiElement(predicates: model.predicates)
