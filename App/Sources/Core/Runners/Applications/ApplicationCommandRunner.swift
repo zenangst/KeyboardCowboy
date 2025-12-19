@@ -28,8 +28,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
   init(applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
        scriptCommandRunner: ScriptCommandRunner = .init(),
        keyboard _: KeyboardCommandRunner,
-       workspace: WorkspaceProviding = NSWorkspace.shared)
-  {
+       workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.applicationActivityMonitor = applicationActivityMonitor
     self.workspace = workspace
     plugins = Plugins(
@@ -129,8 +128,20 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       }
 
       try await plugins.launch.execute(command, checkCancellation: checkCancellation)
+
       if ownerNames.contains(bundleName) {
         try? await plugins.activate.execute(command, checkCancellation: checkCancellation)
+      } else {
+        guard let match = NSRunningApplication.runningApplications(withBundleIdentifier: command.application.bundleIdentifier).first else {
+          return
+        }
+
+        // Add fallback to make sure that macOS will change to a space with an open window.
+        if #available(macOS 14.0, *) {
+          match.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateAllWindows)
+        } else {
+          match.activate(options: .activateAllWindows)
+        }
       }
     }
 
