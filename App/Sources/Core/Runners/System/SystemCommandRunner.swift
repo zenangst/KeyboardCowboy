@@ -12,12 +12,12 @@ final class SystemCommandRunner: @unchecked Sendable {
 
   private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
   private let applicationStore: ApplicationStore
+  private let scriptRunner = ScriptCommandRunner()
   private let workspace: WorkspaceProviding
 
   init(_ applicationStore: ApplicationStore = .shared,
        applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
-       workspace: WorkspaceProviding = NSWorkspace.shared)
-  {
+       workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.applicationStore = applicationStore
     self.applicationActivityMonitor = applicationActivityMonitor
     self.workspace = workspace
@@ -25,8 +25,7 @@ final class SystemCommandRunner: @unchecked Sendable {
 
   func run(_ command: SystemCommand, workflowCommands: [Command], machPortEvent: MachPortEvent, applicationRunner: ApplicationCommandRunner,
            runtimeDictionary _: [String: String],
-           checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws
-  {
+           checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws {
     Task { @MainActor in
       switch command.kind {
       case .activateLastApplication:
@@ -61,6 +60,21 @@ final class SystemCommandRunner: @unchecked Sendable {
         Dock.run(.applicationWindows)
       case .missionControl:
         Dock.run(.missionControl)
+      case .showNotificationCenter:
+        let source = """
+        tell application \"System Events\"
+        click menu bar item 2 of menu bar 1 of application process \"ControlCenter\"
+        end tell
+        """
+        let script = ScriptCommand(name: "Show Notification Center",
+                                   kind: .appleScript(variant: .regular),
+                                   source: .inline(source),
+                                   notification: nil)
+
+        if checkCancellation { try Task.checkCancellation() }
+
+        _ = try await scriptRunner.run(script, snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: true),
+                                       runtimeDictionary: [:], checkCancellation: checkCancellation)
       }
     }
   }

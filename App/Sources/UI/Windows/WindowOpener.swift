@@ -74,6 +74,7 @@ final class WindowOpener: ObservableObject {
           case .minimizeAllOpenWindows: .systemCommand(kind: .minimizeAllOpenWindows)
           case .missionControl: .systemCommand(kind: .missionControl)
           case .showDesktop: .systemCommand(kind: .showDesktop)
+          case .showNotificationCenter: .systemCommand(kind: .showNotificationCenter)
           }
         }
 

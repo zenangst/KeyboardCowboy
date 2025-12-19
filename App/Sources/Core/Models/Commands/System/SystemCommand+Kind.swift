@@ -11,6 +11,7 @@ extension SystemCommand {
       case .hideAllApps: "Hide All Apps"
       case .missionControl: "Mission Control"
       case .showDesktop: "Show Desktop"
+      case .showNotificationCenter: "Show Notification Center"
       }
     }
 
@@ -23,6 +24,7 @@ extension SystemCommand {
       case .hideAllApps: "eye.slash"
       case .missionControl: "square.grid.3x3"
       case .showDesktop: "desktopcomputer"
+      case .showNotificationCenter: "app.badge"
       }
     }
 
@@ -35,15 +37,17 @@ extension SystemCommand {
       case .hideAllApps: "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
       case .missionControl: "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
       case .showDesktop: "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
+      case .showNotificationCenter: "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/Notifications.icns"
       }
     }
 
     case activateLastApplication
     case applicationWindows
-    case minimizeAllOpenWindows
     case fillAllOpenWindows
     case hideAllApps
+    case minimizeAllOpenWindows
     case missionControl
     case showDesktop
+    case showNotificationCenter
   }
 }

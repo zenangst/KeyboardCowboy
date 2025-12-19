@@ -11,6 +11,7 @@ enum SystemIconBuilder {
     case .fillAllOpenWindows: EmptyView() // TODO: Fix this!
     case .missionControl: MissionControlIconView(size: size)
     case .showDesktop: DockIconView(size: size)
+    case .showNotificationCenter: DockIconView(size: size)
     case .none: EmptyView()
     }
   }
