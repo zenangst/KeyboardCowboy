@@ -93,7 +93,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       mouse: MouseCommandRunner(),
       open: OpenCommandRunner(scriptCommandRunner, workspace: workspace),
       script: scriptCommandRunner,
-      shortcut: ShortcutsCommandRunner(scriptCommandRunner),
+      shortcut: ShortcutsCommandRunner(),
       system: systemCommandRunner,
       text: TextCommandRunner(keyboardCommandRunner),
       uiElement: uiElementCommandRunner,
@@ -122,14 +122,22 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
         }
       case let .shortcut(shortcut):
         Task(priority: .userInitiated) {
-          let source = """
-          shortcuts view "\(shortcut.shortcutIdentifier)"
-          """
-          let shellScript = ScriptCommand(name: "Reveal \(shortcut.shortcutIdentifier)",
-                                          kind: .shellScript, source: .inline(source), notification: nil)
+          let process = Process()
+          process.executableURL = URL(filePath: "/usr/bin/shortcuts")
+          // Pass shortcutIdentifier as a separate argument to prevent shell injection
+          process.arguments = ["view", shortcut.shortcutIdentifier]
 
-          _ = try await runners.script.run(shellScript, snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
-                                           runtimeDictionary: [:], checkCancellation: false)
+          let outputPipe = Pipe()
+          let errorPipe = Pipe()
+          process.standardOutput = outputPipe
+          process.standardError = errorPipe
+
+          do {
+            try process.run()
+            process.waitUntilExit()
+          } catch {
+            // Silently handle errors when revealing shortcuts
+          }
         }
       case .builtIn, .keyboard, .text,
            .systemCommand, .menuBar, .windowManagement,
