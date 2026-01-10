@@ -2,23 +2,37 @@ import Foundation
 import Intents
 
 final class ShortcutsCommandRunner: Sendable {
-  private let commandRunner: ScriptCommandRunner
-
-  init(_ commandRunner: ScriptCommandRunner) {
-    self.commandRunner = commandRunner
+  enum ShortcutsCommandRunnerError: Error {
+    case executionFailed(String)
   }
 
   func run(_ command: ShortcutCommand,
            environment _: [String: String],
            checkCancellation: Bool) async throws -> String? {
-    let source = """
-    shortcuts run "\(command.shortcutIdentifier)"
-    """
-    let shellScript = ScriptCommand(
-      id: "ShortcutCommand.\(command.shortcutIdentifier)",
-      name: command.name, kind: .shellScript, source: .inline(source), notification: nil,
-    )
-    return try await commandRunner.run(shellScript, snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
-                                       runtimeDictionary: [:], checkCancellation: checkCancellation)
+    if checkCancellation { try Task.checkCancellation() }
+
+    let process = Process()
+    process.executableURL = URL(filePath: "/usr/bin/shortcuts")
+    // Pass shortcutIdentifier as a separate argument to prevent shell injection
+    process.arguments = ["run", command.shortcutIdentifier]
+
+    let outputPipe = Pipe()
+    let errorPipe = Pipe()
+    process.standardOutput = outputPipe
+    process.standardError = errorPipe
+
+    try process.run()
+
+    let outputData = try outputPipe.fileHandleForReading.readToEnd()
+    let errorData = try errorPipe.fileHandleForReading.readToEnd()
+
+    process.waitUntilExit()
+
+    if process.terminationStatus != 0 {
+      let errorOutput = errorData.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+      throw ShortcutsCommandRunnerError.executionFailed(errorOutput)
+    }
+
+    return outputData.flatMap { String(data: $0, encoding: .utf8) }
   }
 }
