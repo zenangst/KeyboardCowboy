@@ -17,8 +17,7 @@ struct WorkflowTriggerListView: View {
        publisher: TriggerPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
-       onTab: @escaping () -> Void)
-  {
+       onTab: @escaping () -> Void) {
     self.focus = focus
     self.publisher = publisher
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager

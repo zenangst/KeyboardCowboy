@@ -64,8 +64,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
        scriptCommandRunner: ScriptCommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
        systemCommandRunner: SystemCommandRunner,
-       uiElementCommandRunner: UIElementCommandRunner)
-  {
+       uiElementCommandRunner: UIElementCommandRunner) {
     let windowTidy = WindowTidyRunner()
 
     self.applicationStore = applicationStore
@@ -143,8 +142,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
   @discardableResult
   func serialRun(_ commands: [Command], checkCancellation: Bool,
                  resolveUserEnvironment: Bool, machPortEvent: MachPortEvent,
-                 repeatingEvent: Bool) -> Task<Void, any Error>
-  {
+                 repeatingEvent: Bool) -> Task<Void, any Error> {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
       ? NSPasteboard.general.string(forType: .string)
       : nil
@@ -232,8 +230,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
   func concurrentRun(_ commands: [Command], checkCancellation: Bool,
                      resolveUserEnvironment: Bool, machPortEvent: MachPortEvent,
-                     repeatingEvent: Bool)
-  {
+                     repeatingEvent: Bool) {
     var modifiedCheckCancellation = checkCancellation
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
       ? NSPasteboard.general.string(forType: .string)
@@ -293,8 +290,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
   func run(_ command: Command, workflowCommands: [Command], snapshot: inout UserSpace.Snapshot,
            machPortEvent: MachPortEvent, checkCancellation: Bool, repeatingEvent: Bool,
-           runtimeDictionary: inout [String: String]) async throws
-  {
+           runtimeDictionary: inout [String: String]) async throws {
     await showRunningNotification(for: command)
 
     let output: String
@@ -404,8 +400,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
       try await runners.windowManagement.run(windowCommand)
 
       if case let .moveToNextDisplay(mode) = windowCommand.kind,
-         case .center = mode
-      {
+         case .center = mode {
         let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
         Task.detached { [windowTiling = runners.windowTiling] in
           try await Task.sleep(for: .milliseconds(200))
@@ -550,8 +545,7 @@ extension Collection<Command> {
   var shouldRestorePasteboard: Bool {
     contains(where: { command in
       if case let .text(textCommand) = command,
-         case let .insertText(typeCommand) = textCommand.kind
-      {
+         case let .insertText(typeCommand) = textCommand.kind {
         switch typeCommand.mode {
         case .instant:
           true

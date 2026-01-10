@@ -135,8 +135,7 @@ final class ContentViewActionReducerTests: XCTestCase {
   }
 
   private func context(_ groups: [WorkflowGroup] = []) -> (store: GroupStore,
-                                                           selector: SelectionManager<GroupDetailViewModel>)
-  {
+                                                           selector: SelectionManager<GroupDetailViewModel>) {
     (store: GroupStore(groups), selector: SelectionManager())
   }
 }

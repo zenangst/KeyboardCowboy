@@ -9,8 +9,7 @@ extension CGRect {
 extension CGFloat {
   static func formula(_ initialValue: CGFloat = 0,
                       debug prefix: String? = nil,
-                      @GenericBuilder<Math> _ builder: (Math.Type) -> [Math]) -> CGFloat
-  {
+                      @GenericBuilder<Math> _ builder: (Math.Type) -> [Math]) -> CGFloat {
     let instructions = builder(Math.self)
     var result: CGFloat = initialValue.rounded()
 

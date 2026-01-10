@@ -12,8 +12,7 @@ struct InputSourceCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.InputSourceModel,
-       iconSize: CGSize)
-  {
+       iconSize: CGSize) {
     _model = Binding<CommandViewModel.Kind.InputSourceModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize

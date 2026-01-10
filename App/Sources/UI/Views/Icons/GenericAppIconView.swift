@@ -9,8 +9,7 @@ struct GenericAppIconView: View {
 
   init(primaryColor: Color = Color(nsColor: .systemBlue),
        secondaryColor: Color = Color(nsColor: .systemCyan),
-       size: CGFloat)
-  {
+       size: CGFloat) {
     self.size = size
     self.primaryColor = primaryColor
     self.secondaryColor = secondaryColor

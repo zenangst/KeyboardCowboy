@@ -12,8 +12,7 @@ struct WorkflowView: View {
   init(workflow: GroupDetailViewModel,
        publisher: GroupDetailPublisher,
        contentSelectionManager: SelectionManager<GroupDetailViewModel>,
-       onAction: @escaping (GroupDetailView.Action) -> Void)
-  {
+       onAction: @escaping (GroupDetailView.Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.publisher = publisher
@@ -44,8 +43,7 @@ private struct WorkflowViewItemInternalView: View {
   init(workflow: GroupDetailViewModel,
        publisher: GroupDetailPublisher,
        contentSelectionManager: SelectionManager<GroupDetailViewModel>,
-       onAction: @escaping (GroupDetailView.Action) -> Void)
-  {
+       onAction: @escaping (GroupDetailView.Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.publisher = publisher

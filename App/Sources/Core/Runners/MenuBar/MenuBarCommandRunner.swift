@@ -54,8 +54,7 @@ final class MenuBarCommandRunner {
   }
 
   private func recursiveSearch(_ tokens: [MenuBarCommand.Token],
-                               items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement
-  {
+                               items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement {
     guard let token = tokens.first else { throw MenuBarCommandRunnerError.ranOutOfTokens }
 
     var nextTokens = tokens

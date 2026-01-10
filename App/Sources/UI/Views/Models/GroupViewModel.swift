@@ -18,8 +18,7 @@ struct GroupViewModel: Identifiable, Hashable, Codable, Sendable, Transferable {
   var isEnabled: Bool { !isDisabled }
 
   init(id: String, name: String, icon: Icon?, color: String, symbol: String, bundleIdentifiers: [String], userModes: [UserMode],
-       count: Int, isDisabled: Bool = false)
-  {
+       count: Int, isDisabled: Bool = false) {
     self.id = id
     self.name = name
     self.icon = icon

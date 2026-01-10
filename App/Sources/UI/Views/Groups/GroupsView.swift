@@ -13,8 +13,7 @@ struct GroupsView: View {
        groupSelection: SelectionManager<GroupViewModel>,
        workflowSelection: SelectionManager<GroupDetailViewModel>,
        onAction: @escaping (SidebarView.Action) -> Void,
-       focus: FocusState<AppFocus?>.Binding)
-  {
+       focus: FocusState<AppFocus?>.Binding) {
     self.namespace = namespace
     self.groupSelection = groupSelection
     self.workflowSelection = workflowSelection
@@ -30,8 +29,7 @@ struct GroupsView: View {
 
     GroupsList(focus, namespace: namespace,
                groupSelection: groupSelection,
-               workflowSelection: workflowSelection)
-    { action in
+               workflowSelection: workflowSelection) { action in
       switch action {
       case let .selectGroups(ids):
         onAction(.selectGroups(ids))

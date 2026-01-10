@@ -62,8 +62,7 @@ public final class RingBuffer<T: Identifiable & Hashable> {
     currentEntries = updated
 
     if let currentEntry = currentEntries[safe: cursor],
-       let newIndex = currentEntries.firstIndex(where: { $0.id == currentEntry.id })
-    {
+       let newIndex = currentEntries.firstIndex(where: { $0.id == currentEntry.id }) {
       cursor = newIndex
     } else {
       cursor = 0

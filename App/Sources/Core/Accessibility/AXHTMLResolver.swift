@@ -10,8 +10,7 @@ enum AXHTMLResolver {
   static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement, snapshot: UserSpace.Snapshot) throws -> CGRect {
     var breadCrumb = ""
     if let result = try processElement(AnyAccessibilityElement(parent.reference), snapshot: snapshot, breadCrumb: &breadCrumb),
-       let frame = result.frame
-    {
+       let frame = result.frame {
       return frame
     } else {
       throw AXHTMLResolverError.unableToResolveFrame
@@ -20,8 +19,7 @@ enum AXHTMLResolver {
 
   private static func processElement(_ element: AnyAccessibilityElement,
                                      snapshot: UserSpace.Snapshot,
-                                     breadCrumb: inout String) throws -> AnyAccessibilityElement?
-  {
+                                     breadCrumb: inout String) throws -> AnyAccessibilityElement? {
     var resolvedElement: AnyAccessibilityElement?
     let children: [AnyAccessibilityElement] = try element.value(.children, as: [AXUIElement].self)
       .map { AnyAccessibilityElement($0, messagingTimeout: element.messagingTimeout) }

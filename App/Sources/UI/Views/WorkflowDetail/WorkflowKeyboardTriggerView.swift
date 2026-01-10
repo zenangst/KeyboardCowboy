@@ -23,8 +23,7 @@ struct WorkflowKeyboardTriggerView: View {
        workflowId: String,
        focus: FocusState<AppFocus?>.Binding,
        trigger: DetailViewModel.KeyboardTrigger,
-       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>)
-  {
+       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>) {
     self.namespace = namespace
     self.workflowId = workflowId
     self.focus = focus

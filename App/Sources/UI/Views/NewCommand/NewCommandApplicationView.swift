@@ -36,8 +36,7 @@ struct NewCommandApplicationView: View {
        ifNotRunning: Bool,
        waitForAppToLaunch: Bool,
        addToStage: Bool,
-       validation: Binding<NewCommandValidation>)
-  {
+       validation: Binding<NewCommandValidation>) {
     _application = .init(initialValue: application)
     _action = .init(initialValue: action)
     _payload = payload

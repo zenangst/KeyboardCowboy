@@ -22,8 +22,7 @@ struct NewCommandAppFocusView: View {
        onTilingChange: @escaping (Tiling?) -> Void,
        onSelectedAppsChange: @escaping (String) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void,
-       onCreateNewWindowChange: @escaping (Bool) -> Void)
-  {
+       onCreateNewWindowChange: @escaping (Bool) -> Void) {
     _validation = validation
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange

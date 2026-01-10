@@ -10,8 +10,7 @@ final class ShortcutsCommandRunner: Sendable {
 
   func run(_ command: ShortcutCommand,
            environment _: [String: String],
-           checkCancellation: Bool) async throws -> String?
-  {
+           checkCancellation: Bool) async throws -> String? {
     let source = """
     shortcuts run "\(command.shortcutIdentifier)"
     """

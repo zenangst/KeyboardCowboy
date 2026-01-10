@@ -8,8 +8,7 @@ struct SidebarNewConfigurationPopoverView: View {
 
   init(_ newConfigurationPopover: Binding<Bool>,
        configurationName: String,
-       onAction: @escaping (String) -> Void)
-  {
+       onAction: @escaping (String) -> Void) {
     _configurationName = .init(initialValue: configurationName)
     _newConfigurationPopover = newConfigurationPopover
     self.onAction = onAction

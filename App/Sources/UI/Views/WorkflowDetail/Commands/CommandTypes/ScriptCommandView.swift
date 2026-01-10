@@ -10,8 +10,7 @@ struct ScriptCommandView: View {
   private let onSubmit: () -> Void
 
   init(_ metaData: CommandViewModel.MetaData, model: Binding<CommandViewModel.Kind.ScriptModel>,
-       iconSize: CGSize, onSubmit: @escaping () -> Void)
-  {
+       iconSize: CGSize, onSubmit: @escaping () -> Void) {
     _model = model
     self.metaData = metaData
     self.iconSize = iconSize
@@ -107,8 +106,7 @@ private struct ScriptCommandInlineView: View {
        execution: Workflow.Execution,
        onVariableNameChange: @escaping (String) -> Void,
        onScriptChange: @escaping (String) -> Void,
-       onSubmit: @escaping () -> Void)
-  {
+       onSubmit: @escaping () -> Void) {
     self.text = text
     self.variableName = variableName
     self.execution = execution
@@ -165,8 +163,7 @@ private struct ScriptCommandPathView: View {
        execution: Workflow.Execution,
        onVariableNameChange: @escaping (String) -> Void,
        onBrowse: @escaping () -> Void,
-       onUpdate: @escaping (String) -> Void)
-  {
+       onUpdate: @escaping (String) -> Void) {
     _text = .init(initialValue: text)
     self.execution = execution
     self.onBrowse = onBrowse

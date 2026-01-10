@@ -40,8 +40,7 @@ final class MachPortUINotifications {
     Task { @MainActor in
       var keyboardShortcuts = [KeyShortcut]()
       if case let .keyboardShortcuts(trigger) = workflow.trigger,
-         case let .key(command) = command.kind
-      {
+         case let .key(command) = command.kind {
         keyboardShortcuts.append(contentsOf: trigger.shortcuts)
         keyboardShortcuts.append(.init(id: "spacer", key: "="))
         keyboardShortcuts.append(contentsOf: command.keyboardShortcuts)
@@ -64,8 +63,7 @@ final class MachPortUINotifications {
     let splits = match.rawValue.split(separator: "+")
     let prefix = splits.count - 1
     if let workflow = match.workflow,
-       case let .keyboardShortcuts(trigger) = workflow.trigger
-    {
+       case let .keyboardShortcuts(trigger) = workflow.trigger {
       let shortcuts = Array(trigger.shortcuts.prefix(prefix))
       let matches = Set(shortcutResolver.allMatchingPrefix(match.rawValue, shortcutIndexPrefix: prefix))
       let sortedMatches = Array(matches)

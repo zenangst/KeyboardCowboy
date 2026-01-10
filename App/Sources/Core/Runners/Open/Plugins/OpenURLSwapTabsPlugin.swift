@@ -25,8 +25,7 @@ final class OpenURLSwapTabsPlugin: Sendable {
   /// - Throws: An error if the URL cannot be opened.
   func execute(_ path: String, appName: String,
                appPath: String?, bundleIdentifier: String?,
-               checkCancellation: Bool) async throws
-  {
+               checkCancellation: Bool) async throws {
     // Get the bundle identifier of the target application, default to Safari if not provided
     let bundleIdentifier = bundleIdentifier ?? "com.apple.Safari"
 
@@ -41,8 +40,7 @@ final class OpenURLSwapTabsPlugin: Sendable {
       for window in windows {
         // Find the URL attribute of the web area in the window that matches the command path
         if let url: URL = window.findAttribute(.url, of: "AXWebArea"),
-           url.absoluteString.contains(path)
-        {
+           url.absoluteString.contains(path) {
           window.performAction(.raise)
           runningApplication.activate(options: .activateIgnoringOtherApps)
           success = true
@@ -84,8 +82,7 @@ final class OpenURLSwapTabsPlugin: Sendable {
 
         // Run the script command and check the result
         if try await commandRunner.run(scriptCommand, snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
-                                       runtimeDictionary: [:], checkCancellation: checkCancellation) == "-1"
-        {
+                                       runtimeDictionary: [:], checkCancellation: checkCancellation) == "-1" {
           throw OpenURLSwapToPluginError.couldNotFindOpenUrl
         }
       }

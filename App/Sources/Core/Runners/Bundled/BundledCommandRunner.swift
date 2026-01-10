@@ -27,8 +27,7 @@ actor BundledCommandRunner: Sendable {
            snapshot: inout UserSpace.Snapshot,
            machPortEvent: MachPortEvent,
            checkCancellation: Bool, repeatingEvent: Bool,
-           runtimeDictionary: inout [String: String]) async throws -> String
-  {
+           runtimeDictionary: inout [String: String]) async throws -> String {
     detachedTask?.cancel()
 
     let output: String
@@ -152,8 +151,7 @@ actor BundledCommandRunner: Sendable {
                    snapshot: inout UserSpace.Snapshot,
                    machPortEvent: MachPortEvent,
                    _: Bool = false,
-                   checkCancellation: Bool, repeatingEvent: Bool) async throws
-  {
+                   checkCancellation: Bool, repeatingEvent: Bool) async throws {
     let applications = applicationStore.applications
     let dynamicApps = await DynamicWorkspace.shared
       .applications(for: workspaceCommand.id)
@@ -187,14 +185,12 @@ actor BundledCommandRunner: Sendable {
       if workspaceCommand.applications
         .compactMap({ app -> String? in
           if app.options.contains(.onlyWhenRunning),
-             NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier).isEmpty
-          {
+             NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier).isEmpty {
             return nil
           }
           return app.bundleIdentifier
         })
-        .count > 1
-      {
+        .count > 1 {
         commands = handleOnlyUnhide(commands, dynamicWorkspaceWithoutTiling: dynamicWorkspaceWithoutTiling)
       }
     }
@@ -241,16 +237,14 @@ actor BundledCommandRunner: Sendable {
              let lastApp = workspaceCommand.applications
              .compactMap({ app -> WorkspaceCommand.WorkspaceApplication? in
                if app.options.contains(.onlyWhenRunning),
-                  NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier).isEmpty
-               {
+                  NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleIdentifier).isEmpty {
                  return nil
                }
                return app
              })
              .last,
              !bundleIdentifiers.contains(owningBundleIdentifier),
-             let application = ApplicationStore.shared.application(for: lastApp.bundleIdentifier)
-          {
+             let application = ApplicationStore.shared.application(for: lastApp.bundleIdentifier) {
             try await commandRunner
               .run(.application(.init(application: application)),
                    workflowCommands: commands,

@@ -14,8 +14,7 @@ struct ScriptCommand: MetaDataProviding {
        name: String, kind: Kind, source: Source,
        isEnabled _: Bool = true,
        notification: Command.Notification? = nil,
-       variableName: String? = nil)
-  {
+       variableName: String? = nil) {
     self.kind = kind
     self.source = source
     meta = Command.MetaData(

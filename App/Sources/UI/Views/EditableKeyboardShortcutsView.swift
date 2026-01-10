@@ -59,8 +59,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
        state: CurrentState? = nil,
        selectionManager: SelectionManager<KeyShortcut>,
        recordOnAppearIfEmpty: Bool = false,
-       onTab: @escaping (Bool) -> Void)
-  {
+       onTab: @escaping (Bool) -> Void) {
     self.focus = focus
     self.mode = mode
     self.draggableEnabled = draggableEnabled
@@ -345,8 +344,7 @@ private struct RecordButton<T: Hashable>: View {
 
   init(mode: EditableKeyboardShortcutsView<T>.Mode,
        state: Binding<EditableKeyboardShortcutsView<T>.CurrentState?>,
-       onAction: @escaping () -> Void)
-  {
+       onAction: @escaping () -> Void) {
     self.mode = mode
     _state = state
     self.onAction = onAction

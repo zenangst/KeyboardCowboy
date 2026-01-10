@@ -5,8 +5,7 @@ enum GroupDetailViewActionReducer {
   static func reduce(_ action: GroupDetailView.Action,
                      groupStore: GroupStore,
                      selectionManager: SelectionManager<GroupDetailViewModel>,
-                     group: inout WorkflowGroup)
-  {
+                     group: inout WorkflowGroup) {
     switch action {
     case .refresh, .selectWorkflow:
       break

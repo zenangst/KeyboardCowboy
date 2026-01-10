@@ -26,8 +26,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
 
   init(commandRunner: CommandRunning,
        keyboardCommandRunner: KeyboardCommandRunner,
-       store: KeyCodesStore)
-  {
+       store: KeyCodesStore) {
     self.commandRunner = commandRunner
     self.keyboardCommandRunner = keyboardCommandRunner
     self.store = store

@@ -150,8 +150,7 @@ final class WindowTidyRunner: Sendable {
   }
 
   private func multipleApps(rules: [WindowTidyCommand.Rule], windows: [WindowModel],
-                            visibleScreenFrame: CGRect, snapshot _: UserSpace.Snapshot) async
-  {
+                            visibleScreenFrame: CGRect, snapshot _: UserSpace.Snapshot) async {
     let currentWindow = windows[0]
     let windowSpacing = UserSettings.WindowManager.tiledWindowSpacing
     let activeWindows: [WindowModel] = windows.reversed()
@@ -171,8 +170,7 @@ final class WindowTidyRunner: Sendable {
       let activeTiling: WindowTiling
       if let runningApplication = NSRunningApplication(processIdentifier: pid),
          let bundleIdentifier = runningApplication.bundleIdentifier,
-         let rule = rules.first(where: { $0.bundleIdentifier == bundleIdentifier })
-      {
+         let rule = rules.first(where: { $0.bundleIdentifier == bundleIdentifier }) {
         activeTiling = rule.tiling
         quarterTiling.remove(activeTiling)
 
@@ -267,8 +265,7 @@ final class WindowTidyRunner: Sendable {
           }
         } else if !quarterTiling.isEmpty,
                   occupiedTiling.contains(calculatedTiling),
-                  let random = quarterTiling.randomElement()
-        {
+                  let random = quarterTiling.randomElement() {
           tiling = random
           quarterTiling.remove(random)
         } else {
@@ -343,8 +340,7 @@ private class AppContainer {
   var runningApplication: NSRunningApplication
 
   init(axElement: AppAccessibilityElement,
-       runningApplication: NSRunningApplication)
-  {
+       runningApplication: NSRunningApplication) {
     self.axElement = axElement
     self.runningApplication = runningApplication
   }

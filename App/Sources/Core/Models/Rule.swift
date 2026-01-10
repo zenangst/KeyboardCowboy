@@ -7,8 +7,7 @@ public struct Rule: Identifiable, Codable, Hashable, Sendable {
 
   public init(id: String = UUID().uuidString,
               allowedBundleIdentifiers: [String] = [],
-              disallowedBundleIdentifiers: [String] = [])
-  {
+              disallowedBundleIdentifiers: [String] = []) {
     self.id = id
     self.allowedBundleIdentifiers = allowedBundleIdentifiers
     self.disallowedBundleIdentifiers = disallowedBundleIdentifiers

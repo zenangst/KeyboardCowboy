@@ -11,8 +11,7 @@ struct MenuBarCommand: MetaDataProviding {
        application: Application?,
        tokens: [Token],
        isEnabled: Bool = true,
-       notification: Command.Notification? = nil)
-  {
+       notification: Command.Notification? = nil) {
     self.application = application
     self.tokens = tokens
     meta = Command.MetaData(id: id, name: name,

@@ -17,8 +17,7 @@ final class ConfigurationUpdater: ObservableObject {
 
   init(storageDebounce stride: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(500),
        onRender: @escaping (KeyboardCowboyConfiguration, UpdateTransaction, Animation?) -> Void,
-       onStorageUpdate: @escaping (KeyboardCowboyConfiguration, UpdateTransaction) -> Void)
-  {
+       onStorageUpdate: @escaping (KeyboardCowboyConfiguration, UpdateTransaction) -> Void) {
     self.onRender = onRender
     passthroughSubscription = passthrough
       .debounce(for: stride, scheduler: DispatchQueue.main)
@@ -110,8 +109,7 @@ struct UpdateCommit {
 
   init(_ state: ConfigurationUpdater.State,
        transaction: UpdateTransaction,
-       postAction: (() -> Void)? = nil)
-  {
+       postAction: (() -> Void)? = nil) {
     self.state = state
     self.transaction = transaction
     self.postAction = postAction

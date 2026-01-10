@@ -144,8 +144,7 @@ private struct SubContentView: View {
 
   init(model: Binding<CommandViewModel.Kind.OpenModel>,
        onReveal: @escaping () -> Void,
-       onEdit: @escaping () -> Void)
-  {
+       onEdit: @escaping () -> Void) {
     _model = model
     self.onReveal = onReveal
     self.onEdit = onEdit

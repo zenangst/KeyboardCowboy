@@ -3,8 +3,7 @@ import Cocoa
 enum WindowManagementCenterWindow {
   static func calculateRect(_ originFrame: CGRect,
                             currentScreen: NSScreen,
-                            mainDisplay: NSScreen) -> CGRect
-  {
+                            mainDisplay: NSScreen) -> CGRect {
     let dockSize = getDockSize(currentScreen)
     let dockPosition = getDockPosition(currentScreen)
     let x: CGFloat

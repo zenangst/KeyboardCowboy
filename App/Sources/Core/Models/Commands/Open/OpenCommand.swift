@@ -28,8 +28,7 @@ struct OpenCommand: MetaDataProviding {
   init(id: String = UUID().uuidString,
        name: String = "",
        application: Application? = nil, path: String,
-       notification: Command.Notification? = nil)
-  {
+       notification: Command.Notification? = nil) {
     self.application = application
     self.path = path
     meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)

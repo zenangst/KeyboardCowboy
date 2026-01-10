@@ -79,8 +79,7 @@ final class UserSpace: @unchecked Sendable {
            frontmostApplicationWindows: [],
            visibleWindowsInStage: [],
            visibleWindowsInSpace: [],
-         ))
-    {
+         )) {
       self.documentPath = documentPath
       frontMostApplication = frontmostApplication
       self.modes = modes
@@ -294,13 +293,13 @@ final class UserSpace: @unchecked Sendable {
   }
 
   #if DEBUG
-    func injectRunningApplications(_ runningApplications: [Application]) {
-      self.runningApplications = runningApplications
-    }
+  func injectRunningApplications(_ runningApplications: [Application]) {
+    self.runningApplications = runningApplications
+  }
 
-    func injectFrontmostApplication(_ frontmostApplication: Application) {
-      self.frontmostApplication = frontmostApplication
-    }
+  func injectFrontmostApplication(_ frontmostApplication: Application) {
+    self.frontmostApplication = frontmostApplication
+  }
   #endif
 
   @MainActor
@@ -312,8 +311,7 @@ final class UserSpace: @unchecked Sendable {
     var selectedText = ""
 
     if resolveUserEnvironment,
-       let frontmostApplication = try? frontmostRunningApplication()
-    {
+       let frontmostApplication = try? frontmostRunningApplication() {
       if let documentPathFromAX = try? self.documentPath(for: frontmostApplication) {
         documentPath = documentPathFromAX
       } else if let bundleIdentifier = frontmostApplication.bundleIdentifier {
@@ -496,8 +494,7 @@ extension RunningApplication {
           path: userSpaceApplication.path,
         )
       } else if let name = localizedName,
-                let path = bundleURL?.path().removingPercentEncoding
-      {
+                let path = bundleURL?.path().removingPercentEncoding {
         UserSpace.cache[bundleIdentifier] = RunningApplicationCache(
           name: name,
           path: path,

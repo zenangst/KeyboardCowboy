@@ -12,8 +12,7 @@ struct CommandContainerDelayPopoverView: View {
 
   init(_ metaData: Binding<CommandViewModel.MetaData>,
        isShown: Binding<Bool>,
-       onChange: @escaping (Double) -> Void)
-  {
+       onChange: @escaping (Double) -> Void) {
     if let delay = metaData.wrappedValue.delay {
       _delayString = .init(initialValue: String(Int(delay)))
     } else {

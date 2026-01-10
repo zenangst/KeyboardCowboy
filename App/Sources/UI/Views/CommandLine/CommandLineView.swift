@@ -119,8 +119,7 @@ private struct CommandLineResultListView: View {
 
   init(data: CommandLineViewModel, optionDown: Binding<Bool>,
        onTap: @escaping () -> Void,
-       selection: Binding<Int>)
-  {
+       selection: Binding<Int>) {
     _selection = selection
     _optionDown = optionDown
     self.onTap = onTap

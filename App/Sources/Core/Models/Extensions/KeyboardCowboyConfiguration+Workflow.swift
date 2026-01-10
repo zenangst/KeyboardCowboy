@@ -81,8 +81,7 @@ extension KeyboardCowboyConfiguration {
        let holdDuration = newTrigger.holdDuration,
        holdDuration > 0,
        newTrigger.shortcuts.count > 1,
-       let targetShortcut = newTrigger.shortcuts.first
-    {
+       let targetShortcut = newTrigger.shortcuts.first {
       for (index, workflow) in groups[groupIndex].workflows.enumerated() where workflow.id != newWorkflow.id {
         guard case var .keyboardShortcuts(trigger) = workflow.trigger,
               !workflow.machPortConditions.isLeaderKey,

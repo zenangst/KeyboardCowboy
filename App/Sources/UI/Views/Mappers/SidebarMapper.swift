@@ -32,8 +32,7 @@ extension WorkflowGroup {
 private extension Rule {
   func icon(using applicationStore: ApplicationStore) -> Icon? {
     if let bundleIdentifier: String = allowedBundleIdentifiers.first,
-       let app: Application = applicationStore.application(for: bundleIdentifier)
-    {
+       let app: Application = applicationStore.application(for: bundleIdentifier) {
       return .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
     }
     return nil

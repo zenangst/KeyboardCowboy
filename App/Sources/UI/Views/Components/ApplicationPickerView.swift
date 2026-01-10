@@ -8,8 +8,7 @@ struct ApplicationPickerView: View {
 
   init(_ store: ApplicationStore,
        title: String = "Application:",
-       selection: Binding<Application?>)
-  {
+       selection: Binding<Application?>) {
     _store = .init(initialValue: store)
     _selection = selection
     self.title = title

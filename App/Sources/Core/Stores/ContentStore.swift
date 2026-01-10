@@ -35,8 +35,7 @@ final class ContentStore: ObservableObject {
        recorderStore: KeyShortcutRecorderStore,
        shortcutStore: ShortcutStore,
        scriptCommandRunner _: ScriptCommandRunner = .init(workspace: .shared),
-       workspace _: NSWorkspace = .shared)
-  {
+       workspace _: NSWorkspace = .shared) {
     configurationId = AppStorageContainer.shared.configId
     self.applicationStore = applicationStore
     self.shortcutStore = shortcutStore

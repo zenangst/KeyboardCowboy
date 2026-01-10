@@ -62,8 +62,7 @@ private struct ShortcutCommandContentView: View {
   private let onSelect: (Shortcut) -> Void
 
   init(model: Binding<CommandViewModel.Kind.ShortcutModel>,
-       onSelect: @escaping (Shortcut) -> Void)
-  {
+       onSelect: @escaping (Shortcut) -> Void) {
     _model = model
     self.onSelect = onSelect
   }
@@ -93,8 +92,7 @@ private struct ShortcutCommandSubContentView: View {
   private let onCreateShortcut: () -> Void
 
   init(onOpenShortcut: @escaping () -> Void,
-       onCreateShortcut: @escaping () -> Void)
-  {
+       onCreateShortcut: @escaping () -> Void) {
     self.onOpenShortcut = onOpenShortcut
     self.onCreateShortcut = onCreateShortcut
   }

@@ -14,8 +14,7 @@ extension PreviewProvider {
 
   static var groupStore: GroupStore { contentStore.groupStore }
   static func autoCompletionStore(_ completions: [String],
-                                  selection: String? = nil) -> AutoCompletionStore
-  {
+                                  selection: String? = nil) -> AutoCompletionStore {
     AutoCompletionStore(completions, selection: selection)
   }
 }

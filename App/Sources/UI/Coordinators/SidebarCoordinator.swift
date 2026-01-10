@@ -13,8 +13,7 @@ final class SidebarCoordinator {
   let publisher = GroupsPublisher()
 
   init(_ store: GroupStore, applicationStore: ApplicationStore,
-       groupSelectionManager: SelectionManager<GroupViewModel>)
-  {
+       groupSelectionManager: SelectionManager<GroupViewModel>) {
     self.applicationStore = applicationStore
     self.store = store
     selectionManager = groupSelectionManager

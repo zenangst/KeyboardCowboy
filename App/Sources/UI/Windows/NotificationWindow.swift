@@ -8,8 +8,7 @@ final class NotificationWindow<Content>: NSWindow where Content: View {
   override var canBecomeMain: Bool { false }
 
   init(animationBehavior: NSWindow.AnimationBehavior,
-       content rootView: @autoclosure @escaping () -> Content)
-  {
+       content rootView: @autoclosure @escaping () -> Content) {
     manager = WindowManager()
     let contentRect = NSScreen.main?.frame ?? .init(origin: .zero, size: .init(width: 200, height: 200))
     super.init(contentRect: contentRect, styleMask: [

@@ -19,8 +19,7 @@ struct WorkspaceCommandView: View {
        onDefaultForDynamicWorkspace: @escaping (Bool) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void,
        onSelectedAppsChange: @escaping ([CommandViewModel.Kind.WorkspaceModel.WorkspaceApplication]) -> Void,
-       onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void)
-  {
+       onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void) {
     self.model = model
     self.onAppToggleModifiers = onAppToggleModifiers
     self.onDefaultForDynamicWorkspace = onDefaultForDynamicWorkspace

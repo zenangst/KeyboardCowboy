@@ -8,8 +8,7 @@ import SwiftUI
 final class SelectionManager<T>: ObservableObject where T: Identifiable,
   T: Hashable,
   T: Equatable,
-  T.ID == String
-{
+  T.ID == String {
   private var subscriptions: AnyCancellable?
   private var tabIsActive: Bool = false
   typealias StoreType = (Set<T.ID>) -> Void
@@ -21,8 +20,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
 
   init(_ selections: Set<T.ID> = [],
        initialSelection: Set<T.ID> = [],
-       store: @escaping StoreType = { _ in })
-  {
+       store: @escaping StoreType = { _ in }) {
     self.store = store
     if let firstSelection = Array(initialSelection).first {
       self.selections = [firstSelection]
@@ -71,8 +69,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   func handle(_ direction: MoveCommandDirection,
               _ data: [T],
               proxy: ScrollViewProxy? = nil,
-              vertical: Bool = true) -> T.ID?
-  {
+              vertical: Bool = true) -> T.ID? {
     switch direction {
     case .up:
       guard vertical else { return nil }
@@ -116,11 +113,9 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
 
   private func moveSelection(_ data: [T],
                              proxy: ScrollViewProxy? = nil,
-                             transform: (Int) -> Int) -> T.ID?
-  {
+                             transform: (Int) -> Int) -> T.ID? {
     if let currentSelection = lastSelection ?? selections.first ?? data.first?.id,
-       let currentIndex = data.firstIndex(where: { $0.id == currentSelection })
-    {
+       let currentIndex = data.firstIndex(where: { $0.id == currentSelection }) {
       let nextIndex = transform(currentIndex)
 
       let currentElementID = data[currentIndex].id

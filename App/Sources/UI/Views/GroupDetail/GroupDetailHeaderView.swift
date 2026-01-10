@@ -41,11 +41,11 @@ struct GroupDetailHeaderView: View {
             group.isDisabled = !newValue
           }
         }), label: {})
-        .switchStyle()
-        .environment(\.switchForegroundColor, Color(hex: groupPublisher.data.color))
-        .environment(\.switchBackgroundColor, Color(hex: groupPublisher.data.color))
-        .id("group.toggle.\(groupPublisher.data.id)")
-        .padding(.horizontal, 8)
+          .switchStyle()
+          .environment(\.switchForegroundColor, Color(hex: groupPublisher.data.color))
+          .environment(\.switchBackgroundColor, Color(hex: groupPublisher.data.color))
+          .id("group.toggle.\(groupPublisher.data.id)")
+          .padding(.horizontal, 8)
       }
     }
     .enableInjection()

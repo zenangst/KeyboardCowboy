@@ -24,8 +24,7 @@ struct CommandList: View {
        publisher: CommandsPublisher,
        triggerPublisher: TriggerPublisher,
        selectionManager: SelectionManager<CommandViewModel>,
-       scrollViewProxy: ScrollViewProxy? = nil)
-  {
+       scrollViewProxy: ScrollViewProxy? = nil) {
     _isPrimary = isPrimary
     self.focus = focus
     self.publisher = publisher

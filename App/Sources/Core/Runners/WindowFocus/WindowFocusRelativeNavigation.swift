@@ -19,8 +19,7 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
   @MainActor lazy var windowController: NSWindowController = .init(window: window)
 
   fileprivate func rerouteDirectionIfNeeded(_ direction: inout WindowFocusRelativeFocus.Direction, frame: CGRect,
-                                            tiling: WindowTiling?, screen: NSScreen)
-  {
+                                            tiling: WindowTiling?, screen: NSScreen) {
     switch direction {
     case .up:
       if frame.minY >= screen.visibleFrame.minY { return }
@@ -79,8 +78,7 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
   @MainActor
   func findNextWindow(_ currentWindow: RelativeWindowModel, windows: [RelativeWindowModel],
                       direction: WindowFocusRelativeFocus.Direction,
-                      initialScreen: NSScreen = NSScreen.main!) async throws -> RelativeWindowModelMatch?
-  {
+                      initialScreen: NSScreen = NSScreen.main!) async throws -> RelativeWindowModelMatch? {
     let initialDirection = direction
     let windowSpacing: CGFloat = if UserSettings.WindowManager.tiledWindowMarginsEnabled == false {
       0
@@ -230,8 +228,7 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
       }
 
       if !shouldSkip, let accessWindow = systemElement.element(at: elementOrigin, as: AnyAccessibilityElement.self)?.window,
-         let firstMatch = systemWindows.first(where: { $0.window.id == accessWindow.id })
-      {
+         let firstMatch = systemWindows.first(where: { $0.window.id == accessWindow.id }) {
         updateDebugWindow(firstMatch.window.rect)
         return .init(firstMatch.window, axWindow: accessWindow)
       }
@@ -310,8 +307,7 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
           window != currentWindow &&
             !paddedWindowRect.contains(window.rect) &&
             window.rect.intersects(fieldOfViewRect)
-        })
-      {
+        }) {
         switch initialDirection {
         case .up, .down:
           if currentWindow.rect.origin.y == match.rect.origin.y { return nil }

@@ -40,8 +40,7 @@ struct NewCommandMenuBarView: View {
 
   init(_ payload: Binding<NewCommandPayload>,
        validation: Binding<NewCommandValidation>,
-       kind: Kind = .menuItem)
-  {
+       kind: Kind = .menuItem) {
     _payload = payload
     _validation = validation
     _kind = .init(initialValue: kind)

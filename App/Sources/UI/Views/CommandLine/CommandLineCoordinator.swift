@@ -84,8 +84,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
       switch data.kind {
       case .fallback:
         if case let .search(kind) = data.results[selection],
-           let url = URL(string: "\(kind.prefix)\(kind.searchString)")
-        {
+           let url = URL(string: "\(kind.prefix)\(kind.searchString)") {
           NSWorkspace.shared.open(url)
         }
       case .keyboard:
@@ -200,8 +199,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
     }
 
     if let components = URLComponents(string: newInput),
-       let url = components.url
-    {
+       let url = components.url {
       let split = newInput.split(separator: ".")
       if split.count > 1, !newInput.contains(".app") {
         Task { @MainActor in

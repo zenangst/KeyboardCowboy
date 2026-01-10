@@ -33,8 +33,7 @@ final class OpenURLSafariWebAppPlugin: Sendable {
       let windows = try axApp.windows()
       for window in windows {
         if let url: URL = window.findAttribute(.url, of: "AXWebArea"),
-           url.absoluteString.contains(path)
-        {
+           url.absoluteString.contains(path) {
           window.main = true
           window.performAction(.raise)
           timeout = 0

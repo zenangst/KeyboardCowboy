@@ -142,8 +142,7 @@ final class WindowManagementCommandRunner {
 
         if delta <= abs(limit),
            abs(widthDelta) <= delta,
-           let restoreFrame = fullscreenCache[activeWindow.id]
-        {
+           let restoreFrame = fullscreenCache[activeWindow.id] {
           newFrame = restoreFrame
         } else {
           newFrame = resolvedFrame
@@ -161,8 +160,7 @@ final class WindowManagementCommandRunner {
         let delta = abs(lhs - rhs)
 
         if delta < 1,
-           let restoreFrame = centerCache[activeWindow.id]
-        {
+           let restoreFrame = centerCache[activeWindow.id] {
           newFrame = restoreFrame
         } else {
           newFrame = resolvedFrame
@@ -260,8 +258,7 @@ final class WindowManagementCommandRunner {
                                       currentScreen: NSScreen, mainDisplay: NSScreen,
                                       curve: InterpolationCurve = .easeInOut,
                                       constrainedToScreen: Bool = false, duration: TimeInterval,
-                                      onUpdate: @MainActor @escaping @Sendable (CGRect) -> Void)
-  {
+                                      onUpdate: @MainActor @escaping @Sendable (CGRect) -> Void) {
     let dockSize = getDockSize(mainDisplay)
     let dockPosition = getDockPosition(mainDisplay)
     let currenScreenFrame = currentScreen.frame
@@ -363,8 +360,7 @@ final class WindowManagementCommandRunner {
                                      dockLeftSize _: CGFloat,
                                      dockRightSize _: CGFloat,
                                      currentScreenIsMainDisplay: Bool,
-                                     mainDisplayMaxY: CGFloat)
-  {
+                                     mainDisplayMaxY: CGFloat) {
     let maxX = currenScreenFrame.maxX - (minSize?.width ?? interpolatedFrame.width)
     let maxY = currenScreenFrame.maxY - (minSize?.height ?? interpolatedFrame.height)
 

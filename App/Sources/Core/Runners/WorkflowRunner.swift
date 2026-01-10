@@ -15,8 +15,7 @@ final class WorkflowRunner: WorkflowRunning, Sendable {
   private let notifications: MachPortUINotifications
 
   init(commandRunner: CommandRunner, store: KeyCodesStore,
-       notifications: MachPortUINotifications)
-  {
+       notifications: MachPortUINotifications) {
     self.commandRunner = commandRunner
     self.store = store
     self.notifications = notifications
@@ -47,8 +46,7 @@ final class WorkflowRunner: WorkflowRunning, Sendable {
   }
 
   func run(_ workflow: Workflow, executionOverride: Workflow.Execution? = nil,
-           machPortEvent: MachPortEvent, repeatingEvent: Bool) async
-  {
+           machPortEvent: MachPortEvent, repeatingEvent: Bool) async {
     Task.detached { @MainActor [weak notifications] in
       notifications?.notifyRunningWorkflow(workflow)
     }
@@ -61,8 +59,7 @@ final class WorkflowRunner: WorkflowRunning, Sendable {
     if let trigger = workflow.trigger,
        case let .keyboardShortcuts(keyboardShortcutTrigger) = trigger,
        keyboardShortcutTrigger.passthrough,
-       keyboardShortcutTrigger.shortcuts.count == 1
-    {
+       keyboardShortcutTrigger.shortcuts.count == 1 {
       let shortcut = keyboardShortcutTrigger.shortcuts[0]
       let displayValue = await store.displayValue(for: kVK_Escape)
       if shortcut.key == displayValue {

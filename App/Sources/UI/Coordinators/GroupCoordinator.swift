@@ -20,8 +20,7 @@ final class GroupCoordinator {
   init(_ store: GroupStore,
        applicationStore: ApplicationStore,
        groupSelectionManager: SelectionManager<GroupViewModel>,
-       workflowsSelectionManager: SelectionManager<GroupDetailViewModel>)
-  {
+       workflowsSelectionManager: SelectionManager<GroupDetailViewModel>) {
     self.applicationStore = applicationStore
     self.store = store
     self.groupSelectionManager = groupSelectionManager
@@ -41,8 +40,7 @@ final class GroupCoordinator {
       render(groupSelectionManager.selections, calculateSelections: true)
     case let .selectGroups(ids):
       if let id = ids.first,
-         let firstGroup = store.group(withId: id)
-      {
+         let firstGroup = store.group(withId: id) {
         let group = SidebarMapper.map(firstGroup, applicationStore: applicationStore)
         groupPublisher.publish(group)
       }
@@ -113,8 +111,7 @@ final class GroupCoordinator {
 
   private func render(_ groupIds: Set<GroupViewModel.ID>,
                       calculateSelections: Bool = false,
-                      selectionOverrides: Set<Workflow.ID>? = nil)
-  {
+                      selectionOverrides: Set<Workflow.ID>? = nil) {
     Benchmark.shared.start("ContentCoordinator.render")
     defer { Benchmark.shared.stop("ContentCoordinator.render") }
 
@@ -138,8 +135,7 @@ final class GroupCoordinator {
 
           if calculateSelections,
              !selectedWorkflowIds.isEmpty,
-             selectedWorkflowIds.contains(viewModel.id)
-          {
+             selectedWorkflowIds.contains(viewModel.id) {
             selectedWorkflowIds.remove(viewModel.id)
             newSelections.insert(viewModel.id)
           }

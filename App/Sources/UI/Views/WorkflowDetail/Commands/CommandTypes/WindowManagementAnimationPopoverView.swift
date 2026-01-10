@@ -12,8 +12,7 @@ struct WindowManagementAnimationPopoverView: View {
 
   init(_ windowCommand: Binding<CommandViewModel.Kind.WindowManagementModel>,
        isShown: Binding<Bool>,
-       onChange: @escaping (Double) -> Void)
-  {
+       onChange: @escaping (Double) -> Void) {
     _windowCommand = windowCommand
     _isShown = isShown
     _animationDuration = .init(initialValue: String(windowCommand.wrappedValue.animationDuration))

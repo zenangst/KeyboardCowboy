@@ -65,8 +65,7 @@ struct GroupDetailView: View {
   init(_ appFocus: FocusState<AppFocus?>.Binding, groupId: String,
        workflowSelection: SelectionManager<GroupDetailViewModel>,
        commandSelection: SelectionManager<CommandViewModel>,
-       onAction: @escaping (Action) -> Void)
-  {
+       onAction: @escaping (Action) -> Void) {
     self.appFocus = appFocus
     self.workflowSelection = workflowSelection
     self.commandSelection = commandSelection
@@ -222,8 +221,7 @@ struct GroupDetailView: View {
           .focusable($focus, as: .element(element.id)) {
             if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
                let lastSelection = workflowSelection.lastSelection,
-               let match = publisher.data.first(where: { $0.id == lastSelection })
-            {
+               let match = publisher.data.first(where: { $0.id == lastSelection }) {
               focus = .element(match.id)
             } else {
               onTap(element)
@@ -256,8 +254,7 @@ struct GroupDetailView: View {
                      let newSelections = Set(publisher.data.map(\.id))
                      workflowSelection.publish(newSelections)
                      if let elementID = publisher.data.first?.id,
-                        let lastSelection = workflowSelection.lastSelection
-                     {
+                        let lastSelection = workflowSelection.lastSelection {
                        focus = .element(elementID)
                        focus = .element(lastSelection)
                      }

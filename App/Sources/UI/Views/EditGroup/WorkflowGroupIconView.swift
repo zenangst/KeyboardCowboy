@@ -20,8 +20,7 @@ struct WorkflowGroupIconView: View {
         .frame(width: 12, height: 12, alignment: .center))
       .overlay(ZStack {
         if let first = group.rule?.allowedBundleIdentifiers.first,
-           let app = applicationStore.application(for: first)
-        {
+           let app = applicationStore.application(for: first) {
           IconView(icon: Icon(app), size: .init(width: 24, height: 24))
             .allowsHitTesting(false)
         }

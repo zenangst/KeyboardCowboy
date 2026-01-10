@@ -7,8 +7,7 @@ final class DebounceManager<T>: ObservableObject {
   private let onUpdate: (T) -> Void
 
   init(for stride: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(500),
-       onUpdate: @escaping (T) -> Void)
-  {
+       onUpdate: @escaping (T) -> Void) {
     self.onUpdate = onUpdate
     subscription = subject
       .debounce(for: stride, scheduler: DispatchQueue.main)

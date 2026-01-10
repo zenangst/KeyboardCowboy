@@ -12,8 +12,7 @@ struct WindowTilingCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowTilingModel,
-       iconSize: CGSize)
-  {
+       iconSize: CGSize) {
     _model = Binding<CommandViewModel.Kind.WindowTilingModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize

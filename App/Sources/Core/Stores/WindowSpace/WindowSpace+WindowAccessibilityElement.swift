@@ -12,8 +12,7 @@ extension WindowAccessibilityElement {
     if let resolvedBundleIdentifier = await container.lookup(pid) {
       bundleIdentifier = resolvedBundleIdentifier
     } else if let runningApplication = NSRunningApplication(processIdentifier: pid_t(pid)),
-              let resolvedBundleIdentifier = runningApplication.bundleIdentifier
-    {
+              let resolvedBundleIdentifier = runningApplication.bundleIdentifier {
       bundleIdentifier = resolvedBundleIdentifier
     } else {
       return nil

@@ -24,14 +24,13 @@ final class UIElementCaptureStore: ObservableObject {
   private var restore: [Int32: Bool] = [:]
 
   #if DEBUG
-    init(isCapturing: Bool = false,
-         capturedElement: UIElementCaptureItem? = nil,
-         flags: CGEventFlags? = nil)
-    {
-      self.isCapturing = isCapturing
-      self.capturedElement = capturedElement
-      self.flags = flags
-    }
+  init(isCapturing: Bool = false,
+       capturedElement: UIElementCaptureItem? = nil,
+       flags: CGEventFlags? = nil) {
+    self.isCapturing = isCapturing
+    self.capturedElement = capturedElement
+    self.flags = flags
+  }
   #endif
 
   func subscribe(to coordinator: MachPortCoordinator) {

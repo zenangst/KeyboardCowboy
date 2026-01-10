@@ -13,8 +13,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
   init(id: String = UUID().uuidString, bundleIdentifer: String,
        hideOtherApps: Bool, tiling: Tiling?,
-       createNewWindow: Bool = true)
-  {
+       createNewWindow: Bool = true) {
     self.id = id
     self.bundleIdentifer = bundleIdentifer
     self.hideOtherApps = hideOtherApps
@@ -172,8 +171,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       }
     case .arrangeDynamicQuarters:
       if let window = appWindows.first,
-         let screen = NSScreen.screens.first(where: { $0.visibleFrame.mainDisplayFlipped.intersects(window.rect) })
-      {
+         let screen = NSScreen.screens.first(where: { $0.visibleFrame.mainDisplayFlipped.intersects(window.rect) }) {
         let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft, .fill]
         let currentTiling = WindowTilingRunner.calculateTiling(for: window.rect, in: screen.visibleFrame.mainDisplayFlipped)
 

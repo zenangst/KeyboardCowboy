@@ -8,8 +8,7 @@ struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Sendable 
 
   init(id: String = UUID().uuidString,
        application: Application,
-       contexts: [Context] = [])
-  {
+       contexts: [Context] = []) {
     self.id = id
     self.application = application
     self.contexts = Set(contexts)

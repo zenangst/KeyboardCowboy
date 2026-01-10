@@ -9,8 +9,7 @@ struct ScriptSymbol: View {
   init(cornerRadius: CGFloat = 11,
        foreground: Color,
        background: Color,
-       borderColor: Color)
-  {
+       borderColor: Color) {
     self.cornerRadius = cornerRadius
     self.foreground = foreground
     self.background = background

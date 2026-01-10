@@ -13,8 +13,7 @@ struct WindowManagementCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
-       iconSize: CGSize)
-  {
+       iconSize: CGSize) {
     _model = .init(initialValue: model)
     self.metaData = metaData
     self.iconSize = iconSize
@@ -60,8 +59,7 @@ struct WindowManagementCommandInternalView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
-       iconSize: CGSize)
-  {
+       iconSize: CGSize) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.iconSize = iconSize
