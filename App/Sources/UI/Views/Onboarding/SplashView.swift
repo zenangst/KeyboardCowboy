@@ -7,8 +7,7 @@ struct SplashColors {
 
   init(primaryColor: Color,
        secondaryColor: Color,
-       backgroundColor: Color)
-  {
+       backgroundColor: Color) {
     self.primaryColor = primaryColor
     self.secondaryColor = secondaryColor
     self.backgroundColor = backgroundColor
@@ -23,8 +22,7 @@ struct SplashView: View {
   init(colors: SplashColors = SplashColors(primaryColor: Color(red: 220 / 255, green: 58 / 255, blue: 102 / 255),
                                            secondaryColor: Color(red: 114 / 255, green: 59 / 255, blue: 120 / 255),
                                            backgroundColor: Color(red: 22 / 255, green: 23 / 255, blue: 48 / 255)),
-       done: Binding<Bool>)
-  {
+       done: Binding<Bool>) {
     self.colors = colors
     _done = done
   }

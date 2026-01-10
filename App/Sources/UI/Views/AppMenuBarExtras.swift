@@ -58,12 +58,12 @@ struct AppMenuBarExtras: Scene {
       Divider()
       Text("Version: \(KeyboardCowboyApp.marketingVersion) (\(KeyboardCowboyApp.buildNumber))")
       #if DEBUG
-        Button(action: { onAction(.reveal) }, label: {
-          Text("Reveal")
-        })
-        if !Bundle.main.bundlePath.hasPrefix("/Applications") {
-          Button(action: { onAction(.install) }, label: { Text("Move to Applications Folder") })
-        }
+      Button(action: { onAction(.reveal) }, label: {
+        Text("Reveal")
+      })
+      if !Bundle.main.bundlePath.hasPrefix("/Applications") {
+        Button(action: { onAction(.install) }, label: { Text("Move to Applications Folder") })
+      }
       #endif
       Button(action: {
         NSApplication.shared.terminate(nil)

@@ -12,8 +12,7 @@ final class BuiltInCommandRunner: Sendable {
        configurationStore: ConfigurationStore,
        macroRunner: MacroRunner,
        repeatLastWorkflowRunner: RepeatLastWorkflowRunner,
-       windowOpener: WindowOpener)
-  {
+       windowOpener: WindowOpener) {
     self.commandLine = commandLine
     self.configurationStore = configurationStore
     self.macroRunner = macroRunner

@@ -12,8 +12,7 @@ struct WorkflowShortcutsView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        data: Binding<[KeyShortcut]>,
        selectionManager: SelectionManager<KeyShortcut>,
-       onUpdate: @escaping ([KeyShortcut]) -> Void)
-  {
+       onUpdate: @escaping ([KeyShortcut]) -> Void) {
     _data = data
     self.focus = focus
     self.onUpdate = onUpdate

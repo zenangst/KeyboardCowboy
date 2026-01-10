@@ -26,8 +26,7 @@ struct NewCommandURLView: View {
 
   init(_ payload: Binding<NewCommandPayload>,
        validation: Binding<NewCommandValidation>,
-       onSubmitAddress: @escaping () -> Void)
-  {
+       onSubmitAddress: @escaping () -> Void) {
     _payload = payload
     _validation = validation
     self.onSubmitAddress = onSubmitAddress
@@ -70,8 +69,7 @@ struct NewCommandURLView: View {
       .onChange(of: address, perform: { newValue in
         if let components = URLComponents(string: newValue),
            let host = components.host,
-           let scheme = components.scheme
-        {
+           let scheme = components.scheme {
           stringProtocol = scheme
 
           var newString = host + components.path

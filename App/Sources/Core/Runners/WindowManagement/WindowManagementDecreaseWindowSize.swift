@@ -6,8 +6,7 @@ enum WindowManagementDecreaseWindowSize {
                             in direction: WindowManagementCommand.Direction,
                             constrainedToScreen _: Bool,
                             currentScreen _: NSScreen,
-                            mainDisplay _: NSScreen) -> CGRect
-  {
+                            mainDisplay _: NSScreen) -> CGRect {
     let newValue = CGFloat(byValue)
     var newFrame = originFrame
 

@@ -14,8 +14,7 @@ enum WindowManagementWindowToNextDisplay {
       // Move to iPad if possible.
       if let axApp = AppAccessibilityElement.focusedApplication(),
          let menuItems = try? axApp.menuBar().menuItems().windowMenuBarItems,
-         let moveToIPad = menuItems.first(where: { $0.identifier == "_toggleIPad:" })
-      {
+         let moveToIPad = menuItems.first(where: { $0.identifier == "_toggleIPad:" }) {
         moveToIPad.performAction(.press)
       }
       return

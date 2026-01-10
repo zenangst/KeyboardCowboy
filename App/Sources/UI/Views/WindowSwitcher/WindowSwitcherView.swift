@@ -141,8 +141,7 @@ struct WindowSwitcherView: View {
         })
         .overlay(alignment: .bottomLeading) {
           if let id = publisher.selections.first,
-             let selected = publisher.items.first(where: { $0.id == id })
-          {
+             let selected = publisher.items.first(where: { $0.id == id }) {
             Text(selected.hints.commandKey)
               .font(.caption)
               .padding(4)

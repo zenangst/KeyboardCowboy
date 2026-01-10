@@ -17,8 +17,7 @@ struct WorkflowApplicationTrigger: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        data: [DetailViewModel.ApplicationTrigger],
        selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       onTab: @escaping () -> Void)
-  {
+       onTab: @escaping () -> Void) {
     self.focus = focus
     _data = .init(initialValue: data)
     self.selectionManager = selectionManager

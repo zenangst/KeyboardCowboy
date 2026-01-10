@@ -29,8 +29,7 @@ final class GroupWindow: NSObject, NSWindowDelegate {
 
   init(context: Context, applicationStore: ApplicationStore,
        configurationPublisher: ConfigurationPublisher, contentPublisher: GroupDetailPublisher,
-       contentCoordinator: GroupCoordinator, sidebarCoordinator: SidebarCoordinator)
-  {
+       contentCoordinator: GroupCoordinator, sidebarCoordinator: SidebarCoordinator) {
     self.context = context
     self.applicationStore = applicationStore
     self.configurationPublisher = configurationPublisher

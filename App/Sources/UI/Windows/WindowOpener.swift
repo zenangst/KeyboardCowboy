@@ -57,8 +57,7 @@ final class WindowOpener: ObservableObject {
     NewCommandWindow(context: context,
                      contentStore: core.contentStore,
                      uiElementCaptureStore: core.uiElementCaptureStore,
-                     configurationPublisher: core.configCoordinator.configurationPublisher)
-    { [core] workflowId, commandId, title, payload in
+                     configurationPublisher: core.configCoordinator.configurationPublisher) { [core] workflowId, commandId, title, payload in
       let groupIds = core.groupSelection.selections
       Task {
         let transaction = core.workflowCoordinator.updateTransaction

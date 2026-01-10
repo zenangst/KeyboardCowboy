@@ -10,8 +10,7 @@ struct WorkflowSnippetTriggerView: View {
   @State var snippet: DetailViewModel.SnippetTrigger
 
   init(_ focus: FocusState<AppFocus?>.Binding,
-       snippet: DetailViewModel.SnippetTrigger)
-  {
+       snippet: DetailViewModel.SnippetTrigger) {
     _snippet = .init(initialValue: snippet)
     self.focus = focus
   }

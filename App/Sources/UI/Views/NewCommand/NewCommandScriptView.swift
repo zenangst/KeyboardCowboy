@@ -41,8 +41,7 @@ struct NewCommandScriptView: View {
        value: String,
        scriptExtension: ScriptExtension,
        validation: Binding<NewCommandValidation>,
-       onSubmit: @escaping (NewCommandPayload) -> Void)
-  {
+       onSubmit: @escaping (NewCommandPayload) -> Void) {
     _kind = .init(initialValue: kind)
     _scriptExtension = .init(initialValue: scriptExtension)
     _value = .init(initialValue: value)
@@ -148,8 +147,7 @@ struct NewCommandFileSelectorView: View {
 
   init(_ scriptExtension: Binding<NewCommandScriptView.ScriptExtension>,
        path: String,
-       onPathChange: @escaping (String) -> Void)
-  {
+       onPathChange: @escaping (String) -> Void) {
     _path = .init(initialValue: path)
     self.onPathChange = onPathChange
     _scriptExtension = scriptExtension
@@ -180,8 +178,7 @@ struct NewCommandScriptSourceView: View {
   init(_ kind: Binding<NewCommandScriptView.ScriptExtension>,
        text: String,
        onSubmit: @escaping () -> Void,
-       onChange: @escaping (String) -> Void)
-  {
+       onChange: @escaping (String) -> Void) {
     _text = .init(initialValue: text)
     _kind = kind
     self.onChange = onChange

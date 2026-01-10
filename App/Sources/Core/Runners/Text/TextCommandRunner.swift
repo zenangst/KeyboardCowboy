@@ -50,8 +50,7 @@ final class TextCommandRunner {
       }
     case .instant:
       if let focusedElement = try? SystemAccessibilityElement().focusedUIElement(),
-         focusedElement.selectedText() != nil
-      {
+         focusedElement.selectedText() != nil {
         focusedElement.setSelectedText(input)
       } else {
         let pasteboard = NSPasteboard.general

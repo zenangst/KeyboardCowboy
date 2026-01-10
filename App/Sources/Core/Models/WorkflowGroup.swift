@@ -25,8 +25,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
        color: String = "#000",
        rule: Rule? = nil,
        userModes: [UserMode] = [],
-       workflows: [Workflow] = [])
-  {
+       workflows: [Workflow] = []) {
     self.id = id
     self.symbol = symbol
     self.name = name
@@ -97,8 +96,7 @@ extension WorkflowGroup {
   }
 
   static func droppedApplication(id: String = UUID().uuidString,
-                                 _ application: Application) -> WorkflowGroup
-  {
+                                 _ application: Application) -> WorkflowGroup {
     WorkflowGroup(id: id,
                   name: application.displayName,
                   color: "#000",

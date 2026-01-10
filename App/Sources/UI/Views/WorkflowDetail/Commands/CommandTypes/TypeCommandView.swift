@@ -12,8 +12,7 @@ struct TypeCommandView: View {
   private let iconSize: CGSize
 
   init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.TypeModel,
-       iconSize: CGSize)
-  {
+       iconSize: CGSize) {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize

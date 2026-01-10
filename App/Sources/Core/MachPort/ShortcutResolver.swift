@@ -53,8 +53,7 @@ extension MachPortEvent: LookupToken {
               bundleIdentifier: String,
               userModes: [UserMode] = [],
               partialMatch: PartialMatch = .init(rawValue: "."),
-              fallback: Fallback? = .functionKey) -> KeyboardShortcutResult?
-  {
+              fallback: Fallback? = .functionKey) -> KeyboardShortcutResult? {
     let eventSignature = token.signature
     if !userModes.isEmpty {
       for userMode in userModes {
@@ -239,8 +238,7 @@ extension MachPortEvent: LookupToken {
                 newCache[key] = .exact(workflow)
               } else {
                 if case let .partialMatch(match) = newCache[key],
-                   let workflow = match.workflow, workflow.machPortConditions.isLeaderKey
-                {
+                   let workflow = match.workflow, workflow.machPortConditions.isLeaderKey {
                 } else {
                   newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
                 }
@@ -277,8 +275,7 @@ extension MachPortEvent: LookupToken {
                   newCache[key] = .exact(workflow)
                 } else {
                   if case let .partialMatch(match) = newCache[key],
-                     let workflow = match.workflow, workflow.machPortConditions.isLeaderKey
-                  {
+                     let workflow = match.workflow, workflow.machPortConditions.isLeaderKey {
                   } else {
                     newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
                   }
@@ -337,8 +334,7 @@ extension MachPortEvent: LookupToken {
 
   static func createKey(eventSignature: CGEventSignature,
                         bundleIdentifier: String, userModeKey: String,
-                        previousKey: String) -> String
-  {
+                        previousKey: String) -> String {
     "\(bundleIdentifier)\(previousKey)\(eventSignature.id)\(userModeKey)"
   }
 

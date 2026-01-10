@@ -145,8 +145,7 @@ final class AddToStagePlugin {
   }
 
   static func findWindowOnLeft(_ window: WindowModel, axWindow: WindowAccessibilityElement,
-                               snapshot: inout UserSpace.Snapshot) async throws -> WindowModel
-  {
+                               snapshot: inout UserSpace.Snapshot) async throws -> WindowModel {
     let moveMouse = CGEvent(
       mouseEventSource: nil,
       mouseType: .mouseMoved,
@@ -169,8 +168,7 @@ final class AddToStagePlugin {
   }
 
   static func findWindowOnRight(_ window: WindowModel, axWindow: WindowAccessibilityElement,
-                                snapshot: inout UserSpace.Snapshot) async throws -> WindowModel
-  {
+                                snapshot: inout UserSpace.Snapshot) async throws -> WindowModel {
     CGEvent(mouseEventSource: nil, mouseType: .mouseMoved,
             mouseCursorPosition: CGPoint(x: 9999, y: window.rect.origin.y + window.rect.height / 2),
             mouseButton: .center)?.post(tap: .cghidEventTap)

@@ -33,8 +33,7 @@ final class CapsuleNotificationWindow: NSObject, NSWindowDelegate, Sendable {
   func publish(_ text: String,
                successDeadline: TimeInterval = 0.35,
                failureDeadline: TimeInterval = 1.5,
-               id: String, state: CapsuleNotificationPublisher.State)
-  {
+               id: String, state: CapsuleNotificationPublisher.State) {
     if publisher.id == id {
       switch (state, publisher.state) {
       case (.running, .failure), (.running, .success):

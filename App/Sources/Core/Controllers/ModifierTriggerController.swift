@@ -50,8 +50,7 @@ final class ModifierTriggerController: @unchecked Sendable {
 
     // Verify that all modifiers have been released, then to a proper reset.
     if !machPortEvent.isRepeat, machPortEvent.event.type == .keyUp, machPortEvent.flags == .maskNonCoalesced,
-       let currentTrigger, Int(machPortEvent.keyCode) == currentTrigger.alone.kind.keyCode
-    {
+       let currentTrigger, Int(machPortEvent.keyCode) == currentTrigger.alone.kind.keyCode {
       coordinator
         .discardSystemEvent(on: machPortEvent)
         .postMaskNonCoalesced()

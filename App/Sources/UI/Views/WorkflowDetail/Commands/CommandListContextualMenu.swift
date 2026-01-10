@@ -10,8 +10,7 @@ struct CommandListContextualMenu: View {
   private let onDuplicate: (Command.ID) -> Void
 
   init(_ command: CommandViewModel, publisher: CommandsPublisher,
-       selectionManager: SelectionManager<CommandViewModel>, onDuplicate: @escaping (Command.ID) -> Void)
-  {
+       selectionManager: SelectionManager<CommandViewModel>, onDuplicate: @escaping (Command.ID) -> Void) {
     self.command = command
     detailPublisher = publisher
     self.selectionManager = selectionManager

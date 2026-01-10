@@ -15,8 +15,7 @@ struct ModifierKeyIcon: View {
   init(key: ModifierKey,
        alignment: Alignment? = nil,
        glowColor: Color = Color(.systemGreen),
-       glow: Binding<Bool> = .constant(false))
-  {
+       glow: Binding<Bool> = .constant(false)) {
     self.key = key
     self.glowColor = glowColor
     _glow = glow

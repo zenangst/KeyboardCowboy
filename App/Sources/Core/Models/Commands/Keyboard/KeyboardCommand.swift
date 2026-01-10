@@ -10,8 +10,7 @@ struct KeyboardCommand: MetaDataProviding {
        name: String,
        kind: Kind,
        notification: Command.Notification? = nil,
-       meta: Command.MetaData? = nil)
-  {
+       meta: Command.MetaData? = nil) {
     self.meta = meta ?? Command.MetaData(id: id, name: name,
                                          isEnabled: true,
                                          notification: notification)

@@ -14,8 +14,7 @@ class RunningApplicationMock: @preconcurrency RunningApplication {
   @MainActor static let currentApp = NSRunningApplication.currentApp
 
   init(bundleIdentifier: String? = nil, bundleURL: URL? = nil, isHidden: Bool = false,
-       isTerminated: Bool = false, localizedName: String? = nil, processIdentifier: pid_t)
-  {
+       isTerminated: Bool = false, localizedName: String? = nil, processIdentifier: pid_t) {
     self.bundleIdentifier = bundleIdentifier
     self.bundleURL = bundleURL
     self.isHidden = isHidden

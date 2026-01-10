@@ -4,8 +4,7 @@ import SwiftUI
 
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
   Content: View,
-  SubContent: View
-{
+  SubContent: View {
   @ObserveInjection var inject
   private let placeholder: String
 
@@ -18,8 +17,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
        placeholder: String,
        @ViewBuilder icon: @escaping () -> IconContent,
        @ViewBuilder content: @escaping () -> Content,
-       @ViewBuilder subContent: @escaping () -> SubContent = { EmptyView() })
-  {
+       @ViewBuilder subContent: @escaping () -> SubContent = { EmptyView() }) {
     _metaData = .init(initialValue: metaData)
     self.icon = icon
     self.placeholder = placeholder
@@ -105,8 +103,7 @@ private struct ContentView<IconContent, Content>: View where IconContent: View, 
   private let content: () -> Content
 
   init(icon: @escaping () -> IconContent,
-       content: @escaping () -> Content)
-  {
+       content: @escaping () -> Content) {
     self.icon = icon
     self.content = content
   }
@@ -138,8 +135,7 @@ private struct SubView<Content>: View where Content: View {
   private let content: () -> Content
 
   init(_ metaData: Binding<CommandViewModel.MetaData>,
-       content: @escaping () -> Content)
-  {
+       content: @escaping () -> Content) {
     _metaData = metaData
     self.content = content
   }

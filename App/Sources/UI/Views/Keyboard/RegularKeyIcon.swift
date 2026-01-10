@@ -15,8 +15,7 @@ public struct RegularKeyIcon: View {
               width: CGFloat = 32,
               height: CGFloat = 32,
               alignment: Alignment = .center,
-              glow: Binding<Bool> = .constant(false))
-  {
+              glow: Binding<Bool> = .constant(false)) {
     self.letters = letters.map { Letter(string: $0.uppercased()) }
     self.width = width
     self.height = height
@@ -28,8 +27,7 @@ public struct RegularKeyIcon: View {
               width: CGFloat = 32,
               height: CGFloat = 32,
               alignment: Alignment = .center,
-              glow: Binding<Bool> = .constant(false))
-  {
+              glow: Binding<Bool> = .constant(false)) {
     self.init(letters: letter,
               width: width, height: height,
               alignment: alignment, glow: glow)

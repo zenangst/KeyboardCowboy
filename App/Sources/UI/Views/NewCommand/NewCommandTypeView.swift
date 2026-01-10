@@ -15,15 +15,13 @@ struct NewCommandTypeView: View {
 
   init(_ payload: Binding<NewCommandPayload>,
        validation: Binding<NewCommandValidation>,
-       onSubmit: @escaping () -> Void)
-  {
+       onSubmit: @escaping () -> Void) {
     _payload = payload
     _validation = validation
     self.onSubmit = onSubmit
 
     if case let .text(model) = _payload.wrappedValue,
-       case let .insertText(textModel) = model.kind
-    {
+       case let .insertText(textModel) = model.kind {
       _text = .init(initialValue: textModel.input)
       _mode = .init(initialValue: textModel.mode)
       _actions = .init(initialValue: textModel.actions)

@@ -69,36 +69,31 @@ final class UIElementCommandRunner {
 
         if predicate.properties.contains(.description),
            let value = values[.description] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value)
-        {
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
 
         if predicate.properties.contains(.identifier),
            let value = values[.identifier] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value)
-        {
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
 
         if predicate.properties.contains(.title),
            let value = values[.title] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value)
-        {
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
 
         if predicate.properties.contains(.value),
            let value = values[.value] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value)
-        {
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
 
         if predicate.properties.contains(.subrole),
            let value = values[.subrole] as? String,
-           predicate.compare.run(lhs: value, rhs: predicate.value)
-        {
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
       }
@@ -117,8 +112,7 @@ final class UIElementCommandRunner {
     if checkCancellation { try Task.checkCancellation() }
 
     if let mousePosition = CGEvent(source: nil)?.location,
-       mouseBasedRole
-    {
+       mouseBasedRole {
       CGEvent.performClick(
         machPort?.eventSource,
         eventType: .leftMouse,
@@ -150,8 +144,7 @@ private extension CGEvent {
   static func performClick(_ source: CGEventSource?,
                            eventType: MouseEventType,
                            clickCount: Int64 = 1,
-                           at location: CGPoint)
-  {
+                           at location: CGPoint) {
     let eventDown = CGEvent(
       mouseEventSource: source,
       mouseType: eventType.downType,

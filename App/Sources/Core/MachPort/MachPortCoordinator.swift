@@ -53,8 +53,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
        notifications: MachPortUINotifications,
        shortcutResolver: ShortcutResolver,
        tapHeldCoordinator: TapHeldCoordinator,
-       workflowRunner: WorkflowRunner)
-  {
+       workflowRunner: WorkflowRunner) {
     self.keyboardCleaner = keyboardCleaner
     self.keyboardCommandRunner = keyboardCommandRunner
     self.macroCoordinator = macroCoordinator
@@ -167,16 +166,14 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     switch machPortEvent.type {
     case .keyDown:
       if mode == .intercept,
-         macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature)
-      {
+         macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature) {
         return
       }
 
       if handleRepeatingKeyEvent(machPortEvent) { return }
     case .keyUp:
       if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp,
-         let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent
-      {
+         let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent {
         let pressDurtion = timeElapsedInSeconds(
           start: previousKeyDownMachPortEvent.event.timestamp,
           end: machPortEvent.event.timestamp,
@@ -208,8 +205,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
 
     // Check for use of the `Any Key`
     if let workflow = previousPartialMatch.workflow,
-       workflow.machPortConditions.lastKeyIsAnyKey
-    {
+       workflow.machPortConditions.lastKeyIsAnyKey {
       if previousPartialMatch.rawValue.count(where: { $0 == "+" }) + 1 == workflow.machPortConditions.keyboardShortcutsTriggerCount {
         lookupToken = AnyKeyLookupToken()
 
@@ -330,8 +326,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
     // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
     if workflow.machPortConditions.enabledCommandsCount == 1,
        case let .keyboard(keyboardCommand) = workflow.machPortConditions.enabledCommands.first,
-       case let .key(command) = keyboardCommand.kind
-    {
+       case let .key(command) = keyboardCommand.kind {
       if !machPortEvent.isRepeat {
         notifications.notifyKeyboardCommand(workflow, command: keyboardCommand)
       }
@@ -463,8 +458,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, TapHeldC
         machPortEvent.result = nil
       }
     } else if case let .event(kind, _) = tapHeldState,
-              kind == .tap
-    {
+              kind == .tap {
       tapHeldState = nil
       previousPartialMatch = .default()
     } else if handleSingleKeyRebinding(previousExactMatch, machPortEvent: machPortEvent) {

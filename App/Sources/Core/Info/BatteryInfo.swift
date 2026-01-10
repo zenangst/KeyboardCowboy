@@ -13,8 +13,7 @@ final class BatteryInfo: @unchecked Sendable {
          currentCapacity: Float,
          isLowPowerModeEnabled: Bool = ProcessInfo.processInfo.isLowPowerModeEnabled,
          isCharging: Bool?,
-         isCharged: Bool?)
-    {
+         isCharged: Bool?) {
       self.acPowered = acPowered
       self.currentCapacity = currentCapacity
       self.isLowPowerModeEnabled = isLowPowerModeEnabled
@@ -55,8 +54,7 @@ final class BatteryInfo: @unchecked Sendable {
     for powerSource in powerSources {
       let powerSourceInfo = IOPSGetPowerSourceDescription(powerSourceInfo, powerSource).takeUnretainedValue() as! [String: Any]
       if let currentCapacity = powerSourceInfo[kIOPSCurrentCapacityKey] as? Int,
-         let maxCapacity = powerSourceInfo[kIOPSMaxCapacityKey] as? Int
-      {
+         let maxCapacity = powerSourceInfo[kIOPSMaxCapacityKey] as? Int {
         batteryLevel = Float(currentCapacity) / Float(maxCapacity)
       }
     }

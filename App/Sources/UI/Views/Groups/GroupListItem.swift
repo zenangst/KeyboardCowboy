@@ -9,8 +9,7 @@ struct GroupListItem: View {
 
   init(_ group: GroupViewModel,
        selectionManager: SelectionManager<GroupViewModel>,
-       onAction: @escaping (GroupsList.Action) -> Void)
-  {
+       onAction: @escaping (GroupsList.Action) -> Void) {
     self.group = group
     self.selectionManager = selectionManager
     self.onAction = onAction
@@ -34,8 +33,7 @@ private struct GroupItemInternalView: View {
 
   init(_ group: GroupViewModel,
        selectionManager: SelectionManager<GroupViewModel>,
-       onAction: @escaping (GroupsList.Action) -> Void)
-  {
+       onAction: @escaping (GroupsList.Action) -> Void) {
     self.selectionManager = selectionManager
     self.group = group
     self.onAction = onAction
@@ -99,8 +97,7 @@ private struct ContextualMenuView: View {
 
   init(selectionManager: SelectionManager<GroupViewModel>,
        group: GroupViewModel,
-       onAction: @escaping (GroupsList.Action) -> Void)
-  {
+       onAction: @escaping (GroupsList.Action) -> Void) {
     self.selectionManager = selectionManager
     self.group = group
     self.onAction = onAction
@@ -122,8 +119,7 @@ private struct ContextualMenuView: View {
 
   @ViewBuilder
   private func contextualMenu(for group: GroupViewModel,
-                              onAction: @escaping (GroupsList.Action) -> Void) -> some View
-  {
+                              onAction: @escaping (GroupsList.Action) -> Void) -> some View {
     Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
     Divider()
     Button("Remove", action: {

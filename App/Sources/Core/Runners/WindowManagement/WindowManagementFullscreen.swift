@@ -2,8 +2,7 @@ import Cocoa
 
 enum WindowManagementFullscreen {
   static func calculateRect(_: CGRect, padding: Int,
-                            currentScreen: NSScreen, mainDisplay: NSScreen) -> CGRect
-  {
+                            currentScreen: NSScreen, mainDisplay: NSScreen) -> CGRect {
     let paddingOffset = CGFloat(padding)
     let dockSize = getDockSize(currentScreen)
     let dockPosition = getDockPosition(currentScreen)

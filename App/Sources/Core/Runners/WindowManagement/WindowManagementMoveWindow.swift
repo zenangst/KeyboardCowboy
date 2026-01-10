@@ -7,8 +7,7 @@ enum WindowManagementMoveWindow {
                             padding: Int,
                             constrainedToScreen: Bool,
                             currentScreen: NSScreen,
-                            mainDisplay: NSScreen) -> CGRect
-  {
+                            mainDisplay: NSScreen) -> CGRect {
     let padding = CGFloat(padding)
     let newValue = CGFloat(byValue)
     let dockSize = getDockSize(mainDisplay)

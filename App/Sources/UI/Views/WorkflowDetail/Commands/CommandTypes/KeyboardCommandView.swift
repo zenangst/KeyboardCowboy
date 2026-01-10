@@ -9,8 +9,7 @@ struct KeyboardCommandView: View {
   private let model: CommandViewModel.Kind.KeyboardModel
 
   init(_ focus: FocusState<AppFocus?>.Binding, metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.KeyboardModel, iconSize: CGSize)
-  {
+       model: CommandViewModel.Kind.KeyboardModel, iconSize: CGSize) {
     self.focus = focus
     self.metaData = metaData
     self.model = model
@@ -34,8 +33,7 @@ struct KeyboardCommandInternalView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.KeyboardModel,
-       iconSize: CGSize)
-  {
+       iconSize: CGSize) {
     self.focus = focus
     self.metaData = metaData
     _model = Binding<CommandViewModel.Kind.KeyboardModel>(model)
@@ -109,8 +107,7 @@ private struct ContentView: View {
 
   init(model: Binding<CommandViewModel.Kind.KeyboardModel>,
        focus: FocusState<AppFocus?>.Binding,
-       onEdit: @escaping () -> Void)
-  {
+       onEdit: @escaping () -> Void) {
     _model = model
     self.focus = focus
     self.onEdit = onEdit

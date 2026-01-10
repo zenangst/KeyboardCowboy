@@ -48,8 +48,7 @@ enum WindowTilingRunner {
     // Check that the current application is the same as the next window.
     // Otherwise, activate that application.
     if snapshot.frontMostApplication.ref.processIdentifier != nextWindow.ownerPid.rawValue,
-       let runningApp = NSRunningApplication(processIdentifier: pid_t(nextWindow.ownerPid.rawValue))
-    {
+       let runningApp = NSRunningApplication(processIdentifier: pid_t(nextWindow.ownerPid.rawValue)) {
       app = AppAccessibilityElement(runningApp.processIdentifier)
       runningApp.activate(options: [.activateIgnoringOtherApps])
     } else {
@@ -293,8 +292,7 @@ enum WindowTilingRunner {
 
         if matchingScreen != NSScreen.main {
           if let axWindow = try? app.windows().first(where: { $0.id == nextWindow.id }),
-             let windowFrame = axWindow.frame
-          {
+             let windowFrame = axWindow.frame {
             let midPoint = CGPoint(x: windowFrame.midX,
                                    y: windowFrame.midY)
             NSCursor.moveCursor(to: midPoint)
@@ -354,8 +352,7 @@ enum WindowTilingRunner {
   @MainActor
   private static func determineTiling(for subjects: [WindowModel],
                                       in screenFrame: CGRect,
-                                      newWindows: [WindowModel])
-  {
+                                      newWindows: [WindowModel]) {
     guard subjects.isEmpty == false else { return }
 
     for (oldWindow, newWindow) in zip(subjects, newWindows) {

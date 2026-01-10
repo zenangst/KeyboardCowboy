@@ -8,8 +8,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
   var groups: [WorkflowGroup]
 
   init(id: String = UUID().uuidString, name: String,
-       userModes: [UserMode], groups: [WorkflowGroup])
-  {
+       userModes: [UserMode], groups: [WorkflowGroup]) {
     self.id = id
     self.name = name
     self.userModes = userModes

@@ -110,8 +110,7 @@ private final class WorkflowRunner: WorkflowRunning {
   var serialRunHandler: ([Command]) -> Void
 
   init(concurrent: @escaping ([Command]) -> Void,
-       serial: @escaping ([Command]) -> Void)
-  {
+       serial: @escaping ([Command]) -> Void) {
     concurrentRunHandler = concurrent
     serialRunHandler = serial
   }

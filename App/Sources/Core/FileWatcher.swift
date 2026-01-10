@@ -15,8 +15,7 @@ final class FileWatcher {
   private let fileSystemMonitor: DispatchSourceFileSystemObject
 
   init(_ fileURL: URL, fileManager: FileManaging = FileManager.default,
-       handler: @escaping (URL) -> Void) throws
-  {
+       handler: @escaping (URL) -> Void) throws {
     guard fileManager.fileExists(atPath: fileURL.path) else {
       throw FileWatcherError.fileNotFound
     }

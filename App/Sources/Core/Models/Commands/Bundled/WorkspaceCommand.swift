@@ -86,8 +86,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
        applications: [WorkspaceApplication] = [],
        defaultForDynamicWorkspace: Bool,
        hideOtherApps: Bool,
-       tiling: Tiling?)
-  {
+       tiling: Tiling?) {
     self.id = id
     self.appToggleModifiers = appToggleModifiers
     self.applications = applications
@@ -199,8 +198,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
         if bundleIdentifiers.count == 1 {
           action = .open
         } else if offset < runningApplications.count - 1,
-                  runningApplication.processIdentifier == windows[offset].ownerPid.rawValue
-        {
+                  runningApplication.processIdentifier == windows[offset].ownerPid.rawValue {
           action = .unhide
         } else {
           if isLastItem, runningApplication.isActive == true {

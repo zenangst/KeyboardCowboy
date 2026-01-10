@@ -5,8 +5,7 @@ struct ShortcutCommand: MetaDataProviding {
   var meta: Command.MetaData
 
   init(id: String, shortcutIdentifier: String, name: String, isEnabled: Bool,
-       notification: Command.Notification? = nil)
-  {
+       notification: Command.Notification? = nil) {
     self.shortcutIdentifier = shortcutIdentifier
     meta = Command.MetaData(id: id, name: name, isEnabled: isEnabled, notification: notification)
   }

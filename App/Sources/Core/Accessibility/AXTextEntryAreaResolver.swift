@@ -15,8 +15,7 @@ enum AXTextEntryAreaResolver {
          key: kAXBoundsForRangeParameterizedAttribute,
          parameters: axValue,
          as: AXValue.self,
-       )
-    {
+       ) {
       let defaultFrame = CGRect(x: -1, y: -1, width: -1, height: -1)
       var resolvedFrame: CGRect = defaultFrame
       _ = AXValueGetValue(rect, .cgRect, &resolvedFrame)

@@ -16,8 +16,7 @@ final class XcodeMouseRoutine: MouseRoutine {
 
   func run(_ focusedElement: AnyFocusedAccessibilityElement,
            kind: MouseCommand.Kind,
-           roleDescription _: KnownAccessibilityRoleDescription) throws -> CGRect
-  {
+           roleDescription _: KnownAccessibilityRoleDescription) throws -> CGRect {
     let elementFrame = try AXTextEntryAreaResolver.resolveFocusedElement(focusedElement)
     let frame: CGRect
     if case .center = kind.element.clickLocation {

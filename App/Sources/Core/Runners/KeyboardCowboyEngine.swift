@@ -43,8 +43,7 @@ final class KeyboardCowboyEngine {
        snippetController: SnippetController,
        tapHeld: TapHeldCoordinator,
        uiElementCaptureStore: UIElementCaptureStore,
-       workspace: NSWorkspace = .shared)
-  {
+       workspace: NSWorkspace = .shared) {
     self.applicationActivityMonitor = applicationActivityMonitor
     self.applicationTriggerController = applicationTriggerController
     self.applicationWindowObserver = applicationWindowObserver

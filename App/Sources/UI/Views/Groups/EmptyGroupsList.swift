@@ -8,8 +8,7 @@ struct EmptyGroupsList: View {
 
   init(_ namespace: Namespace.ID,
        isVisible: Binding<Bool>,
-       onAction: @escaping (GroupsList.Action) -> Void)
-  {
+       onAction: @escaping (GroupsList.Action) -> Void) {
     _isVisible = isVisible
     self.namespace = namespace
     self.onAction = onAction

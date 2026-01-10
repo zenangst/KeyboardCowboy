@@ -18,8 +18,7 @@ struct NewCommandWorkspaceView: View {
   init(validation: Binding<NewCommandValidation>,
        onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        onSelectedAppsChange: @escaping ([WorkspaceApplicationItem]) -> Void,
-       onHideOtherAppsChange: @escaping (Bool) -> Void)
-  {
+       onHideOtherAppsChange: @escaping (Bool) -> Void) {
     _validation = validation
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange

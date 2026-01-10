@@ -22,8 +22,7 @@ final class WindowCommandFocusRunner {
   init(applicationStore: ApplicationStore = .shared,
        centerFocus: WindowFocusCenter, relativeFocus: WindowFocusRelativeFocus,
        quarterFocus: WindowFocusQuarter,
-       workspace: WorkspaceProviding = NSWorkspace.shared)
-  {
+       workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.applicationStore = applicationStore
     self.centerFocus = centerFocus
     self.relativeFocus = relativeFocus

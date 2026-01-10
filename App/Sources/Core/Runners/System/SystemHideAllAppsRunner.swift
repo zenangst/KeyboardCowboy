@@ -22,8 +22,7 @@ enum SystemHideAllAppsRunner {
 
     if !bundleIdentifiers.isEmpty,
        !bundleIdentifiers.contains(where: { $0 == "com.apple.finder" }),
-       applicationCommands.allSatisfy({ $0.action == .unhide })
-    {
+       applicationCommands.allSatisfy({ $0.action == .unhide }) {
       NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.finder").first?.hide()
     }
 
@@ -137,8 +136,7 @@ enum SystemHideAllAppsRunner {
 
   private static func runningApplications(in targetRect: CGRect, targetApplication: Application? = nil,
                                           targetPid: Int?, options: CGWindowListOption,
-                                          exceptBundleIdentifiers: [String]) -> (Set<Int>, [NSRunningApplication])
-  {
+                                          exceptBundleIdentifiers: [String]) -> (Set<Int>, [NSRunningApplication]) {
     let processIdentifiers = Set(indexWindowsInStage(getWindows(options: options), targetRect: targetRect)
       .map(\.ownerPid.rawValue))
       .filter { $0 != targetPid }

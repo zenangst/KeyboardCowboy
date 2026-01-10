@@ -10,8 +10,7 @@ struct SidebarAddGroupButtonView: View {
 
   init(isVisible: Binding<Bool>,
        namespace: Namespace.ID,
-       onAction: @escaping () -> Void)
-  {
+       onAction: @escaping () -> Void) {
     _isVisible = isVisible
     self.namespace = namespace
     self.onAction = onAction

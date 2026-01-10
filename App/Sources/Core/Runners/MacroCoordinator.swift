@@ -77,8 +77,7 @@ final class MacroCoordinator: @unchecked Sendable {
                             machPort: MachPortEventController?,
                             keyboardRunner: KeyboardCommandRunner,
                             workflowRunner: WorkflowRunner,
-                            eventSignature: CGEventSignature) -> Bool
-  {
+                            eventSignature: CGEventSignature) -> Bool {
     cancel()
 
     if state == .idle, let macro = match(machPortEvent) {
@@ -108,8 +107,7 @@ final class MacroCoordinator: @unchecked Sendable {
                   for command in workflow.commands {
                     try Task.checkCancellation()
                     if case let .keyboard(command) = command,
-                       case let .key(command) = command.kind
-                    {
+                       case let .key(command) = command.kind {
                       _ = try await keyboardRunner.run(command.keyboardShortcuts,
                                                        originalEvent: nil,
                                                        iterations: command.iterations,

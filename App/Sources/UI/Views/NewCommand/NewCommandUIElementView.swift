@@ -308,25 +308,25 @@ struct NewCommandUIElementView: View {
 }
 
 #if DEBUG
-  #Preview("Empty") {
-    NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly { .needsValidation })
-      .padding()
-      .environmentObject(
-        UIElementCaptureStore(
-          isCapturing: false,
-          capturedElement: nil,
-        ),
-      )
-  }
+#Preview("Empty") {
+  NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly { .needsValidation })
+    .padding()
+    .environmentObject(
+      UIElementCaptureStore(
+        isCapturing: false,
+        capturedElement: nil,
+      ),
+    )
+}
 
-  #Preview("Captured UI Element") {
-    NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly { .needsValidation })
-      .padding()
-      .environmentObject(
-        UIElementCaptureStore(
-          isCapturing: false,
-          capturedElement: .init(description: nil, identifier: "foo", title: nil, value: nil, role: nil, subrole: nil),
-        ),
-      )
-  }
+#Preview("Captured UI Element") {
+  NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly { .needsValidation })
+    .padding()
+    .environmentObject(
+      UIElementCaptureStore(
+        isCapturing: false,
+        capturedElement: .init(description: nil, identifier: "foo", title: nil, value: nil, role: nil, subrole: nil),
+      ),
+    )
+}
 #endif

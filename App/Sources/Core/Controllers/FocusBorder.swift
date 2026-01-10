@@ -108,8 +108,7 @@ public final class FocusBorderPanel<Content>: NSPanel where Content: View {
   public init(animationBehavior: NSWindow.AnimationBehavior,
               contentRect: NSRect = .init(origin: .zero, size: .init(width: 200, height: 200)),
               styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel],
-              content rootView: @autoclosure @escaping () -> Content)
-  {
+              content rootView: @autoclosure @escaping () -> Content) {
     super.init(contentRect: contentRect, styleMask: styleMask, backing: .buffered, defer: false)
 
     self.animationBehavior = animationBehavior

@@ -26,8 +26,7 @@ struct DisallowedApplicationsListView: View {
             Button(action: {
               group.rule?.disallowedBundleIdentifiers.removeAll(where: { $0 == bundleIdentifier })
               if group.rule?.allowedBundleIdentifiers.isEmpty == true,
-                 group.rule?.disallowedBundleIdentifiers.isEmpty == true
-              {
+                 group.rule?.disallowedBundleIdentifiers.isEmpty == true {
                 group.rule = nil
               }
             }, label: {

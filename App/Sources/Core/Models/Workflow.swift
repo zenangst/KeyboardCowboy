@@ -101,8 +101,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
        trigger: Trigger? = nil,
        execution: Execution = .concurrent,
        isEnabled: Bool = true,
-       commands: [Command] = [])
-  {
+       commands: [Command] = []) {
     self.id = id
     self.commands = commands
     self.trigger = trigger
@@ -231,8 +230,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     let shouldRunOnKeyUp: Bool
 
     init(id _: String, trigger: Trigger?, execution _: Execution,
-         isEnabled _: Bool, commands: [Command])
-    {
+         isEnabled _: Bool, commands: [Command]) {
       let enabledCommands = commands.filter(\.isEnabled)
       self.enabledCommands = enabledCommands
       enabledCommandsCount = enabledCommands.count
@@ -285,8 +283,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
          case let .keyboard(keyboardCommand) = commands.first,
          case let .key(keyboardCommand) = keyboardCommand.kind,
          keyboardCommand.keyboardShortcuts.count == 1,
-         let keyboardShortcut = keyboardCommand.keyboardShortcuts.last
-      {
+         let keyboardShortcut = keyboardCommand.keyboardShortcuts.last {
         rebinding = keyboardShortcut
       } else {
         rebinding = nil

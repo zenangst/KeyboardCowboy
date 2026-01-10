@@ -34,8 +34,7 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
        images: [GroupDetailViewModel.ImageModel],
        overlayImages: [GroupDetailViewModel.ImageModel],
        trigger: Trigger? = nil, execution: Execution = .concurrent,
-       badge: Int, badgeOpacity: Double, isEnabled: Bool)
-  {
+       badge: Int, badgeOpacity: Double, isEnabled: Bool) {
     self.id = id
     self.groupId = groupId
     self.groupName = groupName

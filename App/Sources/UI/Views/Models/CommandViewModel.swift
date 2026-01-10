@@ -25,8 +25,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
          isEnabled: Bool = true,
          notification: Command.Notification? = nil,
          icon: Icon? = nil,
-         variableName: String = "")
-    {
+         variableName: String = "") {
       self.id = id
       self.delay = delay
       self.name = name

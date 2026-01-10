@@ -24,8 +24,7 @@ struct SingleDetailView: View {
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        triggerPublisher _: TriggerPublisher,
        infoPublisher _: InfoPublisher,
-       commandPublisher _: CommandsPublisher)
-  {
+       commandPublisher _: CommandsPublisher) {
     self.viewModel = viewModel
     self.focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager

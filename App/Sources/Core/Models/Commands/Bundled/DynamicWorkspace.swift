@@ -96,12 +96,10 @@ final class DynamicWorkspace {
                                      bundleIdentifier: String,
                                      userModeKey: String,
                                      previousKey: String,
-                                     onCreate: (_ key: String, _ match: KeyboardShortcutResult) -> Void)
-  {
+                                     onCreate: (_ key: String, _ match: KeyboardShortcutResult) -> Void) {
     let workspaces = workflow.commands.compactMap {
       if case let .bundled(command) = $0,
-         case let .workspace(workspace) = command.kind
-      {
+         case let .workspace(workspace) = command.kind {
         if UserSpace.shared.currentWorkspace == nil, workspace.defaultForDynamicWorkspace {
           assignAppsToDefaultDynamicWorkspace(workspace)
         }

@@ -12,8 +12,7 @@ struct WindowFocusCommandView: View {
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowFocusModel,
-       iconSize: CGSize)
-  {
+       iconSize: CGSize) {
     _model = Binding<CommandViewModel.Kind.WindowFocusModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize

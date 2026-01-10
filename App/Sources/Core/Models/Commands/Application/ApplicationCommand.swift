@@ -14,8 +14,7 @@ struct ApplicationCommand: MetaDataProviding {
        action: Action = .open,
        application: Application,
        modifiers: [Modifier] = [],
-       notification: Command.Notification? = nil)
-  {
+       notification: Command.Notification? = nil) {
     meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
     self.application = application
     self.modifiers = Set(modifiers)
@@ -30,8 +29,7 @@ struct ApplicationCommand: MetaDataProviding {
   }
 
   init(action: Action, application: Application,
-       meta: Command.MetaData, modifiers: [Modifier])
-  {
+       meta: Command.MetaData, modifiers: [Modifier]) {
     self.application = application
     self.modifiers = Set(modifiers)
     self.meta = meta

@@ -30,8 +30,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   func open(_: UserSpace.Snapshot) {
     if window != nil {
       if let menubarOwner = NSWorkspace.shared.runningApplications.first(where: { $0.ownsMenuBar == true }),
-         let bundleURL = menubarOwner.bundleURL
-      {
+         let bundleURL = menubarOwner.bundleURL {
         NSWorkspace.shared.open(bundleURL)
       }
       window?.close()
@@ -125,8 +124,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       if event.modifierFlags.contains(.command) {
         if !event.isARepeat,
            event.type == .keyDown, let currentSelection = getCurrentSelection(),
-           let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: currentSelection.app.bundleIdentifier).first
-        {
+           let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: currentSelection.app.bundleIdentifier).first {
           if currentSelection.app.bundleIdentifier == NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
             shouldCloseOnResignKey = false
           }
@@ -209,8 +207,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       window?.close()
 
       if let menubarOwner = NSWorkspace.shared.runningApplications.first(where: { $0.ownsMenuBar == true }),
-         let bundleURL = menubarOwner.bundleURL
-      {
+         let bundleURL = menubarOwner.bundleURL {
         NSWorkspace.shared.open(bundleURL)
       }
       return nil

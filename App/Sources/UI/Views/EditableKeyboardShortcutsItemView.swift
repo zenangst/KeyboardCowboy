@@ -20,8 +20,7 @@ struct EditableKeyboardShortcutsItemView: View {
        keyboardShortcuts: Binding<[KeyShortcut]>,
        features: Set<Feature>,
        selectionManager: SelectionManager<KeyShortcut>,
-       onDelete: @escaping (KeyShortcut) -> Void)
-  {
+       onDelete: @escaping (KeyShortcut) -> Void) {
     _keyboardShortcuts = keyboardShortcuts
     self.keyboardShortcut = keyboardShortcut
     self.selectionManager = selectionManager
@@ -55,8 +54,7 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
 
   init(keyboardShortcuts: Binding<[KeyShortcut]>, keyboardShortcut: Binding<KeyShortcut>,
        features: Set<EditableKeyboardShortcutsItemView.Feature>,
-       selectionManager: SelectionManager<KeyShortcut>, onDelete: @escaping (KeyShortcut) -> Void)
-  {
+       selectionManager: SelectionManager<KeyShortcut>, onDelete: @escaping (KeyShortcut) -> Void) {
     _keyboardShortcuts = keyboardShortcuts
     self.features = features
     self.keyboardShortcut = keyboardShortcut

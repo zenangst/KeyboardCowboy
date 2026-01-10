@@ -11,8 +11,7 @@ struct WindowTidyCommandView: View {
   private let onRulesChange: ([CommandViewModel.Kind.WindowTidyModel.Rule]) -> Void
 
   init(_ model: CommandViewModel.Kind.WindowTidyModel,
-       onRulesChange: @escaping ([CommandViewModel.Kind.WindowTidyModel.Rule]) -> Void)
-  {
+       onRulesChange: @escaping ([CommandViewModel.Kind.WindowTidyModel.Rule]) -> Void) {
     self.model = model
     self.onRulesChange = onRulesChange
   }

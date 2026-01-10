@@ -18,8 +18,7 @@ struct AppFocusCommandView: View {
        onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        onSelectedAppsChange: @escaping (Application) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void,
-       onCreateWindowChange: @escaping (Bool) -> Void)
-  {
+       onCreateWindowChange: @escaping (Bool) -> Void) {
     self.model = model
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange

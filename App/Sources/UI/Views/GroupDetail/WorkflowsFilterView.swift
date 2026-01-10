@@ -14,8 +14,7 @@ struct WorkflowsFilterView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
        onClear: @escaping () -> Void,
-       onChange: @escaping (String) -> Void)
-  {
+       onChange: @escaping (String) -> Void) {
     self.namespace = namespace
     self.focus = focus
     self.onClear = onClear

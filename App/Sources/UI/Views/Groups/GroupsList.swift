@@ -45,8 +45,7 @@ struct GroupsList: View {
        namespace: Namespace.ID,
        groupSelection: SelectionManager<GroupViewModel>,
        workflowSelection: SelectionManager<GroupDetailViewModel>,
-       onAction: @escaping (GroupsList.Action) -> Void)
-  {
+       onAction: @escaping (GroupsList.Action) -> Void) {
     self.appFocus = appFocus
     self.namespace = namespace
     self.groupSelection = groupSelection
@@ -78,8 +77,7 @@ struct GroupsList: View {
               .focusable($focus, as: .element(group.id)) {
                 if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
                    let lastSelection = groupSelection.lastSelection,
-                   let match = publisher.data.first(where: { $0.id == lastSelection })
-                {
+                   let match = publisher.data.first(where: { $0.id == lastSelection }) {
                   focus = .element(match.id)
                 } else {
                   onTap(group)
@@ -175,8 +173,7 @@ struct GroupsList: View {
 
   @ViewBuilder
   private func contextualMenu(for group: GroupViewModel,
-                              onAction: @escaping (GroupsList.Action) -> Void) -> some View
-  {
+                              onAction: @escaping (GroupsList.Action) -> Void) -> some View {
     Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
     Divider()
     Button("Remove", action: {

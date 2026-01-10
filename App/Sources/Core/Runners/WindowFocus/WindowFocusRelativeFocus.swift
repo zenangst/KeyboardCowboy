@@ -75,8 +75,7 @@ final class WindowFocusRelativeFocus {
       NSCursor.moveCursor(to: midPoint)
 
       if let frontmostApplication = NSWorkspace.shared.frontmostApplication,
-         let nextApp = NSRunningApplication(processIdentifier: processIdentifier)
-      {
+         let nextApp = NSRunningApplication(processIdentifier: processIdentifier) {
         if !swap(from: frontmostApplication, to: nextApp) {
           fallback(frame: frame, direction: direction, axWindow: axWindow, nextWindow: nextWindow, previousWindow: activeWindow)
         }
@@ -89,8 +88,7 @@ final class WindowFocusRelativeFocus {
   private func fallback(frame: CGRect,
                         direction: Direction,
                         axWindow: WindowAccessibilityElement,
-                        nextWindow: RelativeWindowModel, previousWindow: RelativeWindowModel)
-  {
+                        nextWindow: RelativeWindowModel, previousWindow: RelativeWindowModel) {
     let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
     let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
     let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect.mainDisplayFlipped) }) ?? NSScreen.screens[0]

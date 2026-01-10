@@ -7,8 +7,7 @@ enum WindowManagementRunnerAnchorWindow {
                             position: WindowManagementCommand.Direction,
                             padding: Int,
                             currentScreen: NSScreen,
-                            mainDisplay: NSScreen) -> CGRect
-  {
+                            mainDisplay: NSScreen) -> CGRect {
     let paddingOffset = CGFloat(padding)
     let dockSize = getDockSize(currentScreen)
     let dockPosition = getDockPosition(currentScreen)
@@ -30,13 +29,11 @@ enum WindowManagementRunnerAnchorWindow {
 
     if shouldCycle {
       if abs(originFrame.width - minWidth) < deltaLimit ||
-        originFrame.size.width == minSize.width
-      {
+        originFrame.size.width == minSize.width {
         width = midWidth
         height = midHeight
       } else if abs(originFrame.width - midWidth) < deltaLimit ||
-        originFrame.size.width == minSize.width
-      {
+        originFrame.size.width == minSize.width {
         width = maxWidth
         height = maxHeight
       } else {

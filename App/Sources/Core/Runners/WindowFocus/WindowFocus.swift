@@ -48,8 +48,7 @@ enum WindowFocus {
   static func run(kind: WindowFocusCommand.Kind,
                   snapshot: WindowStoreSnapshot,
                   applicationStore: ApplicationStore,
-                  workspace: WorkspaceProviding) throws
-  {
+                  workspace: WorkspaceProviding) throws {
     let newCollection: [WindowModel]
     let ring: RingBuffer<WindowModel>
 
@@ -96,8 +95,7 @@ enum WindowFocus {
 
       if let bundleIdentifier = runningApplication.bundleIdentifier,
          bundleIdentifier != workspace.frontApplication?.bundleIdentifier,
-         let application = applicationStore.application(for: bundleIdentifier)
-      {
+         let application = applicationStore.application(for: bundleIdentifier) {
         let url = URL(fileURLWithPath: application.path)
         Task.detached { [workspace] in
           let configuration = NSWorkspace.OpenConfiguration()

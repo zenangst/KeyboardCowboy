@@ -37,8 +37,7 @@ struct CommandPanelView: View {
        command: ScriptCommand,
        onChange: @escaping (String) -> Void,
        onSubmit: @escaping (ScriptCommand) -> Void,
-       action: @escaping () -> Void)
-  {
+       action: @escaping () -> Void) {
     self.command = command
     self.publisher = publisher
     self.onChange = onChange
@@ -337,8 +336,7 @@ extension AttributedString {
 
   private func processMatches(attributedText: inout AttributedString,
                               regex: Regex<Substring>,
-                              color: Color)
-  {
+                              color: Color) {
     let orignalText: String = (
       attributedText.characters.compactMap { c in
         String(c)
@@ -359,8 +357,7 @@ struct SearchSet {
 
   init(words: [String]? = nil,
        regexPattern: @escaping (String) -> String,
-       color: Color)
-  {
+       color: Color) {
     self.words = words ?? [""]
     self.regexPattern = regexPattern
     self.color = color

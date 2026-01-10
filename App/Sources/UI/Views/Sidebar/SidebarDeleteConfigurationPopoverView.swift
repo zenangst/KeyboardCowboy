@@ -12,8 +12,7 @@ struct SidebarDeleteConfigurationPopoverView: View {
        id: ConfigurationViewModel.ID,
        configurationName: String,
        selectionManager: SelectionManager<ConfigurationViewModel>,
-       onAction: @escaping (ConfigurationViewModel.ID) -> Void)
-  {
+       onAction: @escaping (ConfigurationViewModel.ID) -> Void) {
     _deleteConfigurationPopover = deleteConfigurationPopover
     self.id = id
     self.configurationName = configurationName

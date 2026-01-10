@@ -30,8 +30,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
            originalEvent: CGEvent? = nil,
            iterations: Int,
            isRepeating: Bool = false,
-           with _: CGEventSource?) async throws -> [CGEvent]
-  {
+           with _: CGEventSource?) async throws -> [CGEvent] {
     guard let machPort else {
       throw KeyboardCommandRunnerError.failedToResolveMachPortController
     }

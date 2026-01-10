@@ -15,8 +15,7 @@ final class ConfigurationCoordinator {
   init(contentStore: ContentStore,
        configurationUpdater: ConfigurationUpdater,
        selectionManager: SelectionManager<ConfigurationViewModel>,
-       store: ConfigurationStore)
-  {
+       store: ConfigurationStore) {
     self.contentStore = contentStore
     self.store = store
     self.selectionManager = selectionManager

@@ -32,8 +32,7 @@ final class WorkflowCoordinator {
        groupSelection: SelectionManager<GroupViewModel>,
        keyboardCowboyEngine: KeyboardCowboyEngine,
        keyboardShortcutSelection: SelectionManager<KeyShortcut>,
-       groupStore: GroupStore)
-  {
+       groupStore: GroupStore) {
     self.applicationStore = applicationStore
     self.commandRunner = commandRunner
     self.commandSelection = commandSelection
@@ -68,8 +67,7 @@ final class WorkflowCoordinator {
              groupIds: groupSelection.selections)
     case let .selectGroups(ids):
       if let firstId = ids.first,
-         let group = groupStore.group(withId: firstId)
-      {
+         let group = groupStore.group(withId: firstId) {
         var workflowIds = Set<GroupDetailViewModel.ID>()
 
         let matches = group.workflows

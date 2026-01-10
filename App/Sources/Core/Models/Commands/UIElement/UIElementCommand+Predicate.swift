@@ -66,8 +66,7 @@ extension UIElementCommand {
 
     init(id: String = UUID().uuidString, value: String,
          compare: Compare = .equals, kind: Kind = .any,
-         properties: [Properties] = [.description, .title, .value])
-    {
+         properties: [Properties] = [.description, .title, .value]) {
       self.id = id
       self.value = value
       self.compare = compare

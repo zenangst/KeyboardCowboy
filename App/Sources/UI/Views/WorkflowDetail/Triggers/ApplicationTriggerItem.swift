@@ -13,8 +13,7 @@ struct ApplicationTriggerItem: View {
 
   init(_ element: Binding<DetailViewModel.ApplicationTrigger>,
        data: Binding<[DetailViewModel.ApplicationTrigger]>,
-       selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>)
-  {
+       selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>) {
     _element = element
     _data = data
     self.selectionManager = selectionManager

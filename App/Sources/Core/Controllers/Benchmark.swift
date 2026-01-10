@@ -11,8 +11,7 @@ final class Benchmark {
   private init() {}
 
   nonisolated func start(_ identifier: @autoclosure @Sendable () -> String,
-                         value _: @autoclosure @Sendable () -> String = "", forceEnable: Bool = false)
-  {
+                         value _: @autoclosure @Sendable () -> String = "", forceEnable: Bool = false) {
     guard isEnabled || forceEnable else { return }
 
     if storage[identifier()] != nil {
@@ -24,8 +23,7 @@ final class Benchmark {
   @discardableResult
   func lap(_ identifier: @autoclosure @Sendable () -> String,
            value: @autoclosure @Sendable () -> String = "",
-           forceEnable: Bool = false, function: StaticString = #function, line: Int = #line) -> String
-  {
+           forceEnable: Bool = false, function: StaticString = #function, line: Int = #line) -> String {
     guard isEnabled || forceEnable, let startTime = storage[identifier()] else {
       return "Unknown identifier: \(identifier())"
     }
@@ -37,8 +35,7 @@ final class Benchmark {
   @discardableResult
   func stop(_ identifier: @autoclosure @Sendable () -> String,
             value: @autoclosure @Sendable () -> String = "",
-            forceEnable: Bool = false) -> String
-  {
+            forceEnable: Bool = false) -> String {
     guard isEnabled || forceEnable, let startTime = storage[identifier()] else {
       return "Unknown identifier: \(identifier())"
     }

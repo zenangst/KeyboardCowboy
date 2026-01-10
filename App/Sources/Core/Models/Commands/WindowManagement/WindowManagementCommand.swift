@@ -30,8 +30,7 @@ struct WindowManagementCommand: MetaDataProviding {
   init(id: String = UUID().uuidString, name: String,
        kind: Kind,
        notification: Command.Notification? = nil,
-       animationDuration: Double)
-  {
+       animationDuration: Double) {
     self.kind = kind
     meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
     self.animationDuration = animationDuration

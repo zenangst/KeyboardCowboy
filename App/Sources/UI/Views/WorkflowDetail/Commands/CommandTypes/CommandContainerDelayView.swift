@@ -11,8 +11,7 @@ struct CommandContainerDelayView: View {
 
   init(metaData: Binding<CommandViewModel.MetaData>,
        execution: DetailViewModel.Execution,
-       onChange: @escaping (Double) -> Void)
-  {
+       onChange: @escaping (Double) -> Void) {
     _metaData = metaData
     self.execution = execution
     self.onChange = onChange

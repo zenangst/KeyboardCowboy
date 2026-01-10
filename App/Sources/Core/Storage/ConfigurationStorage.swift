@@ -22,8 +22,7 @@ final class ConfigurationStorage: @unchecked Sendable {
   init(_ configLocation: ConfigurationLocation,
        decoder: JSONDecoder = .init(),
        encoder: JSONEncoder = .init(),
-       fileManager: FileManager = .init())
-  {
+       fileManager: FileManager = .init()) {
     self.configLocation = configLocation
     self.encoder = encoder
     self.decoder = decoder

@@ -21,8 +21,7 @@ struct CommandListScrollView: View {
        namespace: Namespace.ID,
        workflowId: String,
        selectionManager: SelectionManager<CommandViewModel>,
-       scrollViewProxy: ScrollViewProxy? = nil)
-  {
+       scrollViewProxy: ScrollViewProxy? = nil) {
     self.focus = focus
     self.publisher = publisher
     self.triggerPublisher = triggerPublisher
@@ -106,8 +105,7 @@ struct CommandListScrollView: View {
       })
       .onMoveCommand(perform: { direction in
         if let elementID = selectionManager.handle(direction, publisher.data.commands,
-                                                   proxy: scrollViewProxy)
-        {
+                                                   proxy: scrollViewProxy) {
           focus.wrappedValue = .detail(.command(elementID))
         }
       })

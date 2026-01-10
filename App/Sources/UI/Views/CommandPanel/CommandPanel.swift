@@ -13,8 +13,7 @@ final class CommandPanel: NSPanel {
   init(identifier: String,
        runner: CommandPanelRunner,
        minSize: CGSize,
-       rootView: some View)
-  {
+       rootView: some View) {
     let styleMask: StyleMask = [
       .fullSizeContentView,
       .resizable,

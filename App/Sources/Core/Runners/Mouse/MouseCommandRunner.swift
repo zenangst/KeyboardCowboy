@@ -20,14 +20,13 @@ class MouseCommandRunner {
 
       guard let roleDescription = KnownAccessibilityRoleDescription(rawValue: rawRoleDescription) else {
         #if DEBUG
-          print("Ignored:", rawRoleDescription)
+        print("Ignored:", rawRoleDescription)
         #endif
         return
       }
 
       let frame: CGRect = if let customRoutine = CustomMouseRoutine(rawValue: snapshot.frontMostApplication.bundleIdentifier)?
-        .routine(roleDescription: roleDescription)
-      {
+        .routine(roleDescription: roleDescription) {
         try customRoutine.run(focusedElement, kind: command.kind, roleDescription: roleDescription)
       } else {
         switch roleDescription {

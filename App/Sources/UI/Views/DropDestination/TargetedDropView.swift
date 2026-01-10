@@ -4,8 +4,7 @@ extension View {
   func dropDestination<T: Transferable & Equatable>(_ type: T.Type,
                                                     alignment: TargetedAlignment = .vertical,
                                                     color: Color, kind: TargetedKind = .reorder,
-                                                    onDrop: @escaping ([T], CGPoint) -> Bool) -> some View
-  {
+                                                    onDrop: @escaping ([T], CGPoint) -> Bool) -> some View {
     overlay {
       TargetedDropView(
         type,
@@ -46,8 +45,7 @@ private struct TargetedDropView<T: Transferable & Equatable>: View, Equatable, S
        alignment: TargetedAlignment,
        color: Color,
        kind: TargetedKind,
-       onDrop: @escaping ([T], CGPoint) -> Bool)
-  {
+       onDrop: @escaping ([T], CGPoint) -> Bool) {
     self.kind = kind
     self.type = type
     self.alignment = alignment
@@ -96,8 +94,7 @@ private struct InternalTargetedDrop<T: Transferable>: View {
        targetAlignment: TargetedAlignment,
        alignment: Alignment,
        color: Color,
-       onDrop: @escaping ([T], CGPoint) -> Bool)
-  {
+       onDrop: @escaping ([T], CGPoint) -> Bool) {
     self.type = type
     self.targetAlignment = targetAlignment
     self.alignment = alignment
