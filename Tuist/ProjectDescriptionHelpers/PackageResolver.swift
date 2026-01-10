@@ -21,8 +21,8 @@ public enum PackageResolver {
       ]
     } else {
       [
-        .package(url: "git@github.com:johnno1962/HotSwiftUI.git", .branch("main")),
-        .package(url: "git@github.com:sparkle-project/Sparkle.git", .exact("2.8.1")),
+        .package(url: "https://github.com/johnno1962/HotSwiftUI.git", .branch("main")),
+        .package(url: "https://github.com/sparkle-project/Sparkle.git", .exact("2.8.1")),
         .package(url: "https://github.com/zenangst/AXEssibility.git", .branch("main")),
         .package(url: "https://github.com/zenangst/Apps.git", .branch("main")),
         .package(url: "https://github.com/zenangst/Bonzai.git", .branch("main")),

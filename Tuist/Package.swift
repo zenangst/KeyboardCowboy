@@ -19,6 +19,6 @@ let package = Package(
     .package(url: "https://github.com/zenangst/Bonzai.git", branch: "main"),
     .package(url: "https://github.com/zenangst/MachPort.git", branch: "main"),
     .package(url: "https://github.com/zenangst/Windows.git", branch: "main"),
-    .package(url: "git@github.com:johnno1962/HotSwiftUI.git", branch: "main"),
+    .package(url: "https://github.com/johnno1962/HotSwiftUI.git", branch: "main"),
   ],
 )
