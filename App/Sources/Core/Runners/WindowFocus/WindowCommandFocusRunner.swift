@@ -78,9 +78,8 @@ final class WindowCommandFocusRunner {
     case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
          .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal,
          .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
-      try WindowFocus.run(
+      try await WindowFocus.run(
         kind: command.kind,
-        snapshot: snapshot.windows,
         applicationStore: applicationStore,
         workspace: workspace,
       )

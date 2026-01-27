@@ -15,8 +15,13 @@ enum WindowFocus {
   static var globalRing = RingBuffer<WindowModel>()
   static var stageRing = RingBuffer<WindowModel>()
   static var skipNextApplicationChange = false
+  static var currentWindow: WindowModel?
 
   static func frontMostApplicationChanged() {
+    updateRings()
+  }
+
+  static func updateRings() {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else { return }
 
     let newAppWindows = WindowStore.shared
@@ -33,6 +38,8 @@ enum WindowFocus {
       return
     }
 
+    currentWindow = window
+
     if skipNextApplicationChange {
       appRing.setCursor(to: window)
       globalRing.setCursor(to: window)
@@ -45,22 +52,14 @@ enum WindowFocus {
     }
   }
 
-  static func run(kind: WindowFocusCommand.Kind,
-                  snapshot: WindowStoreSnapshot,
-                  applicationStore: ApplicationStore,
-                  workspace: WorkspaceProviding) throws {
+  static func run(kind: WindowFocusCommand.Kind, applicationStore: ApplicationStore, workspace: WorkspaceProviding) async throws {
     let newCollection: [WindowModel]
     let ring: RingBuffer<WindowModel>
+    let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true).windows
 
     if kind == .moveFocusToNextWindowFront || kind == .moveFocusToPreviousWindowFront {
       newCollection = snapshot.visibleWindowsInSpace
         .filter { $0.ownerPid.rawValue == UserSpace.shared.frontmostApplication.ref.processIdentifier }
-
-      if newCollection.isEmpty {
-        CustomSystemRoutine(rawValue: UserSpace.shared.frontmostApplication.bundleIdentifier)?
-          .routine(UserSpace.shared.frontmostApplication)
-          .run(kind)
-      }
       ring = appRing
     } else if kind == .moveFocusToNextWindow || kind == .moveFocusToPreviousWindow {
       newCollection = snapshot.visibleWindowsInStage
@@ -79,13 +78,18 @@ enum WindowFocus {
       .left
     }
 
-    guard newCollection.count > 1 else { return }
-    guard let window = ring.navigate(direction, entries: newCollection) else {
+    guard !newCollection.isEmpty else { return }
+    guard var nextWindow = ring.navigate(direction, entries: newCollection) else {
       return
     }
 
-    let windowId = UInt32(window.id)
-    let processIdentifier = pid_t(window.ownerPid.rawValue)
+    if newCollection.count > 1, currentWindow?.id == nextWindow.id,
+       let fallback = ring.navigate(direction, entries: newCollection) {
+      nextWindow = fallback
+    }
+
+    let windowId = UInt32(nextWindow.id)
+    let processIdentifier = pid_t(nextWindow.ownerPid.rawValue)
     let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
     let app = AppAccessibilityElement(processIdentifier)
 

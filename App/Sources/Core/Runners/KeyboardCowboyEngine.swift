@@ -153,10 +153,12 @@ final class KeyboardCowboyEngine {
 
     applicationWindowObserver.frontMostApplicationDidCreateWindow = {
       WindowStore.shared.index()
+      WindowFocus.updateRings()
     }
 
     applicationWindowObserver.frontMostApplicationDidCloseWindow = {
       WindowStore.shared.index()
+      WindowFocus.updateRings()
     }
   }
 }
