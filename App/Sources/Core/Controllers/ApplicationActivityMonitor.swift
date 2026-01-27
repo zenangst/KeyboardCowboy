@@ -2,7 +2,7 @@ import Cocoa
 import Combine
 import Foundation
 
-protocol ActivityApplication {
+protocol ActivityApplication: Equatable {
   var bundleIdentifier: String { get }
   var isTerminated: Bool { get }
 }
@@ -26,6 +26,7 @@ final class ApplicationActivityMonitor<T: ActivityApplication> {
 
   func subscribe(to publisher: Published<T>.Publisher) {
     subscription = publisher
+      .removeDuplicates()
       .sink { [weak self] application in
         guard let self else { return }
 
