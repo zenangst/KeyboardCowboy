@@ -205,6 +205,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
 
             throw scriptError
           } catch {
+            await Debugger.shared.log(.commandError, "Failed to run commands: \(error)")
             switch command.notification {
             case .bezel:
               await showFinishedNotification(for: command, output: error.localizedDescription)
@@ -274,6 +275,7 @@ class CommandRunner: CommandRunning, @unchecked Sendable {
                         machPortEvent: machPortEvent, checkCancellation: checkCancellation,
                         repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
         } catch {
+          await Debugger.shared.log(.commandError, "Failed to run commands: \(error)")
           switch command.notification {
           case .bezel:
             await showFinishedNotification(for: command, output: error.localizedDescription)

@@ -51,7 +51,7 @@ public extension Target {
           "CURRENT_PROJECT_VERSION": SettingValue(stringLiteral: buildNumber),
           "DEVELOPMENT_TEAM": env["TEAM_ID"],
           "ENABLE_HARDENED_RUNTIME": properties.hardendRuntime,
-          "MARKETING_VERSION": "3.28.4",
+          "MARKETING_VERSION": "3.28.5",
           "PRODUCT_NAME": "Keyboard Cowboy",
           "SWIFT_STRICT_CONCURRENCY": "complete",
           "SWIFT_VERSION": "6.0",

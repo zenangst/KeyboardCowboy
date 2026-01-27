@@ -49,6 +49,8 @@ struct AppMenuBarExtras: Scene {
       }
       Divider()
 
+      DebugMenu()
+
       Button { onAction(.openKeyViewer) } label: { Text("Key Viewer") }
       Toggle(isOn: $keyboardCleaner.isEnabled, label: { Text("Keyboard Cleaner") })
         .toggleStyle(.checkbox)

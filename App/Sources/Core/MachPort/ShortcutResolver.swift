@@ -64,6 +64,9 @@ extension MachPortEvent: LookupToken {
 
         if let result = cache[scopedKeyWithUserMode] {
           if Self.debug { print("scopedKeyWithUserMode: \(scopedKeyWithUserMode)") }
+
+          Debugger.shared.log(.shortcutResolver, "Found scoped usermode key for \(eventSignature.id)")
+
           return result
         }
 
@@ -74,6 +77,8 @@ extension MachPortEvent: LookupToken {
 
         if let result = cache[globalKeyWithUserMode] {
           if Self.debug { print("globalKeyWithUserMode: \(globalKeyWithUserMode)") }
+
+          Debugger.shared.log(.shortcutResolver, "Found global usermode key for \(eventSignature.id)")
 
           return result
         }
@@ -87,6 +92,9 @@ extension MachPortEvent: LookupToken {
 
     if let result = cache[scopedKey] {
       if Self.debug { print("scopeKey: \(scopedKey)") }
+
+      Debugger.shared.log(.shortcutResolver, "Found scoped key for \(eventSignature.id)")
+
       return result
     }
 
@@ -96,10 +104,12 @@ extension MachPortEvent: LookupToken {
     if Self.debug { print("globalKey: \(globalKey)") }
 
     if disallowedBundleIdentifiers.contains(scopedKey) {
+      Debugger.shared.log(.shortcutResolver, "Skipping because scoped key is disallowed: \(scopedKey)")
       return nil
     }
 
     if let globalKeyResult = cache[globalKey] {
+      Debugger.shared.log(.shortcutResolver, "Found global key for \(eventSignature.id)")
       return globalKeyResult
     } else if let fallback, SpecialKeys.functionKeys.contains(Int(token.keyCode)) {
       var newFlags = token.flags
@@ -117,12 +127,15 @@ extension MachPortEvent: LookupToken {
         newFallback = nil
       }
 
+      Debugger.shared.log(.shortcutResolver, "Trying fallback for \(eventSignature.id)")
+
       return lookup(
         FallbackLookupToken(keyCode: token.keyCode, flags: newFlags),
         bundleIdentifier: bundleIdentifier,
         fallback: newFallback,
       )
     } else {
+      Debugger.shared.log(.shortcutResolver, "No match for \(eventSignature.id)")
       return nil
     }
   }

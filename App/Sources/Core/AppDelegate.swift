@@ -10,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
   // MARK: NSApplicationDelegate
 
   func applicationDidFinishLaunching(_: Notification) {
+    Debugger.shared.log(.event, "Application launched")
     NSApp.appearance = NSAppearance(named: .darkAqua)
 
 //    if #available(macOS 14.0, *) {

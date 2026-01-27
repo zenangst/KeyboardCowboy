@@ -88,6 +88,9 @@ final class KeyboardCowboyEngine {
         eventsOfInterest: keyboardEvents,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
+        onFailure: { error in
+          Debugger.shared.log(.machPortFailure, error.rawValue)
+        },
         onFlagsChanged: { [machPortCoordinator, tapHeld, modifierTriggerController] in
           let allowsEscapeFallback: Bool = !modifierTriggerController.handleIfApplicable($0)
           _ = tapHeld.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
