@@ -2,7 +2,7 @@ import Bonzai
 import HotSwiftUI
 import SwiftUI
 
-private let currentVersion: Version = .v3284
+private let currentVersion: Version = .v3285
 
 struct Release3_28: View {
   @ObserveInjection var inject
@@ -473,6 +473,7 @@ private struct Supporter: Hashable {
 }
 
 private enum Version: String, Equatable {
+  case v3285 = "3.28.5"
   case v3284 = "3.28.4"
   case v3283 = "3.28.3"
   case v3282 = "3.28.2"
@@ -486,6 +487,7 @@ private enum Version: String, Equatable {
     case .v3282: Color(.systemOrange)
     case .v3283: Color(.systemYellow)
     case .v3284: Color(.systemGreen)
+    case .v3285: Color(.systemBlue)
     }
   }
 }
