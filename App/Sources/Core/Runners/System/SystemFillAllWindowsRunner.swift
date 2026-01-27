@@ -4,21 +4,30 @@ import Cocoa
 import Foundation
 
 enum SystemFillAllWindowsRunner {
-  static func run(snapshot _: UserSpace.Snapshot) async throws {
+  static func run(snapshot: UserSpace.Snapshot) async throws {
     guard let screen = NSScreen.main else { return }
 
     let spacing = UserSettings.WindowManager.tiledWindowSpacing
-    let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
-    let windows = snapshot.windows.visibleWindowsInStage.reversed()
+    let targetScreenFrame: CGRect = screen.visibleFrame
+    let windows = snapshot.windows
+      .visibleWindowsInStage
+      .reversed()
+      .filter { window in
+        targetScreenFrame.intersects(window.rect)
+      }
     let windowCount = windows.count
 
     for (index, window) in windows.enumerated() {
       guard let runningApplication = NSWorkspace.shared
         .runningApplications
-        .first(where: { $0.processIdentifier == window.ownerPid.rawValue }) else { continue }
+        .first(where: { $0.processIdentifier == window.ownerPid.rawValue }) else {
+        continue
+      }
 
       let appElement = AppAccessibilityElement(runningApplication.processIdentifier)
-      guard let window = try? appElement.windows().first(where: { $0.id == window.id }) else { return }
+      guard let window = try? appElement.windows().first(where: { $0.id == window.id }) else {
+        continue
+      }
 
       var finalFrame = screen.visibleFrame
         .insetBy(dx: spacing, dy: spacing)
