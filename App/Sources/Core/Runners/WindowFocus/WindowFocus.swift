@@ -56,17 +56,21 @@ enum WindowFocus {
     let newCollection: [WindowModel]
     let ring: RingBuffer<WindowModel>
     let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true).windows
+    let shouldUseFallback: Bool
 
     if kind == .moveFocusToNextWindowFront || kind == .moveFocusToPreviousWindowFront {
       newCollection = snapshot.visibleWindowsInSpace
         .filter { $0.ownerPid.rawValue == UserSpace.shared.frontmostApplication.ref.processIdentifier }
       ring = appRing
+      shouldUseFallback = false
     } else if kind == .moveFocusToNextWindow || kind == .moveFocusToPreviousWindow {
       newCollection = snapshot.visibleWindowsInStage
       ring = stageRing
+      shouldUseFallback = true
     } else if kind == .moveFocusToNextWindowGlobal || kind == .moveFocusToPreviousWindowGlobal {
       newCollection = snapshot.visibleWindowsInSpace
       ring = globalRing
+      shouldUseFallback = true
     } else {
       return
     }
@@ -83,7 +87,7 @@ enum WindowFocus {
       return
     }
 
-    if newCollection.count > 1, currentWindow?.id == nextWindow.id,
+    if shouldUseFallback, newCollection.count > 1, currentWindow?.id == nextWindow.id,
        let fallback = ring.navigate(direction, entries: newCollection) {
       nextWindow = fallback
     }
