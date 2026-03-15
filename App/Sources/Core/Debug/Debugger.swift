@@ -24,12 +24,15 @@ import Foundation
   static let shared = Debugger()
 
   init() {
-    let url = URL(filePath: "~/.config/keyboardcowboy")
-    let filePath = url.appending(path: "debug.log")
-    self.path = filePath
+    let directoryURL = URL(filePath: "~/.config/keyboardcowboy")
+    path = directoryURL.appending(path: "debug.log")
 
-    if !fileManager.fileExists(atPath: path.absoluteString) {
-      fileManager.createFile(atPath: path.absoluteString, contents: nil)
+    if !fileManager.fileExists(atPath: directoryURL.path) {
+      try? fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+    }
+
+    if !fileManager.fileExists(atPath: path.path) {
+      fileManager.createFile(atPath: path.path, contents: nil)
     }
   }
 
@@ -41,7 +44,11 @@ import Foundation
     let prefix = "\(filePath).\(functionName):\(lineNumber)"
     let output = "\(Date())\t\(context.rawValue)\t\(prefix) | \(message())\n"
 
-    try? fileManager.append(output, to: path)
+    do {
+      try fileManager.append(output, to: path)
+    } catch {
+      print("Unable to append debug output: \(error)")
+    }
   }
 }
 
