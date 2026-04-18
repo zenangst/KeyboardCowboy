@@ -220,6 +220,53 @@ final class ContentViewActionReducerTests: XCTestCase {
     XCTAssertEqual(core.groupCoordinator.contentPublisher.data.map(\.id), ["workflow-1-id", "workflow-2-id"])
   }
 
+  func testWindowFocusPreviousWindowIdsPreferMostRecentWindowPerScope() {
+    WindowFocus.previousWindowIds = [:]
+
+    WindowFocus.updatePreviousWindowIds(
+      previousWindowId: 10,
+      previousOwnerPid: 100,
+      currentWindowId: 20,
+      currentOwnerPid: 100,
+      appWindowIds: [10, 20],
+      stageWindowIds: [10, 20, 30],
+      globalWindowIds: [10, 20, 30],
+    )
+
+    XCTAssertEqual(WindowFocus.previousWindowIds[.app], 10)
+    XCTAssertEqual(WindowFocus.previousWindowIds[.stage], 10)
+    XCTAssertEqual(WindowFocus.previousWindowIds[.global], 10)
+  }
+
+  func testWindowFocusPreviousWindowIdClearsInvalidAppScope() {
+    WindowFocus.previousWindowIds = [.app: 10]
+
+    WindowFocus.updatePreviousWindowIds(
+      previousWindowId: 10,
+      previousOwnerPid: 100,
+      currentWindowId: 20,
+      currentOwnerPid: 200,
+      appWindowIds: [20, 30],
+      stageWindowIds: [10, 20, 30],
+      globalWindowIds: [10, 20, 30],
+    )
+
+    XCTAssertNil(WindowFocus.previousWindowIds[.app])
+    XCTAssertEqual(WindowFocus.previousWindowIds[.stage], 10)
+    XCTAssertEqual(WindowFocus.previousWindowIds[.global], 10)
+  }
+
+  func testWindowFocusPreferredPreviousWindowIdSkipsCurrentAndMissingWindows() {
+    WindowFocus.previousWindowIds = [.global: 10, .stage: 20]
+
+    XCTAssertNil(WindowFocus.preferredPreviousWindowId(in: [10, 20], ring: .stage, currentWindowId: 20))
+
+    let preferredGlobal = WindowFocus.preferredPreviousWindowId(in: [20, 30], ring: .global, currentWindowId: 20)
+
+    XCTAssertNil(preferredGlobal)
+    XCTAssertNil(WindowFocus.previousWindowIds[.global])
+  }
+
   // MARK: Private methods
 
   private func subject(_ id: String) -> (original: WorkflowGroup, copy: WorkflowGroup) {
