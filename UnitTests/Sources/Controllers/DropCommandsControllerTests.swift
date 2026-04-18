@@ -1,3 +1,4 @@
+import AppKit
 import Apps
 @testable import Keyboard_Cowboy
 import XCTest
@@ -90,4 +91,43 @@ class DropCommandsControllerTests: XCTestCase {
 
     XCTAssertEqual(openCommand.name, "www.apple.com")
   }
+
+  @MainActor
+  func testOpenCommandRunnerOpensKeyboardCowboyWithoutWorkspace() async throws {
+    let workspace = WorkspaceMock()
+    let subject = OpenCommandRunner(ScriptCommandRunner(), workspace: workspace)
+    let expectation = expectation(forNotification: .openKeyboardCowboy, object: nil)
+
+    try await subject.run(Bundle.main.bundleURL.path, checkCancellation: false, application: nil)
+
+    await fulfillment(of: [expectation], timeout: 1.0)
+    XCTAssertEqual(workspace.openURLCallCount, 0)
+    XCTAssertEqual(workspace.openURLsCallCount, 0)
+    XCTAssertEqual(workspace.openApplicationCallCount, 0)
+  }
+}
+
+private final class WorkspaceMock: WorkspaceProviding, @unchecked Sendable {
+  var applications: [RunningApplication] = []
+  var frontApplication: RunningApplication?
+  var openApplicationCallCount = 0
+  var openURLCallCount = 0
+  var openURLsCallCount = 0
+
+  func openApplication(at _: URL, configuration _: NSWorkspace.OpenConfiguration) async throws -> NSRunningApplication {
+    openApplicationCallCount += 1
+    return NSRunningApplication.current
+  }
+
+  func open(_ _: [URL], withApplicationAt _: URL, configuration _: NSWorkspace.OpenConfiguration) async throws -> NSRunningApplication {
+    openURLsCallCount += 1
+    return NSRunningApplication.current
+  }
+
+  func open(_ _: URL, configuration _: NSWorkspace.OpenConfiguration) async throws -> NSRunningApplication {
+    openURLCallCount += 1
+    return NSRunningApplication.current
+  }
+
+  func reveal(_: String) {}
 }

@@ -48,6 +48,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
 
   func removeLastSelection() {
     lastSelection = nil
+    initialSelection = nil
   }
 
   func setLastSelection(_ selection: T.ID) {
@@ -63,6 +64,19 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
     if selections != newSelections {
       selections = newSelections
     }
+
+    if newSelections.isEmpty {
+      lastSelection = nil
+      initialSelection = nil
+    } else if let lastSelection, newSelections.contains(lastSelection) {
+      initialSelection = lastSelection
+    } else if let initialSelection, newSelections.contains(initialSelection) {
+      lastSelection = initialSelection
+    } else if let firstSelection = newSelections.first {
+      lastSelection = firstSelection
+      initialSelection = firstSelection
+    }
+
     store(selections)
   }
 
@@ -105,7 +119,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
       newSelections = onTap(element)
     }
     store(newSelections)
-    initialSelection = newSelections.first
+    initialSelection = lastSelection ?? newSelections.first
     selections = newSelections
   }
 
@@ -136,6 +150,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
 
       selections = newSelections
       lastSelection = nextElementID
+      initialSelection = nextElementID
 
       defer {
         proxy?.scrollTo(nextElementID)

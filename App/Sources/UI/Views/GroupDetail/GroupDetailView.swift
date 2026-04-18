@@ -312,15 +312,18 @@ struct GroupDetailView: View {
       }
       .focused(appFocus, equals: .workflows)
       .onChange(of: searchTerm, perform: { _ in
-        if !searchTerm.isEmpty {
-          if let firstSelection = publisher.data.filter({ search($0) }).first {
-            workflowSelection.publish([firstSelection.id])
-          } else {
-            workflowSelection.publish([])
-          }
+        let visibleItems = publisher.data.filter { search($0) }
 
-          debounce.process(.init(workflows: workflowSelection.selections))
+        if let lastSelection = workflowSelection.lastSelection,
+           visibleItems.contains(where: { $0.id == lastSelection }) {
+          workflowSelection.publish([lastSelection])
+        } else if let firstSelection = visibleItems.first {
+          workflowSelection.publish([firstSelection.id])
+        } else {
+          workflowSelection.publish([])
         }
+
+        debounce.process(.init(workflows: workflowSelection.selections))
       })
       .onReceive(NotificationCenter.default.publisher(for: .newWorkflow), perform: { _ in
         proxy.scrollTo("bottom")

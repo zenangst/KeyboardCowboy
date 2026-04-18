@@ -26,6 +26,13 @@ final class OpenCommandRunner: Sendable {
   }
 
   func run(_ path: String, checkCancellation: Bool, application: Application?) async throws {
+    if resolvesToKeyboardCowboy(path, application: application) {
+      await MainActor.run {
+        NotificationCenter.default.post(name: .openKeyboardCowboy, object: nil)
+      }
+      return
+    }
+
     do {
       if plugins.finderFolder.validate(application?.bundleIdentifier) {
         try await plugins.finderFolder.execute(path, checkCancellation: checkCancellation)
@@ -56,6 +63,27 @@ final class OpenCommandRunner: Sendable {
         try await plugins.open.execute(path, application: application)
       }
     }
+  }
+
+  private func resolvesToKeyboardCowboy(_ path: String, application: Application?) -> Bool {
+    if application?.bundleIdentifier == KeyboardCowboyApp.bundleIdentifier {
+      return true
+    }
+
+    guard !path.isUrl else { return false }
+
+    let expandedPath = (path as NSString).expandingTildeInPath
+    let resolvedPath = URL(fileURLWithPath: expandedPath)
+      .standardizedFileURL
+      .resolvingSymlinksInPath()
+      .path
+
+    let bundlePath = Bundle.main.bundleURL
+      .standardizedFileURL
+      .resolvingSymlinksInPath()
+      .path
+
+    return resolvedPath == bundlePath
   }
 }
 

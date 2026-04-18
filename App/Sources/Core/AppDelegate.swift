@@ -24,8 +24,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 //    }
   }
 
-  func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows: Bool) -> Bool {
-    if !hasVisibleWindows {
+  func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+    if KeyboardCowboyApp.mainWindow?.isVisible != true {
       openWindow?.openMainWindow()
     }
     return true
