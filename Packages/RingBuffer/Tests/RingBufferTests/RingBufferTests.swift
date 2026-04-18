@@ -131,6 +131,28 @@ struct RingBufferTests {
     #expect(ring.cursor == 1)
     #expect(ring.currentEntries == windows)
   }
+
+  @Test func movingFocusedWindowToCursorDoesNotRepeatItOnNextNavigation() {
+    let windows = [Window("A"), Window("B"), Window("C")]
+    let ring = RingBuffer<Window>(cursor: 0)
+
+    ring.update(windows)
+    ring.moveEntryToCursor(Window("B"))
+
+    #expect(ring.cursor == 0)
+    #expect(ring.currentEntries == [Window("B"), Window("A"), Window("C")])
+    #expect(ring.navigate(.right, entries: windows) == Window("A"))
+  }
+
+  @Test func setCursorMatchesEntriesByIdentifier() {
+    let windows = [VersionedWindow(id: "A", version: 1), VersionedWindow(id: "B", version: 1)]
+    let ring = RingBuffer<VersionedWindow>()
+
+    ring.update(windows)
+    ring.setCursor(to: VersionedWindow(id: "B", version: 2))
+
+    #expect(ring.cursor == 1)
+  }
 }
 
 struct Window: Identifiable, Hashable {
@@ -139,4 +161,9 @@ struct Window: Identifiable, Hashable {
   init(_ id: String) {
     self.id = id
   }
+}
+
+private struct VersionedWindow: Identifiable, Hashable {
+  let id: String
+  let version: Int
 }
