@@ -14,7 +14,7 @@ enum WindowFocus {
   static var appRing = RingBuffer<WindowModel>()
   static var globalRing = RingBuffer<WindowModel>()
   static var stageRing = RingBuffer<WindowModel>()
-  static var skipNextApplicationChange = false
+  static var pendingFocusWindowId: CGWindowID?
   static var currentWindow: WindowModel?
 
   static func frontMostApplicationChanged() {
@@ -46,11 +46,11 @@ enum WindowFocus {
 
     currentWindow = window
 
-    if skipNextApplicationChange {
+    if pendingFocusWindowId == id {
       appRing.setCursor(to: window)
       globalRing.setCursor(to: window)
       stageRing.setCursor(to: window)
-      skipNextApplicationChange = false
+      pendingFocusWindowId = nil
     } else {
       appRing.moveEntryToCursor(window)
       globalRing.moveEntryToCursor(window)
@@ -86,6 +86,8 @@ enum WindowFocus {
     }
 
     guard !newCollection.isEmpty else { return }
+    syncCursor(with: newCollection, in: ring)
+
     guard let nextWindow = ring.navigate(direction, entries: newCollection) else {
       return
     }
@@ -94,6 +96,9 @@ enum WindowFocus {
     let processIdentifier = pid_t(nextWindow.ownerPid.rawValue)
     let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
     let app = AppAccessibilityElement(processIdentifier)
+    let axWindow = try app.windows().first(where: { $0.id == windowId })
+
+    pendingFocusWindowId = windowId
 
     if let runningApplication {
       let options: NSApplication.ActivationOptions = [.activateIgnoringOtherApps]
@@ -111,10 +116,40 @@ enum WindowFocus {
       }
     }
 
-    let axWindow = try app.windows().first(where: { $0.id == windowId })
+    axWindow?.main = true
     axWindow?.performAction(.raise)
+  }
 
-    skipNextApplicationChange = true
+  private static func syncCursor(with windows: [WindowModel], in ring: RingBuffer<WindowModel>) {
+    ring.update(windows)
+
+    guard let focusedWindow = focusedWindow(in: windows) else { return }
+
+    ring.setCursor(to: focusedWindow)
+  }
+
+  private static func focusedWindow(in windows: [WindowModel]) -> WindowModel? {
+    if let frontmostApplication = NSWorkspace.shared.frontmostApplication {
+      let app = AppAccessibilityElement(frontmostApplication.processIdentifier)
+
+      if let id = try? app.focusedWindow()?.id,
+         let window = windows.first(where: { $0.id == id }) {
+        return window
+      }
+
+      if let currentWindow,
+         let window = windows.first(where: { $0.id == currentWindow.id }) {
+        return window
+      }
+
+      return windows.first(where: { $0.ownerPid.rawValue == frontmostApplication.processIdentifier })
+    }
+
+    if let currentWindow {
+      return windows.first(where: { $0.id == currentWindow.id })
+    }
+
+    return nil
   }
 }
 

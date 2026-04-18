@@ -70,14 +70,16 @@ public final class RingBuffer<T: Identifiable & Hashable> {
   }
 
   public func setCursor(to entry: T) {
-    if let match = currentEntries.firstIndex(of: entry) {
+    if let match = currentEntries.firstIndex(where: { $0.id == entry.id }) {
       cursor = match
     }
   }
 
   public func moveEntryToCursor(_ entry: T) {
     currentEntries.removeAll { $0.id == entry.id }
-    currentEntries.insert(entry, at: max(cursor, currentEntries.count - 1))
+    let insertIndex = min(cursor, currentEntries.count)
+    currentEntries.insert(entry, at: insertIndex)
+    cursor = insertIndex
   }
 
   public func navigate(_ direction: RingBufferDirection, entries: [T]) -> T? {
