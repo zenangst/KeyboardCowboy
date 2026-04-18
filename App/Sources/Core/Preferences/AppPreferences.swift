@@ -3,10 +3,14 @@ import Cocoa
 @MainActor
 struct AppPreferences {
   static var config: AppPreferences {
+    if launchArguments.isEnabled(.runningUnitTests) {
+      return AppPreferences.unitTests()
+    }
+
     switch KeyboardCowboyApp.env() {
-    case .development: .designTime()
-    case .previews: .designTime()
-    case .production: .user()
+    case .development: return AppPreferences.designTime()
+    case .previews: return AppPreferences.designTime()
+    case .production: return AppPreferences.user()
     }
   }
 
@@ -33,6 +37,14 @@ struct AppPreferences {
       hideAppOnLaunch: false,
       machportIsEnabled: true,
       configLocation: .user,
+    )
+  }
+
+  static func unitTests() -> AppPreferences {
+    AppPreferences(
+      hideAppOnLaunch: false,
+      machportIsEnabled: false,
+      configLocation: .unitTests,
     )
   }
 

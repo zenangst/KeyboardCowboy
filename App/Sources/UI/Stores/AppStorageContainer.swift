@@ -3,11 +3,17 @@ import SwiftUI
 
 @MainActor
 final class AppStorageContainer: @unchecked Sendable {
-  #if DEBUG
-  static let store = UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.debug")
-  #else
-  static let store = UserDefaults.standard
-  #endif
+  static let store: UserDefaults = {
+    if launchArguments.isEnabled(.runningUnitTests) {
+      return UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.unit-tests") ?? .standard
+    }
+
+    #if DEBUG
+    return UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.debug") ?? .standard
+    #else
+    return .standard
+    #endif
+  }()
 
   static let shared: AppStorageContainer = .init()
 
@@ -17,5 +23,5 @@ final class AppStorageContainer: @unchecked Sendable {
   @AppStorage("selectedGroupIds", store: store) var groupIds = Set<String>()
   @AppStorage("selectedWorkflowIds", store: store) var workflowIds = Set<String>()
   @AppStorage("additionalApplicationPaths", store: store) var additionalApplicationPaths = [String]()
-  @AppStorage("ReleaseNotes") var releaseNotes: String = ""
+  @AppStorage("ReleaseNotes", store: store) var releaseNotes: String = ""
 }

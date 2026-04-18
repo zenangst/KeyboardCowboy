@@ -42,7 +42,7 @@ final class MainWindow: NSObject, NSWindowDelegate {
     window.titleVisibility = .hidden
     window.identifier = .init(rawValue: KeyboardCowboyApp.mainWindowIdentifier)
     window.delegate = self
-    if let frameDescriptor = UserDefaults.standard.string(forKey: "MainWindowFrame") {
+    if let frameDescriptor = AppStorageContainer.store.string(forKey: "MainWindowFrame") {
       window.setFrame(from: frameDescriptor)
     } else {
       window.center()
@@ -61,7 +61,7 @@ final class MainWindow: NSObject, NSWindowDelegate {
 
   func windowWillClose(_: Notification) {
     if let mainWindow = window {
-      UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
+      AppStorageContainer.store.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
     }
     KeyboardCowboyApp.deactivate()
     window = nil
