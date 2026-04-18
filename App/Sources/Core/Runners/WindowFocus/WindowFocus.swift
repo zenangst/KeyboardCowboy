@@ -10,7 +10,7 @@ enum WindowFocus {
   enum Ring: String { case app, global, stage }
 
   private static var visibleMostIndexByRing: [Ring: Int] = [:]
-  static var previousWindowIds = [Ring: CGWindowID]()
+  static var previousWindowIds = [Ring: Int]()
   static var appRing = RingBuffer<WindowModel>()
   static var globalRing = RingBuffer<WindowModel>()
   static var stageRing = RingBuffer<WindowModel>()
@@ -24,8 +24,11 @@ enum WindowFocus {
   static func updateRings(_ windowId: CGWindowID? = nil) {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else { return }
 
-    let newAppWindows = WindowStore.shared
-      .getWindows(onScreen: true)
+    let onScreenWindows = WindowStore.shared.getWindows(onScreen: true)
+    let visibleWindowsInSpace = WindowStore.shared.allApplicationsInSpace(onScreenWindows, onScreen: true)
+    let visibleWindowsInStage = WindowStore.shared.indexStage(onScreenWindows)
+
+    let newAppWindows = onScreenWindows
       .filter { $0.ownerPid.rawValue == frontmostApplication.processIdentifier }
 
     appRing.update(newAppWindows)
@@ -44,6 +47,16 @@ enum WindowFocus {
 
     guard let window = newAppWindows.first(where: { $0.id == id }) else { return }
 
+    updatePreviousWindowIds(
+      previousWindowId: currentWindow?.id,
+      previousOwnerPid: currentWindow.map { pid_t($0.ownerPid.rawValue) },
+      currentWindowId: window.id,
+      currentOwnerPid: pid_t(window.ownerPid.rawValue),
+      appWindowIds: Set(newAppWindows.map(\.id)),
+      stageWindowIds: Set(visibleWindowsInStage.map(\.id)),
+      globalWindowIds: Set(visibleWindowsInSpace.map(\.id)),
+    )
+
     currentWindow = window
 
     if pendingFocusWindowId == id {
@@ -60,21 +73,16 @@ enum WindowFocus {
 
   static func run(kind: WindowFocusCommand.Kind, applicationStore: ApplicationStore,
                   workspace: WorkspaceProviding) async throws {
-    let newCollection: [WindowModel]
-    let ring: RingBuffer<WindowModel>
     let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true).windows
+    guard let (newCollection, ringKind, ring) = collection(for: kind, snapshot: snapshot) else {
+      return
+    }
 
-    if kind == .moveFocusToNextWindowFront || kind == .moveFocusToPreviousWindowFront {
-      newCollection = snapshot.visibleWindowsInSpace
-        .filter { $0.ownerPid.rawValue == UserSpace.shared.frontmostApplication.ref.processIdentifier }
-      ring = appRing
-    } else if kind == .moveFocusToNextWindow || kind == .moveFocusToPreviousWindow {
-      newCollection = snapshot.visibleWindowsInStage
-      ring = stageRing
-    } else if kind == .moveFocusToNextWindowGlobal || kind == .moveFocusToPreviousWindowGlobal {
-      newCollection = snapshot.visibleWindowsInSpace
-      ring = globalRing
-    } else {
+    guard !newCollection.isEmpty else { return }
+
+    if isPrevious(kind),
+       let previousWindow = previousWindow(in: newCollection, ring: ringKind) {
+      try await focus(previousWindow, applicationStore: applicationStore, workspace: workspace)
       return
     }
 
@@ -85,15 +93,67 @@ enum WindowFocus {
       .left
     }
 
-    guard !newCollection.isEmpty else { return }
     syncCursor(with: newCollection, in: ring)
 
     guard let nextWindow = ring.navigate(direction, entries: newCollection) else {
       return
     }
 
-    let windowId = UInt32(nextWindow.id)
-    let processIdentifier = pid_t(nextWindow.ownerPid.rawValue)
+    try await focus(nextWindow, applicationStore: applicationStore, workspace: workspace)
+  }
+
+  static func updatePreviousWindowIds(previousWindowId: Int?,
+                                      previousOwnerPid: pid_t?,
+                                      currentWindowId: Int,
+                                      currentOwnerPid: pid_t,
+                                      appWindowIds: Set<Int>,
+                                      stageWindowIds: Set<Int>,
+                                      globalWindowIds: Set<Int>) {
+    guard let previousWindowId,
+          let previousOwnerPid,
+          previousWindowId != currentWindowId else { return }
+
+    if previousOwnerPid == currentOwnerPid,
+       appWindowIds.contains(previousWindowId),
+       appWindowIds.contains(currentWindowId) {
+      previousWindowIds[.app] = previousWindowId
+    } else {
+      previousWindowIds[.app] = nil
+    }
+
+    if stageWindowIds.contains(previousWindowId),
+       stageWindowIds.contains(currentWindowId) {
+      previousWindowIds[.stage] = previousWindowId
+    }
+
+    if globalWindowIds.contains(previousWindowId),
+       globalWindowIds.contains(currentWindowId) {
+      previousWindowIds[.global] = previousWindowId
+    }
+  }
+
+  static func preferredPreviousWindowId(in availableWindowIds: Set<Int>,
+                                        ring: Ring,
+                                        currentWindowId: Int?) -> Int? {
+    guard let previousWindowId = previousWindowIds[ring],
+          previousWindowId != currentWindowId,
+          availableWindowIds.contains(previousWindowId) else {
+      if let previousWindowId = previousWindowIds[ring],
+         !availableWindowIds.contains(previousWindowId) {
+        previousWindowIds[ring] = nil
+      }
+
+      return nil
+    }
+
+    return previousWindowId
+  }
+
+  private static func focus(_ window: WindowModel,
+                            applicationStore: ApplicationStore,
+                            workspace: WorkspaceProviding) async throws {
+    let windowId = UInt32(window.id)
+    let processIdentifier = pid_t(window.ownerPid.rawValue)
     let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
     let app = AppAccessibilityElement(processIdentifier)
     let axWindow = try app.windows().first(where: { $0.id == windowId })
@@ -118,6 +178,45 @@ enum WindowFocus {
 
     axWindow?.main = true
     axWindow?.performAction(.raise)
+  }
+
+  private static func collection(for kind: WindowFocusCommand.Kind,
+                                 snapshot: WindowStoreSnapshot) -> ([WindowModel], Ring, RingBuffer<WindowModel>)? {
+    if kind == .moveFocusToNextWindowFront || kind == .moveFocusToPreviousWindowFront {
+      let windows = snapshot.visibleWindowsInSpace
+        .filter { $0.ownerPid.rawValue == UserSpace.shared.frontmostApplication.ref.processIdentifier }
+      return (windows, .app, appRing)
+    } else if kind == .moveFocusToNextWindow || kind == .moveFocusToPreviousWindow {
+      return (snapshot.visibleWindowsInStage, .stage, stageRing)
+    } else if kind == .moveFocusToNextWindowGlobal || kind == .moveFocusToPreviousWindowGlobal {
+      return (snapshot.visibleWindowsInSpace, .global, globalRing)
+    } else {
+      return nil
+    }
+  }
+
+  private static func isPrevious(_ kind: WindowFocusCommand.Kind) -> Bool {
+    switch kind {
+    case .moveFocusToPreviousWindow,
+         .moveFocusToPreviousWindowGlobal,
+         .moveFocusToPreviousWindowFront:
+      true
+    default:
+      false
+    }
+  }
+
+  private static func previousWindow(in windows: [WindowModel], ring: Ring) -> WindowModel? {
+    let currentWindowId = focusedWindow(in: windows)?.id ?? currentWindow?.id
+    guard let previousWindowId = preferredPreviousWindowId(
+      in: Set(windows.map(\.id)),
+      ring: ring,
+      currentWindowId: currentWindowId,
+    ) else {
+      return nil
+    }
+
+    return windows.first(where: { $0.id == previousWindowId })
   }
 
   private static func syncCursor(with windows: [WindowModel], in ring: RingBuffer<WindowModel>) {
