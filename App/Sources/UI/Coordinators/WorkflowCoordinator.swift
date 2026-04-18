@@ -53,18 +53,26 @@ final class WorkflowCoordinator {
     case .addConfiguration:
       render(workflowsSelection.selections,
              groupIds: groupSelection.selections)
-    case .refresh, .updateConfiguration, .openScene, .deleteConfiguration, .userMode:
+      clearNestedSelections()
+    case .refresh, .updateConfiguration, .openScene, .userMode:
       // NOOP
       break
     case .moveWorkflows, .copyWorkflows:
       render(workflowsSelection.selections,
-             groupIds: groupSelection.selections)
+              groupIds: groupSelection.selections)
+      clearNestedSelections()
     case .moveGroups, .removeGroups:
       render(workflowsSelection.selections,
              groupIds: groupSelection.selections)
+      clearNestedSelections()
     case .selectConfiguration:
       render(workflowsSelection.selections,
              groupIds: groupSelection.selections)
+      clearNestedSelections()
+    case .deleteConfiguration:
+      render(workflowsSelection.selections,
+             groupIds: groupSelection.selections)
+      clearNestedSelections()
     case let .selectGroups(ids):
       if let firstId = ids.first,
          let group = groupStore.group(withId: firstId) {
@@ -80,11 +88,11 @@ final class WorkflowCoordinator {
           workflowIds.insert(firstId)
         }
         render(workflowIds, groupIds: Set(ids))
-
-        applicationTriggerSelection.removeLastSelection()
-        keyboardShortcutSelection.removeLastSelection()
-        commandSelection.removeLastSelection()
+      } else {
+        render([], groupIds: [])
       }
+
+      clearNestedSelections()
     }
   }
 
@@ -139,9 +147,11 @@ final class WorkflowCoordinator {
     let state: DetailViewState
 
     updateTransaction.groupID = groupIds.first ?? ""
+    updateTransaction.workflowID = ""
 
     if viewModels.count > 1 {
       state = .multiple(viewModels)
+      clearDetailPublishers()
     } else if let viewModel = viewModels.first {
       state = .single(viewModel)
 
@@ -166,6 +176,7 @@ final class WorkflowCoordinator {
       }
     } else {
       state = .empty
+      clearDetailPublishers()
     }
 
     guard statePublisher.data != state else { return }
@@ -177,5 +188,17 @@ final class WorkflowCoordinator {
     } else {
       statePublisher.publish(state)
     }
+  }
+
+  private func clearDetailPublishers() {
+    infoPublisher.publish(.init(id: "empty", name: "", isEnabled: false))
+    triggerPublisher.publish(.empty)
+    commandsPublisher.publish(.init(id: "empty", commands: [], execution: .concurrent))
+  }
+
+  private func clearNestedSelections() {
+    applicationTriggerSelection.publish([])
+    keyboardShortcutSelection.publish([])
+    commandSelection.publish([])
   }
 }

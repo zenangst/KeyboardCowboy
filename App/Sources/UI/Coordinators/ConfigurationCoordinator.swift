@@ -75,6 +75,8 @@ final class ConfigurationCoordinator {
       if let firstConfiguration = contentStore.configurationStore.configurations.first {
         contentStore.use(firstConfiguration)
         render(selectedConfiguration: firstConfiguration)
+      } else {
+        selectionManager.publish([])
       }
     case let .userMode(action):
       switch action {
@@ -123,5 +125,11 @@ final class ConfigurationCoordinator {
       }
 
     configurationsPublisher.publish(configurations)
+
+    if let selectedConfiguration {
+      selectionManager.publish([selectedConfiguration.id])
+    } else {
+      selectionManager.publish([])
+    }
   }
 }

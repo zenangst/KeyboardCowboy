@@ -173,5 +173,34 @@ final class Core {
     },
   )
 
+  func rehydrateMainWindowSelection() {
+    guard contentStore.state == .initialized else { return }
+
+    let configurationId = configSelection.lastSelection
+      ?? configSelection.selections.first
+      ?? configurationStore.selectedConfiguration.id
+
+    if !configurationId.isEmpty {
+      let action = SidebarView.Action.selectConfiguration(configurationId)
+      configCoordinator.handle(action)
+      sidebarCoordinator.handle(action)
+      groupCoordinator.handle(action)
+      workflowCoordinator.handle(action)
+      return
+    }
+
+    let groupIds = groupSelection.selections.isEmpty
+      ? Set(groupStore.groups.prefix(1).map(\.id))
+      : groupSelection.selections
+
+    guard !groupIds.isEmpty else { return }
+
+    let action = SidebarView.Action.selectGroups(groupIds)
+    configCoordinator.handle(action)
+    sidebarCoordinator.handle(action)
+    groupCoordinator.handle(action)
+    workflowCoordinator.handle(action)
+  }
+
   init() {}
 }

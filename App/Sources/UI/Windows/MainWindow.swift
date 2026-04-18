@@ -22,6 +22,9 @@ final class MainWindow: NSObject, NSWindowDelegate {
       window.orderFrontRegardless()
       window.makeKeyAndOrderFront(nil)
       KeyboardCowboyApp.activate(setActivationPolicy: true)
+      Task { @MainActor [core] in
+        core.rehydrateMainWindowSelection()
+      }
       return
     }
 
@@ -50,6 +53,10 @@ final class MainWindow: NSObject, NSWindowDelegate {
 
     KeyboardCowboyApp.activate(setActivationPolicy: true)
     self.window = window
+
+    Task { @MainActor [core] in
+      core.rehydrateMainWindowSelection()
+    }
   }
 
   func windowWillClose(_: Notification) {

@@ -72,9 +72,12 @@ struct ContainerView: View {
         )
         .onChange(of: contentState, perform: { newValue in
           guard newValue == .initialized else { return }
-          guard let groupId = groupsSelection.lastSelection else { return }
 
-          onAction(.sidebar(.selectGroups([groupId])), undoManager)
+          if let configId = configSelection.lastSelection ?? configSelection.selections.first {
+            onAction(.sidebar(.selectConfiguration(configId)), undoManager)
+          } else if let groupId = groupsSelection.lastSelection ?? groupsSelection.selections.first {
+            onAction(.sidebar(.selectGroups([groupId])), undoManager)
+          }
         })
         .style(.section(.sidebar))
         .navigationSplitViewColumnWidth(ideal: 250)

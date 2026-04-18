@@ -127,6 +127,99 @@ final class ContentViewActionReducerTests: XCTestCase {
     ])
   }
 
+  func testSelectionManagerPublishSynchronizesAnchors() {
+    let subject = SelectionManager<GroupViewModel>()
+
+    subject.publish(["group-1-id"])
+
+    XCTAssertEqual(subject.selections, ["group-1-id"])
+    XCTAssertEqual(subject.lastSelection, "group-1-id")
+    XCTAssertEqual(subject.initialSelection, "group-1-id")
+
+    subject.publish([])
+
+    XCTAssertTrue(subject.selections.isEmpty)
+    XCTAssertNil(subject.lastSelection)
+    XCTAssertNil(subject.initialSelection)
+  }
+
+  func testSelectionManagerPublishPreservesExistingAnchor() {
+    let subject = SelectionManager<GroupViewModel>()
+
+    subject.publish(["group-1-id", "group-2-id"])
+    subject.setLastSelection("group-2-id")
+
+    subject.publish(["group-1-id", "group-2-id"])
+
+    XCTAssertEqual(subject.lastSelection, "group-2-id")
+    XCTAssertEqual(subject.initialSelection, "group-2-id")
+  }
+
+  func testSidebarConfigurationSelectionFallsBackToFirstGroup() {
+    let store = GroupStore(selectionGroups())
+    let selectionManager = SelectionManager<GroupViewModel>()
+    let subject = SidebarCoordinator(
+      store,
+      applicationStore: ApplicationStore.shared,
+      groupSelectionManager: selectionManager,
+    )
+
+    selectionManager.publish(["missing-group-id"])
+
+    subject.handle(.selectConfiguration("configuration-id"))
+
+    XCTAssertEqual(selectionManager.selections, ["group-1-id"])
+    XCTAssertEqual(selectionManager.lastSelection, "group-1-id")
+  }
+
+  func testDeleteConfigurationRefreshesContentSelection() {
+    let store = GroupStore(selectionGroups())
+    let groupSelection = SelectionManager<GroupViewModel>()
+    let workflowSelection = SelectionManager<GroupDetailViewModel>()
+    let subject = GroupCoordinator(
+      store,
+      applicationStore: ApplicationStore.shared,
+      groupSelectionManager: groupSelection,
+      workflowsSelectionManager: workflowSelection,
+    )
+
+    groupSelection.publish(["group-1-id"])
+    workflowSelection.publish(["workflow-1-id"])
+    subject.handle(.selectConfiguration("configuration-id"))
+
+    XCTAssertEqual(subject.contentPublisher.data.map(\.id), ["workflow-1-id", "workflow-2-id"])
+
+    store.groups = []
+    subject.handle(.deleteConfiguration(id: "configuration-id"))
+
+    XCTAssertTrue(subject.contentPublisher.data.isEmpty)
+    XCTAssertTrue(workflowSelection.selections.isEmpty)
+  }
+
+  func testCoreRehydratesMainWindowSelectionFromSelectedConfiguration() {
+    let core = Core()
+    let configuration = KeyboardCowboyConfiguration(
+      id: "config-1-id",
+      name: "Config 1",
+      userModes: [],
+      groups: selectionGroups(),
+    )
+
+    core.contentStore.handle(.empty)
+    core.configurationStore.updateConfigurations([configuration])
+    core.contentStore.use(configuration)
+    core.configSelection.publish([])
+    core.groupSelection.publish([])
+    core.workflowsSelection.publish([])
+
+    core.rehydrateMainWindowSelection()
+
+    XCTAssertEqual(core.configSelection.selections, ["config-1-id"])
+    XCTAssertEqual(core.groupSelection.selections, ["group-1-id"])
+    XCTAssertEqual(core.workflowsSelection.selections, ["workflow-1-id"])
+    XCTAssertEqual(core.groupCoordinator.contentPublisher.data.map(\.id), ["workflow-1-id", "workflow-2-id"])
+  }
+
   // MARK: Private methods
 
   private func subject(_ id: String) -> (original: WorkflowGroup, copy: WorkflowGroup) {
@@ -134,8 +227,20 @@ final class ContentViewActionReducerTests: XCTestCase {
     return (original: group, copy: group)
   }
 
+  private func selectionGroups() -> [WorkflowGroup] {
+    [
+      .init(id: "group-1-id", name: "group-1-name", workflows: [
+        .init(id: "workflow-1-id", name: "workflow-1-name"),
+        .init(id: "workflow-2-id", name: "workflow-2-name"),
+      ]),
+      .init(id: "group-2-id", name: "group-2-name", workflows: [
+        .init(id: "workflow-3-id", name: "workflow-3-name"),
+      ]),
+    ]
+  }
+
   private func context(_ groups: [WorkflowGroup] = []) -> (store: GroupStore,
-                                                           selector: SelectionManager<GroupDetailViewModel>) {
+                                                            selector: SelectionManager<GroupDetailViewModel>) {
     (store: GroupStore(groups), selector: SelectionManager())
   }
 }

@@ -48,7 +48,6 @@ extension KeyboardCowboyApp {
       app.setActivationPolicy(.regular)
     }
     app.activate(ignoringOtherApps: true)
-    NSWorkspace.shared.open(Bundle.main.bundleURL)
   }
 
   static func deactivate() {

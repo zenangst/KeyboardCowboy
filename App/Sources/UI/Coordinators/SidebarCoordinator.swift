@@ -57,30 +57,12 @@ final class SidebarCoordinator {
       break
     case .refresh:
       render(store.groups)
-    case let .selectConfiguration(id):
-      if let firstGroup = store.groups.first(where: { $0.id == id }) {
-        selectionManager.publish([firstGroup.id])
-        ColorPublisher.shared.publish(Color(hex: firstGroup.color))
-      } else {
-        selectionManager.publish([])
-      }
+    case .selectConfiguration:
       render(store.groups)
     case .deleteConfiguration:
-      if let firstGroup = store.groups.first {
-        selectionManager.publish([firstGroup.id])
-        ColorPublisher.shared.publish(Color(hex: firstGroup.color))
-      } else {
-        selectionManager.publish([])
-      }
       render(store.groups)
     case let .selectGroups(ids):
-      if ids.count == 1, let id = ids.first, let group = store.group(withId: id) {
-        let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)!
-        ColorPublisher.shared.publish(Color(nsColor: nsColor))
-        selectionManager.publish([id])
-      } else {
-        ColorPublisher.shared.publish(.accentColor)
-      }
+      synchronizeSelection(with: store.groups, preferredSelections: ids)
     case .addConfiguration:
       render(store.groups)
     case let .removeGroups(ids):
@@ -127,10 +109,6 @@ final class SidebarCoordinator {
   // MARK: Private methods
 
   func initialLoad(_ groups: [WorkflowGroup]) {
-    if let match = groups.first(where: { $0.id == selectionManager.lastSelection }) {
-      ColorPublisher.shared.publish(Color(hex: match.color))
-    }
-
     render(groups)
     if groups.isEmpty {
       subscription = nil
@@ -151,31 +129,57 @@ final class SidebarCoordinator {
 
     var groups = [GroupViewModel]()
     groups.reserveCapacity(workflowGroups.count)
-    var newSelections: Set<GroupViewModel.ID>?
-    let publisherIsEmpty = publisher.data.isEmpty
 
-    for (offset, workflowGroup) in workflowGroups.enumerated() {
+    for workflowGroup in workflowGroups {
       let group = SidebarMapper.map(workflowGroup, applicationStore: applicationStore)
 
       groups.append(group)
-
-      if publisherIsEmpty {
-        if newSelections == nil || selectionManager.selections.contains(group.id) {
-          newSelections = []
-        }
-
-        if selectionManager.selections.contains(group.id) {
-          newSelections?.insert(group.id)
-        } else if offset == 0 {
-          newSelections?.insert(group.id)
-        }
-      }
-    }
-
-    if groups.isEmpty {
-      newSelections = []
     }
 
     publisher.publish(groups)
+    synchronizeSelection(with: workflowGroups)
+  }
+
+  private func synchronizeSelection(with workflowGroups: [WorkflowGroup], preferredSelections: Set<GroupViewModel.ID>? = nil) {
+    let validIds = Set(workflowGroups.map(\.id))
+    let currentSelections = preferredSelections ?? selectionManager.selections
+    let normalizedSelections = currentSelections.intersection(validIds)
+
+    if workflowGroups.isEmpty {
+      selectionManager.publish([])
+      ColorPublisher.shared.publish(.accentColor)
+      return
+    }
+
+    if !normalizedSelections.isEmpty {
+      selectionManager.publish(normalizedSelections)
+      updateColor(using: workflowGroups, selections: normalizedSelections)
+      return
+    }
+
+    if let lastSelection = selectionManager.lastSelection,
+       validIds.contains(lastSelection) {
+      selectionManager.publish([lastSelection])
+      updateColor(using: workflowGroups, selections: [lastSelection])
+      return
+    }
+
+    guard let firstGroup = workflowGroups.first else { return }
+
+    selectionManager.publish([firstGroup.id])
+    updateColor(using: workflowGroups, selections: [firstGroup.id])
+  }
+
+  private func updateColor(using workflowGroups: [WorkflowGroup], selections: Set<GroupViewModel.ID>) {
+    guard selections.count == 1,
+          let id = selections.first,
+          let group = workflowGroups.first(where: { $0.id == id }),
+          let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)
+    else {
+      ColorPublisher.shared.publish(.accentColor)
+      return
+    }
+
+    ColorPublisher.shared.publish(Color(nsColor: nsColor))
   }
 }

@@ -30,10 +30,11 @@ final class GroupCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .refresh, .openScene, .addConfiguration, .updateConfiguration,
-         .moveGroups, .removeGroups, .deleteConfiguration, .userMode:
+    case .openScene, .updateConfiguration, .moveGroups, .userMode:
       // NOOP
       break
+    case .refresh, .addConfiguration, .removeGroups, .deleteConfiguration:
+      render(groupSelectionManager.selections, calculateSelections: true)
     case .moveWorkflows, .copyWorkflows:
       render(groupSelectionManager.selections)
     case .selectConfiguration:
