@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-26
     strategy:
         matrix:
-          xcode: ['26.0.1']
+          xcode: ['26.4']
     steps:
       - name: Set Xcode ${{ matrix.xcode }}
         run: |
