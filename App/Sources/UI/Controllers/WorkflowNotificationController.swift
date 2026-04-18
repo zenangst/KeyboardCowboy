@@ -71,7 +71,7 @@ final class WorkflowNotificationController: ObservableObject {
 
     guard let screen = NSScreen.main else { return }
 
-    let placementRawValue = UserDefaults.standard.string(forKey: "Notifications.Placement") ?? ""
+    let placementRawValue = AppStorageContainer.store.string(forKey: "Notifications.Placement") ?? ""
     let placement = NotificationPlacement(rawValue: placementRawValue) ?? .bottomTrailing
 
     publisher.publish(notification)

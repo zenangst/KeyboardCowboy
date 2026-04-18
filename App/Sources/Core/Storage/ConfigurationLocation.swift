@@ -30,6 +30,15 @@ extension ConfigurationLocation {
     ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: fileName)
   }
 
+  static var unitTests: ConfigurationLocation {
+    let root = URL(fileURLWithPath: NSTemporaryDirectory())
+      .appendingPathComponent("KeyboardCowboy")
+      .appendingPathComponent("UnitTests", isDirectory: true)
+      .path
+
+    return ConfigurationLocation(path: root, filename: "config-unit-tests.json")
+  }
+
   static var designTime: ConfigurationLocation {
     ConfigurationLocation(path: jsonFixuresFolder, filename: "designTime.json")
   }
