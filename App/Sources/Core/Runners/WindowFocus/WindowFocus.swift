@@ -21,6 +21,15 @@ enum WindowFocus {
     updateRings()
   }
 
+  static func handleActiveSpaceDidChange() {
+    resetState()
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+      WindowStore.shared.index()
+      WindowFocus.updateRings()
+    }
+  }
+
   static func updateRings(_ windowId: CGWindowID? = nil) {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else { return }
 
@@ -32,6 +41,8 @@ enum WindowFocus {
       .filter { $0.ownerPid.rawValue == frontmostApplication.processIdentifier }
 
     appRing.update(newAppWindows)
+    globalRing.update(visibleWindowsInSpace)
+    stageRing.update(visibleWindowsInStage)
 
     let processIdentifier = frontmostApplication.processIdentifier
     let app = AppAccessibilityElement(processIdentifier)
@@ -77,7 +88,6 @@ enum WindowFocus {
     guard let (newCollection, ringKind, ring) = collection(for: kind, snapshot: snapshot) else {
       return
     }
-
     guard !newCollection.isEmpty else { return }
 
     if isPrevious(kind),
@@ -124,11 +134,15 @@ enum WindowFocus {
     if stageWindowIds.contains(previousWindowId),
        stageWindowIds.contains(currentWindowId) {
       previousWindowIds[.stage] = previousWindowId
+    } else {
+      previousWindowIds[.stage] = nil
     }
 
     if globalWindowIds.contains(previousWindowId),
        globalWindowIds.contains(currentWindowId) {
       previousWindowIds[.global] = previousWindowId
+    } else {
+      previousWindowIds[.global] = nil
     }
   }
 
@@ -225,6 +239,16 @@ enum WindowFocus {
     guard let focusedWindow = focusedWindow(in: windows) else { return }
 
     ring.setCursor(to: focusedWindow)
+  }
+
+  static func resetState() {
+    visibleMostIndexByRing.removeAll()
+    previousWindowIds.removeAll()
+    appRing = RingBuffer<WindowModel>()
+    globalRing = RingBuffer<WindowModel>()
+    stageRing = RingBuffer<WindowModel>()
+    pendingFocusWindowId = nil
+    currentWindow = nil
   }
 
   private static func focusedWindow(in windows: [WindowModel]) -> WindowModel? {

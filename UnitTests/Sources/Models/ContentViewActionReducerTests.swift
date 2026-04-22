@@ -267,6 +267,34 @@ final class ContentViewActionReducerTests: XCTestCase {
     XCTAssertNil(WindowFocus.previousWindowIds[.global])
   }
 
+  func testWindowFocusPreviousWindowIdClearsInvalidStageAndGlobalScope() {
+    WindowFocus.previousWindowIds = [.stage: 10, .global: 10]
+
+    WindowFocus.updatePreviousWindowIds(
+      previousWindowId: 10,
+      previousOwnerPid: 100,
+      currentWindowId: 20,
+      currentOwnerPid: 100,
+      appWindowIds: [10, 20],
+      stageWindowIds: [20, 30],
+      globalWindowIds: [20, 30],
+    )
+
+    XCTAssertEqual(WindowFocus.previousWindowIds[.app], 10)
+    XCTAssertNil(WindowFocus.previousWindowIds[.stage])
+    XCTAssertNil(WindowFocus.previousWindowIds[.global])
+  }
+
+  func testWindowFocusResetStateClearsCachedNavigationState() {
+    WindowFocus.previousWindowIds = [.app: 10, .stage: 20, .global: 30]
+    WindowFocus.pendingFocusWindowId = 42
+
+    WindowFocus.resetState()
+
+    XCTAssertTrue(WindowFocus.previousWindowIds.isEmpty)
+    XCTAssertNil(WindowFocus.pendingFocusWindowId)
+  }
+
   // MARK: Private methods
 
   private func subject(_ id: String) -> (original: WorkflowGroup, copy: WorkflowGroup) {
