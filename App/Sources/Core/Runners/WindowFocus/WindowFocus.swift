@@ -236,7 +236,7 @@ enum WindowFocus {
   private static func syncCursor(with windows: [WindowModel], in ring: RingBuffer<WindowModel>) {
     ring.update(windows)
 
-    guard let focusedWindow = focusedWindow(in: windows) else { return }
+    guard let focusedWindow = focusedWindow(in: windows) ?? windows.first else { return }
 
     ring.setCursor(to: focusedWindow)
   }

@@ -12,7 +12,7 @@ final class AppExtraCoordinator {
   }
 
   func handle(_ action: AppMenuBarExtras.Action) {
-    guard !launchArguments.isEnabled(.runningUnitTests) else { return }
+    guard !KeyboardCowboyApp.isRunningTests else { return }
     guard !isRunningPreview else { return }
 
     switch action {

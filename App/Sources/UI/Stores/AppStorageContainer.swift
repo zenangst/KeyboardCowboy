@@ -4,7 +4,7 @@ import SwiftUI
 @MainActor
 final class AppStorageContainer: @unchecked Sendable {
   static let store: UserDefaults = {
-    if launchArguments.isEnabled(.runningUnitTests) {
+    if KeyboardCowboyApp.isRunningTests {
       return UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.unit-tests") ?? .standard
     }
 

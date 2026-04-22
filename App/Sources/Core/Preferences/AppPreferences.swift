@@ -3,7 +3,7 @@ import Cocoa
 @MainActor
 struct AppPreferences {
   static var config: AppPreferences {
-    if launchArguments.isEnabled(.runningUnitTests) {
+    if KeyboardCowboyApp.isRunningTests {
       return AppPreferences.unitTests()
     }
 
