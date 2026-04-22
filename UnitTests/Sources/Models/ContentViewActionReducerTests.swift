@@ -295,6 +295,30 @@ final class ContentViewActionReducerTests: XCTestCase {
     XCTAssertNil(WindowFocus.pendingFocusWindowId)
   }
 
+  func testKeyboardCowboyAppDetectsUnitTests() {
+    XCTAssertTrue(KeyboardCowboyApp.isRunningTests)
+  }
+
+  func testAppPreferencesUsesUnitTestConfigurationLocation() {
+    XCTAssertEqual(AppPreferences.config.configLocation, .unitTests)
+  }
+
+  func testAppStorageContainerUsesDedicatedUnitTestDefaultsSuite() {
+    let key = UUID().uuidString
+    let value = UUID().uuidString
+
+    AppStorageContainer.store.removeObject(forKey: key)
+    UserDefaults.standard.removeObject(forKey: key)
+
+    AppStorageContainer.store.set(value, forKey: key)
+
+    XCTAssertEqual(AppStorageContainer.store.string(forKey: key), value)
+    XCTAssertNil(UserDefaults.standard.string(forKey: key))
+
+    AppStorageContainer.store.removeObject(forKey: key)
+    UserDefaults.standard.removeObject(forKey: key)
+  }
+
   // MARK: Private methods
 
   private func subject(_ id: String) -> (original: WorkflowGroup, copy: WorkflowGroup) {

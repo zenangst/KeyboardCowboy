@@ -88,7 +88,7 @@ struct AppMenuBarExtras: Scene {
     var body: some View {
       if isRunningPreview {
         Image(systemName: "theatermask.and.paintbrush")
-      } else if launchArguments.isEnabled(.runningUnitTests) {
+      } else if KeyboardCowboyApp.isRunningTests {
         Image(systemName: "testtube.2")
       } else if KeyboardCowboyApp.env() == .production {
         Image(systemName: "command")
