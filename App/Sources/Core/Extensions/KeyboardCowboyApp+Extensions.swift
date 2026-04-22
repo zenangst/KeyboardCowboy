@@ -16,6 +16,12 @@ extension KeyboardCowboyApp {
   static func env() -> AppEnvironment { .production }
   #endif
 
+  static var isRunningTests: Bool {
+    launchArguments.isEnabled(.runningUnitTests) ||
+      ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil ||
+      NSClassFromString("XCTestCase") != nil
+  }
+
   static let mainWindowIdentifier = "MainWindow"
   static let permissionsSettingsWindowIdentifier = "PermissionsSettingsWindow"
   static let emptyConfigurationWindowIdentifier = "EmptyConfigurationWindow"

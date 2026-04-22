@@ -47,7 +47,7 @@ final class ContentStore: ObservableObject {
     self.recorderStore = recorderStore
 
     guard KeyboardCowboyApp.env() != .previews else { return }
-    guard !launchArguments.isEnabled(.runningUnitTests) else { return }
+    guard !KeyboardCowboyApp.isRunningTests else { return }
 
     UserSpace.shared.subscribe(to: configurationStore.$selectedConfiguration)
 

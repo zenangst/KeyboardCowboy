@@ -76,7 +76,7 @@ final class KeyboardCowboyEngine {
   }
 
   func setupMachPortAndSubscriptions(_ workspace: NSWorkspace) {
-    guard !launchArguments.isEnabled(.runningUnitTests) else { return }
+    guard !KeyboardCowboyApp.isRunningTests else { return }
 
     do {
       let keyboardEvents: CGEventMask = (1 << CGEventType.keyDown.rawValue)
