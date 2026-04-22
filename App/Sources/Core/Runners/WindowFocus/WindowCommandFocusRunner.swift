@@ -34,6 +34,7 @@ final class WindowCommandFocusRunner {
       .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
       .sink { [weak self] _ in
         self?.resetFocusComponents()
+        WindowFocus.handleActiveSpaceDidChange()
       }
   }
 
