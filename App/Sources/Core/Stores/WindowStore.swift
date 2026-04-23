@@ -76,7 +76,7 @@ final class WindowStore: @unchecked Sendable {
 
   func allApplicationsInSpace(_ models: [WindowModel], onScreen: Bool, sorted: Bool = true) -> [WindowModel] {
     let excluded = ["WindowManager", "Window Server"]
-    let minimumSize = CGSize(width: 32, height: 32)
+    let minimumSize = CGSize(width: 100, height: 100)
     let windowModels: [WindowModel] = models
       .filter {
         $0.ownerName != "borders" &&
