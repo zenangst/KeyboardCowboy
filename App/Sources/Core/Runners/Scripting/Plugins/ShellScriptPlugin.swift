@@ -21,7 +21,7 @@ final class ShellScriptPlugin: @unchecked Sendable {
       for container in containers {
         let process = container.process
         let pipe = container.pipe
-        let errorPipe = container.errorPipe
+        // let errorPipe = container.errorPipe
 
         try process.run()
 
@@ -32,9 +32,9 @@ final class ShellScriptPlugin: @unchecked Sendable {
           let range = NSRange(rawOutput.startIndex..., in: rawOutput)
           let cleanOutput = regex.stringByReplacingMatches(in: rawOutput, options: [], range: range, withTemplate: "")
           output += cleanOutput
-        } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
-          output += String(data: errorPipe, encoding: .utf8) ?? ""
-          throw ShellScriptPluginError.scriptError(output)
+          // } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
+          //   output += String(data: errorPipe, encoding: .utf8) ?? ""
+          //   throw ShellScriptPluginError.scriptError(output)
         } else {
           output += ""
         }
