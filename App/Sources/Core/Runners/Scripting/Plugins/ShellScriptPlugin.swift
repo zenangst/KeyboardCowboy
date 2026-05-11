@@ -15,6 +15,34 @@ final class ShellScriptPlugin: @unchecked Sendable {
   }
 
   func executeScript(_ source: String, environment: [String: String], checkCancellation: Bool) async throws -> String? {
+    let containers = handleSemicolonCommands(source)
+    if !containers.isEmpty {
+      var output: String = ""
+      for container in containers {
+        let process = container.process
+        let pipe = container.pipe
+        let errorPipe = container.errorPipe
+
+        try process.run()
+
+        if let data = try pipe.fileHandleForReading.readToEnd(),
+           let rawOutput = String(data: data, encoding: .utf8) {
+          let ansiEscapePattern = "\u{001B}\\[[0-?]*[ -/]*[@-~]"
+          let regex = try NSRegularExpression(pattern: ansiEscapePattern, options: [])
+          let range = NSRange(rawOutput.startIndex..., in: rawOutput)
+          let cleanOutput = regex.stringByReplacingMatches(in: rawOutput, options: [], range: range, withTemplate: "")
+          output += cleanOutput
+        } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
+          output += String(data: errorPipe, encoding: .utf8) ?? ""
+          throw ShellScriptPluginError.scriptError(output)
+        } else {
+          output += ""
+        }
+        process.waitUntilExit()
+      }
+      return output
+    }
+
     let url = try createTmpDirectory()
     let data = source.data(using: .utf8)
     _ = fileManager.createFile(atPath: url.path, contents: data, attributes: nil)
@@ -88,6 +116,31 @@ final class ShellScriptPlugin: @unchecked Sendable {
 
   // MARK: Private methods
 
+  private func handleSemicolonCommands(_ source: String) -> [ProcessContainer] {
+    source.split(separator: ";")
+      .map(String.init)
+      .compactMap(createProcessWithoutShell)
+  }
+
+  private func createProcessWithoutShell(_ source: String) -> ProcessContainer? {
+    let splits = source.split(separator: " ")
+    if splits.count > 1, let path = splits.first,
+       fileManager.fileExists(atPath: String(path)) {
+      let arguments = splits.suffix(splits.count - 1).map(String.init)
+      let shell = String(path)
+      let (process, pipe, errorPipe) = createProcess(shell: shell)
+      process.arguments = arguments
+
+      var environment = ProcessInfo.processInfo.environment
+      environment["TERM"] = "xterm-256color"
+      environment["PATH"] = "/usr/local/bin:/opt/homebrew/bin:" + (environment["PATH"] ?? "")
+      process.environment = environment
+      return ProcessContainer(process: process, pipe: pipe, errorPipe: errorPipe)
+    } else {
+      return nil
+    }
+  }
+
   private func createTmpDirectory() throws -> URL {
     let tmpName = UUID().uuidString
     let tmpDirectory = NSTemporaryDirectory()
@@ -112,4 +165,10 @@ final class ShellScriptPlugin: @unchecked Sendable {
 
     return (process, outputPipe, errorPipe)
   }
+}
+
+private struct ProcessContainer {
+  let process: Process
+  let pipe: Pipe
+  let errorPipe: Pipe
 }
