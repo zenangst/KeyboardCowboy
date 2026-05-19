@@ -124,7 +124,7 @@ final class ShellScriptPlugin: @unchecked Sendable {
 
   private func createProcessWithoutShell(_ source: String) -> ProcessContainer? {
     let splits = source.split(separator: " ")
-    if splits.count > 1, let path = splits.first,
+    if splits.count > 0, let path = splits.first,
        fileManager.fileExists(atPath: String(path)) {
       let arguments = splits.suffix(splits.count - 1).map(String.init)
       let shell = String(path)

@@ -1,3 +1,3 @@
-import Foundation
+import CowboyCore
 
 public enum JXA {}
