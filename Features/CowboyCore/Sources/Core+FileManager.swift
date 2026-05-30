@@ -15,19 +15,21 @@ public extension Core {
     public struct Mock: Sendable {
       var contentsAtPath: Data?
       var createDirectoryAtUrl: ThrowingURL
-      var createFile: Bool = false
-      var fileExistsAtPath: Bool = false
+      var createFile: Bool
+      var fileExistsAtPath: Bool
       var removeItem: ThrowingFunction?
 
       public init(
         contentsAtPath: Data? = nil,
         createDirectoryAtUrl: @escaping ThrowingURL = { URL(filePath: "/tmp") },
         createFile: Bool = false,
+        fileExistsAtPath: Bool = false,
         removeItem: ThrowingFunction? = nil,
       ) {
         self.contentsAtPath = contentsAtPath
         self.createDirectoryAtUrl = createDirectoryAtUrl
         self.createFile = createFile
+        self.fileExistsAtPath = fileExistsAtPath
         self.removeItem = removeItem
       }
     }
