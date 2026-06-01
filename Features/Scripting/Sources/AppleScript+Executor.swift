@@ -3,17 +3,18 @@ import CowboyCore
 import System
 
 extension AppleScript {
-  final class Executor { let cache: Cache
+  final class Executor {
+    let cache: Cache
     let env: Core.Environment
 
     init(_ env: Core.Environment) {
-      self.cache = Cache(env)
+      self.cache = Cache()
       self.env = env
     }
 
-    func execute(_ filePath: FilePath, key: String) throws -> String? {
-      if let cached = cache.get(for: key) {
-        return try cached.executeAndReturnError(nil).stringValue
+    func execute(_ filePath: FilePath, key: String) throws -> (appleScript: Core.NSAppleScript, output: String?) {
+      if let appleScript = cache.get(for: key) {
+        return (appleScript, try appleScript.executeAndReturnError(nil).stringValue)
       }
 
       var errorDictionary: NSDictionary?
@@ -24,22 +25,23 @@ extension AppleScript {
 
       cache.set(appleScript, for: key)
 
-      return descriptor.stringValue
+      return (appleScript, descriptor.stringValue)
     }
 
-    func execute(_ source: String, key: String) throws -> String? {
-      if let cached = cache.get(for: key) {
-        return try cached.executeAndReturnError(nil).stringValue
+    func execute(_ source: String, key: String) throws -> (appleScript: Core.NSAppleScript, output: String?) {
+      if let appleScript = cache.get(for: key) {
+        return (appleScript, try appleScript.executeAndReturnError(nil).stringValue)
       }
 
       var errorDictionary: NSDictionary?
 
       let appleScript = try Core.NSAppleScript(env, source: source)
+      try appleScript.compileAndReturnError(&errorDictionary)
       let descriptor = try appleScript.executeAndReturnError(&errorDictionary)
 
       cache.set(appleScript, for: key)
 
-      return descriptor.stringValue
+      return (appleScript, descriptor.stringValue)
     }
   }
 }

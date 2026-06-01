@@ -8,7 +8,6 @@ extension Core {
       case unableToResolveAppleScript(path: String)
       case unableToCompile
       case unableToExecute(Swift.Error)
-      case unableToCreateError
     }
 
     let mode: Mode
@@ -78,17 +77,16 @@ extension Core {
         NSAppleEventDescriptor(.testing)
       }
 
-      if let errorInfo {
+      if let errorInfo = errorInfo?.pointee {
         throw Error.unableToExecute(try createError(from: errorInfo))
       }
 
       return descriptor
     }
 
-    private func createError(from dictionary: AutoreleasingUnsafeMutablePointer<NSDictionary?>?) throws -> NSError {
-      guard let dictionary = dictionary?.pointee else { throw Error.unableToCreateError }
-
+    private func createError(from dictionary: NSDictionary) throws -> NSError {
       let code = dictionary[Cocoa.NSAppleScript.errorNumber] as? Int ?? 0
+
       let errorMessage = dictionary[Cocoa.NSAppleScript.errorMessage] as? String ?? "Missing error message"
       let descriptionMessage = dictionary[Cocoa.NSAppleScript.errorBriefMessage] ?? "Missing description"
       let errorDomain = "com.zenangst.KeyboardCowboy.AppleScriptPlugin"

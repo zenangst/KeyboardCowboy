@@ -3,27 +3,12 @@ import CowboyCore
 
 extension AppleScript {
   final class Cache {
-    private let env: Core.Environment
     private var storage = [String: Core.NSAppleScript]()
 
-    public enum Testing {
-      @TaskLocal public static var mock: Mock = Mock()
-    }
-
-    public struct Mock: Sendable {
-      var clear: @Sendable () -> Void = {}
-      var entryForKey: Core.NSAppleScript?
-    }
-
-    init(_ env: Core.Environment) {
-      self.env = env
-    }
+    init() {}
 
     func appleScript(for key: String) -> Core.NSAppleScript? {
-      switch env {
-      case .production: storage[key]
-      case .testing: Testing.mock.entryForKey
-      }
+      storage[key]
     }
 
     func get(for key: String) -> Core.NSAppleScript? {
@@ -35,10 +20,7 @@ extension AppleScript {
     }
 
     func clear() {
-      switch env {
-      case .production: storage.removeAll()
-      case .testing: Testing.mock.clear()
-      }
+      storage.removeAll()
     }
   }
 }
