@@ -56,7 +56,7 @@ final class TestResults: @unchecked Sendable {
   let script = try builder.build(source)
   let executor = ShellScript.Executor(.testing)
   let results = TestResults()
-  let data = "A,B,C".data(using: .utf8)
+  let data = Data("A,B,C".utf8)
   var output: String?
 
   try Core.FileManager.Testing.$mock.withValue(

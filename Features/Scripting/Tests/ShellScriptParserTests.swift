@@ -16,6 +16,11 @@ import Testing
   }
 
   do {
+    let source = "~/bin/yabai"
+    #expect(parser.parse(source) == [.headless("/Users/\(ProcessInfo.processInfo.userName)/bin/yabai")])
+  }
+
+  do {
     let source = "ls -la; /opt/homebrew/bin/yabai"
     #expect(parser.parse(source) == [
       .shell("ls -la"),

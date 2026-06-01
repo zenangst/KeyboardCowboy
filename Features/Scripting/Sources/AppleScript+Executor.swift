@@ -19,7 +19,7 @@ extension AppleScript {
 
       var errorDictionary: NSDictionary?
 
-      let appleScript = try Core.NSAppleScript(env, contentsOf: URL(filePath: filePath.string), error: &errorDictionary)
+      let appleScript = try Core.NSAppleScript(env, contentsOf: URL(filePath: filePath.path), error: &errorDictionary)
       try appleScript.compileAndReturnError(&errorDictionary)
       let descriptor = try appleScript.executeAndReturnError(&errorDictionary)
 

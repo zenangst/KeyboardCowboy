@@ -12,7 +12,7 @@ extension JXA {
     }
 
     func execute(_ filePath: FilePath) throws -> (String?, [Process]) {
-      let path = filePath.string
+      let path = filePath.path
 
       guard fileManager.fileExists(atPath: path) else {
         throw JXA.Error.unableToFindFile(filePath)

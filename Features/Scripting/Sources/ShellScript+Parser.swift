@@ -27,7 +27,8 @@ extension ShellScript {
         source
           .split(separator: ";")
           .map {
-            let string = String($0).trimmingCharacters(in: .whitespaces)
+            let string = (String($0).trimmingCharacters(in: .whitespaces) as NSString)
+              .expandingTildeInPath
             return string.hasPrefix("/")
               ? .headless(string)
               : .shell(string)
