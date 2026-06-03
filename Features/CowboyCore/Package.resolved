@@ -1,6 +1,15 @@
 {
-  "originHash" : "1999ea17ed939fd64bcb1e57909e3448c564578b82868e760a27fdb0be4cff9f",
+  "originHash" : "f173a1299712712e1b3c65305f5fd0d6ea2fe1a9f5b4ac3ce5c1135845fd670a",
   "pins" : [
+    {
+      "identity" : "apps",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:zenangst/Apps.git",
+      "state" : {
+        "revision" : "006bc3b3b0ade00e4560c490df5f87df30ecad43",
+        "version" : "1.4.3"
+      }
+    },
     {
       "identity" : "hotswiftui",
       "kind" : "remoteSourceControl",

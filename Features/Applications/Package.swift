@@ -1,4 +1,5 @@
 // swift-tools-version: 6.3
+
 import Foundation
 import PackageDescription
 
@@ -8,31 +9,31 @@ var linkerSettings: [LinkerSetting] {
 }
 
 let package = Package(
-  name: "CowboyCore",
+  name: "ApplicationsFeature",
   platforms: [.macOS(.v14)],
   products: [
     .library(
-      name: "CowboyCore",
-      targets: ["CowboyCore"],
+      name: "ApplicationsFeature",
+      targets: ["ApplicationsFeature"],
     ),
   ],
   dependencies: [
+    .package(path: "../CowboyCore"),
     .package(url: "git@github.com:johnno1962/HotSwiftUI.git", exact: "1.2.4"),
-    .package(url: "git@github.com:zenangst/Apps.git", exact: "1.4.3"),
   ],
   targets: [
     .target(
-      name: "CowboyCore",
+      name: "ApplicationsFeature",
       dependencies: [
+        .product(name: "CowboyCore", package: "CowboyCore"),
         .product(name: "HotSwiftUI", package: "HotSwiftUI"),
-        .product(name: "Apps", package: "Apps"),
       ],
       path: "Sources",
       linkerSettings: linkerSettings,
     ),
     .testTarget(
-      name: "CowboyCoreTests",
-      dependencies: ["CowboyCore"],
+      name: "ApplicationsFeatureTests",
+      dependencies: ["CowboyCore", "ApplicationsFeature"],
       path: "Tests",
     ),
   ],

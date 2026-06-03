@@ -1,5 +1,5 @@
 public extension Core {
-  enum Environment {
+  enum Environment: Sendable {
     case production, testing
   }
 }
