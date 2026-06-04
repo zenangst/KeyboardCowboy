@@ -28,3 +28,4 @@ Tuist/Package.resolved
 Tuist/.build
 Packages/*/.build
 Features/*/.build
+Features/v4/.swiftpm/xcode/xcshareddata/xcschemes/AppBundle.xcscheme
