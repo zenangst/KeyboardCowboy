@@ -5,7 +5,7 @@ public extension Core {
   final class RunningApplication: Sendable {
     public enum Mode: Sendable {
       case production(NSRunningApplication)
-      case testing
+      case testing(BundleIdentifier?)
     }
 
     let mode: Mode
@@ -58,7 +58,7 @@ public extension Core {
       switch mode {
       case .production(let application):
         application.bundleIdentifier.map(BundleIdentifier.init)
-      case .testing: Testing.mock.bundleIdentifier
+      case .testing(let bundleIdentifier): bundleIdentifier ?? Testing.mock.bundleIdentifier
       }
     }
 

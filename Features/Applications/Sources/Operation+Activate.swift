@@ -13,18 +13,20 @@ extension Operation {
       self.workspace = Core.Workspace(env)
     }
 
-    func callAsFunction(_ bundleIdentifier: BundleIdentifier) {
-      guard let runningApplication = RunningApplication.runningApplication(
-        with: bundleIdentifier, env: env) else {
-        return
+    @discardableResult
+    func callAsFunction(_ bundleIdentifier: BundleIdentifier) -> Bool {
+      guard let frontmostApplication = workspace.frontmostApplication,
+            let runningApplication = RunningApplication.runningApplication(
+              with: bundleIdentifier, env: env) else {
+        return false
       }
 
       var options: NSApplication.ActivationOptions = []
-      if runningApplication.bundleIdentifier == workspace.frontmostApplication?.bundleIdentifier {
+      if runningApplication.bundleIdentifier == frontmostApplication.bundleIdentifier {
         options.insert(.activateAllWindows)
       }
 
-      _ = runningApplication.activate(from: runningApplication, options: options)
+      return runningApplication.activate(from: frontmostApplication, options: options)
     }
   }
 }

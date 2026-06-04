@@ -13,9 +13,9 @@ public final class UserSpace {
 
     init(apps: Snapshot.Apps = Snapshot.Apps(
       frontMost: Application(bundleIdentifier: .init(""),
-                             runningApplication: .init(.testing)),
+                             runningApplication: .init(.testing(nil))),
       previous: Application(bundleIdentifier: .init(""),
-                            runningApplication: .init(.testing)),
+                            runningApplication: .init(.testing(nil))),
     ),
     ) {
       self.apps = apps
@@ -30,8 +30,8 @@ public final class UserSpace {
     Snapshot(
       apps: Snapshot.Apps(
         frontMost: Application(bundleIdentifier: .init(""),
-                               runningApplication: .init(.testing)),
+                               runningApplication: .init(.testing(nil))),
         previous: Application(bundleIdentifier: .init(""),
-                              runningApplication: .init(.testing))))
+                              runningApplication: .init(.testing(nil)))))
   }
 }

@@ -37,7 +37,7 @@ public extension Application {
       switch command.action {
       case .open: try await open(command)
       case .close: try await operation.close(bundleIdentifier)
-      case .hide: try await operation.hide(bundleIdentifier, snapshot: snapshot)
+      case .hide: await operation.hide(bundleIdentifier, snapshot: snapshot)
       case .unhide: break
       case .peek: break
       }

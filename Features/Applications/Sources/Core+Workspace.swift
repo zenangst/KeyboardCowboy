@@ -14,7 +14,8 @@ extension Core {
       var frontmostApplication: RunningApplication?
       var openApplication: RunningApplication
 
-      init(frontmostApplication: RunningApplication? = nil, openApplication: RunningApplication = RunningApplication(.testing)) {
+      init(frontmostApplication: RunningApplication? = nil,
+           openApplication: RunningApplication = RunningApplication(.testing(nil))) {
         self.frontmostApplication = frontmostApplication
         self.openApplication = openApplication
       }
