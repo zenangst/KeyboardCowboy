@@ -4,7 +4,7 @@ import SwiftUI
 struct CornerRadius: DynamicProperty {
   @Environment(\.brand) private var brand
 
-  public init() {}
+  init() {}
 
-  public var wrappedValue: CornerRadiusSpec { brand.cornerRadius }
+  var wrappedValue: CornerRadiusSpec { brand.cornerRadius }
 }
