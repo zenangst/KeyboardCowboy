@@ -80,7 +80,7 @@ struct LazyHStack<Content>: View where Content: View {
   }
 
   var body: some View {
-    let resolvedSpacing = spacingOverride ?? spacingKeyPath.map { spacing[keyPath: $0] } ?? spacing.medium
+    let resolvedSpacing = spacingOverride ?? spacingKeyPath.map { spacing[keyPath: $0] } ?? spacing.small
 
     SwiftUI.LazyHStack(
       alignment: alignment,

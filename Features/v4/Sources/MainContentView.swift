@@ -6,22 +6,25 @@ struct MainContentView: View {
 
   var body: some View {
     VStack {
-      Image(systemName: "keyboard")
-        .font(.system(size: 40))
-      VStack {
-        VStack {
+      HStack {
+        Image(systemName: "keyboard")
+          .font(.system(size: 40))
+        VStack(spacing: \.small) {
           Text("Keyboard Cowboy v4")
             .font(.title2)
           Text("Launched from the Swift Package executable.")
             .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .surface(.regularMaterial)
       }
-      .surface(.thinMaterial)
+
+      Divider()
 
       ButtonsScreen()
         .surface(.regularMaterial)
     }
+    .surface(.regularMaterial)
+    .frame(maxWidth: 400)
     .enableInjection()
   }
 }

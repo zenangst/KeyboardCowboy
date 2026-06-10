@@ -5,7 +5,7 @@ struct ButtonsScreen: View {
   @ObserveInjection private var inject
 
   var body: some View {
-    VStack {
+    HStack {
       Button(action: {}, label: {
         Text("Hello")
       })
