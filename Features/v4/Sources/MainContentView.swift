@@ -5,15 +5,23 @@ struct MainContentView: View {
   @ObserveInjection private var inject
 
   var body: some View {
-    VStack(spacing: 12) {
+    VStack {
       Image(systemName: "keyboard")
         .font(.system(size: 40))
-      Text("Keyboard Cowboy v4")
-        .font(.title2)
-      Text("Launched from the Swift Package executable.")
-        .foregroundStyle(.secondary)
+      VStack {
+        VStack {
+          Text("Keyboard Cowboy v4")
+            .font(.title2)
+          Text("Launched from the Swift Package executable.")
+            .foregroundStyle(.secondary)
+        }
+        .surface(.regularMaterial)
+      }
+      .surface(.thinMaterial)
+
+      ButtonsScreen()
+        .surface(.regularMaterial)
     }
-    .padding(32)
     .enableInjection()
   }
 }
