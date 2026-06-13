@@ -1,7 +1,7 @@
 import Cocoa
 import CowboyCore
 
-extension Core {
+public extension Core {
   final class NSAppleScript: Sendable {
     enum Error: Swift.Error {
       case unableToCreateAppleScript(source: String)
@@ -25,7 +25,7 @@ extension Core {
       case testing
     }
 
-    init(_ env: Environment, source: String) throws {
+    public init(_ env: Environment, source: String) throws {
       switch env {
       case .production:
         guard let appleScript = Cocoa.NSAppleScript(source: source) else {
@@ -38,7 +38,7 @@ extension Core {
       }
     }
 
-    init(
+    public init(
       _ env: Environment,
       contentsOf url: URL,
       error errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?,
@@ -55,7 +55,7 @@ extension Core {
       }
     }
 
-    func compileAndReturnError(_ errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?) throws {
+    public func compileAndReturnError(_ errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?) throws {
       switch mode {
       case .production(let appleScript):
         if !appleScript.compileAndReturnError(errorInfo) {
@@ -68,7 +68,7 @@ extension Core {
       }
     }
 
-    func executeAndReturnError(_ errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?)
+    public func executeAndReturnError(_ errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?)
       throws -> Core.NSAppleEventDescriptor {
       let descriptor = switch mode {
       case .production(let appleScript):

@@ -1,4 +1,4 @@
-import CowboyCore
+@testable import CowboyCore
 @testable import ScriptingFeature
 import System
 import Testing

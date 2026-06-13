@@ -50,23 +50,23 @@ import Testing
   let parser = ShellScript.Parser()
 
   do {
-    let result = ShellScript.Parser.Result.headless("/opt/homebrew/bin/yabai -m window --toggle split")
-    #expect(parser.parse([result]) == [
+    let launchStyle = Core.Process.LaunchStyle.headless("/opt/homebrew/bin/yabai -m window --toggle split")
+    #expect(parser.parse([launchStyle]) == [
       ShellScript.Parser.ProcessComponents(
         arguments: ["-m", "window", "--toggle", "split"],
         executableURL: URL(filePath: "/opt/homebrew/bin/yabai"),
-        result: result,
+        launchStyle: launchStyle,
       ),
     ])
   }
 
   do {
-    let result = ShellScript.Parser.Result.shell("yabai -m window --toggle split")
-    #expect(parser.parse([result]) == [
+    let launchStyle = Core.Process.LaunchStyle.shell("yabai -m window --toggle split")
+    #expect(parser.parse([launchStyle]) == [
       ShellScript.Parser.ProcessComponents(
         arguments: ["-m", "window", "--toggle", "split"],
         executableURL: URL(filePath: "yabai"),
-        result: result,
+        launchStyle: launchStyle,
       ),
     ])
   }

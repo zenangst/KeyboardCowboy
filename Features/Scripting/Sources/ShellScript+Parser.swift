@@ -1,26 +1,27 @@
+import CowboyCore
 import Foundation
 
 extension ShellScript {
   final class Parser {
-    enum Result: Equatable {
-      case shell(String)
-      case headless(String)
+    // enum Result: Equatable {
+    //   case shell(String)
+    //   case headless(String)
 
-      var source: String {
-        switch self {
-        case .shell(let string): string
-        case .headless(let string): string
-        }
-      }
-    }
+    //   var source: String {
+    //     switch self {
+    //     case .shell(let string): string
+    //     case .headless(let string): string
+    //     }
+    //   }
+    // }
 
     struct ProcessComponents: Equatable {
       let arguments: [String]
       let executableURL: URL
-      let result: Result
+      let launchStyle: Core.Process.LaunchStyle
     }
 
-    func parse(_ source: String) -> [Result] {
+    func parse(_ source: String) -> [Core.Process.LaunchStyle] {
       if source.hasPrefix("#!") {
         [.shell(source)]
       } else {
@@ -36,9 +37,9 @@ extension ShellScript {
       }
     }
 
-    func parse(_ results: [Result]) -> [ProcessComponents] {
-      results.compactMap { result in
-        let strings = result.source
+    func parse(_ launchStyles: [Core.Process.LaunchStyle]) -> [ProcessComponents] {
+      launchStyles.compactMap { launchStyle in
+        let strings = launchStyle.source
           .split(separator: " ")
           .map(String.init)
 
@@ -53,7 +54,7 @@ extension ShellScript {
         return ProcessComponents(
           arguments: arguments,
           executableURL: URL(fileURLWithPath: sanitizedPath),
-          result: result,
+          launchStyle: launchStyle,
         )
       }
     }

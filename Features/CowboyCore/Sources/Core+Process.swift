@@ -1,10 +1,22 @@
 import CowboyCore
 import Foundation
 
-extension Core {
+public extension Core {
   final class Process {
     public typealias ThrowingFunction = (@Sendable () throws -> Void)
     public typealias Function = (@Sendable () -> Void)
+
+    public enum LaunchStyle: Equatable {
+      case shell(String)
+      case headless(String)
+
+      public var source: String {
+        switch self {
+        case .shell(let string): string
+        case .headless(let string): string
+        }
+      }
+    }
 
     final class Storage {
       var arguments: [String]?
@@ -27,15 +39,10 @@ extension Core {
       case testing(Storage)
     }
 
-    enum Kind {
-      case headless
-      case shell
-    }
-
     let mode: Mode
-    let kind: Kind
+    public let launchStyle: LaunchStyle
 
-    var arguments: [String]? {
+    public var arguments: [String]? {
       get {
         switch mode {
         case .production(let process): process.arguments
@@ -50,7 +57,7 @@ extension Core {
       }
     }
 
-    var currentDirectoryURL: URL? {
+    public var currentDirectoryURL: URL? {
       get {
         switch mode {
         case .production(let process): process.currentDirectoryURL
@@ -65,7 +72,7 @@ extension Core {
       }
     }
 
-    var executableURL: URL? {
+    public var executableURL: URL? {
       get {
         switch mode {
         case .production(let process): process.executableURL
@@ -80,7 +87,7 @@ extension Core {
       }
     }
 
-    var environment: [String: String]? {
+    public var environment: [String: String]? {
       get {
         switch mode {
         case .production(let process): process.environment
@@ -95,7 +102,7 @@ extension Core {
       }
     }
 
-    var standardError: Core.Pipe? {
+    public var standardError: Core.Pipe? {
       didSet {
         guard case .production(let process) = mode else {
           return
@@ -110,7 +117,7 @@ extension Core {
       }
     }
 
-    var standardOutput: Core.Pipe? {
+    public var standardOutput: Core.Pipe? {
       didSet {
         guard case .production(let process) = mode else { return }
 
@@ -123,17 +130,11 @@ extension Core {
       }
     }
 
-    var source: String
+    public let source: String
 
-    init(_ env: Environment, result: ShellScript.Parser.Result) {
-      switch result {
-      case .headless(let source):
-        self.source = source
-        self.kind = .headless
-      case .shell(let source):
-        self.source = source
-        self.kind = .shell
-      }
+    public init(_ env: Environment, launchStyle: LaunchStyle) {
+      self.source = launchStyle.source
+      self.launchStyle = launchStyle
 
       self.mode = switch env {
       case .production: .production(Foundation.Process())
@@ -141,7 +142,7 @@ extension Core {
       }
     }
 
-    func run() throws {
+    public func run() throws {
       switch mode {
       case .production(let process):
         try process.run()
@@ -150,7 +151,7 @@ extension Core {
       }
     }
 
-    func waitUntilExit() {
+    public func waitUntilExit() {
       switch mode {
       case .production(let process):
         process.waitUntilExit()

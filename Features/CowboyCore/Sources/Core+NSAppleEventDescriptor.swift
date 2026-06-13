@@ -1,7 +1,7 @@
 import Cocoa
 import CowboyCore
 
-extension Core {
+public extension Core {
   final class NSAppleEventDescriptor {
     let mode: Mode
 
@@ -13,19 +13,19 @@ extension Core {
       var stringValue: String?
     }
 
-    var stringValue: String? {
+    public var stringValue: String? {
       switch mode {
       case .production(let eventDescriptor): eventDescriptor.stringValue
       case .testing: Testing.mock.stringValue
       }
     }
 
-    enum Mode {
+    public enum Mode {
       case production(Cocoa.NSAppleEventDescriptor)
       case testing
     }
 
-    init(_ mode: Mode) {
+    public init(_ mode: Mode) {
       self.mode = mode
     }
   }

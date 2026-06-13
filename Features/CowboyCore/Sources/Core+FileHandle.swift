@@ -1,7 +1,7 @@
 import CowboyCore
 import Foundation
 
-extension Core {
+public extension Core {
   final class FileHandle {
     public enum Testing {
       @TaskLocal public static var mock: Mock = Mock()
@@ -23,7 +23,7 @@ extension Core {
       self.mode = mode
     }
 
-    func readToEnd() throws -> Data? {
+    public func readToEnd() throws -> Data? {
       return switch mode {
       case .production(let fileHandle):
         try fileHandle.readToEnd()

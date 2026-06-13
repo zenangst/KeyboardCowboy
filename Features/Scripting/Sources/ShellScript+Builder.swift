@@ -17,7 +17,7 @@ public extension ShellScript {
       let results = parser.parse(source)
       let components = parser.parse(results)
       let output = try components.map { component in
-        return switch component.result {
+        return switch component.launchStyle {
         case .headless: buildHeadless(component)
         case .shell: try buildShell(component)
         }
@@ -29,7 +29,7 @@ public extension ShellScript {
     // MARK: Private methods
 
     private func buildHeadless(_ component: ProcessComponent) -> Core.Process {
-      let process = Process(env, result: component.result)
+      let process = Process(env, launchStyle: component.launchStyle)
 
       setEnvironment(on: process)
 
@@ -40,7 +40,7 @@ public extension ShellScript {
     }
 
     private func buildShell(_ component: ProcessComponent) throws -> Process {
-      let process = Process(env, result: component.result)
+      let process = Process(env, launchStyle: component.launchStyle)
 
       setEnvironment(on: process)
 

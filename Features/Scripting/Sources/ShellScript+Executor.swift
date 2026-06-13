@@ -27,7 +27,7 @@ extension ShellScript {
     func execute(_ process: Process) throws -> String? {
       let output: String?
 
-      switch process.kind {
+      switch process.launchStyle {
       case .headless:
         output = try run(process)
       case .shell:

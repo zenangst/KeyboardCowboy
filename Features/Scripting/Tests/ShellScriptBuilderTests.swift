@@ -1,4 +1,4 @@
-import CowboyCore
+@testable import CowboyCore
 import Foundation
 @testable import ScriptingFeature
 import Testing

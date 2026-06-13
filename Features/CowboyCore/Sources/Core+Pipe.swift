@@ -1,7 +1,7 @@
 import CowboyCore
 import Foundation
 
-extension Core {
+public extension Core {
   final class Pipe {
     typealias Production = Foundation.Pipe
 
@@ -11,9 +11,9 @@ extension Core {
     }
 
     let mode: Mode
-    let fileHandleForReading: Core.FileHandle
+    public let fileHandleForReading: Core.FileHandle
 
-    init(_ env: Environment) {
+    public init(_ env: Environment) {
       switch env {
       case .production:
         let pipe = Production()
