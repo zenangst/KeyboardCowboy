@@ -74,6 +74,8 @@ public extension Application {
 
       if isFrontMostApplication {
         operation.activate(bundleIdentifier)
+      } else {
+        try await operation.launch(at: command.application.path, with: command.modifiers)
       }
     }
 
