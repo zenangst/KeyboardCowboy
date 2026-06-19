@@ -10,15 +10,16 @@ extension Operation {
       self.workspace = Core.Workspace(env)
     }
 
-    func callAsFunction(_ bundleIdentifier: BundleIdentifier, snapshot: UserSpace.Snapshot) async {
+    @discardableResult
+    func callAsFunction(_ bundleIdentifier: BundleIdentifier, snapshot: UserSpace.Snapshot) async -> Bool {
       if bundleIdentifier == BundleIdentifier.WildCard.previous,
          await !snapshot.apps.previous.runningApplication.isHidden {
         await snapshot.apps.previous.runningApplication.hide()
-        return
+        return false
       }
 
       guard let application = Core.RunningApplication.runningApplication(with: bundleIdentifier, env: env) else {
-        return
+        return false
       }
 
       if let frontmostApplication = workspace.frontmostApplication,
@@ -31,7 +32,7 @@ extension Operation {
           )
       }
 
-      _ = application.hide()
+      return application.hide()
     }
   }
 }
