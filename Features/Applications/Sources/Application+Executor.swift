@@ -7,6 +7,7 @@ public extension Application {
       let close: Operation.Close
       let hide: Operation.Hide
       let launch: Operation.Launch
+      let unhide: Operation.Unhide
       let wait: Operation.Wait
     }
 
@@ -21,6 +22,7 @@ public extension Application {
         close: Operation.Close(env),
         hide: Operation.Hide(env),
         launch: Operation.Launch(env),
+        unhide: Operation.Unhide(env),
         wait: Operation.Wait(env),
       )
       self.workspace = Core.Workspace(env)
@@ -38,7 +40,7 @@ public extension Application {
       case .open: try await open(command)
       case .close: try await operation.close(bundleIdentifier)
       case .hide: await operation.hide(bundleIdentifier, snapshot: snapshot)
-      case .unhide: break
+      case .unhide: await operation.unhide(bundleIdentifier, snapshot: snapshot)
       case .peek: break
       }
     }

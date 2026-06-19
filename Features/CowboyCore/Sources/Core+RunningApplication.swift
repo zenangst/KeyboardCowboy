@@ -28,6 +28,7 @@ public extension Core {
       var isHidden: Bool
       var runningApplications: [RunningApplication]
       var terminate: Bool
+      var unhide: Bool
 
       init(
         activate: @Sendable @escaping (
@@ -42,6 +43,7 @@ public extension Core {
         isFinishedLaunching: Bool = false,
         isHidden: Bool = false,
         runningApplications: [RunningApplication] = [],
+        unhide: Bool = false,
         terminate: Bool = false) {
         self.activate = activate
         self.activateFrom = activateFrom
@@ -51,6 +53,7 @@ public extension Core {
         self.isHidden = isHidden
         self.runningApplications = runningApplications
         self.terminate = terminate
+        self.unhide = unhide
       }
     }
 
@@ -117,6 +120,14 @@ public extension Core {
       switch mode {
       case .production(let application): application.terminate()
       case .testing: Testing.mock.terminate
+      }
+    }
+
+    @discardableResult
+    public func unhide() -> Bool {
+      switch mode {
+      case .production(let application): application.unhide()
+      case .testing: Testing.mock.unhide
       }
     }
 
