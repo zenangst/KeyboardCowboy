@@ -1,5 +1,4 @@
 import Cocoa
-import CowboyCore
 
 public extension Core {
   final class NSAppleScript: Sendable {

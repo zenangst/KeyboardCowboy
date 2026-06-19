@@ -1,3 +1,4 @@
+import CoreGraphics
 import CowboyCore
 
 public extension Application {
@@ -11,8 +12,8 @@ public extension Application {
       let wait: Operation.Wait
     }
 
-    private let operation: Operations
     private let env: Core.Environment
+    private let operation: Operations
     private let workspace: Core.Workspace
 
     init(_ env: Core.Environment) {
@@ -29,6 +30,7 @@ public extension Application {
     }
 
     func execute(_ command: Command.Application,
+                 cgEventType: CGEventType?,
                  snapshot: UserSpace.Snapshot) async throws {
       guard !shouldSkipBecauseApplicationIsRunning(for: command) else {
         return
@@ -37,11 +39,24 @@ public extension Application {
       let bundleIdentifier = BundleIdentifier(command.application.bundleIdentifier)
 
       switch command.action {
-      case .open: try await open(command)
-      case .close: try await operation.close(bundleIdentifier)
-      case .hide: await operation.hide(bundleIdentifier, snapshot: snapshot)
-      case .unhide: await operation.unhide(bundleIdentifier, snapshot: snapshot)
-      case .peek: break
+      case .open:
+        try await open(command)
+      case .close:
+        try await operation.close(bundleIdentifier)
+      case .hide:
+        await operation.hide(bundleIdentifier, snapshot: snapshot)
+      case .unhide:
+        await operation.unhide(bundleIdentifier, snapshot: snapshot)
+      case .peek:
+        guard let cgEventType else { return }
+
+        switch cgEventType {
+        case .keyUp:
+          await operation.hide(bundleIdentifier, snapshot: snapshot)
+        case .keyDown:
+          try await open(command)
+        default: break
+        }
       }
     }
 

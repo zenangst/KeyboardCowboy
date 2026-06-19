@@ -90,7 +90,6 @@ public extension Core {
         app.activate(options: options)
       case .testing:
         Testing.mock.activate(options)
-      default: false
       }
     }
 

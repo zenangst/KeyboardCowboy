@@ -1,4 +1,3 @@
-import CowboyCore
 import Foundation
 
 public extension Core {

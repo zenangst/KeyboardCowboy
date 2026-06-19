@@ -1,8 +1,7 @@
-import CowboyCore
 import Foundation
 
 public extension Core {
-  final class FileHandle {
+  struct FileHandle {
     public enum Testing {
       @TaskLocal public static var mock: Mock = Mock()
     }
