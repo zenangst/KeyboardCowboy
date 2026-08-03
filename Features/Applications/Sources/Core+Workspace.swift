@@ -12,10 +12,10 @@ extension Core {
 
     public struct Mock: Sendable {
       var frontmostApplication: RunningApplication?
-      var openApplication: RunningApplication
+      var openApplication: @Sendable (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) -> RunningApplication
 
       init(frontmostApplication: RunningApplication? = nil,
-           openApplication: RunningApplication = RunningApplication(.testing(nil))) {
+           openApplication: @Sendable @escaping (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) -> RunningApplication = { _, _ in RunningApplication(.testing(nil)) }) {
         self.frontmostApplication = frontmostApplication
         self.openApplication = openApplication
       }
@@ -42,7 +42,7 @@ extension Core {
         try await NSWorkspace.shared
           .openApplication(at: applicationURL, configuration: configuration)
           .asRunningApplication()
-      case .testing: Testing.mock.openApplication
+      case .testing: Testing.mock.openApplication(applicationURL, configuration)
       }
     }
   }
