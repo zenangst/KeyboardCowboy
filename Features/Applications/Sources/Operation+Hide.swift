@@ -28,8 +28,7 @@ extension Operation {
           .apps
           .frontMost
           .runningApplication
-          .activate(options: [],
-          )
+          .activate(options: [])
       }
 
       return application.hide()
