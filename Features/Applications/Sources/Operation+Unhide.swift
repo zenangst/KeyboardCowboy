@@ -12,12 +12,6 @@ extension Operation {
 
     @discardableResult
     func callAsFunction(_ bundleIdentifier: BundleIdentifier, snapshot: UserSpace.Snapshot) async -> Bool {
-      if bundleIdentifier == BundleIdentifier.WildCard.previous,
-         await !snapshot.apps.previous.runningApplication.isHidden {
-        await snapshot.apps.previous.runningApplication.hide()
-        return false
-      }
-
       guard let application = Core.RunningApplication.runningApplication(with: bundleIdentifier, env: env) else {
         return false
       }
