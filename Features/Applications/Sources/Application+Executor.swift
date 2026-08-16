@@ -5,6 +5,7 @@ public extension Application {
   final class Executor {
     struct Operations {
       let activate: Operation.Activate
+      let bringToFront: Operation.BringToFront
       let close: Operation.Close
       let hide: Operation.Hide
       let launch: Operation.Launch
@@ -20,6 +21,7 @@ public extension Application {
       self.env = env
       self.operation = Operations(
         activate: Operation.Activate(env),
+        bringToFront: Operation.BringToFront(env),
         close: Operation.Close(env),
         hide: Operation.Hide(env),
         launch: Operation.Launch(env),
@@ -65,7 +67,7 @@ public extension Application {
     private func open(_ command: Command.Application) async throws {
       if command.requiresLaunchAndWait {
         try await operation.launch(at: command.application.path, with: command.modifiers)
-        try await operation.wait(BundleIdentifier(command.application.bundleIdentifier))
+        try await operation.wait(for: BundleIdentifier(command.application.bundleIdentifier))
         return
       }
 
