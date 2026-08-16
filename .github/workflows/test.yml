@@ -35,8 +35,9 @@ jobs:
            ls -la
       - name: Install dependencies
         run: |
-          brew tap tuist/tuist
-          brew install --formula tuist
+          curl https://mise.run | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          ~/.local/bin/mise use --global tuist@$(cat .tuist-version)
       - name: Install & Run tuist
         run: |
           tuist clean
