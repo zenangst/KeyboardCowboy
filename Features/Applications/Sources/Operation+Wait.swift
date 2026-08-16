@@ -1,43 +1,65 @@
 import CowboyCore
+import Foundation
 
 extension Operation {
   final class Wait {
+    enum Result: Hashable {
+      case success
+      case timedOut
+      case skipped
+    }
+
     let env: Core.Environment
     let retries: Int
-    let skippableBundleIdentifiers: Set<BundleIdentifier> = [BundleIdentifier("com.apple.Music")]
+    let pollingInterval: Duration
+    let skippableBundleIdentifiers: Set<BundleIdentifier> =
+      [
+        BundleIdentifier("com.apple.Music"),
+      ]
     let workspace: Core.Workspace
 
-    init(_ env: Core.Environment, retries: Int = 20) {
+    init(_ env: Core.Environment,
+         pollingInterval: Duration = .milliseconds(100),
+         retries: Int = 20,
+    ) {
       self.env = env
+      self.pollingInterval = pollingInterval
       self.retries = retries
       self.workspace = Core.Workspace(env)
     }
 
-    func callAsFunction(_ bundleIdentifier: BundleIdentifier) async throws {
-      guard !skippableBundleIdentifiers.contains(bundleIdentifier) else { return }
+    @discardableResult
+    func callAsFunction(for bundleIdentifier: BundleIdentifier) async throws -> Result {
+      guard !skippableBundleIdentifiers.contains(bundleIdentifier) else {
+        return .skipped
+      }
 
       var waiting = true
       var retries = self.retries
+      var result: Result = .timedOut
 
       while waiting {
+        if retries == 0 {
+          waiting = false
+          break
+        }
+
         guard let application = Core.RunningApplication.runningApplication(with: bundleIdentifier, env: env) else {
           retries -= 1
           continue
         }
 
         if application.isFinishedLaunching {
-          try await Task.sleep(for: .milliseconds(50))
           waiting = false
+          result = .success
           break
         }
 
-        try? await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(for: pollingInterval)
         retries -= 1
-
-        if retries == 0 {
-          waiting = false
-        }
       }
+
+      return result
     }
   }
 }
