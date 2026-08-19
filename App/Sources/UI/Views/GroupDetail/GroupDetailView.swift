@@ -228,6 +228,12 @@ struct GroupDetailView: View {
               proxy.scrollTo(element.id)
             }
           }
+          .gesture(
+            TapGesture(count: 1)
+              .onEnded { _ in
+                focus = .element(element.id)
+              }
+          )
         }
         .dropDestination(for: GroupDetailViewModel.self, action: { collection, destination in
           var indexSet = IndexSet()

@@ -74,6 +74,12 @@ struct CommandListScrollView: View {
                              }
                              return true
                            })
+          .gesture(
+            TapGesture(count: 1)
+              .onEnded { _ in
+                focus.wrappedValue = .detail(.command(command.id))
+              }
+          )
           .contextMenu(menuItems: {
             CommandListContextualMenu(command, publisher: publisher, selectionManager: selectionManager) { commandId in
               focus.wrappedValue = .detail(.command(commandId))
