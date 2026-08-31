@@ -24,7 +24,7 @@ public extension Core {
       ) -> Bool
       var bundleIdentifier: BundleIdentifier?
       var hide: Bool
-      var isFinishedLaunching: Bool
+      var isFinishedLaunching: @Sendable () -> Bool
       var isHidden: Bool
       var runningApplications: [RunningApplication]
       var terminate: Bool
@@ -40,7 +40,7 @@ public extension Core {
         ) -> Bool = { _, _ in false },
         bundleIdentifier: BundleIdentifier? = nil,
         hide: Bool = false,
-        isFinishedLaunching: Bool = false,
+        isFinishedLaunching: @escaping @Sendable () -> Bool = { false },
         isHidden: Bool = false,
         runningApplications: [RunningApplication] = [],
         unhide: Bool = false,
@@ -68,7 +68,7 @@ public extension Core {
     public var isFinishedLaunching: Bool {
       switch mode {
       case .production(let application): application.isFinishedLaunching
-      case .testing: Testing.mock.isFinishedLaunching
+      case .testing: Testing.mock.isFinishedLaunching()
       }
     }
 

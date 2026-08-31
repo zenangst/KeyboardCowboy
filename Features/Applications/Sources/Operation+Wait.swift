@@ -12,19 +12,19 @@ extension Operation {
     let env: Core.Environment
     let retries: Int
     let pollingInterval: Duration
-    let skippableBundleIdentifiers: Set<BundleIdentifier> =
-      [
-        BundleIdentifier("com.apple.Music"),
-      ]
+    let skippableBundleIdentifiers: Set<BundleIdentifier> = [BundleIdentifier("com.apple.Music")]
     let workspace: Core.Workspace
+    let finalSleepDuration: Duration
 
     init(_ env: Core.Environment,
-         pollingInterval: Duration = .milliseconds(100),
          retries: Int = 20,
+         finalSleepDuration: Duration = .milliseconds(50),
+         pollingInterval: Duration = .milliseconds(100),
     ) {
       self.env = env
       self.pollingInterval = pollingInterval
       self.retries = retries
+      self.finalSleepDuration = finalSleepDuration
       self.workspace = Core.Workspace(env)
     }
 
@@ -50,6 +50,7 @@ extension Operation {
         }
 
         if application.isFinishedLaunching {
+          try await Task.sleep(for: finalSleepDuration)
           waiting = false
           result = .success
           break
