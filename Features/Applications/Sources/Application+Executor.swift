@@ -83,7 +83,7 @@ public extension Application {
 
     private func shouldSkipBecauseApplicationIsRunning(for command: Command.Application) -> Bool {
       if command.modifiers.contains(.onlyIfNotRunning),
-         Core.RunningApplication.runningApplication(
+         Core.RunningApplication.application(
            with: BundleIdentifier(command.application.bundleIdentifier),
            env: env) != nil {
         return true

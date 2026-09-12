@@ -44,7 +44,7 @@ extension Operation {
           break
         }
 
-        guard let application = Core.RunningApplication.runningApplication(with: bundleIdentifier, env: env) else {
+        guard let application = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
           retries -= 1
           continue
         }

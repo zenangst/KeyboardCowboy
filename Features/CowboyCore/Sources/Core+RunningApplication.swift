@@ -23,6 +23,7 @@ public extension Core {
         _ options: NSApplication.ActivationOptions,
       ) -> Bool
       var bundleIdentifier: BundleIdentifier?
+      var bundleURL: URL?
       var hide: Bool
       var isFinishedLaunching: @Sendable () -> Bool
       var isHidden: Bool
@@ -39,6 +40,7 @@ public extension Core {
           _ options: NSApplication.ActivationOptions,
         ) -> Bool = { _, _ in false },
         bundleIdentifier: BundleIdentifier? = nil,
+        bundleURL: URL? = nil,
         hide: Bool = false,
         isFinishedLaunching: @escaping @Sendable () -> Bool = { false },
         isHidden: Bool = false,
@@ -48,12 +50,20 @@ public extension Core {
         self.activate = activate
         self.activateFrom = activateFrom
         self.bundleIdentifier = bundleIdentifier
+        self.bundleURL = bundleURL
         self.hide = hide
         self.isFinishedLaunching = isFinishedLaunching
         self.isHidden = isHidden
         self.runningApplications = runningApplications
         self.terminate = terminate
         self.unhide = unhide
+      }
+    }
+
+    public var bundleURL: URL? {
+      switch mode {
+      case .production(let application): application.bundleURL
+      case .testing: Testing.mock.bundleURL
       }
     }
 
@@ -115,6 +125,7 @@ public extension Core {
       }
     }
 
+    @discardableResult
     public func terminate() -> Bool {
       switch mode {
       case .production(let application): application.terminate()
@@ -130,8 +141,8 @@ public extension Core {
       }
     }
 
-    public static func runningApplication(with bundleIdentifier: Core.BundleIdentifier,
-                                          env: Environment) -> RunningApplication? {
+    public static func application(with bundleIdentifier: Core.BundleIdentifier,
+                                   env: Environment) -> RunningApplication? {
       Self.runningApplications(with: bundleIdentifier, env: env).last
     }
 

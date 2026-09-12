@@ -16,7 +16,7 @@ extension Operation {
     @discardableResult
     func callAsFunction(_ bundleIdentifier: BundleIdentifier) -> Bool {
       guard let frontmostApplication = workspace.frontmostApplication,
-            let runningApplication = RunningApplication.runningApplication(
+            let runningApplication = RunningApplication.application(
               with: bundleIdentifier, env: env) else {
         return false
       }
