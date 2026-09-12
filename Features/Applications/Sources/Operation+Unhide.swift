@@ -12,7 +12,7 @@ extension Operation {
 
     @discardableResult
     func callAsFunction(_ bundleIdentifier: BundleIdentifier, snapshot: UserSpace.Snapshot) async -> Bool {
-      guard let application = Core.RunningApplication.runningApplication(with: bundleIdentifier, env: env) else {
+      guard let application = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
         return false
       }
 
