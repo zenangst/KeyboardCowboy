@@ -33,6 +33,8 @@ struct GroupDetailHeaderView: View {
           .frame(width: 48)
       }
     }
+    .padding(.leading, 58)
+    .padding(.top, -3)
     .toolbar {
       ToolbarItem {
         Toggle(isOn: Binding<Bool>(get: { groupPublisher.data.isEnabled }, set: { newValue in
