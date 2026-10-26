@@ -1,4 +1,3 @@
-import HotSwiftUI
 import SwiftUI
 
 extension DetailSplit {

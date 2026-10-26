@@ -1,11 +1,10 @@
-import HotSwiftUI
 import SwiftUI
 
 extension SidebarSplit {
+  @Injectable
   struct UserModes: View {
-    @ObserveInjection private var inject
 
-    var body: some View {
+    var content: some View {
       VStack {
         HStack {
           Label("User Modes")
@@ -17,7 +16,6 @@ extension SidebarSplit {
           .buttonStyle(.accessoryBar)
         }
       }
-      .enableInjection()
     }
   }
 }

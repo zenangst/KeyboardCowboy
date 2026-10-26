@@ -1,13 +1,13 @@
 {
-  "originHash" : "bca7fc45be84222601f14172e9ad162e82b21f49ae6de2c18e1223101b3c7cdd",
+  "originHash" : "5609a0d0521c2c0e3e78f5b5fe26da1d4c3cc2605e808be35110fef12b683488",
   "pins" : [
     {
-      "identity" : "hotswiftui",
+      "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:johnno1962/HotSwiftUI.git",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "9e701abd2da67c7cfac5b70ae6f225fa92a1c7bc",
-        "version" : "1.2.4"
+        "revision" : "79e4b74a295b6eb74a8b585e3a39d29e70c1dbd1",
+        "version" : "603.0.2"
       }
     }
   ],

@@ -1,11 +1,9 @@
-import HotSwiftUI
 import SwiftUI
 
 extension ContentSplit {
+  @Injectable
   struct ContentView: View {
-    @ObserveInjection private var inject
-
-    var body: some View {
+    var content: some View {
       ScrollView {
         VStack {
           Button(action: {}, label: {
@@ -19,7 +17,6 @@ extension ContentSplit {
       .navigationTitle(.constant("Global"))
       .navigationSubtitle("Workflows")
       .toolbar { Toolbar() }
-      .enableInjection()
     }
   }
 }

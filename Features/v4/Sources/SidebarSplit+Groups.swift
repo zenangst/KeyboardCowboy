@@ -1,11 +1,10 @@
-import HotSwiftUI
 import SwiftUI
 
 extension SidebarSplit {
+  @Injectable
   struct Groups: View {
-    @ObserveInjection private var inject
 
-    var body: some View {
+    var content: some View {
       VStack {
         Label("Groups")
 
@@ -14,7 +13,6 @@ extension SidebarSplit {
             .frame(maxWidth: .infinity, alignment: .leading)
         })
       }
-      .enableInjection()
     }
   }
 }

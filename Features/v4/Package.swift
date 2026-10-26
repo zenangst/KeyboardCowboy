@@ -2,6 +2,7 @@
 
 import Foundation
 import PackageDescription
+import CompilerPluginSupport
 
 let swiftSettings: [SwiftSetting] = [
   .unsafeFlags(["-strict-concurrency=complete"]),
@@ -37,13 +38,29 @@ let package = Package(
     .executable(name: "v4", targets: ["AppTarget"]),
   ],
   dependencies: [
-    .package(url: "git@github.com:johnno1962/HotSwiftUI.git", exact: "1.2.4"),
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMinor(from: "603.0.2")),
   ],
   targets: [
+    .macro(
+      name: "InjectionMacros",
+      dependencies: [
+        .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+        .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+      ],
+      path: "Macros"
+    ),
+    .testTarget(
+      name: "InjectionMacrosTests",
+      dependencies: [
+        "InjectionMacros",
+        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+      ],
+      path: "MacroTests"
+    ),
     .executableTarget(
       name: "AppTarget",
       dependencies: [
-        .product(name: "HotSwiftUI", package: "HotSwiftUI"),
+        "InjectionMacros",
       ],
       path: "Sources",
       swiftSettings: swiftSettings,

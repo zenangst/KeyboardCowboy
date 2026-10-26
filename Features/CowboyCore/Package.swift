@@ -17,14 +17,12 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(url: "git@github.com:johnno1962/HotSwiftUI.git", exact: "1.2.4"),
     .package(url: "git@github.com:zenangst/Apps.git", exact: "1.4.3"),
   ],
   targets: [
     .target(
       name: "CowboyCore",
       dependencies: [
-        .product(name: "HotSwiftUI", package: "HotSwiftUI"),
         .product(name: "Apps", package: "Apps"),
       ],
       path: "Sources",

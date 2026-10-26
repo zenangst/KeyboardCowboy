@@ -1,13 +1,12 @@
-import HotSwiftUI
 import SwiftUI
 
 extension SidebarSplit {
+  @Injectable
   struct ConfigurationsMenu: View {
-    @ObserveInjection private var inject
     @State private var isPresented = false
     @State private var selection = "foo"
 
-    var body: some View {
+    var content: some View {
       VStack {
         Button {
           isPresented.toggle()
@@ -30,7 +29,7 @@ extension SidebarSplit {
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, alignment: .leading)
         .popover(isPresented: $isPresented, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
-          VStack(spacing: 4) {
+          VStack(spacing: \.small) {
             configurationOption("bar")
             configurationOption("foo")
           }
@@ -38,7 +37,6 @@ extension SidebarSplit {
           .frame(width: 220)
         }
       }
-      .enableInjection()
     }
 
     private func configurationOption(_ option: String) -> some View {

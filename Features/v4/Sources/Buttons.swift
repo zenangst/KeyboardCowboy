@@ -1,10 +1,8 @@
-import HotSwiftUI
 import SwiftUI
 
+@Injectable
 struct ButtonsScreen: View {
-  @ObserveInjection private var inject
-
-  var body: some View {
+  var content: some View {
     HStack {
       Button(action: {}, label: {
         Text("Hello")
@@ -12,7 +10,9 @@ struct ButtonsScreen: View {
       Button(action: {}, label: {
         Text("World")
       })
+      Button(action: {}, label: {
+        Text("!")
+      })
     }
-    .enableInjection()
   }
 }

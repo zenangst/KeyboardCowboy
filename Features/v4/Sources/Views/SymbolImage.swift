@@ -1,5 +1,6 @@
 import SwiftUI
 
+@Injectable
 struct SymbolImage: View {
   let systemName: String
 
@@ -7,9 +8,9 @@ struct SymbolImage: View {
     self.systemName = systemName
   }
 
-  var body: some View {
+  var content: some View {
     Image(systemName: systemName)
       .resizable()
-      .aspectRatio(contentMode: .fit)
+      .scaledToFit()
   }
 }

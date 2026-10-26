@@ -1,8 +1,9 @@
 import SwiftUI
 
 extension DetailSplit {
+  @Injectable
   struct EnableButton: View {
-    var body: some View {
+    var content: some View {
       Button(action: {}, label: {
         SymbolImage("power.circle.fill")
           .padding(.leading)

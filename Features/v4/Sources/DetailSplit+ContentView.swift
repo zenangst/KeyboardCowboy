@@ -1,10 +1,9 @@
-import HotSwiftUI
 import SwiftUI
 
 extension DetailSplit {
+  @Injectable
   struct ContentView: View {
-    @ObserveInjection private var inject
-    var body: some View {
+    var content: some View {
       ScrollView {
         VStack {
           HStack(spacing: \.medium) {
@@ -22,7 +21,7 @@ extension DetailSplit {
 
             Button(action: {}, label: {
               SymbolImage("xmark")
-                .frame(width: 10, height: 10)
+                .frame(width: 10)
             })
             .frame(width: 24, height: 24)
           }
@@ -34,7 +33,6 @@ extension DetailSplit {
         .surface()
       }
       .toolbar { Toolbar() }
-      .enableInjection()
     }
   }
 }

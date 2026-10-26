@@ -1,10 +1,9 @@
-import HotSwiftUI
 import SwiftUI
 
+@Injectable
 struct MainContentView: View {
-  @ObserveInjection private var inject
 
-  var body: some View {
+  var content: some View {
     NavigationSplitView(sidebar: {
       SidebarSplit.ContentView()
     }, content: {
@@ -12,6 +11,5 @@ struct MainContentView: View {
     }, detail: {
       DetailSplit.ContentView()
     })
-    .enableInjection()
   }
 }

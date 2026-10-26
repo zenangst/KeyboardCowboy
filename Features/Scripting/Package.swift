@@ -19,14 +19,12 @@ let package = Package(
   ],
   dependencies: [
     .package(path: "../CowboyCore"),
-    .package(url: "git@github.com:johnno1962/HotSwiftUI.git", exact: "1.2.4"),
   ],
   targets: [
     .target(
       name: "ScriptingFeature",
       dependencies: [
         .product(name: "CowboyCore", package: "CowboyCore"),
-        .product(name: "HotSwiftUI", package: "HotSwiftUI"),
       ],
       path: "Sources",
       linkerSettings: linkerSettings,
