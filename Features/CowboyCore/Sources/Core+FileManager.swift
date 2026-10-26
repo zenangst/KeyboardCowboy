@@ -4,35 +4,7 @@ import System
 
 public extension Core {
   final class FileManager {
-    public typealias ThrowingFunction = (@Sendable () throws -> Void)
-    public typealias ThrowingURL = (@Sendable () throws -> URL)
     private typealias Production = Foundation.FileManager
-
-    public enum Testing {
-      @TaskLocal public static var mock: Mock = Mock()
-    }
-
-    public struct Mock: Sendable {
-      var contentsAtPath: Data?
-      var createDirectoryAtUrl: ThrowingURL
-      var createFile: Bool
-      var fileExistsAtPath: Bool
-      var removeItem: ThrowingFunction?
-
-      public init(
-        contentsAtPath: Data? = nil,
-        createDirectoryAtUrl: @escaping ThrowingURL = { URL(filePath: "/tmp") },
-        createFile: Bool = false,
-        fileExistsAtPath: Bool = false,
-        removeItem: ThrowingFunction? = nil,
-      ) {
-        self.contentsAtPath = contentsAtPath
-        self.createDirectoryAtUrl = createDirectoryAtUrl
-        self.createFile = createFile
-        self.fileExistsAtPath = fileExistsAtPath
-        self.removeItem = removeItem
-      }
-    }
 
     private let env: Environment
 
@@ -43,7 +15,9 @@ public extension Core {
     public func contents(atPath path: String) -> Data? {
       return switch env {
       case .production: Production.default.contents(atPath: path)
+      #if DEBUG
       case .testing: Testing.mock.contentsAtPath
+      #endif
       }
     }
 
@@ -59,7 +33,9 @@ public extension Core {
           contents: data,
           attributes: attr,
         )
+      #if DEBUG
       case .testing: Testing.mock.createFile
+      #endif
       }
     }
 
@@ -72,22 +48,28 @@ public extension Core {
           withIntermediateDirectories: true,
         )
         return url
+      #if DEBUG
       case .testing:
         return try Testing.mock.createDirectoryAtUrl()
+      #endif
       }
     }
 
     public func fileExists(atPath path: String) -> Bool {
       switch env {
       case .production: Production.default.fileExists(atPath: path)
+      #if DEBUG
       case .testing: Testing.mock.fileExistsAtPath
+      #endif
       }
     }
 
     public func removeItem(atPath path: String) throws {
       switch env {
       case .production: try Production.default.removeItem(atPath: path)
+      #if DEBUG
       case .testing: try Testing.mock.removeItem?()
+      #endif
       }
     }
 

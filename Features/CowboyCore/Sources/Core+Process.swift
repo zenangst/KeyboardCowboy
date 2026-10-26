@@ -2,9 +2,6 @@ import Foundation
 
 public extension Core {
   final class Process {
-    public typealias ThrowingFunction = (@Sendable () throws -> Void)
-    public typealias Function = (@Sendable () -> Void)
-
     public enum LaunchStyle: Equatable {
       case shell(String)
       case headless(String)
@@ -17,25 +14,11 @@ public extension Core {
       }
     }
 
-    final class Storage {
-      var arguments: [String]?
-      var currentDirectoryURL: URL?
-      var environment: [String: String]?
-      var executableURL: URL?
-    }
-
-    public enum Testing {
-      @TaskLocal public static var mock: Mock = Mock()
-    }
-
-    public struct Mock: Sendable {
-      var run: ThrowingFunction?
-      var waitUntilExit: Function?
-    }
-
     enum Mode {
       case production(Foundation.Process)
+      #if DEBUG
       case testing(Storage)
+      #endif
     }
 
     let mode: Mode
@@ -45,13 +28,17 @@ public extension Core {
       get {
         switch mode {
         case .production(let process): process.arguments
+        #if DEBUG
         case .testing(let storage): storage.arguments
+        #endif
         }
       }
       set {
         switch mode {
         case .production(let process): process.arguments = newValue
+        #if DEBUG
         case .testing(let storage): storage.arguments = newValue
+        #endif
         }
       }
     }
@@ -60,13 +47,17 @@ public extension Core {
       get {
         switch mode {
         case .production(let process): process.currentDirectoryURL
+        #if DEBUG
         case .testing(let storage): storage.currentDirectoryURL
+        #endif
         }
       }
       set {
         switch mode {
         case .production(let process): process.currentDirectoryURL = newValue
+        #if DEBUG
         case .testing(let storage): storage.currentDirectoryURL = newValue
+        #endif
         }
       }
     }
@@ -75,13 +66,17 @@ public extension Core {
       get {
         switch mode {
         case .production(let process): process.executableURL
+        #if DEBUG
         case .testing(let storage): storage.executableURL
+        #endif
         }
       }
       set {
         switch mode {
         case .production(let process): process.executableURL = newValue
+        #if DEBUG
         case .testing(let storage): storage.executableURL = newValue
+        #endif
         }
       }
     }
@@ -90,13 +85,17 @@ public extension Core {
       get {
         switch mode {
         case .production(let process): process.environment
+        #if DEBUG
         case .testing(let storage): storage.environment
+        #endif
         }
       }
       set {
         switch mode {
         case .production(let process): process.environment = newValue
+        #if DEBUG
         case .testing(let storage): storage.environment = newValue
+        #endif
         }
       }
     }
@@ -137,7 +136,9 @@ public extension Core {
 
       self.mode = switch env {
       case .production: .production(Foundation.Process())
+      #if DEBUG
       case .testing: .testing(Storage())
+      #endif
       }
     }
 
@@ -145,8 +146,10 @@ public extension Core {
       switch mode {
       case .production(let process):
         try process.run()
+      #if DEBUG
       case .testing:
         try Testing.mock.run?()
+      #endif
       }
     }
 
@@ -154,8 +157,10 @@ public extension Core {
       switch mode {
       case .production(let process):
         process.waitUntilExit()
+      #if DEBUG
       case .testing:
         Testing.mock.waitUntilExit?()
+      #endif
       }
     }
   }

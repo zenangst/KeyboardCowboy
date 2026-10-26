@@ -12,8 +12,9 @@ import SwiftUI
 #if DEBUG
 import Combine
 
-public let injectionObserver = InjectionObserver.shared
+@MainActor public let injectionObserver = InjectionObserver.shared
 
+@MainActor
 public class InjectionObserver: ObservableObject {
     public static let shared = InjectionObserver()
     public static var appResources =
@@ -25,14 +26,16 @@ public class InjectionObserver: ObservableObject {
         _ = loadInjectionOnce // .enableInjection() optional with Xcode 16+
         cancellable = NotificationCenter.default.publisher(for:
             Notification.Name("INJECTION_BUNDLE_NOTIFICATION"))
-            .sink { [weak self] change in
-            self?.injectionNumber += 1
-            self?.publisher.send()
+            .sink { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.injectionNumber += 1
+                self?.publisher.send()
+            }
         }
     }
 }
 
-private var loadInjectionOnce: Void = {
+@MainActor private let loadInjectionOnce: Void = {
     guard objc_getClass("InjectionClient") == nil else {
         return
     }
@@ -72,7 +75,7 @@ private var loadInjectionOnce: Void = {
             """)
 }()
 
-extension SwiftUI.View {
+@MainActor extension SwiftUI.View {
     public func eraseToAnyView() -> some SwiftUI.View {
         _ = loadInjectionOnce
         return AnyView(self)
@@ -92,6 +95,7 @@ extension SwiftUI.View {
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 @propertyWrapper
+@MainActor
 public struct ObserveInjection: DynamicProperty {
     @ObservedObject private var iO = InjectionObserver.shared
     public init() {}

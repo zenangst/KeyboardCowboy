@@ -19,14 +19,14 @@ public class InjectionObserver: ObservableObject {
   @MainActor public static var appResources =
     "/Applications/InjectionIII.app/Contents/Resources/"
   @Published var injectionNumber = 0
-  var cancellable: AnyCancellable? = nil
+  var cancellable: AnyCancellable?
   let publisher = PassthroughSubject<Void, Never>()
   @MainActor init() {
     _ = loadInjectionOnce // .enableInjection() optional with Xcode 16+
     cancellable = NotificationCenter.default
       .publisher(for:
         Notification.Name("INJECTION_BUNDLE_NOTIFICATION"))
-      .sink { [weak self] change in
+      .sink { [weak self] _ in
         self?.injectionNumber += 1
         self?.publisher.send()
       }
@@ -114,7 +114,7 @@ public extension SwiftUI.View {
   @inline(__always)
   func loadInjection() -> some SwiftUI.View { return self }
   @inline(__always)
-  func onInjection(bumpState: @escaping () -> ()) -> some SwiftUI.View {
+  func onInjection(bumpState: @escaping () -> Void) -> some SwiftUI.View {
     return self
   }
 }

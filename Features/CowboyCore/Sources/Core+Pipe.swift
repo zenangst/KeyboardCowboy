@@ -6,7 +6,9 @@ public extension Core {
 
     enum Mode {
       case production(Production)
+      #if DEBUG
       case testing(Core.FileHandle)
+      #endif
     }
 
     let mode: Mode
@@ -18,10 +20,12 @@ public extension Core {
         let pipe = Production()
         self.mode = .production(pipe)
         self.fileHandleForReading = Core.FileHandle(.production(pipe.fileHandleForReading))
+      #if DEBUG
       case .testing:
         let fileHandle = Core.FileHandle(.testing)
         self.mode = .testing(fileHandle)
         self.fileHandleForReading = fileHandle
+      #endif
       }
     }
   }

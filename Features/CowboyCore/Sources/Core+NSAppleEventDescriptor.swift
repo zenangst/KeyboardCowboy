@@ -4,24 +4,20 @@ public extension Core {
   final class NSAppleEventDescriptor {
     let mode: Mode
 
-    public enum Testing {
-      @TaskLocal public static var mock: Mock = Mock()
-    }
-
-    public struct Mock: Sendable {
-      var stringValue: String?
-    }
-
     public var stringValue: String? {
       switch mode {
       case .production(let eventDescriptor): eventDescriptor.stringValue
+      #if DEBUG
       case .testing: Testing.mock.stringValue
+      #endif
       }
     }
 
     public enum Mode {
       case production(Cocoa.NSAppleEventDescriptor)
+      #if DEBUG
       case testing
+      #endif
     }
 
     public init(_ mode: Mode) {

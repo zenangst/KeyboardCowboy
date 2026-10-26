@@ -11,17 +11,11 @@ public extension Core {
 
     let mode: Mode
 
-    public enum Testing {
-      @TaskLocal public static var mock: Mock = Mock()
-    }
-
-    public struct Mock: Sendable {
-      var compileAndReturnError: Bool = false
-    }
-
     enum Mode: @unchecked Sendable {
       case production(Cocoa.NSAppleScript)
+      #if DEBUG
       case testing
+      #endif
     }
 
     public init(_ env: Environment, source: String) throws {
@@ -32,8 +26,10 @@ public extension Core {
         }
 
         self.mode = .production(appleScript)
+      #if DEBUG
       case .testing:
         self.mode = .testing
+      #endif
       }
     }
 
@@ -49,8 +45,10 @@ public extension Core {
         }
 
         self.mode = .production(appleScript)
+      #if DEBUG
       case .testing:
         self.mode = .testing
+      #endif
       }
     }
 
@@ -60,10 +58,12 @@ public extension Core {
         if !appleScript.compileAndReturnError(errorInfo) {
           throw Error.unableToCompile
         }
+      #if DEBUG
       case .testing:
         if !Testing.mock.compileAndReturnError {
           throw Error.unableToCompile
         }
+      #endif
       }
     }
 
@@ -72,8 +72,10 @@ public extension Core {
       let descriptor = switch mode {
       case .production(let appleScript):
         NSAppleEventDescriptor(.production(appleScript.executeAndReturnError(errorInfo)))
+      #if DEBUG
       case .testing:
         NSAppleEventDescriptor(.testing)
+      #endif
       }
 
       if let errorInfo = errorInfo?.pointee {

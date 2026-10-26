@@ -5,65 +5,19 @@ public extension Core {
   final class RunningApplication: Sendable {
     public enum Mode: Sendable {
       case production(NSRunningApplication)
+      #if DEBUG
       case testing(BundleIdentifier?)
+      #endif
     }
 
     let mode: Mode
 
-    public enum Testing {
-      @TaskLocal public static var mock: Mock = Mock()
-    }
-
-    public struct Mock: Sendable {
-      var activate: @Sendable (
-        _ options: NSApplication.ActivationOptions,
-      ) -> Bool
-      var activateFrom: @Sendable (
-        _ from: RunningApplication,
-        _ options: NSApplication.ActivationOptions,
-      ) -> Bool
-      var bundleIdentifier: BundleIdentifier?
-      var bundleURL: URL?
-      var hide: Bool
-      var isFinishedLaunching: @Sendable () -> Bool
-      var isHidden: Bool
-      var runningApplications: [RunningApplication]
-      var terminate: Bool
-      var unhide: Bool
-
-      init(
-        activate: @Sendable @escaping (
-          _ options: NSApplication.ActivationOptions,
-        ) -> Bool = { _ in false },
-        activateFrom: @Sendable @escaping (
-          _ from: RunningApplication,
-          _ options: NSApplication.ActivationOptions,
-        ) -> Bool = { _, _ in false },
-        bundleIdentifier: BundleIdentifier? = nil,
-        bundleURL: URL? = nil,
-        hide: Bool = false,
-        isFinishedLaunching: @escaping @Sendable () -> Bool = { false },
-        isHidden: Bool = false,
-        runningApplications: [RunningApplication] = [],
-        unhide: Bool = false,
-        terminate: Bool = false) {
-        self.activate = activate
-        self.activateFrom = activateFrom
-        self.bundleIdentifier = bundleIdentifier
-        self.bundleURL = bundleURL
-        self.hide = hide
-        self.isFinishedLaunching = isFinishedLaunching
-        self.isHidden = isHidden
-        self.runningApplications = runningApplications
-        self.terminate = terminate
-        self.unhide = unhide
-      }
-    }
-
     public var bundleURL: URL? {
       switch mode {
       case .production(let application): application.bundleURL
+      #if DEBUG
       case .testing: Testing.mock.bundleURL
+      #endif
       }
     }
 
@@ -71,21 +25,27 @@ public extension Core {
       switch mode {
       case .production(let application):
         application.bundleIdentifier.map(BundleIdentifier.init)
+      #if DEBUG
       case .testing(let bundleIdentifier): bundleIdentifier ?? Testing.mock.bundleIdentifier
+      #endif
       }
     }
 
     public var isFinishedLaunching: Bool {
       switch mode {
       case .production(let application): application.isFinishedLaunching
+      #if DEBUG
       case .testing: Testing.mock.isFinishedLaunching()
+      #endif
       }
     }
 
     public var isHidden: Bool {
       switch mode {
       case .production(let application): application.isHidden
+      #if DEBUG
       case .testing: Testing.mock.isHidden
+      #endif
       }
     }
 
@@ -98,8 +58,10 @@ public extension Core {
       switch mode {
       case .production(let app):
         app.activate(options: options)
+      #if DEBUG
       case .testing:
         Testing.mock.activate(options)
+      #endif
       }
     }
 
@@ -111,9 +73,11 @@ public extension Core {
       switch (mode, fromApplication.mode) {
       case (.production(let app), .production(let fromApp)):
         app.activate(from: fromApp, options: options)
+      #if DEBUG
       case (.testing, .testing):
         Testing.mock.activateFrom(fromApplication, options)
       default: false
+      #endif
       }
     }
 
@@ -121,7 +85,9 @@ public extension Core {
     public func hide() -> Bool {
       switch mode {
       case .production(let application): application.hide()
+      #if DEBUG
       case .testing: Testing.mock.hide
+      #endif
       }
     }
 
@@ -129,7 +95,9 @@ public extension Core {
     public func terminate() -> Bool {
       switch mode {
       case .production(let application): application.terminate()
+      #if DEBUG
       case .testing: Testing.mock.terminate
+      #endif
       }
     }
 
@@ -137,7 +105,9 @@ public extension Core {
     public func unhide() -> Bool {
       switch mode {
       case .production(let application): application.unhide()
+      #if DEBUG
       case .testing: Testing.mock.unhide
+      #endif
       }
     }
 
@@ -154,8 +124,10 @@ public extension Core {
       case .production:
         Cocoa.NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier.value)
           .map { RunningApplication(.production($0)) }
+      #if DEBUG
       case .testing:
         Testing.mock.runningApplications
+      #endif
       }
     }
   }

@@ -6,21 +6,6 @@ extension Core {
   final class Workspace {
     let env: Environment
 
-    public enum Testing {
-      @TaskLocal public static var mock: Mock = Mock()
-    }
-
-    public struct Mock: Sendable {
-      var frontmostApplication: RunningApplication?
-      var openApplication: @Sendable (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) -> RunningApplication
-
-      init(frontmostApplication: RunningApplication? = nil,
-           openApplication: @Sendable @escaping (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) -> RunningApplication = { _, _ in RunningApplication(.testing(nil)) }) {
-        self.frontmostApplication = frontmostApplication
-        self.openApplication = openApplication
-      }
-    }
-
     init(_ env: Environment) {
       self.env = env
     }
@@ -28,7 +13,9 @@ extension Core {
     var frontmostApplication: RunningApplication? {
       switch env {
       case .production: NSWorkspace.shared.frontmostApplication?.asRunningApplication()
+      #if DEBUG
       case .testing: Testing.mock.frontmostApplication
+      #endif
       }
     }
 
@@ -42,7 +29,9 @@ extension Core {
         try await NSWorkspace.shared
           .openApplication(at: applicationURL, configuration: configuration)
           .asRunningApplication()
+      #if DEBUG
       case .testing: Testing.mock.openApplication(applicationURL, configuration)
+      #endif
       }
     }
   }
