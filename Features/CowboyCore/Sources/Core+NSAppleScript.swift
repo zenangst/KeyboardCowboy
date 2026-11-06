@@ -69,12 +69,20 @@ public extension Core {
 
     public func executeAndReturnError(_ errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?)
       throws -> Core.NSAppleEventDescriptor {
-      let descriptor = switch mode {
+      let descriptor: Core.NSAppleEventDescriptor
+      switch mode {
       case .production(let appleScript):
-        NSAppleEventDescriptor(.production(appleScript.executeAndReturnError(errorInfo)))
+        descriptor = NSAppleEventDescriptor(.production(appleScript.executeAndReturnError(errorInfo)))
       #if DEBUG
       case .testing:
-        NSAppleEventDescriptor(.testing)
+        if let error = Testing.mock.execute() {
+          errorInfo?.pointee = [
+            Cocoa.NSAppleScript.errorNumber: error.code,
+            Cocoa.NSAppleScript.errorMessage: error.localizedFailureReason ?? error.localizedDescription,
+            Cocoa.NSAppleScript.errorBriefMessage: error.localizedDescription,
+          ] as NSDictionary
+        }
+        descriptor = NSAppleEventDescriptor(.testing)
       #endif
       }
 

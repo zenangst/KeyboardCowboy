@@ -96,9 +96,8 @@ public extension Application {
         try Task.checkCancellation()
         switch result {
         case .activated: break
-        case .missingFrontmost: throw ExecutionError.missingFrontmostApplication
-        case .missingTarget: throw ExecutionError.applicationNotRunning(bundleIdentifier)
-        case .rejected: throw ExecutionError.failedToActivate(bundleIdentifier)
+        case .missingFrontmost, .missingTarget, .rejected:
+          try operation.bringToFront()
         }
       } else {
         try await operation.launch(at: command.application.path, with: command.modifiers)

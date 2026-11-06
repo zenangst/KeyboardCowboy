@@ -191,7 +191,27 @@ private actor LaunchEvents {
   }
 }
 
-@Test @MainActor func executorReportsFrontmostActivationRejection() async throws {
+@Test @MainActor func executorFallsBackAfterFrontmostActivationRejection() async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+
+  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
+    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+      activateFrom: { _, _ in false }, runningApplications: [target]
+    )) {
+      try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+        nil
+      })) {
+        _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+      }
+    }
+  }
+}
+
+@Test @MainActor func executorPropagatesBringToFrontFailure() async throws {
   let identifier = Core.BundleIdentifier("example.target")
   let target = Core.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
@@ -202,8 +222,17 @@ private actor LaunchEvents {
     await Core.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in false }, runningApplications: [target]
     )) {
-      await #expect(throws: Application.Executor.ExecutionError.failedToActivate(identifier)) {
-        try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+        NSError(domain: "test", code: 42)
+      })) {
+        do {
+          _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+          Issue.record("Expected AppleScript failure")
+        } catch Core.NSAppleScript.Error.unableToExecute(let error) {
+          #expect((error as NSError).code == 42)
+        } catch {
+          Issue.record("Unexpected error: \(error)")
+        }
       }
     }
   }
@@ -221,13 +250,18 @@ private actor LaunchEvents {
           activateFrom: { _, _ in withUnsafeCurrentTask { $0?.cancel() }; return false },
           runningApplications: [target]
         )) {
-          do {
-            _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
-            return false
-          } catch is CancellationError {
-            return true
-          } catch {
-            return false
+          await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+            Issue.record("Cancellation must not trigger activation fallback")
+            return nil
+          })) {
+            do {
+              _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+              return false
+            } catch is CancellationError {
+              return true
+            } catch {
+              return false
+            }
           }
         }
       }

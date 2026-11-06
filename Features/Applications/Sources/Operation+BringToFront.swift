@@ -1,3 +1,4 @@
+import Cocoa
 import CowboyCore
 
 extension Operation {
@@ -9,6 +10,7 @@ extension Operation {
     }
 
     func callAsFunction() throws {
+      try Task.checkCancellation()
       let source = """
       tell application "System Events"
         set frontmostProcess to first process where it is frontmost
@@ -17,7 +19,8 @@ extension Operation {
       """
       let appleScript = try Core.NSAppleScript(env, source: source)
 
-      _ = try appleScript.executeAndReturnError(nil)
+      var errorInfo: NSDictionary?
+      _ = try appleScript.executeAndReturnError(&errorInfo)
     }
   }
 }
