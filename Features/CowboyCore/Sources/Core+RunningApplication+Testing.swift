@@ -20,6 +20,7 @@ extension Core.RunningApplication {
     var hide: Bool
     var isFinishedLaunching: @Sendable () -> Bool
     var isHidden: Bool
+    var isTerminated: Bool
     var runningApplications: [Core.RunningApplication]
     var terminate: Bool
     var unhide: Bool
@@ -37,6 +38,7 @@ extension Core.RunningApplication {
       hide: Bool = false,
       isFinishedLaunching: @escaping @Sendable () -> Bool = { false },
       isHidden: Bool = false,
+      isTerminated: Bool = false,
       runningApplications: [Core.RunningApplication] = [],
       unhide: Bool = false,
       terminate: Bool = false) {
@@ -47,6 +49,7 @@ extension Core.RunningApplication {
       self.hide = hide
       self.isFinishedLaunching = isFinishedLaunching
       self.isHidden = isHidden
+      self.isTerminated = isTerminated
       self.runningApplications = runningApplications
       self.terminate = terminate
       self.unhide = unhide

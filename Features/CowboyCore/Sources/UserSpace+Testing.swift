@@ -5,16 +5,10 @@ extension UserSpace {
   }
 
   public struct Mock: Sendable {
-    let apps: Snapshot.Apps
+    let frontmostApplication: Core.RunningApplication?
 
-    init(apps: Snapshot.Apps = Snapshot.Apps(
-      frontMost: Application(bundleIdentifier: .init(""),
-                             runningApplication: .init(.testing(nil))),
-      previous: Application(bundleIdentifier: .init(""),
-                            runningApplication: .init(.testing(nil))),
-    ),
-    ) {
-      self.apps = apps
+    init(frontmostApplication: Core.RunningApplication? = nil) {
+      self.frontmostApplication = frontmostApplication
     }
   }
 }

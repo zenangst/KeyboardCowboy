@@ -49,6 +49,15 @@ public extension Core {
       }
     }
 
+    public var isTerminated: Bool {
+      switch mode {
+      case .production(let application): application.isTerminated
+      #if DEBUG
+      case .testing: Testing.mock.isTerminated
+      #endif
+      }
+    }
+
     public init(_ mode: Mode) {
       self.mode = mode
     }
