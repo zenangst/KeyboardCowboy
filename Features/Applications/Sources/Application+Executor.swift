@@ -24,7 +24,11 @@ public extension Application {
     private let operation: Operations
     private let workspace: Core.Workspace
 
-    public init(_ env: Core.Environment) {
+    public convenience init(_ env: Core.Environment) {
+      self.init(env, wait: Operation.Wait(env))
+    }
+
+    init(_ env: Core.Environment, wait: Operation.Wait) {
       self.env = env
       self.operation = Operations(
         activate: Operation.Activate(env),
@@ -33,7 +37,7 @@ public extension Application {
         hide: Operation.Hide(env),
         launch: Operation.Launch(env),
         unhide: Operation.Unhide(env),
-        wait: Operation.Wait(env),
+        wait: wait,
       )
       self.workspace = Core.Workspace(env)
     }
@@ -101,6 +105,13 @@ public extension Application {
         }
       } else {
         try await operation.launch(at: command.application.path, with: command.modifiers)
+      }
+
+      try Task.checkCancellation()
+      if command.modifiers.contains(.waitForAppToLaunch),
+         Core.RunningApplication.application(with: bundleIdentifier, env: env)?.isFinishedLaunching != true {
+        // Match legacy behavior: a timeout does not fail the command.
+        try await operation.wait(for: bundleIdentifier)
       }
     }
 

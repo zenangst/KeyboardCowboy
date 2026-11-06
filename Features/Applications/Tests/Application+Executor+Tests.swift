@@ -8,6 +8,101 @@ private enum ExecutorLaunchError: Error {
   case failed
 }
 
+private enum TestWaitError: Error {
+  case reached
+}
+
+private actor OpenTrace {
+  private(set) var events: [String] = []
+  func record(_ event: String) { events.append(event) }
+}
+
+@Test @MainActor func waitModifierPollsAfterOrdinaryLaunch() async throws {
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let trace = OpenTrace()
+  let wait = Operation.Wait(.testing, sleep: { _ in
+    await trace.record("wait")
+    throw TestWaitError.reached
+  })
+
+  await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+    await trace.record("launch")
+    return Core.RunningApplication(.testing(nil))
+  })) {
+    await #expect(throws: TestWaitError.reached) {
+      try await Application.Executor(.testing, wait: wait).execute(command, cgEventType: nil, snapshot: snapshot)
+    }
+  }
+  #expect(await trace.events == ["launch", "wait"])
+}
+
+@Test @MainActor func waitModifierSkipsAlreadyFinishedApplication() async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let trace = OpenTrace()
+  let wait = Operation.Wait(.testing, sleep: { _ in Issue.record("A finished app must not be polled") })
+
+  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+    await trace.record("launch")
+    return target
+  })) {
+    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+      isFinishedLaunching: { true }, runningApplications: [target]
+    )) {
+      _ = try await Application.Executor(.testing, wait: wait).execute(command, cgEventType: nil, snapshot: snapshot)
+    }
+  }
+  #expect(await trace.events == ["launch"])
+}
+
+@Test(arguments: [true, false]) @MainActor func waitModifierFollowsActivationAndFallback(activationSucceeds: Bool) async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let wait = Operation.Wait(.testing, sleep: { _ in throw TestWaitError.reached })
+
+  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      activateFrom: { _, _ in activationSucceeds },
+      isFinishedLaunching: { false },
+      runningApplications: [target]
+    )) {
+      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+        if activationSucceeds { Issue.record("Unexpected activation fallback") }
+        return nil
+      })) {
+        await #expect(throws: TestWaitError.reached) {
+          try await Application.Executor(.testing, wait: wait).execute(command, cgEventType: nil, snapshot: snapshot)
+        }
+      }
+    }
+  }
+}
+
+@Test(arguments: [false, true]) @MainActor func waitTimeoutContinuesWithoutRepeatingWait(background: Bool) async throws {
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  var command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  if background { command.modifiers.insert(.background) }
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let trace = OpenTrace()
+  let wait = Operation.Wait(.testing, retries: 1, sleep: { _ in await trace.record("wait") })
+
+  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+    await trace.record("launch")
+    return .init(.testing(nil))
+  })) {
+    _ = try await Application.Executor(.testing, wait: wait).execute(command, cgEventType: nil, snapshot: snapshot)
+  }
+  #expect(await trace.events == ["launch", "wait"])
+}
+
 private actor LaunchEvents {
   private(set) var count = 0
   func record() { count += 1 }
