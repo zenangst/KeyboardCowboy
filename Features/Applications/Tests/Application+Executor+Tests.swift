@@ -17,6 +17,98 @@ private actor OpenTrace {
   func record(_ event: String) { events.append(event) }
 }
 
+@Test @MainActor func frontmostAppWithTrackedWindowReopens() async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let trace = OpenTrace()
+  let executor = Application.Executor(.testing, windowOwnerNames: {
+    await trace.record("owners")
+    return ["Target"]
+  })
+
+  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { url, _ in
+    #expect(url.path() == "/Applications/Target.app")
+    await trace.record("reopen")
+    return target
+  })) {
+    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+      activateFrom: { _, _ in true }, runningApplications: [target]
+    )) {
+      try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+        Issue.record("Unexpected fallback for successful reopen")
+        return nil
+      })) {
+        _ = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
+      }
+    }
+  }
+  #expect(await trace.events == ["owners", "reopen"])
+}
+
+@Test(arguments: [false, true]) @MainActor func frontmostNoWindowOrFailedReopenUsesFallback(hasWindow: Bool) async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let trace = OpenTrace()
+  let executor = Application.Executor(.testing, windowOwnerNames: {
+    await trace.record("owners")
+    return hasWindow ? ["Target"] : ["Other"]
+  })
+
+  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { _, _ in
+    await trace.record("reopen")
+    throw ExecutorLaunchError.failed
+  })) {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      activateFrom: { _, _ in true }, runningApplications: [target]
+    )) {
+      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+        NSError(domain: "test", code: 77)
+      })) {
+        do {
+          _ = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
+          Issue.record("Expected fallback failure")
+        } catch Core.NSAppleScript.Error.unableToExecute(let error) {
+          #expect((error as NSError).code == 77)
+        } catch {
+          Issue.record("Unexpected error: \(error)")
+        }
+      }
+    }
+  }
+  #expect(await trace.events == (hasWindow ? ["owners", "reopen"] : ["owners"]))
+}
+
+@Test @MainActor func cancelledReopenDoesNotRunFallback() async throws {
+  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let executor = Application.Executor(.testing, windowOwnerNames: { ["Target"] })
+
+  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { _, _ in
+    throw CancellationError()
+  })) {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      activateFrom: { _, _ in true }, runningApplications: [target]
+    )) {
+      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+        Issue.record("Cancelled reopen must not trigger fallback")
+        return nil
+      })) {
+        await #expect(throws: CancellationError.self) {
+          try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
+        }
+      }
+    }
+  }
+}
+
 @Test @MainActor func waitModifierPollsAfterOrdinaryLaunch() async throws {
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))

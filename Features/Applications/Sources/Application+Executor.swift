@@ -23,12 +23,16 @@ public extension Application {
     private let env: Core.Environment
     private let operation: Operations
     private let workspace: Core.Workspace
+    private let windowOwnerNames: (@Sendable () async -> [String])?
 
-    public convenience init(_ env: Core.Environment) {
-      self.init(env, wait: Operation.Wait(env))
+    /// The host may supply its cached window owner names for ordinary-open orchestration.
+    public convenience init(_ env: Core.Environment,
+                            windowOwnerNames: (@Sendable () async -> [String])? = nil) {
+      self.init(env, wait: Operation.Wait(env), windowOwnerNames: windowOwnerNames)
     }
 
-    init(_ env: Core.Environment, wait: Operation.Wait) {
+    init(_ env: Core.Environment, wait: Operation.Wait,
+         windowOwnerNames: (@Sendable () async -> [String])? = nil) {
       self.env = env
       self.operation = Operations(
         activate: Operation.Activate(env),
@@ -40,6 +44,7 @@ public extension Application {
         wait: wait,
       )
       self.workspace = Core.Workspace(env)
+      self.windowOwnerNames = windowOwnerNames
     }
 
     @discardableResult
@@ -96,10 +101,27 @@ public extension Application {
       let isFrontMostApplication = bundleIdentifier == workspace.frontmostApplication?.bundleIdentifier
 
       if isFrontMostApplication {
+        let owners = await windowOwnerNames?()
+        try Task.checkCancellation()
         let result = operation.activate(bundleIdentifier)
         try Task.checkCancellation()
         switch result {
-        case .activated: break
+        case .activated:
+          if let owners {
+            if owners.contains(command.application.bundleName) {
+              do {
+                try await operation.launch(at: command.application.path, with: command.modifiers)
+              } catch is CancellationError {
+                throw CancellationError()
+              } catch {
+                try Task.checkCancellation()
+                try operation.bringToFront()
+              }
+            } else {
+              // Keep fallback work owned by this task rather than detaching it.
+              try operation.bringToFront()
+            }
+          }
         case .missingFrontmost, .missingTarget, .rejected:
           try operation.bringToFront()
         }
