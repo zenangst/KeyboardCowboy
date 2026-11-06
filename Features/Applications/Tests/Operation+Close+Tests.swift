@@ -29,3 +29,14 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
     try await #expect(close(bundleIdentifier) == false)
   }
 }
+
+@Test func testCloseReportsTerminationFailure() async {
+  await Core.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplications: [Core.RunningApplication(.testing(bundleIdentifier))],
+    terminate: false
+  )) {
+    await #expect(throws: Application.Executor.ExecutionError.failedToTerminate(bundleIdentifier)) {
+      try await Operation.Close(.testing)(bundleIdentifier)
+    }
+  }
+}

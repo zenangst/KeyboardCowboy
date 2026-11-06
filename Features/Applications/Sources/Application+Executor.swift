@@ -3,6 +3,10 @@ import CowboyCore
 
 public extension Application {
   final class Executor: Sendable {
+    public enum ExecutionError: Error, Equatable, Sendable {
+      case failedToTerminate(Core.BundleIdentifier)
+    }
+
     struct Operations: Sendable {
       let activate: Operation.Activate
       let bringToFront: Operation.BringToFront

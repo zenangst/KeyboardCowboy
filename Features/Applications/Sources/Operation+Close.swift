@@ -14,7 +14,10 @@ extension Operation {
         return false
       }
 
-      return application.terminate()
+      guard application.terminate() else {
+        throw Application.Executor.ExecutionError.failedToTerminate(bundleIdentifier)
+      }
+      return true
     }
   }
 }

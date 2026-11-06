@@ -1,11 +1,28 @@
 @testable import ApplicationsFeature
-import CowboyCore
+@testable import CowboyCore
 import System
 import Testing
 import Foundation
 
 private enum ExecutorLaunchError: Error {
   case failed
+}
+
+@Test @MainActor func executorPropagatesTerminationFailure() async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"close","meta":{"id":"saved-command","name":"Close","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+
+  await Core.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplications: [Core.RunningApplication(.testing(identifier))],
+    terminate: false
+  )) {
+    await #expect(throws: Application.Executor.ExecutionError.failedToTerminate(identifier)) {
+      try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+    }
+  }
+  #expect(snapshot.apps.frontMost == nil)
 }
 
 @Test @MainActor func executorPropagatesLaunchFailure() async throws {
