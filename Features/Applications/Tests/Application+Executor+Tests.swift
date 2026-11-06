@@ -384,16 +384,23 @@ private actor OpenTrace {
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
-  let wait = Operation.Wait(.testing, sleep: { _ in throw TestWaitError.reached })
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  let wait = Operation.Wait(.testing, sleep: { _ in
+    continuation.yield("wait")
+    throw TestWaitError.reached
+  })
 
   await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
     await Core.RunningApplication.Testing.$mock.withValue(.init(
-      activateFrom: { _, _ in activationSucceeds },
+      activateFrom: { _, _ in
+        continuation.yield("activate")
+        return activationSucceeds
+      },
       isFinishedLaunching: { false },
       runningApplications: [target]
     )) {
       await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
-        if activationSucceeds { Issue.record("Unexpected activation fallback") }
+        continuation.yield("fallback")
         return nil
       })) {
         await #expect(throws: TestWaitError.reached) {
@@ -402,6 +409,10 @@ private actor OpenTrace {
       }
     }
   }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == (activationSucceeds ? ["activate", "wait"] : ["activate", "fallback", "wait"]))
 }
 
 @Test(arguments: [false, true]) @MainActor func waitTimeoutContinuesWithoutRepeatingWait(background: Bool) async throws {
@@ -613,18 +624,24 @@ private actor LaunchEvents {
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
+  let (events, continuation) = AsyncStream<String>.makeStream()
 
   try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
     try await Core.RunningApplication.Testing.$mock.withValue(.init(
-      activateFrom: { _, _ in false }, runningApplications: [target]
+      activateFrom: { _, _ in continuation.yield("activate"); return false }, runningApplications: [target]
     )) {
       try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
-        nil
+        continuation.yield("fallback")
+        return nil
       })) {
         _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
       }
     }
   }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["activate", "fallback"])
 }
 
 @Test @MainActor func executorPropagatesBringToFrontFailure() async throws {

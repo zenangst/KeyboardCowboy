@@ -3,6 +3,14 @@ import CowboyCore
 
 public extension Application {
   final class Executor: Sendable {
+    /// A host may restore a previous application instead of hiding on peek release.
+    public enum PeekReleaseAction: Sendable {
+      case hide
+      /// Supply an ordinary open command for the application's previous target.
+      case open(Command.Application)
+      case none
+    }
+
     public struct SelfApplicationHandler: Sendable {
       let bundleIdentifier: Core.BundleIdentifier
       let open: @Sendable () async -> Void
@@ -36,21 +44,24 @@ public extension Application {
     private let windowOwnerNames: (@Sendable () async -> [String])?
     private let willExecute: (@Sendable (Command.Application) async -> Void)?
     private let selfApplication: SelfApplicationHandler?
+    private let peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)?
 
-    /// The host may supply cached window owners and a cooperative sleep boundary.
+    /// The host supplies eligible release events, cached window owners and optional adapters.
     public convenience init(_ env: Core.Environment,
                             windowOwnerNames: (@Sendable () async -> [String])? = nil,
                             willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
                             selfApplication: SelfApplicationHandler? = nil,
+                            peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)? = nil,
                             sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }) {
       self.init(env, wait: Operation.Wait(env, sleep: sleep), windowOwnerNames: windowOwnerNames,
-                willExecute: willExecute, selfApplication: selfApplication)
+                willExecute: willExecute, selfApplication: selfApplication, peekRelease: peekRelease)
     }
 
     init(_ env: Core.Environment, wait: Operation.Wait,
          windowOwnerNames: (@Sendable () async -> [String])? = nil,
          willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
-         selfApplication: SelfApplicationHandler? = nil) {
+         selfApplication: SelfApplicationHandler? = nil,
+         peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)? = nil) {
       self.env = env
       self.operation = Operations(
         activate: Operation.Activate(env),
@@ -65,6 +76,7 @@ public extension Application {
       self.windowOwnerNames = windowOwnerNames
       self.willExecute = willExecute
       self.selfApplication = selfApplication
+      self.peekRelease = peekRelease
     }
 
     @discardableResult
@@ -106,7 +118,16 @@ public extension Application {
 
         switch cgEventType {
         case .keyUp:
-          await operation.hide(bundleIdentifier, snapshot: snapshot)
+          let releaseAction = await peekRelease?(command) ?? .hide
+          try Task.checkCancellation()
+          switch releaseAction {
+          case .hide:
+            await operation.hide(bundleIdentifier, snapshot: snapshot)
+          case .open(let previous):
+            try await open(previous)
+          case .none:
+            break
+          }
         case .keyDown:
           try await open(command)
         default: break
