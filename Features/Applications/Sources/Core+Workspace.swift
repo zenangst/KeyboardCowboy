@@ -30,7 +30,7 @@ extension Core {
           .openApplication(at: applicationURL, configuration: configuration)
           .asRunningApplication()
       #if DEBUG
-      case .testing: Testing.mock.openApplication(applicationURL, configuration)
+      case .testing: try await Testing.mock.openApplication(applicationURL, configuration)
       #endif
       }
     }

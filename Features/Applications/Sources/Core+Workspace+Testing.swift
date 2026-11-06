@@ -10,10 +10,10 @@ extension Core.Workspace {
 
   public struct Mock: Sendable {
     var frontmostApplication: Core.RunningApplication?
-    var openApplication: @Sendable (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) -> Core.RunningApplication
+    var openApplication: @Sendable (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) async throws -> Core.RunningApplication
 
     init(frontmostApplication: Core.RunningApplication? = nil,
-         openApplication: @Sendable @escaping (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) -> Core.RunningApplication = { _, _ in Core.RunningApplication(.testing(nil)) }) {
+         openApplication: @Sendable @escaping (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) async throws -> Core.RunningApplication = { _, _ in Core.RunningApplication(.testing(nil)) }) {
       self.frontmostApplication = frontmostApplication
       self.openApplication = openApplication
     }
