@@ -17,7 +17,7 @@ public extension Application {
     private let operation: Operations
     private let workspace: Core.Workspace
 
-    init(_ env: Core.Environment) {
+    public init(_ env: Core.Environment) {
       self.env = env
       self.operation = Operations(
         activate: Operation.Activate(env),
@@ -31,7 +31,7 @@ public extension Application {
       self.workspace = Core.Workspace(env)
     }
 
-    func execute(_ command: Command.Application,
+    public func execute(_ command: Command.Application,
                  cgEventType: CGEventType?,
                  snapshot: UserSpace.Snapshot) async throws {
       guard !shouldSkipBecauseApplicationIsRunning(for: command) else {
