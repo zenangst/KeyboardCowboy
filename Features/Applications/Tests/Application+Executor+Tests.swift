@@ -131,6 +131,35 @@ private actor OpenTrace {
   #expect(cancelled)
 }
 
+@Test @MainActor func cancellationDuringRunningGuardIsNotSwallowed() async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["onlyIfNotRunning"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+    group.addTask {
+      await Core.RunningApplication.Testing.$mock.withValue(.init(
+        runningApplicationsLookup: { _ in
+          withUnsafeCurrentTask { $0?.cancel() }
+          return [target]
+        }
+      )) {
+        do {
+          _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+          return false
+        } catch is CancellationError {
+          return true
+        } catch {
+          return false
+        }
+      }
+    }
+    return await group.next() ?? false
+  }
+  #expect(cancelled)
+}
+
 @Test @MainActor func frontmostAppWithTrackedWindowReopens() async throws {
   let identifier = Core.BundleIdentifier("example.target")
   let target = Core.RunningApplication(.testing(identifier))
@@ -311,7 +340,7 @@ private actor OpenTrace {
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
   let trace = OpenTrace()
-  let wait = Operation.Wait(.testing, sleep: { _ in
+  let executor = Application.Executor(.testing, sleep: { _ in
     await trace.record("wait")
     throw TestWaitError.reached
   })
@@ -321,7 +350,7 @@ private actor OpenTrace {
     return Core.RunningApplication(.testing(nil))
   })) {
     await #expect(throws: TestWaitError.reached) {
-      try await Application.Executor(.testing, wait: wait).execute(command, cgEventType: nil, snapshot: snapshot)
+      try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
     }
   }
   #expect(await trace.events == ["launch", "wait"])

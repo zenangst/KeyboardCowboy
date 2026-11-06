@@ -20,7 +20,13 @@ extension Operation {
       let appleScript = try Core.NSAppleScript(env, source: source)
 
       var errorInfo: NSDictionary?
-      _ = try appleScript.executeAndReturnError(&errorInfo)
+      do {
+        _ = try appleScript.executeAndReturnError(&errorInfo)
+      } catch {
+        try Task.checkCancellation()
+        throw error
+      }
+      try Task.checkCancellation()
     }
   }
 }

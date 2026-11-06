@@ -25,13 +25,16 @@ extension Operation {
     }
 
     func callAsFunction(_ bundleIdentifier: BundleIdentifier) async throws -> Result {
+      try Task.checkCancellation()
       guard let application = RunningApplication.application(with: bundleIdentifier, env: env) else {
+        try Task.checkCancellation()
         return .skipped
       }
 
       let applicationToTerminate = { [env] in RunningApplication.application(with: bundleIdentifier, env: env) == nil }
       let applicationToLaunch = { [env] in RunningApplication.application(with: bundleIdentifier, env: env) != nil }
 
+      try Task.checkCancellation()
       application.terminate()
       switch try await poll(for: applicationToTerminate) {
       case .success:
@@ -42,10 +45,16 @@ extension Operation {
         let configuration = NSWorkspace.OpenConfiguration()
         let applicationURL = URL(fileURLWithPath: bundleURL.path())
 
-        try await workspace.openApplication(
-          at: applicationURL,
-          configuration: configuration,
-        )
+        try Task.checkCancellation()
+        do {
+          try await workspace.openApplication(
+            at: applicationURL,
+            configuration: configuration,
+          )
+        } catch {
+          try Task.checkCancellation()
+          throw error
+        }
 
         return try await poll(for: applicationToLaunch)
 
@@ -63,10 +72,12 @@ extension Operation {
       var retries = self.retries
 
       while waiting {
+        try Task.checkCancellation()
         if retries <= 0 {
           waiting = false
           result = .timedOut
         } else if condition() {
+          try Task.checkCancellation()
           waiting = false
           result = .success
         } else {

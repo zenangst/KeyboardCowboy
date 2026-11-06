@@ -80,3 +80,26 @@ let activateBundleIdentifier = BundleIdentifier("activate.me.please")
     }
   }
 }
+
+@Test func testActivateCancellationDuringLookupPreventsActivation() async {
+  let target = Core.RunningApplication(.testing(activateBundleIdentifier))
+  let result = await withTaskGroup(of: Operation.Activate.Result.self, returning: Operation.Activate.Result.self) { group in
+    group.addTask {
+      Core.Workspace.Testing.$mock.withValue(.init(
+        frontmostApplication: Core.RunningApplication(.testing(frontmostBundleIdentifier))
+      )) {
+        Core.RunningApplication.Testing.$mock.withValue(.init(
+          activateFrom: { _, _ in Issue.record("Cancelled lookup must not activate"); return false },
+          runningApplicationsLookup: { _ in
+            withUnsafeCurrentTask { $0?.cancel() }
+            return [target]
+          }
+        )) {
+          Operation.Activate(.testing)(activateBundleIdentifier)
+        }
+      }
+    }
+    return await group.next() ?? .rejected
+  }
+  #expect(result == .cancelled)
+}

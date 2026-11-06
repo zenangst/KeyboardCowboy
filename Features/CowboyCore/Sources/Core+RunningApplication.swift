@@ -53,7 +53,7 @@ public extension Core {
       switch mode {
       case .production(let application): application.isTerminated
       #if DEBUG
-      case .testing: Testing.mock.isTerminated
+      case .testing: Testing.mock.onIsTerminated?(self) ?? Testing.mock.isTerminated
       #endif
       }
     }

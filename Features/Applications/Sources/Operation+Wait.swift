@@ -33,6 +33,7 @@ extension Operation {
 
     @discardableResult
     func callAsFunction(for bundleIdentifier: BundleIdentifier) async throws -> Result {
+      try Task.checkCancellation()
       guard !skippableBundleIdentifiers.contains(bundleIdentifier) else {
         return .skipped
       }
@@ -42,11 +43,15 @@ extension Operation {
         try Task.checkCancellation()
         if let application = Core.RunningApplication.application(with: bundleIdentifier, env: env),
            application.isFinishedLaunching {
+          try Task.checkCancellation()
           try await sleep(finalSleepDuration)
+          try Task.checkCancellation()
           return .success
         }
 
+        try Task.checkCancellation()
         try await sleep(pollingInterval)
+        try Task.checkCancellation()
         retries -= 1
       }
 

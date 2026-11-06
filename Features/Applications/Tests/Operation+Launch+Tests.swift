@@ -11,6 +11,28 @@ private enum LaunchError: Error {
   case failed
 }
 
+@Test func testLaunchCancellationTakesPrecedenceOverOpenError() async {
+  let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+    group.addTask {
+      await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+        withUnsafeCurrentTask { $0?.cancel() }
+        throw LaunchError.failed
+      })) {
+        do {
+          try await Operation.Launch(.testing)(at: "/tmp/foobar", with: [])
+          return false
+        } catch is CancellationError {
+          return true
+        } catch {
+          return false
+        }
+      }
+    }
+    return await group.next() ?? false
+  }
+  #expect(cancelled)
+}
+
 @Test func testLaunchPropagatesAsyncFailure() async {
   let recorder = LaunchRecorder()
   let launch = Operation.Launch(.testing)
@@ -24,6 +46,28 @@ private enum LaunchError: Error {
       try await launch(at: "/tmp/foobar", with: [])
     }
   }
+  #expect(await recorder.paths == ["/tmp/foobar"])
+}
+
+@Test func testLaunchReportsCancellationAfterOpenReturns() async {
+  let recorder = LaunchRecorder()
+  let cancelled = await Task {
+    await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
+      await recorder.record(url.path())
+      withUnsafeCurrentTask { $0?.cancel() }
+      return Core.RunningApplication(.testing(nil))
+    })) {
+      do {
+        try await Operation.Launch(.testing)(at: "/tmp/foobar", with: [])
+        return false
+      } catch is CancellationError {
+        return true
+      } catch {
+        return false
+      }
+    }
+  }.value
+  #expect(cancelled)
   #expect(await recorder.paths == ["/tmp/foobar"])
 }
 

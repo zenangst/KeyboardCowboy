@@ -148,3 +148,48 @@ private actor SleepRecorder {
   }
   #expect(cancelled)
 }
+
+@Test func testCancelledWaitStillThrowsForSkippedAndZeroRetryCases() async {
+  for (identifier, retries) in [("com.apple.Music", 20), ("missing.app", 0)] {
+    let cancelled = await Task {
+      withUnsafeCurrentTask { $0?.cancel() }
+      do {
+        _ = try await Operation.Wait(.testing, retries: retries)(for: .init(identifier))
+        return false
+      } catch is CancellationError {
+        return true
+      } catch {
+        return false
+      }
+    }.value
+    #expect(cancelled)
+  }
+}
+
+@Test func testWaitChecksCancellationAfterInjectedSleepReturns() async {
+  for finished in [false, true] {
+    let identifier = BundleIdentifier("current.app")
+    let recorder = SleepRecorder()
+    let cancelled = await Task {
+      let wait = Operation.Wait(.testing, retries: 1, sleep: { duration in
+        await recorder.recordSleep(duration)
+        withUnsafeCurrentTask { $0?.cancel() }
+      })
+      return await Core.RunningApplication.Testing.$mock.withValue(.init(
+        isFinishedLaunching: { finished },
+        runningApplications: [.init(.testing(identifier))]
+      )) {
+        do {
+          _ = try await wait(for: identifier)
+          return false
+        } catch is CancellationError {
+          return true
+        } catch {
+          return false
+        }
+      }
+    }.value
+    #expect(cancelled)
+    #expect(await recorder.recordedSleeps() == [finished ? .milliseconds(50) : .milliseconds(100)])
+  }
+}

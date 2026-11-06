@@ -37,12 +37,13 @@ public extension Application {
     private let willExecute: (@Sendable (Command.Application) async -> Void)?
     private let selfApplication: SelfApplicationHandler?
 
-    /// The host may supply its cached window owner names for ordinary-open orchestration.
+    /// The host may supply cached window owners and a cooperative sleep boundary.
     public convenience init(_ env: Core.Environment,
                             windowOwnerNames: (@Sendable () async -> [String])? = nil,
                             willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
-                            selfApplication: SelfApplicationHandler? = nil) {
-      self.init(env, wait: Operation.Wait(env), windowOwnerNames: windowOwnerNames,
+                            selfApplication: SelfApplicationHandler? = nil,
+                            sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }) {
+      self.init(env, wait: Operation.Wait(env, sleep: sleep), windowOwnerNames: windowOwnerNames,
                 willExecute: willExecute, selfApplication: selfApplication)
     }
 
@@ -74,7 +75,9 @@ public extension Application {
       try Task.checkCancellation()
       await willExecute?(command)
       try Task.checkCancellation()
-      guard !shouldSkipBecauseApplicationIsRunning(for: command) else {
+      let shouldSkip = shouldSkipBecauseApplicationIsRunning(for: command)
+      try Task.checkCancellation()
+      guard !shouldSkip else {
         return snapshot
       }
 
@@ -148,6 +151,8 @@ public extension Application {
               try operation.bringToFront()
             }
           }
+        case .cancelled:
+          throw CancellationError()
         case .missingFrontmost, .missingTarget, .rejected:
           try operation.bringToFront()
         }

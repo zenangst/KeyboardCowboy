@@ -14,13 +14,20 @@ extension Operation {
     }
 
     func callAsFunction(at path: String, with modifiers: Set<Command.Application.Modifier>) async throws {
+      try Task.checkCancellation()
       let configuration = NSWorkspace.OpenConfiguration(modifiers)
       let applicationURL = URL(fileURLWithPath: path)
 
-      try await workspace.openApplication(
-        at: applicationURL,
-        configuration: configuration,
-      )
+      do {
+        try await workspace.openApplication(
+          at: applicationURL,
+          configuration: configuration,
+        )
+      } catch {
+        try Task.checkCancellation()
+        throw error
+      }
+      try Task.checkCancellation()
     }
   }
 }

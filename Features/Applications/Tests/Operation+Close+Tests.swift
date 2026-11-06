@@ -71,3 +71,28 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
   #expect(calls.count == 1)
   #expect(calls.first === first)
 }
+
+@Test func testCloseCancellationDuringLookupPreventsTermination() async {
+  let target = Core.RunningApplication(.testing(bundleIdentifier))
+  let recorder = TerminationRecorder()
+  let cancelled = await Task {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      runningApplicationsLookup: { _ in
+        withUnsafeCurrentTask { $0?.cancel() }
+        return [target]
+      },
+      onTerminate: recorder.terminate
+    )) {
+      do {
+        _ = try await Operation.Close(.testing)(bundleIdentifier)
+        return false
+      } catch is CancellationError {
+        return true
+      } catch {
+        return false
+      }
+    }
+  }.value
+  #expect(cancelled)
+  #expect(recorder.recordedApplications().isEmpty)
+}
