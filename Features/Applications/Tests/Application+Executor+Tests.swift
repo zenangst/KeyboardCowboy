@@ -178,11 +178,61 @@ private actor LaunchEvents {
   let executor = Application.Executor(.testing)
 
   try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: second)) {
-    let updated = try await executor.execute(command, cgEventType: nil, snapshot: initial)
-    #expect(updated.apps.frontMost?.runningApplication === second)
-    #expect(updated.apps.previous?.runningApplication === first)
-    command.action = .peek
-    let untouched = try await executor.execute(command, cgEventType: nil, snapshot: initial)
-    #expect(untouched === initial)
+    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+      activateFrom: { _, _ in true }, runningApplications: [second]
+    )) {
+      let updated = try await executor.execute(command, cgEventType: nil, snapshot: initial)
+      #expect(updated.apps.frontMost?.runningApplication === second)
+      #expect(updated.apps.previous?.runningApplication === first)
+      command.action = .peek
+      let untouched = try await executor.execute(command, cgEventType: nil, snapshot: initial)
+      #expect(untouched === initial)
+    }
   }
+}
+
+@Test @MainActor func executorReportsFrontmostActivationRejection() async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+
+  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      activateFrom: { _, _ in false }, runningApplications: [target]
+    )) {
+      await #expect(throws: Application.Executor.ExecutionError.failedToActivate(identifier)) {
+        try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+      }
+    }
+  }
+}
+
+@Test @MainActor func cancelledActivationIsNotReportedAsFailure() async throws {
+  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+    group.addTask {
+      await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
+        await Core.RunningApplication.Testing.$mock.withValue(.init(
+          activateFrom: { _, _ in withUnsafeCurrentTask { $0?.cancel() }; return false },
+          runningApplications: [target]
+        )) {
+          do {
+            _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+            return false
+          } catch is CancellationError {
+            return true
+          } catch {
+            return false
+          }
+        }
+      }
+    }
+    return await group.next() ?? false
+  }
+  #expect(cancelled)
 }

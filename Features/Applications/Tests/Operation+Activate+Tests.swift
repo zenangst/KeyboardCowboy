@@ -22,7 +22,7 @@ let activateBundleIdentifier = BundleIdentifier("activate.me.please")
     ),
     ) {
       let activate = Operation.Activate(.testing)
-      #expect(activate(activateBundleIdentifier) == true)
+      #expect(activate(activateBundleIdentifier) == .activated)
     }
   }
 }
@@ -44,7 +44,7 @@ let activateBundleIdentifier = BundleIdentifier("activate.me.please")
     ),
     ) {
       let activate = Operation.Activate(.testing)
-      #expect(activate(frontmostBundleIdentifier) == true)
+      #expect(activate(frontmostBundleIdentifier) == .activated)
     }
   }
 }
@@ -59,7 +59,24 @@ let activateBundleIdentifier = BundleIdentifier("activate.me.please")
     ),
     ) {
       let activate = Operation.Activate(.testing)
-      #expect(activate(activateBundleIdentifier) == false)
+      #expect(activate(activateBundleIdentifier) == .missingTarget)
+    }
+  }
+}
+
+@Test func testActivateReportsMissingFrontmostAndRejection() {
+  let activate = Operation.Activate(.testing)
+  Core.Workspace.Testing.$mock.withValue(.init()) {
+    #expect(activate(activateBundleIdentifier) == .missingFrontmost)
+  }
+  Core.Workspace.Testing.$mock.withValue(.init(
+    frontmostApplication: Core.RunningApplication(.testing(frontmostBundleIdentifier))
+  )) {
+    Core.RunningApplication.Testing.$mock.withValue(.init(
+      activateFrom: { _, _ in false },
+      runningApplications: [.init(.testing(activateBundleIdentifier))]
+    )) {
+      #expect(activate(activateBundleIdentifier) == .rejected)
     }
   }
 }

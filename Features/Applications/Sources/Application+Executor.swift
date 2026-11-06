@@ -5,6 +5,9 @@ public extension Application {
   final class Executor: Sendable {
     public enum ExecutionError: Error, Equatable, Sendable {
       case failedToTerminate(Core.BundleIdentifier)
+      case failedToActivate(Core.BundleIdentifier)
+      case applicationNotRunning(Core.BundleIdentifier)
+      case missingFrontmostApplication
     }
 
     struct Operations: Sendable {
@@ -89,7 +92,14 @@ public extension Application {
       let isFrontMostApplication = bundleIdentifier == workspace.frontmostApplication?.bundleIdentifier
 
       if isFrontMostApplication {
-        operation.activate(bundleIdentifier)
+        let result = operation.activate(bundleIdentifier)
+        try Task.checkCancellation()
+        switch result {
+        case .activated: break
+        case .missingFrontmost: throw ExecutionError.missingFrontmostApplication
+        case .missingTarget: throw ExecutionError.applicationNotRunning(bundleIdentifier)
+        case .rejected: throw ExecutionError.failedToActivate(bundleIdentifier)
+        }
       } else {
         try await operation.launch(at: command.application.path, with: command.modifiers)
       }
