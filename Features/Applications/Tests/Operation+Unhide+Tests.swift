@@ -2,6 +2,24 @@
 @testable import CowboyCore
 import Testing
 
+@Test func testUnhideWithMissingSnapshotApplications() async {
+  let identifier = BundleIdentifier("current.app")
+  let application = Core.RunningApplication(.testing(identifier))
+  let snapshot = await UserSpace.Snapshot(apps: .init())
+  let unhide = Operation.Unhide(.testing)
+
+  await Core.Workspace.Testing.$mock.withValue(.init(
+    frontmostApplication: Core.RunningApplication(.testing(BundleIdentifier("other.app")))
+  )) {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      runningApplications: [application],
+      unhide: true,
+    )) {
+      #expect(await unhide(identifier, snapshot: snapshot) == true)
+    }
+  }
+}
+
 @Test func testUnhideRunnningApplication() async throws {
   let currentBundleIdentifier = BundleIdentifier("current.app")
   let currentRunningApplication = Core.RunningApplication(.testing(currentBundleIdentifier))

@@ -12,9 +12,10 @@ extension Operation {
 
     @discardableResult
     func callAsFunction(_ bundleIdentifier: BundleIdentifier, snapshot: UserSpace.Snapshot) async -> Bool {
-      if bundleIdentifier == BundleIdentifier.WildCard.previous,
-         await !snapshot.apps.previous.runningApplication.isHidden {
-        await snapshot.apps.previous.runningApplication.hide()
+      if bundleIdentifier == BundleIdentifier.WildCard.previous {
+        if let previous = await snapshot.apps.previous, !previous.runningApplication.isHidden {
+          previous.runningApplication.hide()
+        }
         return false
       }
 
@@ -23,12 +24,9 @@ extension Operation {
       }
 
       if let frontmostApplication = workspace.frontmostApplication,
-         bundleIdentifier != frontmostApplication.bundleIdentifier {
-        await snapshot
-          .apps
-          .frontMost
-          .runningApplication
-          .activate(options: [])
+         bundleIdentifier != frontmostApplication.bundleIdentifier,
+         let snapshotFrontmost = await snapshot.apps.frontMost {
+        snapshotFrontmost.runningApplication.activate(options: [])
       }
 
       return application.hide()

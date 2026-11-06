@@ -17,13 +17,9 @@ extension Operation {
       }
 
       if let frontmostApplication = workspace.frontmostApplication,
-         bundleIdentifier != frontmostApplication.bundleIdentifier {
-        await snapshot
-          .apps
-          .frontMost
-          .runningApplication
-          .activate(options: [],
-          )
+         bundleIdentifier != frontmostApplication.bundleIdentifier,
+         let snapshotFrontmost = await snapshot.apps.frontMost {
+        snapshotFrontmost.runningApplication.activate(options: [])
       }
 
       return application.unhide()

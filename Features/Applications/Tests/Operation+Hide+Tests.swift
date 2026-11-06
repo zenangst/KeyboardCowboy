@@ -123,3 +123,22 @@ import Testing
     #expect(await hide(wildcard.bundleIdentifier, snapshot: snapshot) == false)
   })
 }
+
+@Test func testHideWithMissingSnapshotApplications() async {
+  let identifier = BundleIdentifier("current.app")
+  let application = Core.RunningApplication(.testing(identifier))
+  let snapshot = await UserSpace.Snapshot(apps: .init())
+  let hide = Operation.Hide(.testing)
+
+  await Core.Workspace.Testing.$mock.withValue(.init(
+    frontmostApplication: Core.RunningApplication(.testing(BundleIdentifier("other.app")))
+  )) {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      hide: true,
+      runningApplications: [application],
+    )) {
+      #expect(await hide(BundleIdentifier.WildCard.previous.bundleIdentifier, snapshot: snapshot) == false)
+      #expect(await hide(identifier, snapshot: snapshot) == true)
+    }
+  }
+}
