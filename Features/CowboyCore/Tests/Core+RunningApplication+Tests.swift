@@ -1,10 +1,9 @@
 @testable import CowboyCore
-import Foundation
+import os
 import Testing
 
-private final class LookupScript: @unchecked Sendable {
-  private let lock = NSLock()
-  private var requests: [Core.BundleIdentifier] = []
+private final class LookupScript: Sendable {
+  private let requests = OSAllocatedUnfairLock(initialState: [Core.BundleIdentifier]())
   private let application: Core.RunningApplication
 
   init(application: Core.RunningApplication) {
@@ -12,34 +11,28 @@ private final class LookupScript: @unchecked Sendable {
   }
 
   func lookup(_ identifier: Core.BundleIdentifier) -> [Core.RunningApplication] {
-    lock.lock()
-    defer { lock.unlock() }
-    requests.append(identifier)
-    return requests.count == 1 ? [] : [application]
+    requests.withLock { requests in
+      requests.append(identifier)
+      return requests.count == 1 ? [] : [application]
+    }
   }
 
   func recordedRequests() -> [Core.BundleIdentifier] {
-    lock.lock()
-    defer { lock.unlock() }
-    return requests
+    requests.withLock { $0 }
   }
 }
 
-private final class EffectRecorder: @unchecked Sendable {
-  private let lock = NSLock()
-  private var events: [String] = []
+private final class EffectRecorder: Sendable {
+  private let events = OSAllocatedUnfairLock(initialState: [String]())
 
   func record(_ action: String, application: Core.RunningApplication) -> Bool {
-    lock.lock()
-    defer { lock.unlock() }
-    events.append("\(action):\(application.bundleIdentifier?.value ?? "missing")")
+    let event = "\(action):\(application.bundleIdentifier?.value ?? "missing")"
+    events.withLock { $0.append(event) }
     return action != "terminate"
   }
 
   func recordedEvents() -> [String] {
-    lock.lock()
-    defer { lock.unlock() }
-    return events
+    events.withLock { $0 }
   }
 }
 

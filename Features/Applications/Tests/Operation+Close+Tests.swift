@@ -1,23 +1,18 @@
 @testable import ApplicationsFeature
 @testable import CowboyCore
 import Testing
-import Foundation
+import os
 
-private final class TerminationRecorder: @unchecked Sendable {
-  private let lock = NSLock()
-  private var applications: [Core.RunningApplication] = []
+private final class TerminationRecorder: Sendable {
+  private let applications = OSAllocatedUnfairLock(initialState: [Core.RunningApplication]())
 
   func terminate(_ application: Core.RunningApplication) -> Bool {
-    lock.lock()
-    defer { lock.unlock() }
-    applications.append(application)
+    applications.withLock { $0.append(application) }
     return true
   }
 
   func recordedApplications() -> [Core.RunningApplication] {
-    lock.lock()
-    defer { lock.unlock() }
-    return applications
+    applications.withLock { $0 }
   }
 }
 

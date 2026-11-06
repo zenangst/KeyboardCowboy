@@ -15,17 +15,20 @@ extension Operation {
     let skippableBundleIdentifiers: Set<BundleIdentifier> = [BundleIdentifier("com.apple.Music")]
     let workspace: Core.Workspace
     let finalSleepDuration: Duration
+    private let sleep: @Sendable (Duration) async throws -> Void
 
     init(_ env: Core.Environment,
          retries: Int = 20,
          finalSleepDuration: Duration = .milliseconds(50),
          pollingInterval: Duration = .milliseconds(100),
+         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
     ) {
       self.env = env
       self.pollingInterval = pollingInterval
       self.retries = retries
       self.finalSleepDuration = finalSleepDuration
       self.workspace = Core.Workspace(env)
+      self.sleep = sleep
     }
 
     @discardableResult
@@ -50,13 +53,13 @@ extension Operation {
         }
 
         if application.isFinishedLaunching {
-          try await Task.sleep(for: finalSleepDuration)
+          try await sleep(finalSleepDuration)
           waiting = false
           result = .success
           break
         }
 
-        try await Task.sleep(for: pollingInterval)
+        try await sleep(pollingInterval)
         retries -= 1
       }
 
