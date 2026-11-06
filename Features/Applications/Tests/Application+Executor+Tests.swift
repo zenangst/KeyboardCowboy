@@ -17,6 +17,61 @@ private actor OpenTrace {
   func record(_ event: String) { events.append(event) }
 }
 
+@Test(arguments: ["open", "close", "hide", "unhide", "peek"])
+@MainActor func selfApplicationRunsAfterHookForEveryAction(action: String) async throws {
+  let identifier = Core.BundleIdentifier("example.host")
+  let fixture = #"{"application":{"bundleIdentifier":"example.host","bundleName":"Host","path":"/Applications/Host.app"},"action":"\#(action)","meta":{"id":"saved-command","name":"Host","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  let executor = Application.Executor(.testing, willExecute: { _ in
+    continuation.yield("hook")
+  }, selfApplication: .init(bundleIdentifier: identifier, open: {
+    continuation.yield("self")
+  }))
+
+  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+    Issue.record("Self-app handling must intercept the command")
+    return .init(.testing(nil))
+  })) {
+    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+      runningApplicationsLookup: { _ in Issue.record("Self-app handling must intercept the command"); return [] }
+    )) {
+      let result = try await executor.execute(command, cgEventType: .keyDown, snapshot: snapshot)
+      #expect(result === snapshot)
+    }
+  }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["hook", "self"])
+}
+
+@Test @MainActor func onlyIfNotRunningGuardPrecedesSelfApplicationHandler() async throws {
+  let identifier = Core.BundleIdentifier("example.host")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.host","bundleName":"Host","path":"/Applications/Host.app"},"action":"close","modifiers":["onlyIfNotRunning"],"meta":{"id":"saved-command","name":"Host","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  let executor = Application.Executor(.testing, willExecute: { _ in
+    continuation.yield("hook")
+  }, selfApplication: .init(bundleIdentifier: identifier, open: {
+    Issue.record("Running-app guard must precede self-app handler")
+  }))
+
+  try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplicationsLookup: { _ in continuation.yield("lookup"); return [target] }
+  )) {
+    let result = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
+    #expect(result === snapshot)
+  }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["hook", "lookup"])
+}
+
 @Test @MainActor func willExecutePrecedesOnlyIfNotRunningGuard() async throws {
   let identifier = Core.BundleIdentifier("example.target")
   let target = Core.RunningApplication(.testing(identifier))

@@ -3,6 +3,16 @@ import CowboyCore
 
 public extension Application {
   final class Executor: Sendable {
+    public struct SelfApplicationHandler: Sendable {
+      let bundleIdentifier: Core.BundleIdentifier
+      let open: @Sendable () async -> Void
+
+      public init(bundleIdentifier: Core.BundleIdentifier, open: @escaping @Sendable () async -> Void) {
+        self.bundleIdentifier = bundleIdentifier
+        self.open = open
+      }
+    }
+
     public enum ExecutionError: Error, Equatable, Sendable {
       case failedToTerminate(Core.BundleIdentifier)
       case failedToActivate(Core.BundleIdentifier)
@@ -25,17 +35,21 @@ public extension Application {
     private let workspace: Core.Workspace
     private let windowOwnerNames: (@Sendable () async -> [String])?
     private let willExecute: (@Sendable (Command.Application) async -> Void)?
+    private let selfApplication: SelfApplicationHandler?
 
     /// The host may supply its cached window owner names for ordinary-open orchestration.
     public convenience init(_ env: Core.Environment,
                             windowOwnerNames: (@Sendable () async -> [String])? = nil,
-                            willExecute: (@Sendable (Command.Application) async -> Void)? = nil) {
-      self.init(env, wait: Operation.Wait(env), windowOwnerNames: windowOwnerNames, willExecute: willExecute)
+                            willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
+                            selfApplication: SelfApplicationHandler? = nil) {
+      self.init(env, wait: Operation.Wait(env), windowOwnerNames: windowOwnerNames,
+                willExecute: willExecute, selfApplication: selfApplication)
     }
 
     init(_ env: Core.Environment, wait: Operation.Wait,
          windowOwnerNames: (@Sendable () async -> [String])? = nil,
-         willExecute: (@Sendable (Command.Application) async -> Void)? = nil) {
+         willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
+         selfApplication: SelfApplicationHandler? = nil) {
       self.env = env
       self.operation = Operations(
         activate: Operation.Activate(env),
@@ -49,6 +63,7 @@ public extension Application {
       self.workspace = Core.Workspace(env)
       self.windowOwnerNames = windowOwnerNames
       self.willExecute = willExecute
+      self.selfApplication = selfApplication
     }
 
     @discardableResult
@@ -64,6 +79,11 @@ public extension Application {
       }
 
       let bundleIdentifier = BundleIdentifier(command.application.bundleIdentifier)
+      if let selfApplication, selfApplication.bundleIdentifier == bundleIdentifier {
+        await selfApplication.open()
+        try Task.checkCancellation()
+        return snapshot
+      }
 
       switch command.action {
       case .open:
@@ -142,6 +162,7 @@ public extension Application {
             guard let target = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
               return
             }
+
             try Task.checkCancellation()
             if let frontmost = workspace.frontmostApplication {
               target.activate(from: frontmost, options: .activateAllWindows)
