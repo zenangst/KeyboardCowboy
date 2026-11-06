@@ -13,6 +13,43 @@ private actor LaunchEvents {
   func record() { count += 1 }
 }
 
+@Test @MainActor func cancellationDuringFocusPreventsHideAndUnhide() async throws {
+  let frontmostID = Core.BundleIdentifier("example.frontmost")
+  let targetID = Core.BundleIdentifier("example.target")
+  let frontmost = Core.RunningApplication(.testing(frontmostID))
+  let target = Core.RunningApplication(.testing(targetID))
+  let snapshot = UserSpace.Snapshot(apps: .init(
+    frontMost: .init(bundleIdentifier: frontmostID, runningApplication: frontmost)))
+
+  for action in ["hide", "unhide"] {
+    let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"\#(action)","meta":{"id":"saved-command","name":"Target","enabled":true}}"#
+    let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+    let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+      group.addTask {
+        await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+          await Core.RunningApplication.Testing.$mock.withValue(.init(
+            activate: { _ in withUnsafeCurrentTask { $0?.cancel() }; return true },
+            runningApplications: [target],
+            onHide: { _ in Issue.record("Hide ran after cancellation"); return true },
+            onUnhide: { _ in Issue.record("Unhide ran after cancellation"); return true }
+          )) {
+            do {
+              _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+              return false
+            } catch is CancellationError {
+              return true
+            } catch {
+              return false
+            }
+          }
+        }
+      }
+      return await group.next() ?? false
+    }
+    #expect(cancelled, "Expected cancellation for \(action)")
+  }
+}
+
 @Test @MainActor func cancelledExecutorDoesNotLookUpOrTerminate() async throws {
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"close","meta":{"id":"saved-command","name":"Close","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))

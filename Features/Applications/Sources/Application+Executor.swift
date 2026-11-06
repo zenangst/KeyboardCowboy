@@ -71,6 +71,7 @@ public extension Application {
         default: break
         }
       }
+      try Task.checkCancellation()
       return snapshot
     }
 
