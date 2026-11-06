@@ -106,7 +106,7 @@ public extension Core {
       switch mode {
       case .production(let application): application.hide()
       #if DEBUG
-      case .testing: Testing.mock.hide
+      case .testing: Testing.mock.onHide?(self) ?? Testing.mock.hide
       #endif
       }
     }
@@ -116,7 +116,7 @@ public extension Core {
       switch mode {
       case .production(let application): application.terminate()
       #if DEBUG
-      case .testing: Testing.mock.terminate
+      case .testing: Testing.mock.onTerminate?(self) ?? Testing.mock.terminate
       #endif
       }
     }
@@ -126,7 +126,7 @@ public extension Core {
       switch mode {
       case .production(let application): application.unhide()
       #if DEBUG
-      case .testing: Testing.mock.unhide
+      case .testing: Testing.mock.onUnhide?(self) ?? Testing.mock.unhide
       #endif
       }
     }

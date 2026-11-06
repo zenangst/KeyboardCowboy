@@ -25,6 +25,9 @@ extension Core.RunningApplication {
     var runningApplicationsLookup: (@Sendable (Core.BundleIdentifier) -> [Core.RunningApplication])?
     var terminate: Bool
     var unhide: Bool
+    var onHide: (@Sendable (Core.RunningApplication) -> Bool)?
+    var onTerminate: (@Sendable (Core.RunningApplication) -> Bool)?
+    var onUnhide: (@Sendable (Core.RunningApplication) -> Bool)?
 
     init(
       activate: @Sendable @escaping (
@@ -43,7 +46,10 @@ extension Core.RunningApplication {
       runningApplications: [Core.RunningApplication] = [],
       runningApplicationsLookup: (@Sendable (Core.BundleIdentifier) -> [Core.RunningApplication])? = nil,
       unhide: Bool = false,
-      terminate: Bool = false) {
+      terminate: Bool = false,
+      onHide: (@Sendable (Core.RunningApplication) -> Bool)? = nil,
+      onTerminate: (@Sendable (Core.RunningApplication) -> Bool)? = nil,
+      onUnhide: (@Sendable (Core.RunningApplication) -> Bool)? = nil) {
       self.activate = activate
       self.activateFrom = activateFrom
       self.bundleIdentifier = bundleIdentifier
@@ -56,6 +62,9 @@ extension Core.RunningApplication {
       self.runningApplicationsLookup = runningApplicationsLookup
       self.terminate = terminate
       self.unhide = unhide
+      self.onHide = onHide
+      self.onTerminate = onTerminate
+      self.onUnhide = onUnhide
     }
   }
 }

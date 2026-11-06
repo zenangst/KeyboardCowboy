@@ -1,6 +1,25 @@
 @testable import ApplicationsFeature
 @testable import CowboyCore
 import Testing
+import Foundation
+
+private final class TerminationRecorder: @unchecked Sendable {
+  private let lock = NSLock()
+  private var applications: [Core.RunningApplication] = []
+
+  func terminate(_ application: Core.RunningApplication) -> Bool {
+    lock.lock()
+    defer { lock.unlock() }
+    applications.append(application)
+    return true
+  }
+
+  func recordedApplications() -> [Core.RunningApplication] {
+    lock.lock()
+    defer { lock.unlock() }
+    return applications
+  }
+}
 
 let bundleIdentifier = BundleIdentifier("close.me.please")
 
@@ -39,4 +58,21 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
       try await Operation.Close(.testing)(bundleIdentifier)
     }
   }
+}
+
+@Test func testCloseTerminatesOnlyFirstMatchingInstance() async throws {
+  let first = Core.RunningApplication(.testing(bundleIdentifier))
+  let second = Core.RunningApplication(.testing(bundleIdentifier))
+  let other = Core.RunningApplication(.testing(.init("other.app")))
+  let recorder = TerminationRecorder()
+  try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplications: [other, first, second],
+    onTerminate: recorder.terminate
+  )) {
+    let result = try await Operation.Close(.testing)(bundleIdentifier)
+    #expect(result)
+  }
+  let calls = recorder.recordedApplications()
+  #expect(calls.count == 1)
+  #expect(calls.first === first)
 }
