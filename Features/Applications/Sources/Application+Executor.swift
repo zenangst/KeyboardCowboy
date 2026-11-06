@@ -98,11 +98,11 @@ public extension Application {
       }
 
       let bundleIdentifier = BundleIdentifier(command.application.bundleIdentifier)
+      let owners = await windowOwnerNames?()
+      try Task.checkCancellation()
       let isFrontMostApplication = bundleIdentifier == workspace.frontmostApplication?.bundleIdentifier
 
       if isFrontMostApplication {
-        let owners = await windowOwnerNames?()
-        try Task.checkCancellation()
         let result = operation.activate(bundleIdentifier)
         try Task.checkCancellation()
         switch result {
@@ -127,6 +127,23 @@ public extension Application {
         }
       } else {
         try await operation.launch(at: command.application.path, with: command.modifiers)
+        try Task.checkCancellation()
+        if let owners {
+          if owners.contains(command.application.bundleName) {
+            // Legacy treats post-launch activation as best effort.
+            operation.activate(bundleIdentifier)
+          } else {
+            guard let target = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
+              return
+            }
+            try Task.checkCancellation()
+            if let frontmost = workspace.frontmostApplication {
+              target.activate(from: frontmost, options: .activateAllWindows)
+            } else {
+              target.activate(options: .activateAllWindows)
+            }
+          }
+        }
       }
 
       try Task.checkCancellation()

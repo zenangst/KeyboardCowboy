@@ -109,6 +109,89 @@ private actor OpenTrace {
   }
 }
 
+@Test(arguments: [(true, true), (false, true), (false, false)])
+@MainActor func nonFrontmostLaunchActivatesAccordingToWindowState(hasWindow: Bool, hasFrontmost: Bool) async throws {
+  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let frontmost = Core.RunningApplication(.testing(.init("example.other")))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let trace = OpenTrace()
+  let executor = Application.Executor(.testing, windowOwnerNames: {
+    await trace.record("owners")
+    return hasWindow ? ["Target"] : ["Other"]
+  })
+
+  try await confirmation("Expected one activation") { confirmed in
+    try await Core.Workspace.Testing.$mock.withValue(.init(
+      frontmostApplication: hasFrontmost ? frontmost : nil,
+      openApplication: { _, _ in await trace.record("launch"); return target }
+    )) {
+      try await Core.RunningApplication.Testing.$mock.withValue(.init(
+        activate: { options in
+          #expect(!hasFrontmost)
+          #expect(options == [.activateAllWindows])
+          confirmed()
+          return false
+        },
+        activateFrom: { from, options in
+          #expect(from === frontmost)
+          #expect(options == (hasWindow ? [] : [.activateAllWindows]))
+          confirmed()
+          return false
+        },
+        runningApplications: [target]
+      )) {
+        _ = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
+      }
+    }
+  }
+  #expect(await trace.events == ["owners", "launch"])
+}
+
+@Test @MainActor func nonFrontmostMissingTargetSkipsWait() async throws {
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let trace = OpenTrace()
+  let wait = Operation.Wait(.testing, sleep: { _ in Issue.record("Missing target should skip tail wait") })
+  let executor = Application.Executor(.testing, wait: wait, windowOwnerNames: { [] })
+
+  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+    await trace.record("launch")
+    return .init(.testing(nil))
+  })) {
+    _ = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
+  }
+  #expect(await trace.events == ["launch"])
+}
+
+@Test(arguments: [false, true]) @MainActor func backgroundAndElectronBypassWindowOrchestration(electron: Bool) async throws {
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  var command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  if electron {
+    command.application.metadata.isElectron = true
+  } else {
+    command.modifiers.insert(.background)
+  }
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let trace = OpenTrace()
+  let wait = Operation.Wait(.testing, retries: 0)
+  let executor = Application.Executor(.testing, wait: wait, windowOwnerNames: {
+    Issue.record("Background and Electron routes must skip window lookup")
+    return []
+  })
+
+  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, configuration in
+    #expect(configuration.activates == electron)
+    await trace.record("launch")
+    return .init(.testing(nil))
+  })) {
+    _ = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
+  }
+  #expect(await trace.events == ["launch"])
+}
+
 @Test @MainActor func waitModifierPollsAfterOrdinaryLaunch() async throws {
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
