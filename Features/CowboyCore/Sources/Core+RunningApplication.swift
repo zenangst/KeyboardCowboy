@@ -80,7 +80,7 @@ public extension Core {
         app.activate(options: options)
       #if DEBUG
       case .testing:
-        Testing.mock.activate(options)
+        Testing.mock.onActivate?(self, options) ?? Testing.mock.activate(options)
       #endif
       }
     }

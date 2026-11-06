@@ -28,6 +28,7 @@ extension Core.RunningApplication {
     var onHide: (@Sendable (Core.RunningApplication) -> Bool)?
     var onTerminate: (@Sendable (Core.RunningApplication) -> Bool)?
     var onUnhide: (@Sendable (Core.RunningApplication) -> Bool)?
+    var onActivate: (@Sendable (Core.RunningApplication, NSApplication.ActivationOptions) -> Bool)?
 
     init(
       activate: @Sendable @escaping (
@@ -49,7 +50,8 @@ extension Core.RunningApplication {
       terminate: Bool = false,
       onHide: (@Sendable (Core.RunningApplication) -> Bool)? = nil,
       onTerminate: (@Sendable (Core.RunningApplication) -> Bool)? = nil,
-      onUnhide: (@Sendable (Core.RunningApplication) -> Bool)? = nil) {
+      onUnhide: (@Sendable (Core.RunningApplication) -> Bool)? = nil,
+      onActivate: (@Sendable (Core.RunningApplication, NSApplication.ActivationOptions) -> Bool)? = nil) {
       self.activate = activate
       self.activateFrom = activateFrom
       self.bundleIdentifier = bundleIdentifier
@@ -65,6 +67,7 @@ extension Core.RunningApplication {
       self.onHide = onHide
       self.onTerminate = onTerminate
       self.onUnhide = onUnhide
+      self.onActivate = onActivate
     }
   }
 }

@@ -2,6 +2,72 @@
 @testable import CowboyCore
 import Testing
 
+@Test func testHideUsesLiveFrontmostInsteadOfSnapshot() async {
+  let targetID = BundleIdentifier("target.app")
+  let target = Core.RunningApplication(.testing(targetID))
+  let live = Core.RunningApplication(.testing(.init("live.app")))
+  let stale = Core.RunningApplication(.testing(.init("stale.app")))
+  let snapshot = await UserSpace.Snapshot(apps: .init(
+    frontMost: .init(bundleIdentifier: .init("stale.app"), runningApplication: stale)))
+
+  await confirmation("Expected live focus restoration") { activated in
+    await confirmation("Expected target hide") { hidden in
+      await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: live)) {
+        await Core.RunningApplication.Testing.$mock.withValue(.init(
+          runningApplications: [target],
+          onHide: { application in
+            #expect(application === target)
+            hidden()
+            return true
+          },
+          onActivate: { application, options in
+            #expect(application === live)
+            #expect(options == [])
+            activated()
+            return true
+          }
+        )) {
+          #expect(await Operation.Hide(.testing)(targetID, snapshot: snapshot))
+        }
+      }
+    }
+  }
+}
+
+@Test func testHidePreviousAlreadyHiddenIsNoOp() async {
+  let previousID = BundleIdentifier("previous.app")
+  let previous = Core.RunningApplication(.testing(previousID))
+  let snapshot = await UserSpace.Snapshot(apps: .init(
+    previous: .init(bundleIdentifier: previousID, runningApplication: previous)))
+
+  await Core.RunningApplication.Testing.$mock.withValue(.init(
+    isHidden: true,
+    onHide: { _ in Issue.record("Already hidden previous app must not be hidden again"); return false }
+  )) {
+    #expect(await Operation.Hide(.testing)(BundleIdentifier.WildCard.previous.bundleIdentifier, snapshot: snapshot) == false)
+  }
+}
+
+@Test func testHidePreviousUsesSnapshotApplication() async {
+  let previousID = BundleIdentifier("previous.app")
+  let previous = Core.RunningApplication(.testing(previousID))
+  let snapshot = await UserSpace.Snapshot(apps: .init(
+    previous: .init(bundleIdentifier: previousID, runningApplication: previous)))
+
+  await confirmation("Expected previous application to be hidden") { hidden in
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      runningApplicationsLookup: { _ in Issue.record("Previous wildcard must not use lookup"); return [] },
+      onHide: { application in
+        #expect(application === previous)
+        hidden()
+        return true
+      }
+    )) {
+      _ = await Operation.Hide(.testing)(BundleIdentifier.WildCard.previous.bundleIdentifier, snapshot: snapshot)
+    }
+  }
+}
+
 @Test func testHideRunnningApplication() async throws {
   let currentBundleIdentifier = BundleIdentifier("current.app")
   let currentRunningApplication = Core.RunningApplication(.testing(currentBundleIdentifier))

@@ -2,6 +2,46 @@
 @testable import CowboyCore
 import Testing
 
+@Test func testUnhideFrontmostIsNoOp() async {
+  let identifier = BundleIdentifier("frontmost.app")
+  let frontmost = Core.RunningApplication(.testing(identifier))
+  let snapshot = await UserSpace.Snapshot(apps: .init())
+
+  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      runningApplicationsLookup: { _ in
+        Issue.record("Unhide of the frontmost app must not perform a lookup")
+        return []
+      }
+    )) {
+      #expect(await Operation.Unhide(.testing)(identifier, snapshot: snapshot) == false)
+    }
+  }
+}
+
+@Test func testUnhideTargetsRequestedApplicationWithoutActivation() async {
+  let identifier = BundleIdentifier("target.app")
+  let target = Core.RunningApplication(.testing(identifier))
+  let frontmost = Core.RunningApplication(.testing(.init("frontmost.app")))
+  let snapshot = await UserSpace.Snapshot(apps: .init())
+
+  await confirmation("Expected one unhide") { unhidden in
+    await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+      await Core.RunningApplication.Testing.$mock.withValue(.init(
+        activate: { _ in Issue.record("Unexpected activation"); return false },
+        runningApplications: [target],
+        onUnhide: { application in
+          #expect(application === target)
+          unhidden()
+          return true
+        }
+      )) {
+        #expect(await Operation.Unhide(.testing)(identifier, snapshot: snapshot))
+      }
+    }
+  }
+}
+
 @Test func testUnhideWithMissingSnapshotApplications() async {
   let identifier = BundleIdentifier("current.app")
   let application = Core.RunningApplication(.testing(identifier))
@@ -72,9 +112,9 @@ import Testing
     Core.Workspace.Mock(frontmostApplication: currentRunningApplication),
     operation: {
       await Core.RunningApplication.Testing.$mock.withValue(.init(
-        activate: { options in
-          #expect(options == [])
-          return true
+        activate: { _ in
+          Issue.record("Unhide must not reactivate the snapshot application")
+          return false
         },
         runningApplications: [
           previousRunningApplication,

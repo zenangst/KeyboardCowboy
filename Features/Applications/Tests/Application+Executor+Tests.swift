@@ -283,7 +283,7 @@ private actor LaunchEvents {
   func record() { count += 1 }
 }
 
-@Test @MainActor func cancellationDuringFocusPreventsHideAndUnhide() async throws {
+@Test @MainActor func cancellationBeforeEffectsPreventsHideAndUnhide() async throws {
   let frontmostID = Core.BundleIdentifier("example.frontmost")
   let targetID = Core.BundleIdentifier("example.target")
   let frontmost = Core.RunningApplication(.testing(frontmostID))
@@ -299,7 +299,10 @@ private actor LaunchEvents {
         await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
           await Core.RunningApplication.Testing.$mock.withValue(.init(
             activate: { _ in withUnsafeCurrentTask { $0?.cancel() }; return true },
-            runningApplications: [target],
+            runningApplicationsLookup: { _ in
+              if action == "unhide" { withUnsafeCurrentTask { $0?.cancel() } }
+              return [target]
+            },
             onHide: { _ in Issue.record("Hide ran after cancellation"); return true },
             onUnhide: { _ in Issue.record("Unhide ran after cancellation"); return true }
           )) {

@@ -26,10 +26,9 @@ extension Operation {
       }
 
       if let frontmostApplication = workspace.frontmostApplication,
-         bundleIdentifier != frontmostApplication.bundleIdentifier,
-         let snapshotFrontmost = await snapshot.apps.frontMost {
+         bundleIdentifier != frontmostApplication.bundleIdentifier {
         guard !Task.isCancelled else { return false }
-        snapshotFrontmost.runningApplication.activate(options: [])
+        frontmostApplication.activate(options: [])
       }
 
       guard !Task.isCancelled else { return false }
