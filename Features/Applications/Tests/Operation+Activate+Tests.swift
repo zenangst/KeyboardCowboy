@@ -44,7 +44,7 @@ let activateBundleIdentifier = BundleIdentifier("activate.me.please")
     ),
     ) {
       let activate = Operation.Activate(.testing)
-      #expect(activate(activateBundleIdentifier) == true)
+      #expect(activate(frontmostBundleIdentifier) == true)
     }
   }
 }

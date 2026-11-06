@@ -22,6 +22,7 @@ extension Core.RunningApplication {
     var isHidden: Bool
     var isTerminated: Bool
     var runningApplications: [Core.RunningApplication]
+    var runningApplicationsLookup: (@Sendable (Core.BundleIdentifier) -> [Core.RunningApplication])?
     var terminate: Bool
     var unhide: Bool
 
@@ -40,6 +41,7 @@ extension Core.RunningApplication {
       isHidden: Bool = false,
       isTerminated: Bool = false,
       runningApplications: [Core.RunningApplication] = [],
+      runningApplicationsLookup: (@Sendable (Core.BundleIdentifier) -> [Core.RunningApplication])? = nil,
       unhide: Bool = false,
       terminate: Bool = false) {
       self.activate = activate
@@ -51,6 +53,7 @@ extension Core.RunningApplication {
       self.isHidden = isHidden
       self.isTerminated = isTerminated
       self.runningApplications = runningApplications
+      self.runningApplicationsLookup = runningApplicationsLookup
       self.terminate = terminate
       self.unhide = unhide
     }

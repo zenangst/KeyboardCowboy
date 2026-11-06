@@ -77,7 +77,7 @@ import Testing
           return true
         },
         runningApplications: [
-          currentRunningApplication,
+          previousRunningApplication,
         ],
         unhide: true,
       ), operation: {

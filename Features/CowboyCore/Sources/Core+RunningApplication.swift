@@ -133,7 +133,7 @@ public extension Core {
 
     public static func application(with bundleIdentifier: Core.BundleIdentifier,
                                    env: Environment) -> RunningApplication? {
-      Self.runningApplications(with: bundleIdentifier, env: env).last
+      Self.runningApplications(with: bundleIdentifier, env: env).first
     }
 
     private static func runningApplications(
@@ -146,7 +146,8 @@ public extension Core {
           .map { RunningApplication(.production($0)) }
       #if DEBUG
       case .testing:
-        Testing.mock.runningApplications
+        Testing.mock.runningApplicationsLookup?(bundleIdentifier)
+          ?? Testing.mock.runningApplications.filter { $0.bundleIdentifier == bundleIdentifier }
       #endif
       }
     }

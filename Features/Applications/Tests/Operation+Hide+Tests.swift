@@ -60,7 +60,7 @@ import Testing
         },
         hide: true,
         runningApplications: [
-          currentRunningApplication,
+          previousRunningApplication,
         ],
       ), operation: {
         #expect(await hide(previousBundleIdentifier, snapshot: snapshot) == true)
