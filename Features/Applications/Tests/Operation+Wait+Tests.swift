@@ -88,3 +88,62 @@ private actor SleepRecorder {
     await #expect(throws: CancellationError.self) { try await wait(for: identifier) }
   }
 }
+
+@Test func testWaitForMissingApplicationSleepsAndTimesOut() async throws {
+  let identifier = BundleIdentifier("missing.app")
+  let recorder = SleepRecorder()
+  let wait = Operation.Wait(.testing, retries: 3, pollingInterval: .milliseconds(10),
+                            sleep: { await recorder.recordSleep($0) })
+  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init()) {
+    try await wait(for: identifier)
+  }
+  #expect(result == .timedOut)
+  #expect(await recorder.recordedSleeps() == [.milliseconds(10), .milliseconds(10), .milliseconds(10)])
+}
+
+@Test func testWaitFindsApplicationAfterMissingLookup() async throws {
+  let identifier = BundleIdentifier("starting.app")
+  let application = Core.RunningApplication(.testing(identifier))
+  let lookups = OSAllocatedUnfairLock(initialState: 0)
+  let recorder = SleepRecorder()
+  let wait = Operation.Wait(.testing, retries: 3, pollingInterval: .milliseconds(10),
+                            sleep: { await recorder.recordSleep($0) })
+  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    isFinishedLaunching: { true },
+    runningApplicationsLookup: { _ in
+      lookups.withLock { count in
+        count += 1
+        return count == 1 ? [] : [application]
+      }
+    }
+  )) {
+    try await wait(for: identifier)
+  }
+  #expect(result == .success)
+  #expect(lookups.withLock { $0 } == 2)
+  #expect(await recorder.recordedSleeps() == [.milliseconds(10), .milliseconds(50)])
+}
+
+@Test func testCancelledWaitDoesNotLookUpApplication() async {
+  let lookups = OSAllocatedUnfairLock(initialState: 0)
+  let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+    group.addTask {
+      withUnsafeCurrentTask { $0?.cancel() }
+      return await Core.RunningApplication.Testing.$mock.withValue(.init(
+        runningApplicationsLookup: { _ in lookups.withLock { $0 += 1 }; return [] }
+      )) {
+        do {
+          _ = try await Operation.Wait(.testing)(for: .init("missing.app"))
+          return false
+        } catch is CancellationError {
+          return true
+        } catch {
+          return false
+        }
+      }
+    }
+    return await group.next() ?? false
+  }
+  #expect(cancelled)
+  #expect(lookups.withLock { $0 } == 0)
+}

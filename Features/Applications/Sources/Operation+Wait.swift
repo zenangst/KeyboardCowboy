@@ -37,33 +37,20 @@ extension Operation {
         return .skipped
       }
 
-      var waiting = true
       var retries = self.retries
-      var result: Result = .timedOut
-
-      while waiting {
-        if retries == 0 {
-          waiting = false
-          break
-        }
-
-        guard let application = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
-          retries -= 1
-          continue
-        }
-
-        if application.isFinishedLaunching {
+      while retries > 0 {
+        try Task.checkCancellation()
+        if let application = Core.RunningApplication.application(with: bundleIdentifier, env: env),
+           application.isFinishedLaunching {
           try await sleep(finalSleepDuration)
-          waiting = false
-          result = .success
-          break
+          return .success
         }
 
         try await sleep(pollingInterval)
         retries -= 1
       }
 
-      return result
+      return .timedOut
     }
   }
 }
