@@ -125,12 +125,14 @@ private actor SleepRecorder {
 }
 
 @Test func testCancelledWaitDoesNotLookUpApplication() async {
-  let lookups = OSAllocatedUnfairLock(initialState: 0)
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
       withUnsafeCurrentTask { $0?.cancel() }
       return await Core.RunningApplication.Testing.$mock.withValue(.init(
-        runningApplicationsLookup: { _ in lookups.withLock { $0 += 1 }; return [] }
+        runningApplicationsLookup: { _ in
+          Issue.record("A cancelled wait must not look up an application")
+          return []
+        }
       )) {
         do {
           _ = try await Operation.Wait(.testing)(for: .init("missing.app"))
@@ -145,5 +147,4 @@ private actor SleepRecorder {
     return await group.next() ?? false
   }
   #expect(cancelled)
-  #expect(lookups.withLock { $0 } == 0)
 }
