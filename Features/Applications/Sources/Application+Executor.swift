@@ -24,15 +24,18 @@ public extension Application {
     private let operation: Operations
     private let workspace: Core.Workspace
     private let windowOwnerNames: (@Sendable () async -> [String])?
+    private let willExecute: (@Sendable (Command.Application) async -> Void)?
 
     /// The host may supply its cached window owner names for ordinary-open orchestration.
     public convenience init(_ env: Core.Environment,
-                            windowOwnerNames: (@Sendable () async -> [String])? = nil) {
-      self.init(env, wait: Operation.Wait(env), windowOwnerNames: windowOwnerNames)
+                            windowOwnerNames: (@Sendable () async -> [String])? = nil,
+                            willExecute: (@Sendable (Command.Application) async -> Void)? = nil) {
+      self.init(env, wait: Operation.Wait(env), windowOwnerNames: windowOwnerNames, willExecute: willExecute)
     }
 
     init(_ env: Core.Environment, wait: Operation.Wait,
-         windowOwnerNames: (@Sendable () async -> [String])? = nil) {
+         windowOwnerNames: (@Sendable () async -> [String])? = nil,
+         willExecute: (@Sendable (Command.Application) async -> Void)? = nil) {
       self.env = env
       self.operation = Operations(
         activate: Operation.Activate(env),
@@ -45,6 +48,7 @@ public extension Application {
       )
       self.workspace = Core.Workspace(env)
       self.windowOwnerNames = windowOwnerNames
+      self.willExecute = willExecute
     }
 
     @discardableResult
@@ -52,6 +56,8 @@ public extension Application {
     public func execute(_ command: Command.Application,
                         cgEventType: CGEventType?,
                         snapshot: UserSpace.Snapshot) async throws -> UserSpace.Snapshot {
+      try Task.checkCancellation()
+      await willExecute?(command)
       try Task.checkCancellation()
       guard !shouldSkipBecauseApplicationIsRunning(for: command) else {
         return snapshot

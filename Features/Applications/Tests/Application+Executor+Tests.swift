@@ -17,6 +17,65 @@ private actor OpenTrace {
   func record(_ event: String) { events.append(event) }
 }
 
+@Test @MainActor func willExecutePrecedesOnlyIfNotRunningGuard() async throws {
+  let identifier = Core.BundleIdentifier("example.target")
+  let target = Core.RunningApplication(.testing(identifier))
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["onlyIfNotRunning"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  let executor = Application.Executor(.testing, willExecute: { received in
+    #expect(received.meta.id == "saved-command")
+    continuation.yield("hook")
+  })
+
+  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+    Issue.record("A running target must not be launched")
+    return target
+  })) {
+    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+      runningApplicationsLookup: { requested in
+        #expect(requested == identifier)
+        continuation.yield("lookup")
+        return [target]
+      }
+    )) {
+      let result = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
+      #expect(result === snapshot)
+    }
+  }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["hook", "lookup"])
+}
+
+@Test @MainActor func cancellationDuringWillExecutePreventsLookup() async throws {
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["onlyIfNotRunning"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+    group.addTask {
+      await Core.RunningApplication.Testing.$mock.withValue(.init(
+        runningApplicationsLookup: { _ in Issue.record("Cancelled hook must prevent lookup"); return [] }
+      )) {
+        do {
+          _ = try await Application.Executor(.testing, willExecute: { _ in
+            withUnsafeCurrentTask { $0?.cancel() }
+          }).execute(command, cgEventType: nil, snapshot: snapshot)
+          return false
+        } catch is CancellationError {
+          return true
+        } catch {
+          return false
+        }
+      }
+    }
+    return await group.next() ?? false
+  }
+  #expect(cancelled)
+}
+
 @Test @MainActor func frontmostAppWithTrackedWindowReopens() async throws {
   let identifier = Core.BundleIdentifier("example.target")
   let target = Core.RunningApplication(.testing(identifier))

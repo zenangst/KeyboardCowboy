@@ -15,6 +15,6 @@ import Testing
 
   let fixture = #"{"application":{"bundleIdentifier":"com.example.editor","bundleName":"Editor","path":"/Applications/Editor.app"},"action":"peek","meta":{"id":"saved-command","name":"Peek","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
-  try await Application.Executor(.production, windowOwnerNames: { [] })
+  try await Application.Executor(.production, windowOwnerNames: { [] }, willExecute: { _ in })
     .execute(command, cgEventType: nil, snapshot: snapshot)
 }
