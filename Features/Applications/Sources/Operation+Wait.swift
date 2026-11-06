@@ -2,7 +2,7 @@ import CowboyCore
 import Foundation
 
 extension Operation {
-  final class Wait {
+  final class Wait: Sendable {
     enum Result: Hashable {
       case success
       case timedOut

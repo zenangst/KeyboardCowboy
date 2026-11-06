@@ -1,7 +1,7 @@
 import CowboyCore
 
 extension Operation {
-  final class BringToFront {
+  final class BringToFront: Sendable {
     let env: Core.Environment
 
     init(_ env: Core.Environment) {

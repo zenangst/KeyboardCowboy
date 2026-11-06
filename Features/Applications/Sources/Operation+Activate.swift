@@ -2,7 +2,7 @@ import Cocoa
 import CowboyCore
 
 extension Operation {
-  final class Activate {
+  final class Activate: Sendable {
     typealias RunningApplication = Core.RunningApplication
 
     let env: Core.Environment

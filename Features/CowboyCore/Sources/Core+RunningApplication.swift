@@ -62,6 +62,17 @@ public extension Core {
       self.mode = mode
     }
 
+    public func isSameApplication(as other: RunningApplication) -> Bool {
+      switch (mode, other.mode) {
+      case (.production(let application), .production(let otherApplication)):
+        application == otherApplication
+      #if DEBUG
+      case (.testing, .testing): self === other
+      default: false
+      #endif
+      }
+    }
+
     @discardableResult
     public func activate(options: NSApplication.ActivationOptions = []) -> Bool {
       switch mode {

@@ -33,3 +33,22 @@ import Testing
     }
   }
 }
+
+@Test @MainActor func snapshotRefreshTracksApplicationInstances() {
+  let first = Core.RunningApplication(.testing(.init("example.app")))
+  let second = Core.RunningApplication(.testing(.init("example.app")))
+  let oldPrevious = Core.RunningApplication(.testing(.init("example.previous")))
+  let snapshot = UserSpace.Snapshot(apps: .init(
+    frontMost: .init(bundleIdentifier: .init("example.app"), runningApplication: first),
+    previous: .init(bundleIdentifier: .init("example.previous"), runningApplication: oldPrevious)))
+
+  let unchanged = snapshot.refreshing(frontmost: first)
+  #expect(unchanged.apps.previous?.runningApplication === oldPrevious)
+  let changed = unchanged.refreshing(frontmost: second)
+  #expect(changed.apps.frontMost?.runningApplication === second)
+  #expect(changed.apps.previous?.runningApplication === first)
+  #expect(snapshot.apps.frontMost?.runningApplication === first)
+  let missing = changed.refreshing(frontmost: nil)
+  #expect(missing.apps.frontMost == nil)
+  #expect(missing.apps.previous?.runningApplication === first)
+}

@@ -1,7 +1,7 @@
 import CowboyCore
 
 extension Operation {
-  final class Unhide {
+  final class Unhide: Sendable {
     private let env: Core.Environment
     private let workspace: Core.Workspace
 

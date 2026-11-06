@@ -3,7 +3,7 @@ import CowboyCore
 import Foundation
 
 extension Core {
-  final class Workspace {
+  final class Workspace: Sendable {
     let env: Environment
 
     init(_ env: Environment) {

@@ -1,7 +1,7 @@
 import CowboyCore
 
 extension Operation {
-  final class Hide {
+  final class Hide: Sendable {
     private let env: Core.Environment
     private let workspace: Core.Workspace
 

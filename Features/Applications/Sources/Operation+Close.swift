@@ -1,7 +1,7 @@
 import CowboyCore
 
 extension Operation {
-  final class Close {
+  final class Close: Sendable {
     private let env: Core.Environment
 
     init(_ env: Core.Environment) {

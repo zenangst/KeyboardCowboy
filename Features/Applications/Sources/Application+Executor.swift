@@ -2,8 +2,8 @@ import CoreGraphics
 import CowboyCore
 
 public extension Application {
-  final class Executor {
-    struct Operations {
+  final class Executor: Sendable {
+    struct Operations: Sendable {
       let activate: Operation.Activate
       let bringToFront: Operation.BringToFront
       let close: Operation.Close
@@ -31,11 +31,12 @@ public extension Application {
       self.workspace = Core.Workspace(env)
     }
 
+    @discardableResult
     public func execute(_ command: Command.Application,
-                 cgEventType: CGEventType?,
-                 snapshot: UserSpace.Snapshot) async throws {
+                        cgEventType: CGEventType?,
+                        snapshot: UserSpace.Snapshot) async throws -> UserSpace.Snapshot {
       guard !shouldSkipBecauseApplicationIsRunning(for: command) else {
-        return
+        return snapshot
       }
 
       let bundleIdentifier = BundleIdentifier(command.application.bundleIdentifier)
@@ -43,14 +44,16 @@ public extension Application {
       switch command.action {
       case .open:
         try await open(command)
+        return await snapshot.refreshing(frontmost: workspace.frontmostApplication)
       case .close:
         try await operation.close(bundleIdentifier)
+        return await snapshot.refreshing(frontmost: workspace.frontmostApplication)
       case .hide:
         await operation.hide(bundleIdentifier, snapshot: snapshot)
       case .unhide:
         await operation.unhide(bundleIdentifier, snapshot: snapshot)
       case .peek:
-        guard let cgEventType else { return }
+        guard let cgEventType else { return snapshot }
 
         switch cgEventType {
         case .keyUp:
@@ -60,6 +63,7 @@ public extension Application {
         default: break
         }
       }
+      return snapshot
     }
 
     // MARK: Private methods

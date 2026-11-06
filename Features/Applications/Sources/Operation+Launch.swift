@@ -4,7 +4,7 @@ import CowboyCore
 import Foundation
 
 extension Operation {
-  final class Launch {
+  final class Launch: Sendable {
     let env: Core.Environment
     let workspace: Core.Workspace
 
