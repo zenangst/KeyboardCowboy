@@ -36,9 +36,11 @@ public extension Application {
     }
 
     @discardableResult
+    /// Execution cooperatively respects task cancellation; callers control task ownership.
     public func execute(_ command: Command.Application,
                         cgEventType: CGEventType?,
                         snapshot: UserSpace.Snapshot) async throws -> UserSpace.Snapshot {
+      try Task.checkCancellation()
       guard !shouldSkipBecauseApplicationIsRunning(for: command) else {
         return snapshot
       }
@@ -48,9 +50,11 @@ public extension Application {
       switch command.action {
       case .open:
         try await open(command)
+        try Task.checkCancellation()
         return await snapshot.refreshing(frontmost: workspace.frontmostApplication)
       case .close:
         try await operation.close(bundleIdentifier)
+        try Task.checkCancellation()
         return await snapshot.refreshing(frontmost: workspace.frontmostApplication)
       case .hide:
         await operation.hide(bundleIdentifier, snapshot: snapshot)
@@ -75,6 +79,7 @@ public extension Application {
     private func open(_ command: Command.Application) async throws {
       if command.requiresLaunchAndWait {
         try await operation.launch(at: command.application.path, with: command.modifiers)
+        try Task.checkCancellation()
         try await operation.wait(for: BundleIdentifier(command.application.bundleIdentifier))
         return
       }

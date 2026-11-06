@@ -3,9 +3,69 @@
 import System
 import Testing
 import Foundation
+import os
 
 private enum ExecutorLaunchError: Error {
   case failed
+}
+
+@Test @MainActor func cancelledExecutorDoesNotLookUpOrTerminate() async throws {
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"close","meta":{"id":"saved-command","name":"Close","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let lookups = OSAllocatedUnfairLock(initialState: 0)
+  let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+    group.addTask {
+      withUnsafeCurrentTask { $0?.cancel() }
+      return await Core.RunningApplication.Testing.$mock.withValue(.init(
+        runningApplicationsLookup: { _ in lookups.withLock { $0 += 1 }; return [] }
+      )) {
+        do {
+          _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+          return false
+        } catch is CancellationError {
+          return true
+        } catch {
+          return false
+        }
+      }
+    }
+    return await group.next() ?? false
+  }
+  #expect(cancelled)
+  #expect(lookups.withLock { $0 } == 0)
+}
+
+@Test @MainActor func cancellationAfterLaunchPreventsWaitLookup() async throws {
+  let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["background"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
+  let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let calls = OSAllocatedUnfairLock(initialState: [String]())
+  let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+    group.addTask {
+      await Core.RunningApplication.Testing.$mock.withValue(.init(
+        runningApplicationsLookup: { _ in calls.withLock { $0.append("lookup") }; return [] }
+      )) {
+        await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+          calls.withLock { $0.append("launch") }
+          withUnsafeCurrentTask { $0?.cancel() }
+          return Core.RunningApplication(.testing(nil))
+        })) {
+          do {
+            _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
+            return false
+          } catch is CancellationError {
+            return true
+          } catch {
+            return false
+          }
+        }
+      }
+    }
+    return await group.next() ?? false
+  }
+  #expect(cancelled)
+  #expect(calls.withLock { $0 } == ["launch"])
 }
 
 @Test @MainActor func executorPropagatesTerminationFailure() async throws {
