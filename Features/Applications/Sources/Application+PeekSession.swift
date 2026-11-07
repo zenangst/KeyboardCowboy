@@ -2,6 +2,9 @@ import Foundation
 
 public extension Application {
   /// Tracks one host-owned peek press. Timestamps must use the same monotonic clock.
+  /// The host must order release effects after press execution completes (or cancel
+  /// and await the press first); this actor classifies events but does not serialize
+  /// executor calls or cancel a suspended launch.
   actor PeekSession {
     public enum Release: Equatable, Sendable {
       case unrelated, tap, hold, invalidTimestamp

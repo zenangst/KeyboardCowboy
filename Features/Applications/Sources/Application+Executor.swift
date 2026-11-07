@@ -86,6 +86,9 @@ public extension Application {
 
     @discardableResult
     /// Execution cooperatively respects task cancellation; callers control task ownership.
+    /// The only-if-not-running guard is evaluated on every call, including peek
+    /// releases, matching the legacy runner. Hosts must serialize a peek release
+    /// after its press execution to prevent a late launch overriding the release.
     public func execute(
       _ command: Command.Application,
       cgEventType: CGEventType?,
