@@ -198,6 +198,43 @@ public extension Core {
       }
     }
 
+    /// Captures both streams concurrently in memory, without limits or cancellation
+    /// checks. Waits for EOF (including inherited pipe handles) and reaps the child.
+    public func runAndCaptureOutputUnbounded() throws -> (stdout: Data?, stderr: Data?) {
+      #if DEBUG
+      if case .testing = mode {
+        try run()
+        defer { waitUntilExit() }
+        let stdout = try Testing.mock.readStandardOutput.map { try $0() } ?? standardOutput?.fileHandleForReading.readToEnd()
+        let stderr = try Testing.mock.readStandardError.map { try $0() } ?? standardError?.fileHandleForReading.readToEnd()
+        return (stdout, stderr)
+      }
+      #endif
+      guard case .production(let child) = mode,
+            case .production(let stdout) = standardOutput?.mode,
+            case .production(let stderr) = standardError?.mode else {
+        throw CocoaError(.fileReadUnknown)
+      }
+      try run()
+      defer {
+        standardOutput?.closeReading()
+        standardError?.closeReading()
+      }
+      let reads = UnboundedStreamReads(process: child)
+      let group = DispatchGroup()
+      for (index, handle) in [stdout.fileHandleForReading, stderr.fileHandleForReading].enumerated() {
+        group.enter()
+        DispatchQueue.global().async {
+          reads.read(handle, at: index)
+          group.leave()
+        }
+      }
+      group.wait()
+      child.waitUntilExit()
+      let result = try reads.results()
+      return (result[0], result[1])
+    }
+
     /// Drains both output pipes while the direct child runs. Descendants that keep
     /// the pipes open are allowed a short grace period after the child exits.
     /// Captures at most 64 MiB per stream, throwing the corresponding
@@ -361,5 +398,37 @@ public extension Core {
       }
       return (stdout, stderr)
     }
+  }
+}
+
+private final class UnboundedStreamReads: @unchecked Sendable {
+  private let lock = NSLock()
+  private let process: Foundation.Process
+  private var data: [Data?] = [nil, nil]
+  private var error: (any Error)?
+
+  init(process: Foundation.Process) { self.process = process }
+
+  func read(_ handle: FileHandle, at index: Int) {
+    do {
+      let value = try handle.readToEnd()
+      lock.lock()
+      data[index] = value
+      lock.unlock()
+    } catch {
+      lock.lock()
+      if self.error == nil {
+        self.error = error
+        if process.isRunning { process.terminate() }
+      }
+      lock.unlock()
+    }
+  }
+
+  func results() throws -> [Data?] {
+    lock.lock()
+    defer { lock.unlock() }
+    if let error { throw error }
+    return data
   }
 }
