@@ -1,17 +1,6 @@
 @testable import ApplicationsFeature
 @testable import CowboyCore
-import os
 import Testing
-
-private final class WaitScript: Sendable {
-  private let responses: OSAllocatedUnfairLock<[Bool]>
-
-  init(_ responses: [Bool]) { self.responses = .init(initialState: responses) }
-
-  func isFinishedLaunching() -> Bool {
-    responses.withLock { $0.isEmpty ? false : $0.removeFirst() }
-  }
-}
 
 private actor SleepRecorder {
   private var sleeps: [Duration] = []
@@ -27,11 +16,10 @@ private actor SleepRecorder {
 
 @Test func testOperationWaitSuccess() async throws {
   let identifier = BundleIdentifier("current.app")
-  let script = WaitScript([true])
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, sleep: { await recorder.recordSleep($0) })
   let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
-    isFinishedLaunching: script.isFinishedLaunching,
+    isFinishedLaunching: { true },
     runningApplications: [.init(.testing(identifier))]
   )) {
     try await wait(for: identifier)
@@ -42,12 +30,11 @@ private actor SleepRecorder {
 
 @Test func testOperationWaitTimeOut() async throws {
   let identifier = BundleIdentifier("current.app")
-  let script = WaitScript([false, false, false])
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, retries: 3, pollingInterval: .milliseconds(10),
                             sleep: { await recorder.recordSleep($0) })
   let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
-    isFinishedLaunching: script.isFinishedLaunching,
+    isFinishedLaunching: { false },
     runningApplications: [.init(.testing(identifier))]
   )) {
     try await wait(for: identifier)
@@ -66,6 +53,21 @@ private actor SleepRecorder {
   }
   #expect(result == .skipped)
   #expect(await recorder.recordedSleeps().isEmpty)
+}
+
+@Test(arguments: [-1, 0]) func testNonPositiveRetriesDoNotPoll(retries: Int) async throws {
+  let wait = Operation.Wait(.testing, retries: retries, sleep: { _ in
+    Issue.record("Non-positive retries must not sleep")
+  })
+  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplicationsLookup: { _ in
+      Issue.record("Non-positive retries must not look up an application")
+      return []
+    }
+  )) {
+    try await wait(for: BundleIdentifier("missing.app"))
+  }
+  #expect(result == .timedOut)
 }
 
 @Test func testWaitSleepFailureStopsFurtherPolling() async {
@@ -91,18 +93,29 @@ private actor SleepRecorder {
 
 @Test func testWaitOperationForStartingApplication() async throws {
   let identifier = BundleIdentifier("com.starting.app")
-  let script = WaitScript([false, false, true])
+  let (unfinishedReads, responses) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(2))
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, pollingInterval: .milliseconds(10),
                             sleep: { await recorder.recordSleep($0) })
   let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
-    isFinishedLaunching: script.isFinishedLaunching,
+    isFinishedLaunching: {
+      switch responses.yield(()) {
+      case .enqueued: false
+      case .dropped: true
+      case .terminated: false
+      @unknown default: false
+      }
+    },
     runningApplications: [.init(.testing(identifier))]
   )) {
     try await wait(for: identifier)
   }
   #expect(result == .success)
   #expect(await recorder.recordedSleeps() == [.milliseconds(10), .milliseconds(10), .milliseconds(50)])
+  responses.finish()
+  var readCount = 0
+  for await _ in unfinishedReads { readCount += 1 }
+  #expect(readCount == 2)
 }
 
 @Test func testWaitPropagatesSleepCancellation() async {
@@ -130,7 +143,7 @@ private actor SleepRecorder {
 @Test func testWaitFindsApplicationAfterMissingLookup() async throws {
   let identifier = BundleIdentifier("starting.app")
   let application = Core.RunningApplication(.testing(identifier))
-  let lookups = OSAllocatedUnfairLock(initialState: 0)
+  let (missingLookups, responses) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(1))
   let (events, continuation) = AsyncStream<String>.makeStream()
   let wait = Operation.Wait(.testing, retries: 3, pollingInterval: .milliseconds(10),
                             sleep: { continuation.yield("sleep \($0)") })
@@ -138,9 +151,11 @@ private actor SleepRecorder {
     isFinishedLaunching: { continuation.yield("finished"); return true },
     runningApplicationsLookup: { requested in
       continuation.yield(requested == identifier ? "lookup target" : "lookup unexpected")
-      return lookups.withLock { count in
-        count += 1
-        return count == 1 ? [] : [application]
+      switch responses.yield(()) {
+      case .enqueued: return []
+      case .dropped: return [application]
+      case .terminated: return []
+      @unknown default: return []
       }
     }
   )) {
@@ -151,6 +166,10 @@ private actor SleepRecorder {
   for await event in events { recorded.append(event) }
   #expect(result == .success)
   #expect(recorded == ["lookup target", "sleep \(Duration.milliseconds(10))", "lookup target", "finished", "sleep \(Duration.milliseconds(50))"])
+  responses.finish()
+  var missingCount = 0
+  for await _ in missingLookups { missingCount += 1 }
+  #expect(missingCount == 1)
 }
 
 @Test func testCancelledWaitDoesNotLookUpApplication() async {

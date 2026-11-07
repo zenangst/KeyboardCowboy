@@ -93,6 +93,31 @@ private func peekCommand(_ identifier: String = "example.target", action: String
   }
 }
 
+@Test @MainActor func peekPolicyOpensPreviousWithoutInheritingItsModifiers() async throws {
+  let command = try peekCommand()
+  var previous = try peekCommand("example.previous", action: "hide")
+  previous.application = .init(bundleIdentifier: "example.previous", bundleName: "Previous", path: "/Applications/Previous.app")
+  previous.modifiers = [.background, .hidden, .onlyIfNotRunning, .waitForAppToLaunch]
+  let suppliedPrevious = previous
+  let snapshot = UserSpace.Snapshot(apps: .init())
+  let executor = Application.Executor(.testing, peekRelease: { _ in
+    .resolve(stageManagerEnabled: true, previous: suppliedPrevious)
+  })
+
+  try await confirmation("Expected previous application to open") { opened in
+    try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, configuration in
+      #expect(url.path() == "/Applications/Previous.app")
+      #expect(configuration.activates)
+      #expect(!configuration.hides)
+      opened()
+      return .init(.testing(nil))
+    })) {
+      let result = try await executor.execute(command, cgEventType: .keyUp, snapshot: snapshot)
+      #expect(result === snapshot)
+    }
+  }
+}
+
 @Test @MainActor func cancelledPeekReleaseDoesNotPerformEffects() async throws {
   let command = try peekCommand()
   let snapshot = UserSpace.Snapshot(apps: .init())

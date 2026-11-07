@@ -1,40 +1,5 @@
 @testable import CowboyCore
-import os
 import Testing
-
-private final class LookupScript: Sendable {
-  private let requests = OSAllocatedUnfairLock(initialState: [Core.BundleIdentifier]())
-  private let application: Core.RunningApplication
-
-  init(application: Core.RunningApplication) {
-    self.application = application
-  }
-
-  func lookup(_ identifier: Core.BundleIdentifier) -> [Core.RunningApplication] {
-    requests.withLock { requests in
-      requests.append(identifier)
-      return requests.count == 1 ? [] : [application]
-    }
-  }
-
-  func recordedRequests() -> [Core.BundleIdentifier] {
-    requests.withLock { $0 }
-  }
-}
-
-private final class EffectRecorder: Sendable {
-  private let events = OSAllocatedUnfairLock(initialState: [String]())
-
-  func record(_ action: String, application: Core.RunningApplication) -> Bool {
-    let event = "\(action):\(application.bundleIdentifier?.value ?? "missing")"
-    events.withLock { $0.append(event) }
-    return action != "terminate"
-  }
-
-  func recordedEvents() -> [String] {
-    events.withLock { $0 }
-  }
-}
 
 @Test func runningApplicationLookupFiltersIdentifiersAndSelectsFirst() {
   let target = Core.BundleIdentifier("example.target")
@@ -47,29 +12,48 @@ private final class EffectRecorder: Sendable {
   }
 }
 
-@Test func runningApplicationLookupSupportsScriptedResponses() {
+@Test func runningApplicationLookupSupportsScriptedResponses() async {
   let identifier = Core.BundleIdentifier("example.target")
   let application = Core.RunningApplication(.testing(identifier))
-  let script = LookupScript(application: application)
-  Core.RunningApplication.Testing.$mock.withValue(.init(runningApplicationsLookup: script.lookup)) {
+  let (requests, requestContinuation) = AsyncStream<Core.BundleIdentifier>.makeStream()
+  let (missing, response) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(1))
+  Core.RunningApplication.Testing.$mock.withValue(.init(runningApplicationsLookup: { requested in
+    requestContinuation.yield(requested)
+    switch response.yield(()) {
+    case .enqueued: return []
+    case .dropped: return [application]
+    case .terminated: return []
+    @unknown default: return []
+    }
+  })) {
     #expect(Core.RunningApplication.application(with: identifier, env: .testing) == nil)
     #expect(Core.RunningApplication.application(with: identifier, env: .testing) === application)
   }
-  #expect(script.recordedRequests() == [identifier, identifier])
+  requestContinuation.finish()
+  response.finish()
+  var recorded: [Core.BundleIdentifier] = []
+  for await request in requests { recorded.append(request) }
+  var missingCount = 0
+  for await _ in missing { missingCount += 1 }
+  #expect(recorded == [identifier, identifier])
+  #expect(missingCount == 1)
 }
 
-@Test func runningApplicationEffectMocksRecordTargetsAndResults() {
+@Test func runningApplicationEffectMocksRecordTargetsAndResults() async {
   let first = Core.RunningApplication(.testing(.init("example.first")))
   let second = Core.RunningApplication(.testing(.init("example.second")))
-  let recorder = EffectRecorder()
+  let (events, continuation) = AsyncStream<String>.makeStream()
   Core.RunningApplication.Testing.$mock.withValue(.init(
-    onHide: { recorder.record("hide", application: $0) },
-    onTerminate: { recorder.record("terminate", application: $0) },
-    onUnhide: { recorder.record("unhide", application: $0) }
+    onHide: { continuation.yield("hide:\($0.bundleIdentifier?.value ?? "missing")"); return true },
+    onTerminate: { continuation.yield("terminate:\($0.bundleIdentifier?.value ?? "missing")"); return false },
+    onUnhide: { continuation.yield("unhide:\($0.bundleIdentifier?.value ?? "missing")"); return true }
   )) {
     #expect(first.hide())
     #expect(!second.terminate())
     #expect(second.unhide())
   }
-  #expect(recorder.recordedEvents() == ["hide:example.first", "terminate:example.second", "unhide:example.second"])
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["hide:example.first", "terminate:example.second", "unhide:example.second"])
 }

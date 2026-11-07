@@ -125,6 +125,20 @@ import Testing
   }
 }
 
+@Test @MainActor func snapshotRefreshDoesNotReuseCurrentAppAsPreviousAfterTermination() {
+  let closed = Core.RunningApplication(.testing(.init("example.closed")))
+  let current = Core.RunningApplication(.testing(.init("example.current")))
+  let snapshot = UserSpace.Snapshot(apps: .init(
+    frontMost: .init(bundleIdentifier: .init("example.closed"), runningApplication: closed),
+    previous: .init(bundleIdentifier: .init("example.current"), runningApplication: current)))
+
+  Core.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === closed })) {
+    let updated = snapshot.refreshing(frontmost: current)
+    #expect(updated.apps.frontMost?.runningApplication === current)
+    #expect(updated.apps.previous == nil)
+  }
+}
+
 @Test @MainActor func productionSnapshotNeverUsesTestingApplication() {
   let snapshot = UserSpace(.production).takeSnapshot()
   if let application = snapshot.apps.frontMost?.runningApplication {

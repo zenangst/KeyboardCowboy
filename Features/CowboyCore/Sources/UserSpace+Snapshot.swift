@@ -14,12 +14,16 @@ public extension UserSpace {
       }
       let oldFrontmost = apps.frontMost.flatMap { $0.runningApplication.isTerminated ? nil : $0 }
       let oldPrevious = apps.previous.flatMap { $0.runningApplication.isTerminated ? nil : $0 }
-      let previous: Application?
+      let candidate: Application?
       if let current, let oldFrontmost,
          !current.runningApplication.isSameApplication(as: oldFrontmost.runningApplication) {
-        previous = oldFrontmost
+        candidate = oldFrontmost
       } else {
-        previous = oldPrevious
+        candidate = oldPrevious
+      }
+      let previous = candidate.flatMap { previous in
+        guard let current else { return previous }
+        return previous.runningApplication.isSameApplication(as: current.runningApplication) ? nil : previous
       }
       return Snapshot(apps: .init(frontMost: current, previous: previous))
     }
