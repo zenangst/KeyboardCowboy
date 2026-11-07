@@ -9,6 +9,6 @@ let package = Package(
   dependencies: [.package(path: "../../Components/InputSourceSystem")],
   targets: [
     .target(name: "InputSourceFeature", dependencies: ["InputSourceSystem"], path: "Sources"),
-    .testTarget(name: "InputSourceFeatureTests", dependencies: ["InputSourceFeature"], path: "Tests"),
+    .testTarget(name: "InputSourceFeatureTests", dependencies: ["InputSourceFeature", "InputSourceSystem"], path: "Tests"),
   ]
 )

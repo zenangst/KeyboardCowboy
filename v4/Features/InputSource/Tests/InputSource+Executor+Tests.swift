@@ -1,10 +1,11 @@
 import InputSourceFeature
+import InputSourceSystem
 import Testing
 
 private enum Failure: Error, Equatable { case current, lookup, select }
 
 @MainActor
-private final class Controller: InputSourceControlling {
+private final class Controller: InputSource.Controlling {
   struct Source { let id: String; let token: Int }
   var calls: [String] = []
   var current = Source(id: "current", token: 1)
@@ -33,8 +34,8 @@ private final class Controller: InputSourceControlling {
 @Test @MainActor func sourceIDsAreNotNormalized() async throws {
   let controller = Controller()
   controller.current = .init(id: "com.example.layout", token: 1)
-  let request = InputSourceRequest(id: "request", inputSourceId: " Com.Example.Layout ", name: "ignored")
-  try await InputSourceExecutor(controller: controller).run(request)
+  let request = InputSource.Request(id: "request", inputSourceId: " Com.Example.Layout ", name: "ignored")
+  try await InputSource.Executor(controller: controller).run(request)
   #expect(controller.calls == ["current", "find: Com.Example.Layout :false", "select:2"])
 }
 
@@ -42,21 +43,21 @@ private final class Controller: InputSourceControlling {
   let controller = Controller()
   controller.cancelDuringLookup = true
   let task = Task { @MainActor in
-    try await InputSourceExecutor(controller: controller).run(request)
+    try await InputSource.Executor(controller: controller).run(request)
   }
   try await task.value
   #expect(controller.calls == ["current", "find:target:false", "select:2"])
 }
 
-private let request = InputSourceRequest(id: "request", inputSourceId: "target", name: "Target")
+private let request = InputSource.Request(id: "request", inputSourceId: "target", name: "Target")
 
 @Test @MainActor func liveExecutorCanBeConstructedByConsumer() {
-  _ = InputSourceExecutor()
+  _ = InputSource.Executor()
 }
 
 @Test @MainActor func selectsExactLookupResult() async throws {
   let controller = Controller()
-  try await InputSourceExecutor(controller: controller).run(request)
+  try await InputSource.Executor(controller: controller).run(request)
   #expect(controller.calls == ["current", "find:target:false", "select:2"])
 }
 
@@ -65,7 +66,7 @@ private let request = InputSourceRequest(id: "request", inputSourceId: "target",
   controller.current = .init(id: "target", token: 1)
   let task = Task { @MainActor in
     withUnsafeCurrentTask { $0?.cancel() }
-    try await InputSourceExecutor(controller: controller).run(request)
+    try await InputSource.Executor(controller: controller).run(request)
   }
   try await task.value
   #expect(controller.calls == ["current"])
@@ -75,7 +76,7 @@ private let request = InputSourceRequest(id: "request", inputSourceId: "target",
   let controller = Controller()
   let task = Task { @MainActor in
     withUnsafeCurrentTask { $0?.cancel() }
-    try await InputSourceExecutor(controller: controller).run(request)
+    try await InputSource.Executor(controller: controller).run(request)
   }
   do { try await task.value; Issue.record("Expected cancellation") }
   catch is CancellationError {} catch { Issue.record("Unexpected error: \(error)") }
@@ -87,7 +88,7 @@ private func errorsPropagateWithoutFurtherCalls(failure: Failure) async {
   let controller = Controller()
   controller.failure = failure
   do {
-    try await InputSourceExecutor(controller: controller).run(request)
+    try await InputSource.Executor(controller: controller).run(request)
     Issue.record("Expected error")
   } catch {
     #expect(error as? Failure == failure)
