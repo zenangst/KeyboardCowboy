@@ -91,3 +91,23 @@ import Testing
     _ = try executor.execute("different source", key: "shared")
   }
 }
+
+@Test @MainActor func reentrantAppleScriptExecutionIsRejectedAndCacheClearIsDeferred() throws {
+  let executor = AppleScript.Executor(.testing)
+  try Core.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true, execute: {
+    MainActor.assumeIsolated {
+      #expect(throws: AppleScript.Executor.ExecutionError.reentrantExecution) {
+        try executor.execute("nested", key: "nested")
+      }
+      executor.clearCache()
+    }
+    return nil
+  })) {
+    _ = try executor.execute("source", key: "shared")
+  }
+  Core.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: false)) {
+    #expect(throws: Core.NSAppleScript.Error.self) {
+      try executor.execute("source", key: "shared")
+    }
+  }
+}
