@@ -50,13 +50,14 @@ public extension Application {
     /// The host supplies eligible release events, cached window owners and optional adapters.
     /// `addToStage` returns true when handled; false must leave ordinary launch safe.
     /// The adapter owns permissions, bounded polling and cleanup of temporary effects.
-    public convenience init(_ env: Core.Environment,
-                            windowOwnerNames: (@Sendable () async -> [String])? = nil,
-                            willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
-                            selfApplication: SelfApplicationHandler? = nil,
-                            peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)? = nil,
-                            addToStage: (@Sendable (Command.Application) async throws -> Bool)? = nil,
-                            sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }) {
+    public convenience init(
+      _ env: Core.Environment,
+      windowOwnerNames: (@Sendable () async -> [String])? = nil,
+      willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
+      selfApplication: SelfApplicationHandler? = nil,
+      peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)? = nil,
+      addToStage: (@Sendable (Command.Application) async throws -> Bool)? = nil,
+      sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }) {
       self.init(env, wait: Operation.Wait(env, sleep: sleep), windowOwnerNames: windowOwnerNames,
                 willExecute: willExecute, selfApplication: selfApplication, peekRelease: peekRelease,
                 addToStage: addToStage)
@@ -88,9 +89,10 @@ public extension Application {
 
     @discardableResult
     /// Execution cooperatively respects task cancellation; callers control task ownership.
-    public func execute(_ command: Command.Application,
-                        cgEventType: CGEventType?,
-                        snapshot: UserSpace.Snapshot) async throws -> UserSpace.Snapshot {
+    public func execute(
+      _ command: Command.Application,
+      cgEventType: CGEventType?,
+      snapshot: UserSpace.Snapshot) async throws -> UserSpace.Snapshot {
       try Task.checkCancellation()
       await willExecute?(command)
       try Task.checkCancellation()

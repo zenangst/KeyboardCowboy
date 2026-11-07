@@ -53,6 +53,15 @@ private actor TransientAccessibilityScript {
   }
 }
 
+private actor AlternatingAccessibilityScript {
+  private(set) var calls = 0
+  func read() throws -> [Application.StageOrchestrator.Window] {
+    calls += 1
+    if calls.isMultiple(of: 2) { throw Application.StageOrchestrator.Failure.accessibilityTemporarilyUnavailable }
+    return []
+  }
+}
+
 private func stageCommand() throws -> Command.Application {
   try JSONDecoder().decode(Command.Application.self, from: Data(#"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Target.app"},"action":"open","meta":{"id":"id","name":"Open","enabled":true}}"#.utf8))
 }
@@ -68,14 +77,23 @@ private func stageSnapshot(_ windows: [Application.StageOrchestrator.Window]) ->
   let stage = await Application.StageOrchestrator(effects: fixture.effects())
   #expect(try await stage.execute(stageCommand()))
   let edge = x < 0 ? 0 : 999
-  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move \(edge)", "sleep", "snapshot", "click 32", "raise", "move 50"])
+  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move \(edge)", "sleep", "ax", "snapshot", "click 32", "raise", "move 50"])
 }
 
 @Test func stageStartsUnhidesAndFindsWindow() async throws {
   let fixture = StageFixture(targets: [nil, nil, .init(hidden: true), .init(hidden: true), .init(hidden: false)], ax: [[], [stageWindow(300)]], snapshots: [stageSnapshot([]), stageSnapshot([]), stageSnapshot([]), stageSnapshot([stageWindow(30)])])
   let stage = await Application.StageOrchestrator(effects: fixture.effects(), attempts: 3)
   #expect(try await stage.execute(stageCommand()))
-  #expect(await fixture.events == ["snapshot", "target", "activate", "focus", "target", "sleep", "target", "focus", "snapshot", "unhide", "target", "sleep", "target", "snapshot", "ax", "activate", "focus", "ax", "focus", "sleep", "snapshot", "pointer", "click 42", "raise", "move 50"])
+  #expect(await fixture.events == ["snapshot", "target", "activate", "focus", "target", "sleep", "target", "focus", "snapshot", "unhide", "target", "sleep", "target", "snapshot", "ax", "activate", "focus", "ax", "focus", "sleep", "snapshot", "ax", "pointer", "click 42", "raise", "move 50"])
+}
+
+@Test func stageRefreshesAXAfterWindowSettling() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)],
+    ax: [[], [stageWindow(300)], [stageWindow(30)]],
+    snapshots: [stageSnapshot([]), stageSnapshot([stageWindow(30)])])
+  let stage = await Application.StageOrchestrator(effects: fixture.effects(), attempts: 2)
+  #expect(try await !stage.execute(stageCommand()))
+  #expect(await fixture.events == ["snapshot", "target", "ax", "activate", "focus", "ax", "focus", "sleep", "snapshot", "ax"])
 }
 
 @Test func stageDeclinesAlreadyPresentAndMissingWindow() async throws {
@@ -145,24 +163,24 @@ private func stageSnapshot(_ windows: [Application.StageOrchestrator.Window]) ->
   }
   effects.sleep = { _ in continuation.yield("sleep") }
   let stage = Application.StageOrchestrator(effects: effects, attempts: 2)
-  await #expect(throws: Application.StageOrchestrator.Failure.timedOut) { try await stage.execute(stageCommand()) }
+  await #expect(throws: Application.StageOrchestrator.Failure.accessibilityTemporarilyUnavailable) { try await stage.execute(stageCommand()) }
   continuation.finish()
   var recorded: [String] = []
   for await event in events { recorded.append(event) }
-  #expect(recorded == ["ax", "ax", "sleep", "ax"])
-  #expect(await fixture.events == ["snapshot", "target", "activate", "focus", "focus"])
+  #expect(recorded == ["ax", "sleep", "ax"])
+  #expect(await fixture.events == ["snapshot", "target"])
 }
 
 @Test func stageRecoversFromTransientAccessibilityError() async throws {
   let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[]],
-    snapshots: [stageSnapshot([]), stageSnapshot([stageWindow(30)])])
+    snapshots: [stageSnapshot([stageWindow(30)])])
   let script = TransientAccessibilityScript()
   var effects = await fixture.effects()
   effects.accessibilityWindows = { _ in try await script.read() }
   let stage = Application.StageOrchestrator(effects: effects, attempts: 3)
   #expect(try await stage.execute(stageCommand()))
   #expect(await script.calls == 3)
-  #expect(await fixture.events == ["snapshot", "target", "activate", "focus", "sleep", "focus", "sleep", "snapshot", "pointer", "click 42", "raise", "move 50"])
+  #expect(await fixture.events == ["snapshot", "target", "sleep", "sleep", "pointer", "click 42", "raise", "move 50"])
 }
 
 @Test func stageDoesNotRetryPermanentAccessibilityErrors() async throws {
@@ -179,6 +197,17 @@ private func stageSnapshot(_ windows: [Application.StageOrchestrator.Window]) ->
   #expect(await fixture.events == ["snapshot", "target"])
 }
 
+@Test func stageWindowPollingUsesSingleRetryBudget() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[]], snapshots: [stageSnapshot([])])
+  let script = AlternatingAccessibilityScript()
+  var effects = await fixture.effects()
+  effects.accessibilityWindows = { _ in try await script.read() }
+  let stage = Application.StageOrchestrator(effects: effects, attempts: 4)
+  await #expect(throws: Application.StageOrchestrator.Failure.timedOut) { try await stage.execute(stageCommand()) }
+  #expect(await script.calls == 5) // One initial read plus four readiness attempts.
+  #expect(await fixture.events == ["snapshot", "target", "activate", "focus", "sleep", "sleep", "sleep", "focus"])
+}
+
 @Test func stageTimeoutIsBounded() async throws {
   let fixture = StageFixture(targets: [nil], ax: [[]], snapshots: [stageSnapshot([])])
   let stage = await Application.StageOrchestrator(effects: fixture.effects(), attempts: 2)
@@ -193,7 +222,7 @@ private func stageSnapshot(_ windows: [Application.StageOrchestrator.Window]) ->
     let stage = await Application.StageOrchestrator(effects: fixture.effects())
     do { _ = try await stage.execute(stageCommand()); Issue.record("Expected failure") }
     catch { if cancel { #expect(error is CancellationError) } else { #expect(error as? Application.StageOrchestrator.Failure == .windowDisappeared) } }
-    let expected = cancel ? ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "move 50"] : ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "snapshot", "move 50"]
+    let expected = cancel ? ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "move 50"] : ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "ax", "snapshot", "move 50"]
     #expect(await fixture.events == expected)
   }
 }
@@ -205,7 +234,42 @@ private func stageSnapshot(_ windows: [Application.StageOrchestrator.Window]) ->
   await #expect(throws: Application.StageOrchestrator.Failure.windowNotVisible) {
     try await stage.execute(stageCommand())
   }
-  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "snapshot", "move 50"])
+  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "ax", "snapshot", "move 50"])
+}
+
+@Test func stageRejectsInvalidScreenAfterRevealAndRestoresPointer() async throws {
+  let invalidScreen = Application.StageOrchestrator.Snapshot(
+    frontmost: "original", windows: [stageWindow(20)], screen: CGRect(x: 0, y: 0, width: 0.5, height: 800))
+  let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[stageWindow(300)]],
+    snapshots: [stageSnapshot([stageWindow(-50)]), invalidScreen])
+  let stage = await Application.StageOrchestrator(effects: fixture.effects())
+  await #expect(throws: Application.StageOrchestrator.Failure.windowNotVisible) {
+    try await stage.execute(stageCommand())
+  }
+  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "ax", "snapshot", "move 50"])
+}
+
+@Test(arguments: [false, true]) func stagePointerRestoreFailurePreservesCancellation(cancelled: Bool) async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[stageWindow(300)]],
+    snapshots: [stageSnapshot([stageWindow(30)])])
+  var effects = await fixture.effects()
+  effects.movePointer = { _ in
+    await fixture.record("restore")
+    if cancelled { withUnsafeCurrentTask { $0?.cancel() } }
+    throw NSError(domain: "pointer", code: 5)
+  }
+  let stage = Application.StageOrchestrator(effects: effects)
+  let command = try stageCommand()
+  let result = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+    group.addTask {
+      do { _ = try await stage.execute(command); return false }
+      catch is CancellationError { return cancelled }
+      catch { return !cancelled && (error as NSError).domain == "pointer" }
+    }
+    return await group.next() ?? false
+  }
+  #expect(result)
+  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "click 42", "raise", "restore"])
 }
 
 @Test func stageUsesVisibleThumbnailAreaOnNonPrimaryScreen() async throws {
@@ -218,7 +282,27 @@ private func stageSnapshot(_ windows: [Application.StageOrchestrator.Window]) ->
   ])
   let stage = await Application.StageOrchestrator(effects: fixture.effects())
   #expect(try await stage.execute(stageCommand()))
-  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move -1", "sleep", "snapshot", "click -2", "raise", "move 50"])
+  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move -1", "sleep", "ax", "snapshot", "click -2", "raise", "move 50"])
+}
+
+@Test func stageRestoresPointerWhenWindowEntersStageDuringReveal() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)],
+    ax: [[stageWindow(300)], [stageWindow(20)]],
+    snapshots: [stageSnapshot([stageWindow(-50)]), stageSnapshot([stageWindow(20)])])
+  let stage = await Application.StageOrchestrator(effects: fixture.effects())
+  #expect(try await !stage.execute(stageCommand()))
+  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "ax", "snapshot", "move 50"])
+}
+
+@Test func stageRestoresPointerWhenAccessibilityWindowDisappearsDuringReveal() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)],
+    ax: [[stageWindow(300)], []],
+    snapshots: [stageSnapshot([stageWindow(-50)]), stageSnapshot([stageWindow(20)])])
+  let stage = await Application.StageOrchestrator(effects: fixture.effects())
+  await #expect(throws: Application.StageOrchestrator.Failure.windowDisappeared) {
+    try await stage.execute(stageCommand())
+  }
+  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "move 0", "sleep", "ax", "move 50"])
 }
 
 @Test func cancelledStageRestoresPointerAndRejectsConcurrentExecution() async throws {

@@ -115,12 +115,12 @@ extension Application {
         snapshot = try await perform { try await effects.snapshot() }
       }
       try Task.checkCancellation()
-      var accessibilityWindows = try await eligibleWindows(command)
+      var accessibilityWindows = try await eligibleWindows(command, attempts: windowAttempts)
       try Task.checkCancellation()
       if accessibilityWindows.isEmpty {
         try await activateAndRestore(command, focus: snapshot.frontmost)
         do {
-          accessibilityWindows = try await poll(attempts: windowAttempts) {
+          accessibilityWindows = try await poll(attempts: windowAttempts, retryAccessibility: true) {
             let windows = try await eligibleWindows(command)
             return windows.isEmpty ? nil : windows
           }
@@ -134,12 +134,19 @@ extension Application {
         try await perform { try await effects.sleep(.seconds(1)) }
         try Task.checkCancellation()
         snapshot = try await perform { try await effects.snapshot() }
+        accessibilityWindows = try await eligibleWindows(command, attempts: windowAttempts)
       }
       var matching = matchedWindows(accessibilityWindows, in: snapshot)
       if matching.isEmpty {
         for index in 0..<windowAttempts {
           if index > 0 { try await perform { try await effects.sleep(interval) } }
-          accessibilityWindows = try await eligibleWindows(command)
+          do {
+            accessibilityWindows = try await eligibleWindows(command)
+          } catch Failure.accessibilityTemporarilyUnavailable {
+            try Task.checkCancellation()
+            if index + 1 == windowAttempts { throw Failure.accessibilityTemporarilyUnavailable }
+            continue
+          }
           snapshot = try await perform { try await effects.snapshot() }
           matching = matchedWindows(accessibilityWindows, in: snapshot)
           if !matching.isEmpty { break }
@@ -148,11 +155,7 @@ extension Application {
       guard let match = matching.first(where: { $0.ax.frame != $0.visible.frame }) else { return false }
       let ax = match.ax
       var window = match.visible
-      guard snapshot.screen.width >= 1, snapshot.screen.height >= 1,
-            snapshot.screen.minX.isFinite, snapshot.screen.maxX.isFinite,
-            snapshot.screen.minY.isFinite, snapshot.screen.maxY.isFinite else {
-        throw Failure.windowNotVisible
-      }
+      guard isUsableScreen(snapshot.screen) else { throw Failure.windowNotVisible }
       try Task.checkCancellation()
       let original = try await perform { try await effects.pointer() }
       do {
@@ -164,10 +167,19 @@ extension Application {
           try Task.checkCancellation()
           try await perform { try await effects.sleep(.milliseconds(175)) }
           try Task.checkCancellation()
+          guard let currentAX = try await eligibleWindows(command, attempts: windowAttempts).first(where: { $0.id == ax.id }) else {
+            throw Failure.windowDisappeared
+          }
           snapshot = try await perform { try await effects.snapshot() }
           guard let refreshed = snapshot.windows.first(where: { $0.id == ax.id }) else { throw Failure.windowDisappeared }
           window = refreshed
+          if currentAX.frame == window.frame {
+            try await effects.movePointer(original)
+            try Task.checkCancellation()
+            return false
+          }
         }
+        guard isUsableScreen(snapshot.screen) else { throw Failure.windowNotVisible }
         let visible = window.frame.intersection(snapshot.screen)
         guard !visible.isNull, visible.width > 0, visible.height > 0 else { throw Failure.windowNotVisible }
         let click = CGPoint(x: visible.minX + min(12, visible.width / 2), y: visible.midY)
@@ -181,7 +193,12 @@ extension Application {
         try Task.checkCancellation()
         throw error
       }
-      try await effects.movePointer(original)
+      do {
+        try await effects.movePointer(original)
+      } catch {
+        try Task.checkCancellation()
+        throw error
+      }
       try Task.checkCancellation()
       return true
     }
@@ -200,13 +217,23 @@ extension Application {
       try Task.checkCancellation()
     }
 
-    private func eligibleWindows(_ command: Command.Application) async throws -> [Window] {
-      do {
-        return try await perform { try await effects.accessibilityWindows(command) }.filter { $0.frame.height > 20 }
-      } catch Failure.accessibilityTemporarilyUnavailable {
-        try Task.checkCancellation()
-        return []
+    private func eligibleWindows(_ command: Command.Application, attempts: Int = 1) async throws -> [Window] {
+      for index in 0..<attempts {
+        do {
+          return try await perform { try await effects.accessibilityWindows(command) }.filter { $0.frame.height > 20 }
+        } catch Failure.accessibilityTemporarilyUnavailable {
+          try Task.checkCancellation()
+          guard index + 1 < attempts else { throw Failure.accessibilityTemporarilyUnavailable }
+          try await perform { try await effects.sleep(interval) }
+        }
       }
+      throw Failure.accessibilityTemporarilyUnavailable
+    }
+
+    private func isUsableScreen(_ screen: CGRect) -> Bool {
+      screen.width >= 1 && screen.height >= 1 &&
+        screen.minX.isFinite && screen.maxX.isFinite &&
+        screen.minY.isFinite && screen.maxY.isFinite
     }
 
     private func matchedWindows(_ windows: [Window], in snapshot: Snapshot) -> [(ax: Window, visible: Window)] {
@@ -215,10 +242,17 @@ extension Application {
       }
     }
 
-    private func poll<T: Sendable>(attempts: Int, _ read: () async throws -> T?) async throws -> T {
+    private func poll<T: Sendable>(attempts: Int, retryAccessibility: Bool = false,
+                                   _ read: () async throws -> T?) async throws -> T {
       for index in 0..<attempts {
         try Task.checkCancellation()
-        let value = try await perform(read)
+        let value: T?
+        do {
+          value = try await perform(read)
+        } catch Failure.accessibilityTemporarilyUnavailable where retryAccessibility && index + 1 < attempts {
+          try await perform { try await effects.sleep(interval) }
+          continue
+        }
         try Task.checkCancellation()
         if let value { return value }
         if index + 1 < attempts {
