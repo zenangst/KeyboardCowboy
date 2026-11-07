@@ -34,3 +34,4 @@ v4/Features/.build
 v4/Editor/.build
 v4/*/*/.build
 v4/.build
+v4/**/tmp/
