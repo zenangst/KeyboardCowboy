@@ -37,6 +37,7 @@ extension Application {
       /// Cleanup callbacks must be usable even when the calling task is cancelled.
       public var restoreFocus: @Sendable (String) async throws -> Void
       public var unhide: @Sendable (Command.Application) async throws -> Void
+      /// Throw `.accessibilityTemporarilyUnavailable` only for retryable readiness failures.
       public var accessibilityWindows: @Sendable (Command.Application) async throws -> [Window]
       public var pointer: @Sendable () async throws -> CGPoint
       /// Must also restore the pointer when called from a cancelled task.
@@ -63,7 +64,9 @@ extension Application {
       }
     }
 
-    public enum Failure: Error, Equatable { case timedOut, windowDisappeared, windowNotVisible, alreadyRunning }
+    public enum Failure: Error, Equatable {
+      case timedOut, windowDisappeared, windowNotVisible, alreadyRunning, accessibilityTemporarilyUnavailable
+    }
     private let effects: Effects
     private let launchAttempts: Int
     private let unhideAttempts: Int
@@ -112,12 +115,15 @@ extension Application {
         snapshot = try await perform { try await effects.snapshot() }
       }
       try Task.checkCancellation()
-      var ax = try await perform { try await effects.accessibilityWindows(command) }.first { $0.frame.height > 20 }
+      var accessibilityWindows = try await eligibleWindows(command)
       try Task.checkCancellation()
-      if ax == nil {
+      if accessibilityWindows.isEmpty {
         try await activateAndRestore(command, focus: snapshot.frontmost)
         do {
-          ax = try await poll(attempts: windowAttempts) { try await effects.accessibilityWindows(command).first { $0.frame.height > 20 } }
+          accessibilityWindows = try await poll(attempts: windowAttempts) {
+            let windows = try await eligibleWindows(command)
+            return windows.isEmpty ? nil : windows
+          }
         } catch {
           if let focus = snapshot.frontmost { try? await effects.restoreFocus(focus) }
           try Task.checkCancellation()
@@ -129,8 +135,19 @@ extension Application {
         try Task.checkCancellation()
         snapshot = try await perform { try await effects.snapshot() }
       }
-      guard let ax, var window = snapshot.windows.first(where: { $0.id == ax.id }) else { return false }
-      if ax.frame == window.frame { return false }
+      var matching = matchedWindows(accessibilityWindows, in: snapshot)
+      if matching.isEmpty {
+        for index in 0..<windowAttempts {
+          if index > 0 { try await perform { try await effects.sleep(interval) } }
+          accessibilityWindows = try await eligibleWindows(command)
+          snapshot = try await perform { try await effects.snapshot() }
+          matching = matchedWindows(accessibilityWindows, in: snapshot)
+          if !matching.isEmpty { break }
+        }
+      }
+      guard let match = matching.first(where: { $0.ax.frame != $0.visible.frame }) else { return false }
+      let ax = match.ax
+      var window = match.visible
       guard snapshot.screen.width >= 1, snapshot.screen.height >= 1,
             snapshot.screen.minX.isFinite, snapshot.screen.maxX.isFinite,
             snapshot.screen.minY.isFinite, snapshot.screen.maxY.isFinite else {
@@ -181,6 +198,21 @@ extension Application {
       }
       if let focus { try await perform { try await effects.restoreFocus(focus) } }
       try Task.checkCancellation()
+    }
+
+    private func eligibleWindows(_ command: Command.Application) async throws -> [Window] {
+      do {
+        return try await perform { try await effects.accessibilityWindows(command) }.filter { $0.frame.height > 20 }
+      } catch Failure.accessibilityTemporarilyUnavailable {
+        try Task.checkCancellation()
+        return []
+      }
+    }
+
+    private func matchedWindows(_ windows: [Window], in snapshot: Snapshot) -> [(ax: Window, visible: Window)] {
+      windows.compactMap { ax in
+        snapshot.windows.first(where: { $0.id == ax.id }).map { (ax: ax, visible: $0) }
+      }
     }
 
     private func poll<T: Sendable>(attempts: Int, _ read: () async throws -> T?) async throws -> T {

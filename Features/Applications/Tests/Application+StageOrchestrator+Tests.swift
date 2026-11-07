@@ -44,6 +44,15 @@ private actor StageTestGate {
   }
 }
 
+private actor TransientAccessibilityScript {
+  private(set) var calls = 0
+  func read() throws -> [Application.StageOrchestrator.Window] {
+    calls += 1
+    if calls < 3 { throw Application.StageOrchestrator.Failure.accessibilityTemporarilyUnavailable }
+    return [Application.StageOrchestrator.Window(id: 1, frame: CGRect(x: 300, y: 10, width: 100, height: 100))]
+  }
+}
+
 private func stageCommand() throws -> Command.Application {
   try JSONDecoder().decode(Command.Application.self, from: Data(#"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Target.app"},"action":"open","meta":{"id":"id","name":"Open","enabled":true}}"#.utf8))
 }
@@ -72,10 +81,102 @@ private func stageSnapshot(_ windows: [Application.StageOrchestrator.Window]) ->
 @Test func stageDeclinesAlreadyPresentAndMissingWindow() async throws {
   for windows in [[stageWindow(300)], [stageWindow(10, id: 2)]] {
     let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[stageWindow(300)]], snapshots: [stageSnapshot(windows)])
-    let stage = await Application.StageOrchestrator(effects: fixture.effects())
+    let stage = await Application.StageOrchestrator(effects: fixture.effects(), attempts: 2)
     #expect(try await !stage.execute(stageCommand()))
-    #expect(await fixture.events == ["snapshot", "target", "ax"])
+    #expect(await fixture.events == (windows[0].id == 1
+      ? ["snapshot", "target", "ax"]
+      : ["snapshot", "target", "ax", "ax", "snapshot", "sleep", "ax", "snapshot"]))
   }
+}
+
+@Test func stageSelectsMatchingOffStageWindowWhenEarlierWindowIsUnmatchedOrAlreadyInStage() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)],
+    ax: [[stageWindow(300, id: 1), stageWindow(300, id: 2), stageWindow(300, id: 3)]],
+    snapshots: [stageSnapshot([stageWindow(300, id: 2), stageWindow(30, id: 3)])])
+  try await confirmation("Expected selected window to be raised") { raised in
+    var effects = await fixture.effects()
+    effects.unminimizeAndRaise = { id in
+      #expect(id == 3)
+      await fixture.record("raise")
+      raised()
+    }
+    let stage = Application.StageOrchestrator(effects: effects)
+    let result = try await stage.execute(stageCommand())
+    #expect(result)
+  }
+  #expect(await fixture.events == ["snapshot", "target", "ax", "pointer", "click 42", "raise", "move 50"])
+}
+
+@Test func stageRetriesLateSnapshotWindowMatch() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[stageWindow(300)]],
+    snapshots: [stageSnapshot([]), stageSnapshot([]), stageSnapshot([stageWindow(30)])])
+  let stage = await Application.StageOrchestrator(effects: fixture.effects(), attempts: 3)
+  #expect(try await stage.execute(stageCommand()))
+  #expect(await fixture.events == ["snapshot", "target", "ax", "ax", "snapshot", "sleep", "ax", "snapshot", "pointer", "click 42", "raise", "move 50"])
+}
+
+@Test func stageDoesNotWaitForOtherWindowsWhenMatchedWindowIsInStage() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)],
+    ax: [[stageWindow(300, id: 1), stageWindow(300, id: 2)]],
+    snapshots: [stageSnapshot([stageWindow(300, id: 1)]),
+                stageSnapshot([stageWindow(300, id: 1), stageWindow(30, id: 2)])])
+  let stage = await Application.StageOrchestrator(effects: fixture.effects(), attempts: 2)
+  #expect(try await !stage.execute(stageCommand()))
+  #expect(await fixture.events == ["snapshot", "target", "ax"])
+}
+
+@Test func stageRefreshesAccessibilityFrameDuringSnapshotRetry() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)],
+    ax: [[stageWindow(300)], [stageWindow(30)]],
+    snapshots: [stageSnapshot([]), stageSnapshot([stageWindow(30)])])
+  let stage = await Application.StageOrchestrator(effects: fixture.effects(), attempts: 2)
+  #expect(try await !stage.execute(stageCommand()))
+  #expect(await fixture.events == ["snapshot", "target", "ax", "ax", "snapshot"])
+}
+
+@Test func stageRetriesExplicitTransientAccessibilityError() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[stageWindow(300)]],
+    snapshots: [stageSnapshot([]), stageSnapshot([stageWindow(30)])])
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  var effects = await fixture.effects()
+  effects.accessibilityWindows = { _ in
+    continuation.yield("ax")
+    throw Application.StageOrchestrator.Failure.accessibilityTemporarilyUnavailable
+  }
+  effects.sleep = { _ in continuation.yield("sleep") }
+  let stage = Application.StageOrchestrator(effects: effects, attempts: 2)
+  await #expect(throws: Application.StageOrchestrator.Failure.timedOut) { try await stage.execute(stageCommand()) }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["ax", "ax", "sleep", "ax"])
+  #expect(await fixture.events == ["snapshot", "target", "activate", "focus", "focus"])
+}
+
+@Test func stageRecoversFromTransientAccessibilityError() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[]],
+    snapshots: [stageSnapshot([]), stageSnapshot([stageWindow(30)])])
+  let script = TransientAccessibilityScript()
+  var effects = await fixture.effects()
+  effects.accessibilityWindows = { _ in try await script.read() }
+  let stage = Application.StageOrchestrator(effects: effects, attempts: 3)
+  #expect(try await stage.execute(stageCommand()))
+  #expect(await script.calls == 3)
+  #expect(await fixture.events == ["snapshot", "target", "activate", "focus", "sleep", "focus", "sleep", "snapshot", "pointer", "click 42", "raise", "move 50"])
+}
+
+@Test func stageDoesNotRetryPermanentAccessibilityErrors() async throws {
+  let fixture = StageFixture(targets: [.init(hidden: false)], ax: [[]], snapshots: [stageSnapshot([])])
+  var effects = await fixture.effects()
+  effects.accessibilityWindows = { _ in throw NSError(domain: "permissions", code: 1) }
+  let stage = Application.StageOrchestrator(effects: effects, attempts: 3)
+  do {
+    _ = try await stage.execute(stageCommand())
+    Issue.record("Expected accessibility failure")
+  } catch {
+    #expect((error as NSError).domain == "permissions")
+  }
+  #expect(await fixture.events == ["snapshot", "target"])
 }
 
 @Test func stageTimeoutIsBounded() async throws {
