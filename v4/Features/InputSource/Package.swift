@@ -6,5 +6,8 @@ let package = Package(
   name: "InputSourceFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "InputSourceFeature", targets: ["InputSourceFeature"])],
-  targets: [.target(name: "InputSourceFeature", path: "Sources")]
+  targets: [
+    .target(name: "InputSourceFeature", path: "Sources"),
+    .testTarget(name: "InputSourceFeatureTests", dependencies: ["InputSourceFeature"], path: "Tests"),
+  ]
 )
