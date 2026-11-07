@@ -4,7 +4,7 @@ import Testing
 
 private enum TestError: Error { case failed }
 
-private actor Operations: OpenOperations {
+private actor Operations: Open.Operations {
   var calls: [String] = []
   let failures: Set<String>
   let directory: Bool
@@ -21,13 +21,13 @@ private actor Operations: OpenOperations {
 
   func openHost() { calls.append("host") }
   func openFinder(_ path: String, checkCancellation: Bool) throws { try record("finder:\(path):\(checkCancellation)") }
-  func openBrowser(_ path: String, application: OpenTargetApplication?, checkCancellation: Bool) throws {
+  func openBrowser(_ path: String, application: Open.TargetApplication?, checkCancellation: Bool) throws {
     try record("browser:\(path):\(application?.bundleIdentifier ?? "default"):\(checkCancellation)")
   }
-  func openWebApp(_ path: String, application: OpenTargetApplication, checkCancellation: Bool) throws {
+  func openWebApp(_ path: String, application: Open.TargetApplication, checkCancellation: Bool) throws {
     try record("web:\(path):\(application.bundleIdentifier):\(checkCancellation)")
   }
-  func openGeneric(_ path: String, application: OpenTargetApplication?) throws {
+  func openGeneric(_ path: String, application: Open.TargetApplication?) throws {
     try record("generic:\(path):\(application?.bundleIdentifier ?? "default")")
   }
   func isDirectory(_ path: String) throws -> Bool {
@@ -36,12 +36,12 @@ private actor Operations: OpenOperations {
   }
 }
 
-private func executor(_ operations: Operations) -> OpenExecutor {
-  OpenExecutor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: operations)
+private func executor(_ operations: Operations) -> Open.Executor {
+  Open.Executor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: operations)
 }
 
-private func target(_ id: String, name: String = "App") -> OpenTargetApplication {
-  OpenTargetApplication(bundleIdentifier: id, bundleName: name, displayName: "Display", path: "/app")
+private func target(_ id: String, name: String = "App") -> Open.TargetApplication {
+  Open.TargetApplication(bundleIdentifier: id, bundleName: name, displayName: "Display", path: "/app")
 }
 
 @Test func hostInterceptionHasNoOtherEffects() async throws {

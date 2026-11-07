@@ -2,12 +2,12 @@ import Foundation
 import OpenFeature
 import Testing
 
-private func application(_ id: String) -> OpenTargetApplication {
-  OpenTargetApplication(bundleIdentifier: id, bundleName: "Name", displayName: "Display", path: "/Applications/App.app")
+private func application(_ id: String) -> Open.TargetApplication {
+  Open.TargetApplication(bundleIdentifier: id, bundleName: "Name", displayName: "Display", path: "/Applications/App.app")
 }
 
 @Test(arguments: [
-  ("/tmp/a file", "com.apple.finder", OpenDispatcher.Route.finder),
+  ("/tmp/a file", "com.apple.finder", Open.Dispatcher.Route.finder),
   ("https://example.com", "COM.APPLE.FINDER", .finder),
   ("https://example.com", "com.apple.Safari.WebApp.123", .webApp),
   ("https://example.com", "com.kagi.kagimacOS.WebApp.123", .webApp),
@@ -19,8 +19,8 @@ private func application(_ id: String) -> OpenTargetApplication {
   ("http://[", "other", .generic),
   ("https://example.com", "host.id", .host),
 ])
-func selectsPrimaryRoute(path: String, id: String, expected: OpenDispatcher.Route) {
-  let dispatcher = OpenDispatcher(hostBundleIdentifier: "host.id", hostBundleURL: URL(fileURLWithPath: "/host.app"))
+func selectsPrimaryRoute(path: String, id: String, expected: Open.Dispatcher.Route) {
+  let dispatcher = Open.Dispatcher(hostBundleIdentifier: "host.id", hostBundleURL: URL(fileURLWithPath: "/host.app"))
   #expect(dispatcher.route(path: path, application: application(id)) == expected)
 }
 
@@ -32,12 +32,12 @@ func selectsPrimaryRoute(path: String, id: String, expected: OpenDispatcher.Rout
   try FileManager.default.createDirectory(at: host, withIntermediateDirectories: true)
   let link = directory.appendingPathComponent("Link.app")
   try FileManager.default.createSymbolicLink(at: link, withDestinationURL: host)
-  let dispatcher = OpenDispatcher(hostBundleIdentifier: "host.id", hostBundleURL: host)
+  let dispatcher = Open.Dispatcher(hostBundleIdentifier: "host.id", hostBundleURL: host)
   #expect(dispatcher.route(path: link.path, application: application("com.apple.finder")) == .host)
   #expect(dispatcher.route(path: host.appendingPathComponent("../Host.app").path) == .host)
 
   let home = FileManager.default.homeDirectoryForCurrentUser
-  let homeDispatcher = OpenDispatcher(hostBundleIdentifier: "host.id", hostBundleURL: home)
+  let homeDispatcher = Open.Dispatcher(hostBundleIdentifier: "host.id", hostBundleURL: home)
   #expect(homeDispatcher.route(path: "~") == .host)
   #expect(dispatcher.route(path: "/elsewhere", application: application("other")) == .generic)
 }

@@ -11,7 +11,7 @@ import Testing
   "",
 ])
 func parsesPathsAsLiteralFileURLs(_ path: String) {
-  let parser = OpenURLParser()
+  let parser = Open.URLParser()
   #expect(parser.parse(path) == URL(fileURLWithPath: path))
   #expect(!parser.isBrowserEligible(path))
 }
@@ -23,7 +23,7 @@ func parsesPathsAsLiteralFileURLs(_ path: String) {
   ("custom:some-value", false),
 ])
 func preservesSchemesAndSeparatelyChecksBrowserEligibility(_ path: String, eligible: Bool) throws {
-  let parser = OpenURLParser()
+  let parser = Open.URLParser()
   #expect(parser.parse(path) == (try #require(URL(string: path))))
   #expect(parser.isBrowserEligible(path) == eligible)
 }
