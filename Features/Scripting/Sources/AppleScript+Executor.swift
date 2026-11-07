@@ -14,7 +14,8 @@ extension AppleScript {
 
     func execute(_ filePath: FilePath, key: String) throws -> (appleScript: Core.NSAppleScript, output: String?) {
       if let appleScript = cache.get(for: key) {
-        return (appleScript, try appleScript.executeAndReturnError(nil).stringValue)
+        var errorDictionary: NSDictionary?
+        return (appleScript, try appleScript.executeAndReturnError(&errorDictionary).stringValue)
       }
 
       var errorDictionary: NSDictionary?
@@ -30,7 +31,8 @@ extension AppleScript {
 
     func execute(_ source: String, key: String) throws -> (appleScript: Core.NSAppleScript, output: String?) {
       if let appleScript = cache.get(for: key) {
-        return (appleScript, try appleScript.executeAndReturnError(nil).stringValue)
+        var errorDictionary: NSDictionary?
+        return (appleScript, try appleScript.executeAndReturnError(&errorDictionary).stringValue)
       }
 
       var errorDictionary: NSDictionary?

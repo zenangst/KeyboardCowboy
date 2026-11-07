@@ -10,6 +10,10 @@ final class TestResults: @unchecked Sendable {
   var didRemoveDirectory: Bool = false
 }
 
+enum ExecutorTestError: Error {
+  case launch, cleanup
+}
+
 @Test func testExecutationHeadless() throws {
   let builder = ShellScript.Builder(.testing)
   let source = "/bin/ls -la"
@@ -50,6 +54,28 @@ final class TestResults: @unchecked Sendable {
   #expect(results.didRemoveDirectory == false)
 }
 
+@Test func shellSourceRunsWithRealTemporaryFile() throws {
+  let processes = try ShellScript.Builder(.production).build("printf 'hello from shell'")
+  let output = try ShellScript.Executor(.production).execute(processes)
+  #expect(output == "hello from shell")
+}
+
+@Test func shellCleansUpAndPreservesLaunchError() throws {
+  let processes = try ShellScript.Builder(.testing).build("echo hello")
+  let results = TestResults()
+  Core.FileManager.Testing.$mock.withValue(.init(createFile: true, removeItem: {
+    results.didRemoveDirectory = true
+    throw ExecutorTestError.cleanup
+  })) {
+    Core.Process.Testing.$mock.withValue(.init(run: { throw ExecutorTestError.launch })) {
+      #expect(throws: ExecutorTestError.launch) {
+        try ShellScript.Executor(.testing).execute(processes)
+      }
+    }
+  }
+  #expect(results.didRemoveDirectory)
+}
+
 @Test func testExecutationShell() throws {
   let builder = ShellScript.Builder(.testing)
   let source = "ls -la"
@@ -87,7 +113,7 @@ final class TestResults: @unchecked Sendable {
   #expect(output == "A,B,C")
 
   #expect(script.count == 1)
-  #expect(script[0].arguments == ["-i", "-l", "testExecutationShell"])
+  #expect(script[0].arguments == ["-i", "-l", "testExecutationShell/script"])
   #expect(script[0].currentDirectoryURL == URL(filePath: "/tmp"))
   #expect(script[0].executableURL == URL(filePath: "/bin/zsh"))
   #expect(script[0].environment?["SHELL"] == "/bin/zsh")

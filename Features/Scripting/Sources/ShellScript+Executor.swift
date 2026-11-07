@@ -32,23 +32,30 @@ extension ShellScript {
         output = try run(process)
       case .shell:
         let fileManager = FileManager(env)
-        let tempPath = (try fileManager.createTemporaryDirectory().path as NSString)
+        let directoryPath = (try fileManager.createTemporaryDirectory().path as NSString)
           .expandingTildeInPath
+        let tempPath = (directoryPath as NSString).appendingPathComponent("script")
 
         let data = process.source.data(using: .utf8)
-        let lastPathComponent = (tempPath as NSString).lastPathComponent
-        let currentDirectoryURL = URL(fileURLWithPath: (tempPath as NSString).deletingLastPathComponent)
+        let lastPathComponent = ((directoryPath as NSString).lastPathComponent as NSString)
+          .appendingPathComponent("script")
+        let currentDirectoryURL = URL(fileURLWithPath: (directoryPath as NSString).deletingLastPathComponent)
 
         process.arguments?.append(lastPathComponent)
         process.currentDirectoryURL = currentDirectoryURL
 
-        guard fileManager.createFile(atPath: tempPath, contents: data) else {
-          throw Error.createFileFailed
+        do {
+          guard fileManager.createFile(atPath: tempPath, contents: data) else {
+            throw Error.createFileFailed
+          }
+
+          output = try run(process)
+        } catch {
+          try? fileManager.removeItem(atPath: directoryPath)
+          throw error
         }
 
-        output = try run(process)
-
-        try fileManager.removeItem(atPath: tempPath)
+        try fileManager.removeItem(atPath: directoryPath)
       }
 
       return output
