@@ -55,6 +55,27 @@ let activateBundleIdentifier = BundleIdentifier("activate.me.please")
   }
 }
 
+@Test func testActivateFrontmostIdentifierComparisonIgnoresCase() async {
+  let requested = BundleIdentifier("com.example.editor")
+  let frontmost = Core.RunningApplication(.testing(.init("COM.Example.Editor")))
+  let target = Core.RunningApplication(.testing(requested))
+  await confirmation("Expected all-windows activation") { activated in
+    Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+      Core.RunningApplication.Testing.$mock.withValue(.init(
+        activateFrom: { application, options in
+          #expect(application === frontmost)
+          #expect(options == [.activateAllWindows])
+          activated()
+          return true
+        },
+        runningApplications: [target]
+      )) {
+        #expect(Operation.Activate(.testing)(requested) == .activated)
+      }
+    }
+  }
+}
+
 @Test func testActivateNonRunningApplication() async throws {
   Core.Workspace.Testing.$mock.withValue(.init(
     frontmostApplication: Core.RunningApplication(.testing(frontmostBundleIdentifier)),
