@@ -19,8 +19,26 @@ extension Core.Process {
   public struct Mock: Sendable {
     var run: ThrowingFunction?
     var waitUntilExit: Function?
-    var terminationStatus: Int32 = 0
-    var terminationReason: Foundation.Process.TerminationReason = .exit
+    var terminationStatus: Int32
+    var terminationReason: Foundation.Process.TerminationReason
+    var readStandardOutput: (@Sendable () throws -> Data?)?
+    var readStandardError: (@Sendable () throws -> Data?)?
+
+    public init(
+      run: ThrowingFunction? = nil,
+      waitUntilExit: Function? = nil,
+      terminationStatus: Int32 = 0,
+      terminationReason: Foundation.Process.TerminationReason = .exit,
+      readStandardOutput: (@Sendable () throws -> Data?)? = nil,
+      readStandardError: (@Sendable () throws -> Data?)? = nil
+    ) {
+      self.run = run
+      self.waitUntilExit = waitUntilExit
+      self.terminationStatus = terminationStatus
+      self.terminationReason = terminationReason
+      self.readStandardOutput = readStandardOutput
+      self.readStandardError = readStandardError
+    }
   }
 }
 #endif

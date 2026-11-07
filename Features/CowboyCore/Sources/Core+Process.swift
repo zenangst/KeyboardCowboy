@@ -213,8 +213,18 @@ public extension Core {
       if case .testing = mode {
         try Task.checkCancellation()
         try run()
-        let stdout = try standardOutput?.fileHandleForReading.readToEnd()
-        let stderr = try standardError?.fileHandleForReading.readToEnd()
+        let stdout: Data?
+        if let read = Testing.mock.readStandardOutput {
+          stdout = try read()
+        } else {
+          stdout = try standardOutput?.fileHandleForReading.readToEnd()
+        }
+        let stderr: Data?
+        if let read = Testing.mock.readStandardError {
+          stderr = try read()
+        } else {
+          stderr = try standardError?.fileHandleForReading.readToEnd()
+        }
         waitUntilExit()
         try Task.checkCancellation()
         return (stdout, stderr)

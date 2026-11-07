@@ -45,3 +45,21 @@ import Testing
     }
   }
 }
+
+@Test(arguments: [false, true]) func executionFailurePreservesDetailsWithoutRequiringPointer(provideErrorPointer: Bool) throws {
+  try Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+    NSError(domain: "test", code: -1708, userInfo: [NSLocalizedDescriptionKey: "Execution failed"])
+  })) {
+    let script = try Core.NSAppleScript(.testing, source: "source")
+    var dictionary: NSDictionary?
+    do {
+      if provideErrorPointer { _ = try script.executeAndReturnError(&dictionary) }
+      else { _ = try script.executeAndReturnError(nil) }
+      Issue.record("Expected execution to fail")
+    } catch Core.NSAppleScript.Error.unableToExecute(let error) {
+      #expect((error as NSError).code == -1708)
+      #expect((error as NSError).localizedDescription == "Execution failed")
+      if provideErrorPointer { #expect(dictionary?[Cocoa.NSAppleScript.errorNumber] as? Int == -1708) }
+    }
+  }
+}

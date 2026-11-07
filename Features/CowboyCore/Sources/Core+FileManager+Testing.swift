@@ -15,6 +15,8 @@ extension Core.FileManager {
     var createFile: Bool
     var fileExistsAtPath: Bool
     var removeItem: ThrowingFunction?
+    var createFileAtPath: (@Sendable (String, Data?) -> Bool)?
+    var removeItemAtPath: (@Sendable (String) throws -> Void)?
 
     public init(
       contentsAtPath: Data? = nil,
@@ -22,12 +24,16 @@ extension Core.FileManager {
       createFile: Bool = false,
       fileExistsAtPath: Bool = false,
       removeItem: ThrowingFunction? = nil,
+      createFileAtPath: (@Sendable (String, Data?) -> Bool)? = nil,
+      removeItemAtPath: (@Sendable (String) throws -> Void)? = nil,
     ) {
       self.contentsAtPath = contentsAtPath
       self.createDirectoryAtUrl = createDirectoryAtUrl
       self.createFile = createFile
       self.fileExistsAtPath = fileExistsAtPath
       self.removeItem = removeItem
+      self.createFileAtPath = createFileAtPath
+      self.removeItemAtPath = removeItemAtPath
     }
   }
 }

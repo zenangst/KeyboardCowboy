@@ -5,6 +5,7 @@ public extension Core {
     public enum Error: Swift.Error {
       case unableToCreateAppleScript(source: String)
       case unableToResolveAppleScript(path: String)
+      case unableToResolveAppleScriptWithError(path: String, underlyingError: NSError)
       case unableToCompile
       case unableToCompileWithError(Swift.Error)
       case unableToExecute(Swift.Error)
@@ -42,18 +43,36 @@ public extension Core {
       contentsOf url: URL,
       error errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?,
     ) throws {
+      var creationError: NSDictionary?
       switch env {
       case .production:
-        guard let appleScript = Cocoa.NSAppleScript(contentsOf: url, error: errorInfo) else {
+        guard let appleScript = Cocoa.NSAppleScript(contentsOf: url, error: &creationError) else {
+          errorInfo?.pointee = creationError
+          if let creationError {
+            throw Error.unableToResolveAppleScriptWithError(path: url.absoluteString, underlyingError: Self.error(from: creationError))
+          }
           throw Error.unableToResolveAppleScript(path: url.absoluteString)
         }
 
+        errorInfo?.pointee = creationError
         self.mode = .production(appleScript)
       #if DEBUG
       case .testing:
         guard Testing.mock.createFile(url) else {
+          if let error = Testing.mock.createFileError(url) {
+            creationError = [
+              Cocoa.NSAppleScript.errorNumber: error.code,
+              Cocoa.NSAppleScript.errorMessage: error.localizedFailureReason ?? error.localizedDescription,
+              Cocoa.NSAppleScript.errorBriefMessage: error.localizedDescription,
+            ] as NSDictionary
+          }
+          errorInfo?.pointee = creationError
+          if let creationError {
+            throw Error.unableToResolveAppleScriptWithError(path: url.absoluteString, underlyingError: Self.error(from: creationError))
+          }
           throw Error.unableToResolveAppleScript(path: url.absoluteString)
         }
+        errorInfo?.pointee = nil
         self.mode = .testing
       #endif
       }
@@ -90,13 +109,14 @@ public extension Core {
     public func executeAndReturnError(_ errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?)
       throws -> Core.NSAppleEventDescriptor {
       let descriptor: Core.NSAppleEventDescriptor
+      var executionError: NSDictionary?
       switch mode {
       case .production(let appleScript):
-        descriptor = NSAppleEventDescriptor(.production(appleScript.executeAndReturnError(errorInfo)))
+        descriptor = NSAppleEventDescriptor(.production(appleScript.executeAndReturnError(&executionError)))
       #if DEBUG
       case .testing:
         if let error = Testing.mock.execute() {
-          errorInfo?.pointee = [
+          executionError = [
             Cocoa.NSAppleScript.errorNumber: error.code,
             Cocoa.NSAppleScript.errorMessage: error.localizedFailureReason ?? error.localizedDescription,
             Cocoa.NSAppleScript.errorBriefMessage: error.localizedDescription,
@@ -106,14 +126,19 @@ public extension Core {
       #endif
       }
 
-      if let errorInfo = errorInfo?.pointee {
-        throw Error.unableToExecute(try createError(from: errorInfo))
+      errorInfo?.pointee = executionError
+      if let executionError {
+        throw Error.unableToExecute(try createError(from: executionError))
       }
 
       return descriptor
     }
 
     private func createError(from dictionary: NSDictionary) throws -> NSError {
+      Self.error(from: dictionary)
+    }
+
+    private static func error(from dictionary: NSDictionary) -> NSError {
       let code = dictionary[Cocoa.NSAppleScript.errorNumber] as? Int ?? 0
 
       let errorMessage = dictionary[Cocoa.NSAppleScript.errorMessage] as? String ?? "Missing error message"

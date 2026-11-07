@@ -34,7 +34,7 @@ public extension Core {
           attributes: attr,
         )
       #if DEBUG
-      case .testing: Testing.mock.createFile
+      case .testing: Testing.mock.createFileAtPath?(path, data) ?? Testing.mock.createFile
       #endif
       }
     }
@@ -68,7 +68,12 @@ public extension Core {
       switch env {
       case .production: try Production.default.removeItem(atPath: path)
       #if DEBUG
-      case .testing: try Testing.mock.removeItem?()
+      case .testing:
+        if let removeItemAtPath = Testing.mock.removeItemAtPath {
+          try removeItemAtPath(path)
+        } else {
+          try Testing.mock.removeItem?()
+        }
       #endif
       }
     }
