@@ -10,6 +10,7 @@ private final class Controller: InputSourceControlling {
   var current = Source(id: "current", token: 1)
   var found = Source(id: "target", token: 2)
   var failure: Failure?
+  var cancelDuringLookup = false
 
   func currentInputSource() throws -> Source {
     calls.append("current")
@@ -20,6 +21,7 @@ private final class Controller: InputSourceControlling {
   func findInput(_ id: String, includeAllInstalled: Bool) throws -> Source {
     calls.append("find:\(id):\(includeAllInstalled)")
     if failure == .lookup { throw Failure.lookup }
+    if cancelDuringLookup { withUnsafeCurrentTask { $0?.cancel() } }
     return found
   }
   func select(_ source: Source) throws {
@@ -28,7 +30,29 @@ private final class Controller: InputSourceControlling {
   }
 }
 
+@Test @MainActor func sourceIDsAreNotNormalized() async throws {
+  let controller = Controller()
+  controller.current = .init(id: "com.example.layout", token: 1)
+  let request = InputSourceRequest(id: "request", inputSourceId: " Com.Example.Layout ", name: "ignored")
+  try await InputSourceExecutor(controller: controller).run(request)
+  #expect(controller.calls == ["current", "find: Com.Example.Layout :false", "select:2"])
+}
+
+@Test @MainActor func cancellationDuringLookupDoesNotAddAnotherCheckpoint() async throws {
+  let controller = Controller()
+  controller.cancelDuringLookup = true
+  let task = Task { @MainActor in
+    try await InputSourceExecutor(controller: controller).run(request)
+  }
+  try await task.value
+  #expect(controller.calls == ["current", "find:target:false", "select:2"])
+}
+
 private let request = InputSourceRequest(id: "request", inputSourceId: "target", name: "Target")
+
+@Test @MainActor func liveExecutorCanBeConstructedByConsumer() {
+  _ = InputSourceExecutor()
+}
 
 @Test @MainActor func selectsExactLookupResult() async throws {
   let controller = Controller()
