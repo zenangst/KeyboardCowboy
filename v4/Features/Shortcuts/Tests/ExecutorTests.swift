@@ -16,7 +16,7 @@ private final class Calls: @unchecked Sendable {
   }
 }
 
-@Test(arguments: ["My Shortcut", "日本語 ✨", "", "A7E8-1234", "--x; '$(echo hi)'\nnext"])
+@Test(arguments: ["My Shortcut", "日本語 ✨", "  shortcut with spaces  ", "", "A7E8-1234", "--x; '$(echo hi)'\nnext"])
 func subprocessReceivesExactArguments(identifier: String) async throws {
   let calls = Calls()
   let mock = Core.Process.Mock(observeLaunch: { calls.record($0) }, readStandardOutput: { Data("output".utf8) }, readStandardError: { nil })
