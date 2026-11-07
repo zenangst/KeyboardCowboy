@@ -31,3 +31,23 @@ import Testing
   let process = ShellScript.Builder(.testing).buildFile(at: "/tmp/-script.sh")
   #expect(process.arguments?.last == "./-script.sh")
 }
+
+@Test func shellFileExecutesOriginalInItsOwnDirectory() throws {
+  let directory = Foundation.FileManager.default.temporaryDirectory
+    .appendingPathComponent("scripting file test \(UUID().uuidString)", isDirectory: true)
+  try Foundation.FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+  defer { try? Foundation.FileManager.default.removeItem(at: directory) }
+  let script = directory.appendingPathComponent("-script with spaces.sh")
+  try "#!/bin/sh\nprintf '%s\\n%s' \"$PWD\" \"$0\"".write(to: script, atomically: true, encoding: .utf8)
+
+  let output = try ShellScript.Executor(.production).executeFile(at: script.path)
+  let lines = try #require(output).split(separator: "\n", omittingEmptySubsequences: false)
+  #expect(lines.count == 2)
+  let outputPath = try #require(lines.first).description
+  #expect(lines.last == "./-script with spaces.sh")
+  let actual = try Foundation.FileManager.default.attributesOfItem(atPath: outputPath)
+  let expected = try Foundation.FileManager.default.attributesOfItem(atPath: directory.path)
+  #expect(actual[.systemNumber] as? NSNumber == expected[.systemNumber] as? NSNumber)
+  #expect(actual[.systemFileNumber] as? NSNumber == expected[.systemFileNumber] as? NSNumber)
+  #expect(Foundation.FileManager.default.fileExists(atPath: script.path))
+}
