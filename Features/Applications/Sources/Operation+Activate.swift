@@ -26,7 +26,7 @@ extension Operation {
       }
 
       var options: NSApplication.ActivationOptions = []
-      if runningApplication.bundleIdentifier == frontmostApplication.bundleIdentifier {
+      if frontmostApplication.bundleIdentifier?.value.lowercased() == bundleIdentifier.value.lowercased() {
         options.insert(.activateAllWindows)
       }
 

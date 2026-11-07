@@ -43,10 +43,40 @@ import Testing
 
   await Core.RunningApplication.Testing.$mock.withValue(.init(
     isHidden: true,
-    onHide: { _ in Issue.record("Already hidden previous app must not be hidden again"); return false }
+    runningApplicationsLookup: { _ in Issue.record("Previous wildcard must not use lookup"); return [] },
+    onHide: { _ in Issue.record("Already hidden previous app must not be hidden again"); return false },
+    onActivate: { _, _ in Issue.record("Already hidden previous app must not activate"); return false }
   )) {
     #expect(await Operation.Hide(.testing)(BundleIdentifier.WildCard.previous.bundleIdentifier, snapshot: snapshot) == false)
   }
+}
+
+@Test func testHideCancellationAfterActivationPreventsHide() async {
+  let identifier = BundleIdentifier("target.app")
+  let target = Core.RunningApplication(.testing(identifier))
+  let frontmost = Core.RunningApplication(.testing(.init("frontmost.app")))
+  let snapshot = await UserSpace.Snapshot(apps: .init())
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  let result = await Task {
+    await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+      await Core.RunningApplication.Testing.$mock.withValue(.init(
+        runningApplicationsLookup: { _ in continuation.yield("lookup"); return [target] },
+        onHide: { _ in continuation.yield("hide"); return true },
+        onActivate: { _, _ in
+          continuation.yield("activate")
+          withUnsafeCurrentTask { $0?.cancel() }
+          return true
+        }
+      )) {
+        await Operation.Hide(.testing)(identifier, snapshot: snapshot)
+      }
+    }
+  }.value
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(result == false)
+  #expect(recorded == ["lookup", "activate"])
 }
 
 @Test func testHidePreviousUsesSnapshotApplication() async {

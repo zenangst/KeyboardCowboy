@@ -4,10 +4,10 @@
     {
       "identity" : "apps",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:zenangst/Apps.git",
+      "location" : "https://github.com/zenangst/Apps.git",
       "state" : {
-        "revision" : "006bc3b3b0ade00e4560c490df5f87df30ecad43",
-        "version" : "1.4.3"
+        "branch" : "main",
+        "revision" : "f9bcc4dad032b7f0ab9acb2912530515b9fdcd0c"
       }
     }
   ],

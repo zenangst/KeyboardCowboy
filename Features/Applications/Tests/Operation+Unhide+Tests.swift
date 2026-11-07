@@ -12,11 +12,40 @@ import Testing
       runningApplicationsLookup: { _ in
         Issue.record("Unhide of the frontmost app must not perform a lookup")
         return []
-      }
+      },
+      onUnhide: { _ in Issue.record("Frontmost app must not be unhidden"); return true },
+      onActivate: { _, _ in Issue.record("Frontmost app must not be activated"); return true }
     )) {
       #expect(await Operation.Unhide(.testing)(identifier, snapshot: snapshot) == false)
     }
   }
+}
+
+@Test func testUnhideCancellationDuringLookupPreventsUnhide() async {
+  let identifier = BundleIdentifier("target.app")
+  let target = Core.RunningApplication(.testing(identifier))
+  let snapshot = await UserSpace.Snapshot(apps: .init())
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  let result = await Task {
+    await Core.Workspace.Testing.$mock.withValue(.init()) {
+      await Core.RunningApplication.Testing.$mock.withValue(.init(
+        runningApplicationsLookup: { requested in
+          continuation.yield(requested == identifier ? "lookup target" : "lookup unexpected")
+          withUnsafeCurrentTask { $0?.cancel() }
+          return [target]
+        },
+        onUnhide: { _ in continuation.yield("unhide"); return true },
+        onActivate: { _, _ in continuation.yield("activate"); return true }
+      )) {
+        await Operation.Unhide(.testing)(identifier, snapshot: snapshot)
+      }
+    }
+  }.value
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(result == false)
+  #expect(recorded == ["lookup target"])
 }
 
 @Test func testUnhideTargetsRequestedApplicationWithoutActivation() async {

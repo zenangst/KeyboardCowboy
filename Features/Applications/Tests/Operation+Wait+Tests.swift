@@ -59,8 +59,34 @@ private actor SleepRecorder {
 @Test func testOperationWaitSkipAppleMusic() async throws {
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, sleep: { await recorder.recordSleep($0) })
-  #expect(try await wait(for: BundleIdentifier("com.apple.Music")) == .skipped)
+  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplicationsLookup: { _ in Issue.record("Skipped wait must not look up an application"); return [] }
+  )) {
+    try await wait(for: BundleIdentifier("com.apple.Music"))
+  }
+  #expect(result == .skipped)
   #expect(await recorder.recordedSleeps().isEmpty)
+}
+
+@Test func testWaitSleepFailureStopsFurtherPolling() async {
+  let identifier = BundleIdentifier("starting.app")
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  let wait = Operation.Wait(.testing, retries: 3, sleep: { _ in
+    continuation.yield("sleep")
+    throw CancellationError()
+  })
+  await Core.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplicationsLookup: { requested in
+      continuation.yield(requested == identifier ? "lookup target" : "lookup unexpected")
+      return []
+    }
+  )) {
+    await #expect(throws: CancellationError.self) { try await wait(for: identifier) }
+  }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["lookup target", "sleep"])
 }
 
 @Test func testWaitOperationForStartingApplication() async throws {

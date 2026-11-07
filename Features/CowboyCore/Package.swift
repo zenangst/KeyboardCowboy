@@ -17,7 +17,7 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(url: "git@github.com:zenangst/Apps.git", exact: "1.4.3"),
+    .package(url: "https://github.com/zenangst/Apps.git", branch: "main"),
   ],
   targets: [
     .target(

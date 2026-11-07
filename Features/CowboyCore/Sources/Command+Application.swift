@@ -55,7 +55,7 @@ public extension Command {
       try container.encode(meta, forKey: .meta)
     }
 
-    func copy() -> Command.Application {
+    public func copy() -> Command.Application {
       Command.Application(
         action: action,
         application: application,

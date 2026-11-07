@@ -1,20 +1,6 @@
 @testable import ApplicationsFeature
 @testable import CowboyCore
 import Testing
-import os
-
-private final class TerminationRecorder: Sendable {
-  private let applications = OSAllocatedUnfairLock(initialState: [Core.RunningApplication]())
-
-  func terminate(_ application: Core.RunningApplication) -> Bool {
-    applications.withLock { $0.append(application) }
-    return true
-  }
-
-  func recordedApplications() -> [Core.RunningApplication] {
-    applications.withLock { $0 }
-  }
-}
 
 let bundleIdentifier = BundleIdentifier("close.me.please")
 
@@ -58,30 +44,37 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
 @Test func testCloseTerminatesOnlyFirstMatchingInstance() async throws {
   let first = Core.RunningApplication(.testing(bundleIdentifier))
   let second = Core.RunningApplication(.testing(bundleIdentifier))
-  let other = Core.RunningApplication(.testing(.init("other.app")))
-  let recorder = TerminationRecorder()
+  let (events, continuation) = AsyncStream<String>.makeStream()
   try await Core.RunningApplication.Testing.$mock.withValue(.init(
-    runningApplications: [other, first, second],
-    onTerminate: recorder.terminate
+    runningApplicationsLookup: { identifier in
+      continuation.yield(identifier == bundleIdentifier ? "lookup target" : "lookup unexpected")
+      return [first, second]
+    },
+    onTerminate: { application in
+      continuation.yield(application === first ? "terminate first" : "terminate unexpected")
+      return true
+    }
   )) {
     let result = try await Operation.Close(.testing)(bundleIdentifier)
     #expect(result)
   }
-  let calls = recorder.recordedApplications()
-  #expect(calls.count == 1)
-  #expect(calls.first === first)
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["lookup target", "terminate first"])
 }
 
 @Test func testCloseCancellationDuringLookupPreventsTermination() async {
   let target = Core.RunningApplication(.testing(bundleIdentifier))
-  let recorder = TerminationRecorder()
+  let (events, continuation) = AsyncStream<String>.makeStream()
   let cancelled = await Task {
     await Core.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { _ in
+        continuation.yield("lookup")
         withUnsafeCurrentTask { $0?.cancel() }
         return [target]
       },
-      onTerminate: recorder.terminate
+      onTerminate: { _ in continuation.yield("terminate"); return true }
     )) {
       do {
         _ = try await Operation.Close(.testing)(bundleIdentifier)
@@ -94,5 +87,8 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
     }
   }.value
   #expect(cancelled)
-  #expect(recorder.recordedApplications().isEmpty)
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["lookup"])
 }
