@@ -4,9 +4,11 @@ import Darwin
 public extension Core {
   final class Process {
     public enum CaptureError: Swift.Error, Equatable {
+      case standardOutputLimitExceeded(limit: Int)
       case standardErrorLimitExceeded(limit: Int)
     }
 
+    public static let standardOutputCaptureLimit = 64 * 1024 * 1024
     public static let standardErrorCaptureLimit = 64 * 1024 * 1024
 
     public enum LaunchStyle: Equatable {
@@ -173,8 +175,10 @@ public extension Core {
 
     /// Drains both output pipes while the direct child runs. Descendants that keep
     /// the pipes open are allowed a short grace period after the child exits.
-    /// Throws `CaptureError.standardErrorLimitExceeded` if stderr exceeds 64 MiB,
-    /// even when stdout would otherwise be preferred.
+    /// Captures at most 64 MiB per stream, throwing the corresponding
+    /// `CaptureError` rather than truncating when either limit is exceeded.
+    /// Stderr overflow is reported even when stdout would otherwise be preferred.
+    /// On capture failure, the direct child is terminated and reaped.
     public func runAndCaptureOutput() throws -> (stdout: Data?, stderr: Data?) {
       #if DEBUG
       if case .testing = mode {
@@ -270,6 +274,9 @@ public extension Core {
           }
           pendingAtExit[index] = max(0, pendingAtExit[index] - Int32(count))
           if index == 0 {
+            guard count <= Self.standardOutputCaptureLimit - stdout.count else {
+              throw CaptureError.standardOutputLimitExceeded(limit: Self.standardOutputCaptureLimit)
+            }
             stdout.append(contentsOf: buffer.prefix(count))
           } else {
             guard count <= Self.standardErrorCaptureLimit - stderrSize else {

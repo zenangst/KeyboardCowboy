@@ -6,8 +6,9 @@ public extension AppleScript {
   /// Uses the main thread as required by NSAppleScript and caches scripts by key only.
   /// Reusing a key reuses its compiled script even when the source or path changes.
   /// Clear the cache when the host requires recompilation. Script execution can
-  /// block the main thread and does not stop on task cancellation. Reentrant
-  /// execution is rejected; a reentrant cache clear takes effect after execution.
+  /// block the main thread. Cancellation is checked before and after execution,
+  /// but cannot interrupt a running script. Reentrant execution is rejected;
+  /// a reentrant cache clear takes effect after execution.
   @MainActor final class Executor {
     public enum ExecutionError: Error, Equatable, Sendable {
       case reentrantExecution
@@ -33,40 +34,59 @@ public extension AppleScript {
     }
 
     public func execute(_ filePath: FilePath, key: String) throws -> String? {
+      try Task.checkCancellation()
       try beginExecution()
       defer { finishExecution() }
       if let appleScript = cache.get(for: key) {
         var errorDictionary: NSDictionary?
-        return try appleScript.executeAndReturnError(&errorDictionary).stringValue
+        return try executeCached(appleScript, error: &errorDictionary)
       }
 
       var errorDictionary: NSDictionary?
 
       let appleScript = try Core.NSAppleScript(env, contentsOf: URL(filePath: filePath.path), error: &errorDictionary)
+      try Task.checkCancellation()
       try appleScript.compileAndReturnError(&errorDictionary)
-      let descriptor = try appleScript.executeAndReturnError(&errorDictionary)
+      try Task.checkCancellation()
+      let output = try executeCached(appleScript, error: &errorDictionary)
 
       cache.set(appleScript, for: key)
 
-      return descriptor.stringValue
+      return output
     }
 
     public func execute(_ source: String, key: String) throws -> String? {
+      try Task.checkCancellation()
       try beginExecution()
       defer { finishExecution() }
       if let appleScript = cache.get(for: key) {
         var errorDictionary: NSDictionary?
-        return try appleScript.executeAndReturnError(&errorDictionary).stringValue
+        return try executeCached(appleScript, error: &errorDictionary)
       }
 
       var errorDictionary: NSDictionary?
 
       let appleScript = try Core.NSAppleScript(env, source: source)
+      try Task.checkCancellation()
       try appleScript.compileAndReturnError(&errorDictionary)
-      let descriptor = try appleScript.executeAndReturnError(&errorDictionary)
+      try Task.checkCancellation()
+      let output = try executeCached(appleScript, error: &errorDictionary)
 
       cache.set(appleScript, for: key)
 
+      return output
+    }
+
+    private func executeCached(_ script: Core.NSAppleScript,
+                               error: AutoreleasingUnsafeMutablePointer<NSDictionary?>?) throws -> String? {
+      let descriptor: Core.NSAppleEventDescriptor
+      do {
+        descriptor = try script.executeAndReturnError(error)
+      } catch {
+        try Task.checkCancellation()
+        throw error
+      }
+      try Task.checkCancellation()
       return descriptor.stringValue
     }
 
