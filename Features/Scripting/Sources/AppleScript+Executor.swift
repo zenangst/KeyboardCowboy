@@ -2,20 +2,29 @@ import Cocoa
 import CowboyCore
 import System
 
-extension AppleScript {
-  final class Executor {
-    let cache: Cache
-    let env: Core.Environment
+public extension AppleScript {
+  /// Uses the main thread as required by NSAppleScript and caches scripts by key only.
+  /// Reusing a key reuses its compiled script even when the source or path changes.
+  /// Clear the cache when the host requires recompilation. Script execution can
+  /// block the main thread and does not stop on task cancellation.
+  @MainActor final class Executor {
+    private var cache: Cache
+    private let env: Core.Environment
 
-    init(_ env: Core.Environment) {
+    public init(_ env: Core.Environment) {
       self.cache = Cache()
       self.env = env
     }
 
-    func execute(_ filePath: FilePath, key: String) throws -> (appleScript: Core.NSAppleScript, output: String?) {
+    /// Invalidates all compiled scripts.
+    public func clearCache() {
+      cache.clear()
+    }
+
+    public func execute(_ filePath: FilePath, key: String) throws -> String? {
       if let appleScript = cache.get(for: key) {
         var errorDictionary: NSDictionary?
-        return (appleScript, try appleScript.executeAndReturnError(&errorDictionary).stringValue)
+        return try appleScript.executeAndReturnError(&errorDictionary).stringValue
       }
 
       var errorDictionary: NSDictionary?
@@ -26,13 +35,13 @@ extension AppleScript {
 
       cache.set(appleScript, for: key)
 
-      return (appleScript, descriptor.stringValue)
+      return descriptor.stringValue
     }
 
-    func execute(_ source: String, key: String) throws -> (appleScript: Core.NSAppleScript, output: String?) {
+    public func execute(_ source: String, key: String) throws -> String? {
       if let appleScript = cache.get(for: key) {
         var errorDictionary: NSDictionary?
-        return (appleScript, try appleScript.executeAndReturnError(&errorDictionary).stringValue)
+        return try appleScript.executeAndReturnError(&errorDictionary).stringValue
       }
 
       var errorDictionary: NSDictionary?
@@ -43,7 +52,7 @@ extension AppleScript {
 
       cache.set(appleScript, for: key)
 
-      return (appleScript, descriptor.stringValue)
+      return descriptor.stringValue
     }
   }
 }

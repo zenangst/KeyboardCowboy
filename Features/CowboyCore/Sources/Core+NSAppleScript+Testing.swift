@@ -9,6 +9,7 @@ extension Core.NSAppleScript {
   public struct Mock: Sendable {
     var compileAndReturnError: Bool = false
     var execute: @Sendable () -> NSError? = { nil }
+    var compileError: @Sendable () -> NSError? = { nil }
   }
 }
 #endif

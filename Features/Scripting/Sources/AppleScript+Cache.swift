@@ -2,24 +2,20 @@ import Cocoa
 import CowboyCore
 
 extension AppleScript {
-  final class Cache {
+  struct Cache {
     private var storage = [String: Core.NSAppleScript]()
 
     init() {}
-
-    func appleScript(for key: String) -> Core.NSAppleScript? {
-      storage[key]
-    }
 
     func get(for key: String) -> Core.NSAppleScript? {
       storage[key]
     }
 
-    func set(_ appleScript: Core.NSAppleScript, for key: String) {
+    mutating func set(_ appleScript: Core.NSAppleScript, for key: String) {
       storage[key] = appleScript
     }
 
-    func clear() {
+    mutating func clear() {
       storage.removeAll()
     }
   }

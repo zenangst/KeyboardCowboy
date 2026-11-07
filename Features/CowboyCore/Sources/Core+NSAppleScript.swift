@@ -2,10 +2,11 @@ import Cocoa
 
 public extension Core {
   final class NSAppleScript: Sendable {
-    enum Error: Swift.Error {
+    public enum Error: Swift.Error {
       case unableToCreateAppleScript(source: String)
       case unableToResolveAppleScript(path: String)
       case unableToCompile
+      case unableToCompileWithError(Swift.Error)
       case unableToExecute(Swift.Error)
     }
 
@@ -53,17 +54,29 @@ public extension Core {
     }
 
     public func compileAndReturnError(_ errorInfo: AutoreleasingUnsafeMutablePointer<NSDictionary?>?) throws {
+      var compilationError: NSDictionary?
+      let succeeded: Bool
       switch mode {
       case .production(let appleScript):
-        if !appleScript.compileAndReturnError(errorInfo) {
-          throw Error.unableToCompile
-        }
+        succeeded = appleScript.compileAndReturnError(&compilationError)
       #if DEBUG
       case .testing:
-        if !Testing.mock.compileAndReturnError {
-          throw Error.unableToCompile
+        succeeded = Testing.mock.compileAndReturnError
+        if !succeeded, let error = Testing.mock.compileError() {
+          compilationError = [
+            Cocoa.NSAppleScript.errorNumber: error.code,
+            Cocoa.NSAppleScript.errorMessage: error.localizedFailureReason ?? error.localizedDescription,
+            Cocoa.NSAppleScript.errorBriefMessage: error.localizedDescription,
+          ] as NSDictionary
         }
       #endif
+      }
+      errorInfo?.pointee = compilationError
+      if !succeeded {
+        if let compilationError {
+          throw Error.unableToCompileWithError(try createError(from: compilationError))
+        }
+        throw Error.unableToCompile
       }
     }
 

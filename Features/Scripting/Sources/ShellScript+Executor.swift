@@ -13,6 +13,10 @@ extension ShellScript {
       self.env = env
     }
 
+    func executeFile(at path: String) throws -> String? {
+      try execute(ShellScript.Builder(env).buildFile(at: path))
+    }
+
     func execute(_ processes: [Process]) throws -> String? {
       var output: String = ""
       for process in processes {
