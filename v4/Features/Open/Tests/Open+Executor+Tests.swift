@@ -4,7 +4,7 @@ import Testing
 
 private enum TestError: Error { case failed }
 
-private actor Operations: Open.Operations {
+private actor Operations {
   var calls: [String] = []
   let failures: Set<String>
   let directory: Bool
@@ -37,7 +37,15 @@ private actor Operations: Open.Operations {
 }
 
 private func executor(_ operations: Operations) -> Open.Executor {
-  Open.Executor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: operations)
+  let routes = Open.Operations(
+    openHost: { await operations.openHost() },
+    openFinder: { try await operations.openFinder($0, checkCancellation: $1) },
+    openBrowser: { try await operations.openBrowser($0, application: $1, checkCancellation: $2) },
+    openWebApp: { try await operations.openWebApp($0, application: $1, checkCancellation: $2) },
+    openGeneric: { try await operations.openGeneric($0, application: $1) },
+    isDirectory: { try await operations.isDirectory($0) }
+  )
+  return Open.Executor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: routes)
 }
 
 private func target(_ id: String, name: String = "App") -> Open.TargetApplication {
