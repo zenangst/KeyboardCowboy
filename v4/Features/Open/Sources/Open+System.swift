@@ -12,6 +12,29 @@ extension Open {
   struct System: Sendable {
     let environment: Environment
 
+    func firstRunningProcess(bundleIdentifier: String) -> pid_t? {
+      switch environment {
+      case .production:
+        return NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first?.processIdentifier
+      #if DEBUG
+        case .testing:
+          return Testing.mock.firstRunningProcess(bundleIdentifier)
+      #endif
+      }
+    }
+
+    @discardableResult
+    func activate(processIdentifier: pid_t) -> Bool {
+      switch environment {
+      case .production:
+        return NSRunningApplication(processIdentifier: processIdentifier)?.activate(options: .activateIgnoringOtherApps) ?? false
+      #if DEBUG
+        case .testing:
+          return Testing.mock.activate(processIdentifier)
+      #endif
+      }
+    }
+
     func openDefault(_ url: URL) -> Bool {
       switch environment {
       case .production:

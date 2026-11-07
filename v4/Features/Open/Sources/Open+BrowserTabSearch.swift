@@ -11,7 +11,11 @@ public extension Open {
 
     private let executeScript: @Sendable (String, String, Bool) async throws -> String?
 
-    public init(executeScript: @escaping @Sendable (_ name: String, _ source: String, _ checkCancellation: Bool) async throws -> String?) {
+    public init(executeScript: @escaping @Sendable (
+      _ name: String,
+      _ source: String,
+      _ checkCancellation: Bool,
+    ) async throws -> String?) {
       self.executeScript = executeScript
     }
 
