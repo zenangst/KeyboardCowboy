@@ -47,6 +47,10 @@ public extension Application {
     private let peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)?
 
     /// The host supplies eligible release events, cached window owners and optional adapters.
+    /// Supply `windowOwnerNames` for ordinary-open parity. If omitted, a successful
+    /// frontmost activation skips reopening/Bring All to Front, and a non-frontmost
+    /// launch skips window-dependent post-launch activation. An empty array instead
+    /// enables the no-tracked-windows paths. Background/Electron opens bypass it.
     public convenience init(
       _ env: Core.Environment,
       windowOwnerNames: (@Sendable () async -> [String])? = nil,
