@@ -105,13 +105,14 @@ private actor SleepRecorder {
   let identifier = BundleIdentifier("starting.app")
   let application = Core.RunningApplication(.testing(identifier))
   let lookups = OSAllocatedUnfairLock(initialState: 0)
-  let recorder = SleepRecorder()
+  let (events, continuation) = AsyncStream<String>.makeStream()
   let wait = Operation.Wait(.testing, retries: 3, pollingInterval: .milliseconds(10),
-                            sleep: { await recorder.recordSleep($0) })
+                            sleep: { continuation.yield("sleep \($0)") })
   let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
-    isFinishedLaunching: { true },
-    runningApplicationsLookup: { _ in
-      lookups.withLock { count in
+    isFinishedLaunching: { continuation.yield("finished"); return true },
+    runningApplicationsLookup: { requested in
+      continuation.yield(requested == identifier ? "lookup target" : "lookup unexpected")
+      return lookups.withLock { count in
         count += 1
         return count == 1 ? [] : [application]
       }
@@ -119,9 +120,11 @@ private actor SleepRecorder {
   )) {
     try await wait(for: identifier)
   }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
   #expect(result == .success)
-  #expect(lookups.withLock { $0 } == 2)
-  #expect(await recorder.recordedSleeps() == [.milliseconds(10), .milliseconds(50)])
+  #expect(recorded == ["lookup target", "sleep \(Duration.milliseconds(10))", "lookup target", "finished", "sleep \(Duration.milliseconds(50))"])
 }
 
 @Test func testCancelledWaitDoesNotLookUpApplication() async {

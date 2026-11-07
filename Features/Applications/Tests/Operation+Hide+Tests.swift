@@ -10,28 +10,29 @@ import Testing
   let snapshot = await UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: .init("stale.app"), runningApplication: stale)))
 
-  await confirmation("Expected live focus restoration") { activated in
-    await confirmation("Expected target hide") { hidden in
-      await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: live)) {
-        await Core.RunningApplication.Testing.$mock.withValue(.init(
-          runningApplications: [target],
-          onHide: { application in
-            #expect(application === target)
-            hidden()
-            return true
-          },
-          onActivate: { application, options in
-            #expect(application === live)
-            #expect(options == [])
-            activated()
-            return true
-          }
-        )) {
-          #expect(await Operation.Hide(.testing)(targetID, snapshot: snapshot))
-        }
+  let (events, continuation) = AsyncStream<String>.makeStream()
+  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: live)) {
+    await Core.RunningApplication.Testing.$mock.withValue(.init(
+      runningApplicationsLookup: { identifier in
+        continuation.yield(identifier == targetID ? "lookup target" : "lookup unexpected")
+        return [target]
+      },
+      onHide: { application in
+        continuation.yield(application === target ? "hide target" : "hide unexpected")
+        return true
+      },
+      onActivate: { application, options in
+        continuation.yield(application === live && options == [] ? "activate live" : "activate unexpected")
+        return true
       }
+    )) {
+      #expect(await Operation.Hide(.testing)(targetID, snapshot: snapshot))
     }
   }
+  continuation.finish()
+  var recorded: [String] = []
+  for await event in events { recorded.append(event) }
+  #expect(recorded == ["lookup target", "activate live", "hide target"])
 }
 
 @Test func testHidePreviousAlreadyHiddenIsNoOp() async {
@@ -116,22 +117,25 @@ import Testing
   let snapshot = await UserSpace.Snapshot(apps: apps)
   let hide = Operation.Hide(.testing)
 
-  await Core.Workspace.Testing.$mock.withValue(
-    Core.Workspace.Mock(frontmostApplication: currentRunningApplication),
-    operation: {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
-        activate: { options in
-          #expect(options == [])
-          return true
-        },
-        hide: true,
-        runningApplications: [
-          previousRunningApplication,
-        ],
-      ), operation: {
-        #expect(await hide(previousBundleIdentifier, snapshot: snapshot) == true)
+  await confirmation("Expected frontmost application to be reactivated") { activated in
+    await Core.Workspace.Testing.$mock.withValue(
+      Core.Workspace.Mock(frontmostApplication: currentRunningApplication),
+      operation: {
+        await Core.RunningApplication.Testing.$mock.withValue(.init(
+          activate: { options in
+            #expect(options == [])
+            activated()
+            return true
+          },
+          hide: true,
+          runningApplications: [
+            previousRunningApplication,
+          ],
+        ), operation: {
+          #expect(await hide(previousBundleIdentifier, snapshot: snapshot) == true)
+        })
       })
-    })
+  }
 }
 
 @Test func testHideNonRunnningApplication() async throws {
