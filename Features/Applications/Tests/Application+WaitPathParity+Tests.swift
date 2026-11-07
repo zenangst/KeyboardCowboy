@@ -1,6 +1,5 @@
 @testable import ApplicationsFeature
 @testable import CowboyCore
-import CoreGraphics
 import Foundation
 import Testing
 
@@ -23,15 +22,6 @@ private struct WaitPathTrace: Sendable {
 }
 
 private enum WaitPathError: Error { case reopenFailed }
-
-private actor WaitPathStageTarget {
-  private var reads = 0
-
-  func next() -> Application.StageOrchestrator.Target? {
-    reads += 1
-    return reads < 3 ? nil : .init(hidden: false)
-  }
-}
 
 private func waitPathCommand(identifier: String = "example.target") throws -> Command.Application {
   let fixture = #"{"application":{"bundleIdentifier":"\#(identifier)","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"wait-parity","name":"Open","enabled":true}}"#
@@ -97,7 +87,6 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
   var command = try waitPathCommand(identifier: identifier.value)
   if route == "background" { command.modifiers.insert(.background) }
   if route == "electron" { command.application.metadata.isElectron = true }
-  command.modifiers.insert(.addToStage)
   let target = Core.RunningApplication(.testing(identifier))
   let trace = WaitPathTrace()
   let wait = Operation.Wait(.testing, retries: 2, finalSleepDuration: .milliseconds(37), sleep: { duration in
@@ -106,9 +95,7 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
   })
   let executor = Application.Executor(.testing, wait: wait, windowOwnerNames: {
     trace.record("unexpected owners"); return []
-  }, willExecute: { _ in trace.record("hook") }, addToStage: { _ in
-    trace.record("unexpected stage"); return true
-  })
+  }, willExecute: { _ in trace.record("hook") })
 
   try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, configuration in
     #expect(configuration.activates == (route == "electron"))
@@ -131,57 +118,9 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
   #expect(await trace.finish() == (music ? ["hook", "launch"] : ["hook", "launch", "lookup", "finished true", "final sleep"]))
 }
 
-@Test @MainActor func waitPathSuccessfulStageOrchestrationSkipsOrdinaryWait() async throws {
+@Test(arguments: ["unavailable", "finished", "missing", "running-guard", "self", "peek-no-event"])
+@MainActor func waitPathOrdinaryEarlyReturnsAndUnavailableApp(route: String) async throws {
   var command = try waitPathCommand()
-  command.modifiers.insert(.addToStage)
-  let trace = WaitPathTrace()
-  let axFrame = CGRect(x: 200, y: 200, width: 400, height: 300)
-  let thumbnail = CGRect(x: 10, y: 20, width: 100, height: 80)
-  let pointer = CGPoint(x: 700, y: 500)
-  let target = WaitPathStageTarget()
-  let stage = Application.StageOrchestrator(effects: .init(
-    snapshot: {
-      trace.record("stage snapshot")
-      return .init(frontmost: "previous", windows: [.init(id: 42, frame: thumbnail)], screen: CGRect(x: 0, y: 0, width: 1000, height: 800))
-    },
-    target: { _ in trace.record("stage target"); return await target.next() },
-    activateTarget: { _ in trace.record("stage activation") },
-    restoreFocus: { focus in #expect(focus == "previous"); trace.record("restore focus") },
-    unhide: { _ in trace.record("unexpected unhide") },
-    accessibilityWindows: { _ in trace.record("stage windows"); return [.init(id: 42, frame: axFrame)] },
-    pointer: { trace.record("pointer"); return pointer },
-    movePointer: { point in #expect(point == pointer); trace.record("restore pointer") },
-    shiftClick: { point in #expect(point == CGPoint(x: 22, y: 60)); trace.record("shift click") },
-    unminimizeAndRaise: { id in #expect(id == 42); trace.record("raise") },
-    sleep: { duration in #expect(duration == .milliseconds(17)); trace.record("stage poll sleep") }
-  ), attempts: 3, interval: .milliseconds(17))
-  let wait = Operation.Wait(.testing, sleep: { _ in trace.record("unexpected wait") })
-  let executor = Application.Executor(.testing, wait: wait, windowOwnerNames: {
-    trace.record("owners"); return []
-  }, willExecute: { _ in trace.record("hook") }, addToStage: { command in
-    trace.record("stage adapter")
-    return try await stage.execute(command)
-  })
-
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
-    trace.record("unexpected launch"); return .init(.testing(nil))
-  })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(runningApplicationsLookup: { _ in
-      trace.record("unexpected lookup"); return []
-    })) {
-      let initial = UserSpace.Snapshot(apps: .init())
-      let result = try await executor.execute(command, cgEventType: nil, snapshot: initial)
-      #expect(result !== initial)
-    }
-  }
-  let actual = await trace.finish()
-  #expect(actual == ["hook", "owners", "stage adapter", "stage snapshot", "stage target", "stage activation", "restore focus", "stage target", "stage poll sleep", "stage target", "restore focus", "stage snapshot", "stage windows", "pointer", "shift click", "raise", "restore pointer"])
-}
-
-@Test(arguments: ["stage-declined", "finished", "missing", "running-guard", "self", "peek-no-event"])
-@MainActor func waitPathOrdinaryEarlyReturnsAndDeclinedStage(route: String) async throws {
-  var command = try waitPathCommand()
-  if route == "stage-declined" { command.modifiers.insert(.addToStage) }
   if route == "running-guard" { command.modifiers.insert(.onlyIfNotRunning) }
   if route == "peek-no-event" { command.action = .peek }
   let identifier = Core.BundleIdentifier("example.target")
@@ -196,9 +135,7 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
     trace.record("owners"); return route == "missing" ? [] : ["Target"]
   }, willExecute: { _ in trace.record("hook") }, selfApplication: route == "self" ? .init(bundleIdentifier: identifier, open: {
     trace.record("self")
-  }) : nil, addToStage: { _ in
-    trace.record("stage declined"); return false
-  })
+  }) : nil)
   try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     trace.record("launch"); return target
   })) {
@@ -207,7 +144,7 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
       runningApplicationsLookup: { requested in
         #expect(requested == identifier)
         trace.record("lookup")
-        return route == "missing" || route == "stage-declined" ? [] : [target]
+        return route == "missing" || route == "unavailable" ? [] : [target]
       }
     )) {
       let result = try await executor.execute(command, cgEventType: nil, snapshot: initial)
@@ -221,7 +158,7 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
   case "peek-no-event": expected = ["hook"]
   case "missing": expected = ["hook", "owners", "launch", "lookup"]
   case "finished": expected = ["hook", "owners", "launch", "lookup", "finished true"]
-  default: expected = ["hook", "owners", "stage declined", "launch", "lookup", "lookup", "poll sleep", "lookup", "poll sleep"]
+  default: expected = ["hook", "owners", "launch", "lookup", "lookup", "poll sleep", "lookup", "poll sleep"]
   }
   let actual = await trace.finish()
   #expect(actual == expected)

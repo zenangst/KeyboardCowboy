@@ -45,30 +45,24 @@ public extension Application {
     private let willExecute: (@Sendable (Command.Application) async -> Void)?
     private let selfApplication: SelfApplicationHandler?
     private let peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)?
-    private let addToStage: (@Sendable (Command.Application) async throws -> Bool)?
 
     /// The host supplies eligible release events, cached window owners and optional adapters.
-    /// `addToStage` returns true when handled; false must leave ordinary launch safe.
-    /// The adapter owns permissions, bounded polling and cleanup of temporary effects.
     public convenience init(
       _ env: Core.Environment,
       windowOwnerNames: (@Sendable () async -> [String])? = nil,
       willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
       selfApplication: SelfApplicationHandler? = nil,
       peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)? = nil,
-      addToStage: (@Sendable (Command.Application) async throws -> Bool)? = nil,
       sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }) {
       self.init(env, wait: Operation.Wait(env, sleep: sleep), windowOwnerNames: windowOwnerNames,
-                willExecute: willExecute, selfApplication: selfApplication, peekRelease: peekRelease,
-                addToStage: addToStage)
+                willExecute: willExecute, selfApplication: selfApplication, peekRelease: peekRelease)
     }
 
     init(_ env: Core.Environment, wait: Operation.Wait,
          windowOwnerNames: (@Sendable () async -> [String])? = nil,
          willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
          selfApplication: SelfApplicationHandler? = nil,
-         peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)? = nil,
-         addToStage: (@Sendable (Command.Application) async throws -> Bool)? = nil) {
+         peekRelease: (@Sendable (Command.Application) async -> PeekReleaseAction)? = nil) {
       self.env = env
       self.operation = Operations(
         activate: Operation.Activate(env),
@@ -84,7 +78,6 @@ public extension Application {
       self.willExecute = willExecute
       self.selfApplication = selfApplication
       self.peekRelease = peekRelease
-      self.addToStage = addToStage
     }
 
     @discardableResult
@@ -187,18 +180,6 @@ public extension Application {
           try operation.bringToFront()
         }
       } else {
-        if command.modifiers.contains(.addToStage), let addToStage {
-          try Task.checkCancellation()
-          let added: Bool
-          do {
-            added = try await addToStage(command)
-          } catch {
-            try Task.checkCancellation()
-            throw error
-          }
-          try Task.checkCancellation()
-          if added { return }
-        }
         try await operation.launch(at: command.application.path, with: command.modifiers)
         try Task.checkCancellation()
         if let owners {

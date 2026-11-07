@@ -7,7 +7,7 @@ import Testing
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   #expect(command.action == .peek)
   #expect(command.application.displayName == "Custom Editor")
-  #expect(command.modifiers == [.background, .hidden, .onlyIfNotRunning, .addToStage, .waitForAppToLaunch])
+  #expect(command.modifiers == [.background, .hidden, .onlyIfNotRunning, .waitForAppToLaunch])
   #expect(command.meta.id == "saved-command")
   #expect(command.meta.isEnabled == false)
   #expect(command.meta.delay == 0.5)
@@ -18,7 +18,7 @@ import Testing
   let object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
   let application = try #require(object["application"] as? [String: Any])
   #expect(application["displayName"] as? String == "Custom Editor")
-  #expect(object["modifiers"] as? [String] == ["addToStage", "background", "hidden", "onlyIfNotRunning", "waitForAppToLaunch"])
+  #expect(object["modifiers"] as? [String] == ["background", "hidden", "onlyIfNotRunning", "waitForAppToLaunch"])
   #expect(try JSONDecoder().decode(Command.Application.self, from: encoded) == command)
 
   let copy = command.copy()
@@ -26,6 +26,27 @@ import Testing
   var expected = command
   expected.id = copy.id
   #expect(copy == expected)
+}
+
+@Test func retiredStageModifierMigratesWithoutMaskingUnknownValues() throws {
+  let template = #"{"application":{"bundleIdentifier":"com.example.editor","bundleName":"Editor","path":"/Applications/Editor.app"},"action":"open","modifiers":MODIFIERS,"meta":{"id":"saved-command","name":"Editor","enabled":true}}"#
+  for modifiers in [#"["addToStage"]"#, #"["addToStage","addToStage"]"#] {
+    let fixture = template.replacingOccurrences(of: "MODIFIERS", with: modifiers)
+    let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+    #expect(command.modifiers.isEmpty)
+    let object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(command)) as? [String: Any])
+    #expect(object["modifiers"] == nil)
+  }
+  let nullFixture = template.replacingOccurrences(of: "MODIFIERS", with: "null")
+  let nullCommand = try JSONDecoder().decode(Command.Application.self, from: Data(nullFixture.utf8))
+  #expect(nullCommand.modifiers.isEmpty)
+  for modifiers in [#"["addToStage","unknown"]"#, #"["addToStage",42]"#] {
+    let fixture = template.replacingOccurrences(of: "MODIFIERS", with: modifiers)
+    #expect(throws: (any Error).self) {
+      try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
+    }
+  }
+  #expect(!Command.Application.Modifier.allCases.map(\.rawValue).contains("addToStage"))
 }
 
 @Test func applicationCommandPreservesActionRawValuesAndMissingModifiers() throws {

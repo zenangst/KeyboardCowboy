@@ -39,7 +39,17 @@ public extension Command {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       application = try container.decode(Apps::Application.self, forKey: .application)
       action = try container.decode(Command.Application.Action.self, forKey: .action)
-      modifiers = try container.decodeIfPresent(Set<Command.Application.Modifier>.self, forKey: .modifiers) ?? []
+      let rawModifiers = try container.decodeIfPresent([String].self, forKey: .modifiers) ?? []
+      modifiers = []
+      for rawValue in rawModifiers {
+        // Existing workflows retain normal open behavior, without the retired stage effect.
+        if rawValue == "addToStage" { continue }
+        guard let modifier = Modifier(rawValue: rawValue) else {
+          throw DecodingError.dataCorruptedError(forKey: .modifiers, in: container,
+                                                 debugDescription: "Unknown application modifier: \(rawValue)")
+        }
+        modifiers.insert(modifier)
+      }
       meta = try container.decode(Metadata.self, forKey: .meta)
     }
 
