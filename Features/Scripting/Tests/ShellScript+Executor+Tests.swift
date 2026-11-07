@@ -1,5 +1,6 @@
 @testable import CowboyCore
 import Foundation
+import Darwin
 @testable import ScriptingFeature
 import Testing
 
@@ -16,8 +17,7 @@ enum ExecutorTestError: Error {
 
 @Test func testExecutationHeadless() throws {
   let builder = ShellScript.Builder(.testing)
-  let source = "/bin/ls -la"
-  let script = try builder.build(source)
+  let script = [builder.buildExecutable(at: URL(filePath: "/bin/ls"), arguments: ["-la"])]
   let executor = ShellScript.Executor(.testing)
   let results = TestResults()
 
@@ -60,6 +60,54 @@ enum ExecutorTestError: Error {
   #expect(output == "hello from shell")
 }
 
+private func executePerl(_ source: String) throws -> String? {
+  let process = Core.Process(.production, launchStyle: .headless(source))
+  process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
+  process.arguments = ["-e", source]
+  return try ShellScript.Executor(.production).execute(process)
+}
+
+@Test func shellDrainsLargeStderrAndPrefersEmptyStdout() throws {
+  guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+  #expect(try executePerl("print STDERR 'e' x 3000000") == "")
+}
+
+@Test func shellPreservesLargeStderrFallback() throws {
+  guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+  let output = try executePerl("print STDOUT chr(255); print STDERR 'e' x 1500000")
+  #expect(output == String(repeating: "e", count: 1500000))
+}
+
+@Test func shellDoesNotWaitForDescendantPipeEOF() throws {
+  guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+  let start = DispatchTime.now().uptimeNanoseconds
+  let output = try executePerl("if (fork() == 0) { sleep 3; exit 0 } print 'direct'")
+  let elapsed = DispatchTime.now().uptimeNanoseconds - start
+  #expect(output == "direct")
+  #expect(elapsed < 2_500_000_000)
+}
+
+@Test func shellCapturesDirectChildBufferedOutput() throws {
+  guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+  let output = try executePerl("if (fork() == 0) { sleep 3; exit 0 } print 'x' x 1000000")
+  #expect(output == String(repeating: "x", count: 1000000))
+}
+
+@Test func shellRejectsOversizedStderrAndReapsChild() throws {
+  guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+  let pidFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+  defer { try? FileManager.default.removeItem(at: pidFile) }
+  let source = "open(my $f, '>', $ARGV[0]) or die $!; print $f $$; close $f; print STDOUT 'valid'; while (1) { print STDERR 'e' x 65536 or die $! }"
+  let process = Core.Process(.production, launchStyle: .headless(source))
+  process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
+  process.arguments = ["-e", source, pidFile.path]
+  #expect(throws: Core.Process.CaptureError.standardErrorLimitExceeded(limit: 64 * 1024 * 1024)) {
+    try ShellScript.Executor(.production).execute(process)
+  }
+  let pid = try #require(Int32(String(contentsOf: pidFile, encoding: .utf8)))
+  #expect(kill(pid, 0) == -1 && errno == ESRCH)
+}
+
 @Test func shellCleansUpAndPreservesLaunchError() throws {
   let processes = try ShellScript.Builder(.testing).build("echo hello")
   let results = TestResults()
@@ -90,7 +138,7 @@ enum ExecutorTestError: Error {
       contentsAtPath: nil,
       createDirectoryAtUrl: {
         results.didCreateDirectory = true
-        return URL(filePath: "/tmp/testExecutationShell")
+        return URL(filePath: "/tmp/testExecutationShell with spaces")
       },
       createFile: true,
       removeItem: {
@@ -113,8 +161,8 @@ enum ExecutorTestError: Error {
   #expect(output == "A,B,C")
 
   #expect(script.count == 1)
-  #expect(script[0].arguments == ["-i", "-l", "testExecutationShell/script"])
-  #expect(script[0].currentDirectoryURL == URL(filePath: "/tmp"))
+  #expect(script[0].arguments == ["-i", "-l", "/tmp/testExecutationShell with spaces/script"])
+  #expect(script[0].currentDirectoryURL == nil)
   #expect(script[0].executableURL == URL(filePath: "/bin/zsh"))
   #expect(script[0].environment?["SHELL"] == "/bin/zsh")
   #expect(script[0].environment?["TERM"] == "xterm-256color")
@@ -123,4 +171,12 @@ enum ExecutorTestError: Error {
   #expect(results.didWaitUntilExit == true)
   #expect(results.didCreateDirectory == true)
   #expect(results.didRemoveDirectory == true)
+}
+
+@Test func inlineShellInheritsWorkingDirectory() throws {
+  let expected = URL(fileURLWithPath: Foundation.FileManager.default.currentDirectoryPath)
+    .resolvingSymlinksInPath().path
+  let processes = try ShellScript.Builder(.production).build("/bin/pwd -P")
+  let output = try ShellScript.Executor(.production).execute(processes)
+  #expect(output?.trimmingCharacters(in: .newlines) == expected)
 }

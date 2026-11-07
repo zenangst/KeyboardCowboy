@@ -1,7 +1,14 @@
 import Foundation
+import Darwin
 
 public extension Core {
   final class Process {
+    public enum CaptureError: Swift.Error, Equatable {
+      case standardErrorLimitExceeded(limit: Int)
+    }
+
+    public static let standardErrorCaptureLimit = 64 * 1024 * 1024
+
     public enum LaunchStyle: Equatable {
       case shell(String)
       case headless(String)
@@ -162,6 +169,138 @@ public extension Core {
         Testing.mock.waitUntilExit?()
       #endif
       }
+    }
+
+    /// Drains both output pipes while the direct child runs. Descendants that keep
+    /// the pipes open are allowed a short grace period after the child exits.
+    /// Throws `CaptureError.standardErrorLimitExceeded` if stderr exceeds 64 MiB,
+    /// even when stdout would otherwise be preferred.
+    public func runAndCaptureOutput() throws -> (stdout: Data?, stderr: Data?) {
+      #if DEBUG
+      if case .testing = mode {
+        try run()
+        let stdout = try standardOutput?.fileHandleForReading.readToEnd()
+        let stderr = try standardError?.fileHandleForReading.readToEnd()
+        waitUntilExit()
+        return (stdout, stderr)
+      }
+      #endif
+      guard case .production(let child) = mode,
+            let output = standardOutput?.readingDescriptor,
+            let error = standardError?.readingDescriptor else {
+        throw CocoaError(.fileReadUnknown)
+      }
+
+      // Atomic O_CLOEXEC avoids the mkstemp/fcntl race with concurrent launches.
+      // O_EXCL rejects existing files and symlinks; the file is private and
+      // unlinked immediately after creation.
+      var spool: Int32 = -1
+      var spoolPath = ""
+      for _ in 0..<16 {
+        spoolPath = (NSTemporaryDirectory() as NSString).appendingPathComponent("cowboy-stderr-\(UUID().uuidString)")
+        spool = open(spoolPath, O_RDWR | O_CREAT | O_EXCL | O_CLOEXEC, mode_t(0o600))
+        if spool >= 0 { break }
+        if errno != EEXIST { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+      }
+      guard spool >= 0 else { throw POSIXError(.EEXIST) }
+      guard unlink(spoolPath) == 0 else {
+        let code = errno
+        close(spool)
+        throw POSIXError(POSIXErrorCode(rawValue: code) ?? .EIO)
+      }
+      defer { close(spool) }
+
+      for fd in [output, error] {
+        let flags = fcntl(fd, F_GETFL)
+        guard flags >= 0, fcntl(fd, F_SETFL, flags | O_NONBLOCK) >= 0 else {
+          throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
+      }
+
+      try child.run()
+      defer {
+        standardOutput?.closeReading()
+        standardError?.closeReading()
+      }
+      var finished = false
+      defer {
+        if !finished {
+          if child.isRunning { kill(child.processIdentifier, SIGKILL) }
+          child.waitUntilExit()
+        }
+      }
+      var stdout = Data()
+      var stderrSize = 0
+      var open = [true, true]
+      let descriptors = [output, error]
+      var exitedAt: UInt64?
+      var pendingAtExit = [Int32](repeating: 0, count: 2)
+      var buffer = [UInt8](repeating: 0, count: 65536)
+      while open.contains(true) {
+        let now = DispatchTime.now().uptimeNanoseconds
+        if !child.isRunning && exitedAt == nil {
+          exitedAt = now
+          // Preserve bytes already buffered when the direct child exits, even
+          // if a slow spool write consumes the descendant grace period.
+          for index in 0..<2 where open[index] {
+            // Darwin's FIONREAD (_IOR('f', 127, int)) is not imported by Swift.
+            guard ioctl(descriptors[index], 0x4004667f, &pendingAtExit[index]) == 0 else {
+              throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+            }
+          }
+        }
+        if let exitedAt, now - exitedAt >= 500_000_000, pendingAtExit.allSatisfy({ $0 <= 0 }) { break }
+        var pollDescriptors = descriptors.enumerated().map {
+          pollfd(fd: open[$0.offset] ? $0.element : -1, events: Int16(POLLIN), revents: 0)
+        }
+        let result = poll(&pollDescriptors, nfds_t(pollDescriptors.count), 25)
+        if result < 0 {
+          if errno == EINTR { continue }
+          throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
+        for index in 0..<2 where open[index] && pollDescriptors[index].revents != 0 {
+          if pollDescriptors[index].revents & Int16(POLLNVAL) != 0 {
+            throw POSIXError(.EBADF)
+          }
+          let count = read(descriptors[index], &buffer, buffer.count)
+          if count == 0 { open[index] = false; pendingAtExit[index] = 0; continue }
+          if count < 0 {
+            if errno == EINTR || errno == EAGAIN { continue }
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+          }
+          pendingAtExit[index] = max(0, pendingAtExit[index] - Int32(count))
+          if index == 0 {
+            stdout.append(contentsOf: buffer.prefix(count))
+          } else {
+            guard count <= Self.standardErrorCaptureLimit - stderrSize else {
+              throw CaptureError.standardErrorLimitExceeded(limit: Self.standardErrorCaptureLimit)
+            }
+            stderrSize += count
+            var written = 0
+            while written < count {
+              let n = buffer.withUnsafeBytes { write(spool, $0.baseAddress!.advanced(by: written), count - written) }
+              if n < 0 && errno == EINTR { continue }
+              guard n > 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+              written += n
+            }
+          }
+        }
+      }
+      child.waitUntilExit()
+      finished = true
+      guard String(data: stdout, encoding: .utf8) == nil else { return (stdout, nil) }
+      guard lseek(spool, 0, SEEK_SET) >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+      var stderr = Data()
+      while true {
+        let count = read(spool, &buffer, buffer.count)
+        if count == 0 { break }
+        if count < 0 {
+          if errno == EINTR { continue }
+          throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
+        stderr.append(contentsOf: buffer.prefix(count))
+      }
+      return (stdout, stderr)
     }
   }
 }

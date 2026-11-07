@@ -41,12 +41,7 @@ extension ShellScript {
         let tempPath = (directoryPath as NSString).appendingPathComponent("script")
 
         let data = process.source.data(using: .utf8)
-        let lastPathComponent = ((directoryPath as NSString).lastPathComponent as NSString)
-          .appendingPathComponent("script")
-        let currentDirectoryURL = URL(fileURLWithPath: (directoryPath as NSString).deletingLastPathComponent)
-
-        process.arguments?.append(lastPathComponent)
-        process.currentDirectoryURL = currentDirectoryURL
+        process.arguments?.append(tempPath)
 
         do {
           guard fileManager.createFile(atPath: tempPath, contents: data) else {
@@ -73,23 +68,21 @@ extension ShellScript {
       process.standardOutput = standardOutput
       process.standardError = standardError
 
-      try process.run()
+      let captured = try process.runAndCaptureOutput()
 
       let output: String
-      if let data = try standardOutput.fileHandleForReading.readToEnd(),
+      if let data = captured.stdout,
          let rawOutput = String(data: data, encoding: .utf8) {
         let ansiEscapePattern = "\u{001B}\\[[0-?]*[ -/]*[@-~]"
         let regex = try NSRegularExpression(pattern: ansiEscapePattern, options: [])
         let range = NSRange(rawOutput.startIndex..., in: rawOutput)
         let cleanOutput = regex.stringByReplacingMatches(in: rawOutput, options: [], range: range, withTemplate: "")
         output = cleanOutput
-      } else if let errorOutput = try standardError.fileHandleForReading.readToEnd() {
+      } else if let errorOutput = captured.stderr {
         output = String(data: errorOutput, encoding: .utf8) ?? ""
       } else {
         output = ""
       }
-
-      process.waitUntilExit()
 
       return output
     }

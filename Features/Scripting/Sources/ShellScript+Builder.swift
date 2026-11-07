@@ -3,8 +3,6 @@ import CowboyCore
 import Foundation
 
 public extension ShellScript {
-  private typealias ProcessComponent = ShellScript.Parser.ProcessComponents
-
   final class Builder {
     private let env: Core.Environment
 
@@ -13,17 +11,19 @@ public extension ShellScript {
     }
 
     func build(_ source: String) throws -> [Core.Process] {
-      let parser = Parser()
-      let results = parser.parse(source)
-      let components = parser.parse(results)
-      let output = try components.map { component in
-        return switch component.launchStyle {
-        case .headless: buildHeadless(component)
-        case .shell: try buildShell(component)
-        }
-      }
+      let process = Process(env, launchStyle: .shell(source))
+      setEnvironment(on: process)
+      configureShell(process, source: source)
+      return [process]
+    }
 
-      return output
+    /// Builds a direct executable invocation without parsing a shell command.
+    func buildExecutable(at url: URL, arguments: [String]) -> Core.Process {
+      let process = Process(env, launchStyle: .headless(url.path))
+      setEnvironment(on: process)
+      process.executableURL = url
+      process.arguments = arguments
+      return process
     }
 
     /// Builds a process for an existing script without copying or rewriting it.
@@ -41,25 +41,6 @@ public extension ShellScript {
     }
 
     // MARK: Private methods
-
-    private func buildHeadless(_ component: ProcessComponent) -> Core.Process {
-      let process = Process(env, launchStyle: component.launchStyle)
-
-      setEnvironment(on: process)
-
-      process.executableURL = component.executableURL
-      process.arguments = component.arguments
-
-      return process
-    }
-
-    private func buildShell(_ component: ProcessComponent) throws -> Process {
-      let process = Process(env, launchStyle: component.launchStyle)
-
-      setEnvironment(on: process)
-      configureShell(process, source: process.source)
-      return process
-    }
 
     private func configureShell(_ process: Process, source: String) {
       let hasShebang = source.hasPrefix("#!")

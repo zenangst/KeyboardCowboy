@@ -1,4 +1,5 @@
 import CowboyCore
+import Foundation
 import System
 
 extension JXA {
@@ -45,9 +46,9 @@ extension JXA {
     // MARK: Private methods
 
     private func runScript(at path: String) throws -> (String?, [Process]) {
-      let jxaSource = "/usr/bin/osascript -l JavaScript"
-      let processes = try ShellScript.Builder(env).build(jxaSource)
-      processes.first?.arguments?.append(path)
+      let process = ShellScript.Builder(env).buildExecutable(
+        at: URL(fileURLWithPath: "/usr/bin/osascript"), arguments: ["-l", "JavaScript", path])
+      let processes = [process]
       let output = try ShellScript.Executor(env).execute(processes)
 
       return (output, processes)

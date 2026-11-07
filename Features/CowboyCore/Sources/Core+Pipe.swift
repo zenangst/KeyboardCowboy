@@ -14,6 +14,15 @@ public extension Core {
     let mode: Mode
     public let fileHandleForReading: Core.FileHandle
 
+    var readingDescriptor: Int32? {
+      if case .production(let pipe) = mode { return pipe.fileHandleForReading.fileDescriptor }
+      return nil
+    }
+
+    func closeReading() {
+      if case .production(let pipe) = mode { try? pipe.fileHandleForReading.close() }
+    }
+
     public init(_ env: Environment) {
       switch env {
       case .production:
