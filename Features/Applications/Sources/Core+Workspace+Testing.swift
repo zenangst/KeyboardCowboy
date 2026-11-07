@@ -3,14 +3,17 @@ import Cocoa
 import CowboyCore
 import Foundation
 
-extension Core.Workspace {
-  public enum Testing {
+public extension Core.Workspace {
+  enum Testing {
     @TaskLocal public static var mock: Mock = Mock()
   }
 
-  public struct Mock: Sendable {
+  struct Mock: Sendable {
     var frontmostApplication: Core.RunningApplication?
-    var openApplication: @Sendable (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) async throws -> Core.RunningApplication
+    var openApplication: @Sendable (
+      _ applicationURL: URL,
+      _ configuration: NSWorkspace.OpenConfiguration,
+    ) async throws -> Core.RunningApplication
 
     init(frontmostApplication: Core.RunningApplication? = nil,
          openApplication: @Sendable @escaping (_ applicationURL: URL, _ configuration: NSWorkspace.OpenConfiguration) async throws -> Core.RunningApplication = { _, _ in Core.RunningApplication(.testing(nil)) }) {

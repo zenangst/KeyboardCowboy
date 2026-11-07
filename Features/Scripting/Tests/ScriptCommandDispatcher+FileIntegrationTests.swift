@@ -19,3 +19,17 @@ import Testing
   #expect(output == "file output")
   #expect(Foundation.FileManager.default.fileExists(atPath: file.path))
 }
+
+@Test @MainActor func publicDispatcherExposesSubprocessFailure() async throws {
+  let dispatcher = ScriptCommandDispatcher(.production)
+  let command = ScriptRequest(id: "failure", kind: .shellScript,
+                              source: .inline("#!/bin/sh\nprintf message >&2; exit 17"))
+  do {
+    _ = try await dispatcher.execute(command)
+    Issue.record("Expected a subprocess failure")
+  } catch let failure as ScriptProcessError {
+    #expect(failure.status == 17)
+    #expect(failure.reason == .exit)
+    #expect(failure.stderr == Data("message".utf8))
+  }
+}

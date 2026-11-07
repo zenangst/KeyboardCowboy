@@ -139,6 +139,25 @@ public extension Core {
 
     public let source: String
 
+    /// Available after the process has exited.
+    public var terminationStatus: Int32 {
+      switch mode {
+      case .production(let process): process.terminationStatus
+      #if DEBUG
+      case .testing: Testing.mock.terminationStatus
+      #endif
+      }
+    }
+
+    public var terminationReason: Foundation.Process.TerminationReason {
+      switch mode {
+      case .production(let process): process.terminationReason
+      #if DEBUG
+      case .testing: Testing.mock.terminationReason
+      #endif
+      }
+    }
+
     public init(_ env: Environment, launchStyle: LaunchStyle) {
       self.source = launchStyle.source
       self.launchStyle = launchStyle
@@ -295,7 +314,8 @@ public extension Core {
       }
       child.waitUntilExit()
       finished = true
-      guard String(data: stdout, encoding: .utf8) == nil else { return (stdout, nil) }
+      if child.terminationReason == .exit && child.terminationStatus == 0,
+         String(data: stdout, encoding: .utf8) != nil { return (stdout, nil) }
       guard lseek(spool, 0, SEEK_SET) >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
       var stderr = Data()
       while true {

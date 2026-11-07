@@ -1,6 +1,28 @@
 import CowboyCore
 import Foundation
 
+/// A script subprocess that exited unsuccessfully. Output is captured as raw
+/// bytes so diagnostics are preserved even when they are not UTF-8.
+public struct ScriptProcessError: Swift.Error, Sendable, LocalizedError {
+  public enum Reason: Sendable {
+    case exit
+    case signal
+  }
+
+  public let status: Int32
+  public let reason: Reason
+  public let stdout: Data
+  public let stderr: Data
+
+  public var errorDescription: String? {
+    let termination = reason == .signal ? "terminated by signal \(status)" : "exited with status \(status)"
+    let output = String(decoding: stdout, as: UTF8.self)
+    let error = String(decoding: stderr, as: UTF8.self)
+    return "Script process \(termination)." + (output.isEmpty ? "" : "\nstdout: \(output)")
+      + (error.isEmpty ? "" : "\nstderr: \(error)")
+  }
+}
+
 extension ShellScript {
   final class Executor {
     enum Error: Swift.Error {
@@ -69,6 +91,14 @@ extension ShellScript {
       process.standardError = standardError
 
       let captured = try process.runAndCaptureOutput()
+
+      if process.terminationReason != .exit || process.terminationStatus != 0 {
+        throw ScriptProcessError(
+          status: process.terminationStatus,
+          reason: process.terminationReason == .uncaughtSignal ? .signal : .exit,
+          stdout: captured.stdout ?? Data(),
+          stderr: captured.stderr ?? Data())
+      }
 
       let output: String
       if let data = captured.stdout,

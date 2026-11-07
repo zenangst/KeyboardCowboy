@@ -69,3 +69,26 @@ func cachedAppleScriptCancellationTakesPrecedenceOverRuntimeError(file: Bool) as
   }.value
   #expect(result)
 }
+
+@Test(arguments: [false, true]) @MainActor
+func appleScriptCancellationTakesPrecedenceOverCompileError(file: Bool) async {
+  let executor = AppleScript.Executor(.testing)
+  let result = await Task { @MainActor in
+    Core.NSAppleScript.Testing.$mock.withValue(.init(
+      compileAndReturnError: false,
+      execute: { Issue.record("Compilation failure must prevent execution"); return nil },
+      compileError: {
+        withUnsafeCurrentTask { $0?.cancel() }
+        return NSError(domain: "test", code: -1)
+      }
+    )) {
+      do {
+        if file { _ = try executor.execute(FilePath("/tmp/test.scpt"), key: "key") }
+        else { _ = try executor.execute("source", key: "key") }
+        return false
+      } catch is CancellationError { return true }
+      catch { Issue.record("Unexpected error: \(error)"); return false }
+    }
+  }.value
+  #expect(result)
+}

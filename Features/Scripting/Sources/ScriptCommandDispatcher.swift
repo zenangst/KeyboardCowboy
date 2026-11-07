@@ -56,6 +56,7 @@ public struct ScriptInterpolation: Sendable {
 /// Shell and JXA calls run synchronously on this actor: a long-running command
 /// delays later requests and cache invalidation. Cancellation does not terminate
 /// a process, and output after the post-exit drain deadline may be truncated.
+/// Nonzero subprocess exits throw `ScriptProcessError` with status and raw output.
 /// Hosts must explicitly clear the AppleScript cache when lifecycle policy requires it.
 public actor ScriptCommandDispatcher {
   /// Execution boundaries can be substituted without invoking scripts or the filesystem.

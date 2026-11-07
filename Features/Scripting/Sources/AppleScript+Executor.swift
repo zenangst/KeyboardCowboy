@@ -42,17 +42,19 @@ public extension AppleScript {
         return try executeCached(appleScript, error: &errorDictionary)
       }
 
-      var errorDictionary: NSDictionary?
-
-      let appleScript = try Core.NSAppleScript(env, contentsOf: URL(filePath: filePath.path), error: &errorDictionary)
-      try Task.checkCancellation()
-      try appleScript.compileAndReturnError(&errorDictionary)
-      try Task.checkCancellation()
-      let output = try executeCached(appleScript, error: &errorDictionary)
-
-      cache.set(appleScript, for: key)
-
-      return output
+      do {
+        var errorDictionary: NSDictionary?
+        let appleScript = try Core.NSAppleScript(env, contentsOf: URL(filePath: filePath.path), error: &errorDictionary)
+        try Task.checkCancellation()
+        try appleScript.compileAndReturnError(&errorDictionary)
+        try Task.checkCancellation()
+        let output = try executeCached(appleScript, error: &errorDictionary)
+        cache.set(appleScript, for: key)
+        return output
+      } catch {
+        try Task.checkCancellation()
+        throw error
+      }
     }
 
     public func execute(_ source: String, key: String) throws -> String? {
@@ -64,17 +66,19 @@ public extension AppleScript {
         return try executeCached(appleScript, error: &errorDictionary)
       }
 
-      var errorDictionary: NSDictionary?
-
-      let appleScript = try Core.NSAppleScript(env, source: source)
-      try Task.checkCancellation()
-      try appleScript.compileAndReturnError(&errorDictionary)
-      try Task.checkCancellation()
-      let output = try executeCached(appleScript, error: &errorDictionary)
-
-      cache.set(appleScript, for: key)
-
-      return output
+      do {
+        var errorDictionary: NSDictionary?
+        let appleScript = try Core.NSAppleScript(env, source: source)
+        try Task.checkCancellation()
+        try appleScript.compileAndReturnError(&errorDictionary)
+        try Task.checkCancellation()
+        let output = try executeCached(appleScript, error: &errorDictionary)
+        cache.set(appleScript, for: key)
+        return output
+      } catch {
+        try Task.checkCancellation()
+        throw error
+      }
     }
 
     private func executeCached(_ script: Core.NSAppleScript,

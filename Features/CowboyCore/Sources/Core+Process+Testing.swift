@@ -19,6 +19,8 @@ extension Core.Process {
   public struct Mock: Sendable {
     var run: ThrowingFunction?
     var waitUntilExit: Function?
+    var terminationStatus: Int32 = 0
+    var terminationReason: Foundation.Process.TerminationReason = .exit
   }
 }
 #endif
