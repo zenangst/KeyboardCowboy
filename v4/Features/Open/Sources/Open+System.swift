@@ -12,6 +12,17 @@ extension Open {
   struct System: Sendable {
     let environment: Environment
 
+    func openDefault(_ url: URL) -> Bool {
+      switch environment {
+      case .production:
+        return NSWorkspace.shared.open(url)
+      #if DEBUG
+        case .testing:
+          return Testing.mock.openDefault(url)
+      #endif
+      }
+    }
+
     func open(_ url: URL, applicationURL: URL?) async throws {
       switch environment {
       case .production:

@@ -49,8 +49,7 @@ public extension Open {
       guard parser.isBrowserEligible(path) else { return .generic }
 
       if let identifier = application?.bundleIdentifier,
-         identifier.hasPrefix("com.apple.Safari.WebApp") || identifier.hasPrefix("com.kagi.kagimacOS.WebApp")
-      {
+         identifier.hasPrefix("com.apple.Safari.WebApp") || identifier.hasPrefix("com.kagi.kagimacOS.WebApp") {
         return .webApp
       }
       return .browser

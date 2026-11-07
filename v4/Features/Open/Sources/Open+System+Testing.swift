@@ -8,6 +8,7 @@
 
     struct Mock: Sendable {
       var open: @Sendable (URL, URL?) async throws -> Void = { _, _ in }
+      var openDefault: @Sendable (URL) -> Bool = { _ in false }
       var isDirectory: @Sendable (String) throws -> Bool = { _ in false }
     }
   }
