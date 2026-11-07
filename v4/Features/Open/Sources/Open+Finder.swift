@@ -20,10 +20,7 @@ public extension Open {
     }
 
     public func open(_ path: String, checkCancellation: Bool) async throws {
-      let escapedPath = parser.parse(path)
-        .path
-        .replacingOccurrences(of: "\\", with: "\\\\")
-        .replacingOccurrences(of: "\"", with: "\\\"")
+      let escapedPath = Open.escapeAppleScriptLiteral(parser.parse(path).path)
       let source = """
       tell application "Finder"
         set the target of the front Finder window to folder ("\(escapedPath)" as POSIX file)
