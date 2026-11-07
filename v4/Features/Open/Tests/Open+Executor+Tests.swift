@@ -91,3 +91,34 @@ private func target(_ id: String, name: String = "App") -> Open.TargetApplicatio
   } catch {}
   #expect(await operations.calls == ["generic:/file:default", "metadata:/file", "generic:/file:default"])
 }
+
+@Test(arguments: [
+  ("Finder", ["finder:/folder:false", "metadata:/folder", "finder:/folder:false"]),
+  ("finder", ["finder:/folder:false", "metadata:/folder", "generic:/folder:COM.APPLE.FINDER"]),
+  ("FINDER", ["finder:/folder:false", "metadata:/folder", "generic:/folder:COM.APPLE.FINDER"]),
+])
+func finderDispatchIgnoresBundleIDCaseButRetryRequiresExactName(name: String, expected: [String]) async {
+  let operations = Operations(failures: ["finder:/folder:false"], directory: true)
+  do {
+    try await executor(operations).run("/folder", application: target("COM.APPLE.FINDER", name: name), checkCancellation: false)
+    if name == "Finder" { Issue.record("Expected Finder retry to fail") }
+  } catch {
+    if name != "Finder" { Issue.record("Unexpected fallback error: \(error)") }
+  }
+  #expect(await operations.calls == expected)
+}
+
+@Test func cancelledFinderOperationStillEntersLegacyGenericFallback() async throws {
+  let operations = Operations()
+  let routes = Open.Operations(
+    openHost: { await operations.openHost() },
+    openFinder: { _, _ in throw CancellationError() },
+    openBrowser: { _, _, _ in },
+    openWebApp: { _, _, _ in },
+    openGeneric: { try await operations.openGeneric($0, application: $1) },
+    isDirectory: { try await operations.isDirectory($0) }
+  )
+  let runner = Open.Executor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: routes)
+  try await runner.run("/folder", application: target("com.apple.finder", name: "Finder"), checkCancellation: true)
+  #expect(await operations.calls == ["metadata:/folder", "generic:/folder:com.apple.finder"])
+}
