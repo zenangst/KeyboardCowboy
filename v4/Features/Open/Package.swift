@@ -6,8 +6,9 @@ let package = Package(
   name: "OpenFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "OpenFeature", targets: ["OpenFeature"])],
+  dependencies: [.package(path: "../../Components/CowboyCore")],
   targets: [
-    .target(name: "OpenFeature", path: "Sources"),
-    .testTarget(name: "OpenFeatureTests", dependencies: ["OpenFeature"], path: "Tests"),
+    .target(name: "OpenFeature", dependencies: ["CowboyCore"], path: "Sources"),
+    .testTarget(name: "OpenFeatureTests", dependencies: ["OpenFeature", "CowboyCore"], path: "Tests"),
   ]
 )
