@@ -1,101 +1,138 @@
-import InputSourceFeature
-import InputSourceSystem
-import Testing
+#if DEBUG
+  import InputSourceFeature
+  import InputSourceSystem
+  import Testing
 
-private enum Failure: Error, Equatable { case current, lookup, select }
+  private enum Failure: Error, Equatable { case current, lookup, select }
 
-@MainActor
-private final class Controller: InputSource.Controlling {
-  struct Source { let id: String; let token: Int }
-  var calls: [String] = []
-  var current = Source(id: "current", token: 1)
-  var found = Source(id: "target", token: 2)
-  var failure: Failure?
-  var cancelDuringLookup = false
+  @MainActor
+  private final class Script {
+    var calls: [String] = []
+    var currentID = "current"
+    var failure: Failure?
+    var cancelDuringLookup = false
 
-  func currentInputSource() throws -> Source {
-    calls.append("current")
-    if failure == .current { throw Failure.current }
-    return current
+    var mock: InputSource.Controller.Mock {
+      .init(
+        current: {
+          self.calls.append("current")
+          if self.failure == .current { throw Failure.current }
+          return InputSource.Controller.Testing.source(id: self.currentID, token: "current")
+        },
+        find: { id, includeAllInstalled in
+          self.calls.append("find:\(id):\(includeAllInstalled)")
+          if self.failure == .lookup { throw Failure.lookup }
+          if self.cancelDuringLookup { withUnsafeCurrentTask { $0?.cancel() } }
+          return InputSource.Controller.Testing.source(id: "target", token: "found")
+        },
+        select: { source in
+          self.calls.append("select:\(source.testingToken ?? "live")")
+          if self.failure == .select { throw Failure.select }
+        }
+      )
+    }
   }
-  func id(of source: Source) -> String { source.id }
-  func findInput(_ id: String, includeAllInstalled: Bool) throws -> Source {
-    calls.append("find:\(id):\(includeAllInstalled)")
-    if failure == .lookup { throw Failure.lookup }
-    if cancelDuringLookup { withUnsafeCurrentTask { $0?.cancel() } }
-    return found
+
+  private let request = InputSource.Request(id: "request", inputSourceId: "target", name: "Target")
+
+  @MainActor private func executor() -> InputSource.Executor {
+    InputSource.Executor(controller: .testing())
   }
-  func select(_ source: Source) throws {
-    calls.append("select:\(source.token)")
-    if failure == .select { throw Failure.select }
+
+  @Test @MainActor func liveExecutorCanBeConstructedByConsumer() {
+    _ = InputSource.Executor()
   }
-}
 
-@Test @MainActor func sourceIDsAreNotNormalized() async throws {
-  let controller = Controller()
-  controller.current = .init(id: "com.example.layout", token: 1)
-  let request = InputSource.Request(id: "request", inputSourceId: " Com.Example.Layout ", name: "ignored")
-  try await InputSource.Executor(controller: controller).run(request)
-  #expect(controller.calls == ["current", "find: Com.Example.Layout :false", "select:2"])
-}
-
-@Test @MainActor func cancellationDuringLookupDoesNotAddAnotherCheckpoint() async throws {
-  let controller = Controller()
-  controller.cancelDuringLookup = true
-  let task = Task { @MainActor in
-    try await InputSource.Executor(controller: controller).run(request)
+  @Test @MainActor func selectsExactLookupResult() async throws {
+    let script = Script()
+    try await InputSource.Controller.Testing.$mock.withValue(script.mock) {
+      try await executor().run(request)
+    }
+    #expect(script.calls == ["current", "find:target:false", "select:found"])
   }
-  try await task.value
-  #expect(controller.calls == ["current", "find:target:false", "select:2"])
-}
 
-private let request = InputSource.Request(id: "request", inputSourceId: "target", name: "Target")
-
-@Test @MainActor func liveExecutorCanBeConstructedByConsumer() {
-  _ = InputSource.Executor()
-}
-
-@Test @MainActor func selectsExactLookupResult() async throws {
-  let controller = Controller()
-  try await InputSource.Executor(controller: controller).run(request)
-  #expect(controller.calls == ["current", "find:target:false", "select:2"])
-}
-
-@Test @MainActor func selectedSourceIsNoOpEvenWhenCancelled() async throws {
-  let controller = Controller()
-  controller.current = .init(id: "target", token: 1)
-  let task = Task { @MainActor in
-    withUnsafeCurrentTask { $0?.cancel() }
-    try await InputSource.Executor(controller: controller).run(request)
+  @Test @MainActor func sourceIDsAreNotNormalized() async throws {
+    let script = Script()
+    script.currentID = "com.example.layout"
+    let request = InputSource.Request(id: "request", inputSourceId: " Com.Example.Layout ", name: "ignored")
+    try await InputSource.Controller.Testing.$mock.withValue(script.mock) {
+      try await executor().run(request)
+    }
+    #expect(script.calls == ["current", "find: Com.Example.Layout :false", "select:found"])
   }
-  try await task.value
-  #expect(controller.calls == ["current"])
-}
 
-@Test @MainActor func cancellationStopsBeforeLookup() async {
-  let controller = Controller()
-  let task = Task { @MainActor in
-    withUnsafeCurrentTask { $0?.cancel() }
-    try await InputSource.Executor(controller: controller).run(request)
+  @Test @MainActor func selectedSourceIsNoOpEvenWhenCancelled() async throws {
+    let script = Script()
+    script.currentID = "target"
+    try await InputSource.Controller.Testing.$mock.withValue(script.mock) {
+      let task = Task { @MainActor in
+        withUnsafeCurrentTask { $0?.cancel() }
+        try await executor().run(request)
+      }
+      try await task.value
+    }
+    #expect(script.calls == ["current"])
   }
-  do { try await task.value; Issue.record("Expected cancellation") }
-  catch is CancellationError {} catch { Issue.record("Unexpected error: \(error)") }
-  #expect(controller.calls == ["current"])
-}
 
-@Test(arguments: [Failure.current, .lookup, .select]) @MainActor
-private func errorsPropagateWithoutFurtherCalls(failure: Failure) async {
-  let controller = Controller()
-  controller.failure = failure
-  do {
-    try await InputSource.Executor(controller: controller).run(request)
-    Issue.record("Expected error")
-  } catch {
-    #expect(error as? Failure == failure)
+  @Test @MainActor func cancellationStopsBeforeLookup() async {
+    let script = Script()
+    await InputSource.Controller.Testing.$mock.withValue(script.mock) {
+      let task = Task { @MainActor in
+        withUnsafeCurrentTask { $0?.cancel() }
+        try await executor().run(request)
+      }
+      do { try await task.value; Issue.record("Expected cancellation") }
+      catch is CancellationError {} catch { Issue.record("Unexpected error: \(error)") }
+    }
+    #expect(script.calls == ["current"])
   }
-  switch failure {
-  case .current: #expect(controller.calls == ["current"])
-  case .lookup: #expect(controller.calls == ["current", "find:target:false"])
-  case .select: #expect(controller.calls == ["current", "find:target:false", "select:2"])
+
+  @Test @MainActor func cancellationDuringLookupDoesNotAddAnotherCheckpoint() async throws {
+    let script = Script()
+    script.cancelDuringLookup = true
+    try await InputSource.Controller.Testing.$mock.withValue(script.mock) {
+      let task = Task { @MainActor in try await executor().run(request) }
+      try await task.value
+    }
+    #expect(script.calls == ["current", "find:target:false", "select:found"])
   }
-}
+
+  @Test(arguments: [Failure.current, .lookup, .select]) @MainActor
+  private func errorsPropagateWithoutFurtherCalls(failure: Failure) async {
+    let script = Script()
+    script.failure = failure
+    await InputSource.Controller.Testing.$mock.withValue(script.mock) {
+      do { try await executor().run(request); Issue.record("Expected error") }
+      catch { #expect(error as? Failure == failure) }
+    }
+    switch failure {
+    case .current: #expect(script.calls == ["current"])
+    case .lookup: #expect(script.calls == ["current", "find:target:false"])
+    case .select: #expect(script.calls == ["current", "find:target:false", "select:found"])
+    }
+  }
+
+  @Test @MainActor func unconfiguredMocksFail() async {
+    do { try await executor().run(request); Issue.record("Expected unconfigured mock error") }
+    catch is InputSource.Controller.Mock.Unconfigured {} catch { Issue.record("Unexpected error: \(error)") }
+  }
+
+  @Test @MainActor func eachUnconfiguredOperationFails() throws {
+    let controller = InputSource.Controller.testing()
+    let source = InputSource.Controller.Testing.source(id: "target", token: "found")
+    #expect(throws: InputSource.Controller.Mock.Unconfigured.self) { try controller.currentInputSource() }
+    #expect(throws: InputSource.Controller.Mock.Unconfigured.self) { try controller.findInput("target", includeAllInstalled: false) }
+    #expect(throws: InputSource.Controller.Mock.Unconfigured.self) { try controller.select(source) }
+  }
+
+  @Test @MainActor func mockOverridesAreScoped() async throws {
+    let script = Script()
+    script.currentID = "target"
+    try await InputSource.Controller.Testing.$mock.withValue(script.mock) {
+      try await executor().run(request)
+    }
+    #expect(script.calls == ["current"])
+    do { try await executor().run(request); Issue.record("Expected restored default mock") }
+    catch is InputSource.Controller.Mock.Unconfigured {} catch { Issue.record("Unexpected error: \(error)") }
+  }
+#endif
