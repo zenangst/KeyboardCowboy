@@ -175,7 +175,13 @@ public extension Core {
       case .production(let process):
         try process.run()
       #if DEBUG
-      case .testing:
+      case .testing(let storage):
+        Testing.mock.observeLaunch?(LaunchConfiguration(
+          arguments: storage.arguments,
+          currentDirectoryURL: storage.currentDirectoryURL,
+          environment: storage.environment,
+          executableURL: storage.executableURL
+        ))
         try Testing.mock.run?()
       #endif
       }

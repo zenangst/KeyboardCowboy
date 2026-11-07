@@ -51,7 +51,33 @@ import Testing
   #expect(snapshot.apps.frontMost?.runningApplication === first)
   let missing = changed.refreshing(frontmost: nil)
   #expect(missing.apps.frontMost == nil)
+  #expect(missing.apps.previous?.runningApplication === second)
+}
+
+@Test @MainActor func snapshotRefreshRetainsHistoryAcrossUnavailableFrontmost() {
+  let first = Core.RunningApplication(.testing(.init("example.first")))
+  let previous = Core.RunningApplication(.testing(.init("example.previous")))
+  let other = Core.RunningApplication(.testing(.init("example.other")))
+  let snapshot = UserSpace.Snapshot(apps: .init(
+    frontMost: .init(bundleIdentifier: .init("example.first"), runningApplication: first),
+    previous: .init(bundleIdentifier: .init("example.previous"), runningApplication: previous)))
+
+  let missing = snapshot.refreshing(frontmost: nil).refreshing(frontmost: nil)
+  #expect(missing.apps.frontMost == nil)
   #expect(missing.apps.previous?.runningApplication === first)
+  let returned = missing.refreshing(frontmost: first)
+  #expect(returned.apps.frontMost?.runningApplication === first)
+  #expect(returned.apps.previous?.runningApplication === previous)
+  let changed = missing.refreshing(frontmost: other)
+  #expect(changed.apps.frontMost?.runningApplication === other)
+  #expect(changed.apps.previous?.runningApplication === first)
+
+  Core.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === first })) {
+    let filtered = missing.refreshing(frontmost: nil)
+    #expect(filtered.apps.previous?.runningApplication === previous)
+    let changed = filtered.refreshing(frontmost: other)
+    #expect(changed.apps.previous?.runningApplication === previous)
+  }
 }
 
 @Test @MainActor func snapshotTracksActivationHistoryAndRemovesTerminatedEntries() {

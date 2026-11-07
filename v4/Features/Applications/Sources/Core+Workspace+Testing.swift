@@ -3,7 +3,7 @@ import Cocoa
 import CowboyCore
 import Foundation
 
-public extension Core.Workspace {
+extension Core.Workspace {
   enum Testing {
     @TaskLocal public static var mock: Mock = Mock()
   }

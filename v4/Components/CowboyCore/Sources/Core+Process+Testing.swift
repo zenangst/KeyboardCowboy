@@ -16,7 +16,16 @@ extension Core.Process {
     @TaskLocal public static var mock: Mock = Mock()
   }
 
+  /// The process configuration as it stood immediately before a mock launch.
+  public struct LaunchConfiguration: Sendable, Equatable {
+    public let arguments: [String]?
+    public let currentDirectoryURL: URL?
+    public let environment: [String: String]?
+    public let executableURL: URL?
+  }
+
   public struct Mock: Sendable {
+    var observeLaunch: (@Sendable (LaunchConfiguration) -> Void)?
     var run: ThrowingFunction?
     var waitUntilExit: Function?
     var terminationStatus: Int32
@@ -25,6 +34,7 @@ extension Core.Process {
     var readStandardError: (@Sendable () throws -> Data?)?
 
     public init(
+      observeLaunch: (@Sendable (LaunchConfiguration) -> Void)? = nil,
       run: ThrowingFunction? = nil,
       waitUntilExit: Function? = nil,
       terminationStatus: Int32 = 0,
@@ -32,6 +42,7 @@ extension Core.Process {
       readStandardOutput: (@Sendable () throws -> Data?)? = nil,
       readStandardError: (@Sendable () throws -> Data?)? = nil
     ) {
+      self.observeLaunch = observeLaunch
       self.run = run
       self.waitUntilExit = waitUntilExit
       self.terminationStatus = terminationStatus

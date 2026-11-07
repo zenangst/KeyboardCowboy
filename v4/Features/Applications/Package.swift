@@ -18,7 +18,7 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(path: "../CowboyCore"),
+    .package(path: "../../Components/CowboyCore"),
   ],
   targets: [
     .target(
