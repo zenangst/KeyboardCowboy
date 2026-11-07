@@ -50,16 +50,49 @@ func failedOutput(stderr: Data?, expected: String) async {
 
 private enum SubprocessFailure: Error, Equatable { case launch, stdout, stderr }
 
+private final class Events: @unchecked Sendable {
+  private let lock = NSLock()
+  private var storage: [String] = []
+  func record(_ event: String) { lock.lock(); defer { lock.unlock() }; storage.append(event) }
+  var values: [String] { lock.lock(); defer { lock.unlock() }; return storage }
+}
+
 @Test(arguments: [SubprocessFailure.launch, .stdout, .stderr])
 private func subprocessErrorsPropagate(error: SubprocessFailure) async {
-  let mock = Core.Process.Mock(run: { if error == .launch { throw error } }, readStandardOutput: {
+  let events = Events()
+  let mock = Core.Process.Mock(run: { events.record("launch"); if error == .launch { throw error } }, waitUntilExit: {
+    events.record("wait")
+  }, observeTerminationStatus: { events.record("status") }, readStandardOutput: {
+    events.record("stdout")
     if error == .stdout { throw error }; return Data()
   }, readStandardError: {
+    events.record("stderr")
     if error == .stderr { throw error }; return Data()
   })
   await Core.Process.Testing.$mock.withValue(mock) {
     await #expect(throws: error) { try await Shortcuts.Executor.testing().run("name", cancellation: .ignore) }
   }
+  switch error {
+  case .launch: #expect(events.values == ["launch"])
+  case .stdout: #expect(events.values == ["launch", "stdout", "wait"])
+  case .stderr: #expect(events.values == ["launch", "stdout", "stderr", "wait"])
+  }
+}
+
+@Test(arguments: [Int32(0), 42])
+func statusIsReadAfterWait(status: Int32) async {
+  let events = Events()
+  let mock = Core.Process.Mock(run: { events.record("launch") }, waitUntilExit: { events.record("wait") }, terminationStatus: status, observeTerminationStatus: { events.record("status") }, readStandardOutput: { events.record("stdout"); return Data("out".utf8) }, readStandardError: { events.record("stderr"); return Data("err".utf8) })
+  await Core.Process.Testing.$mock.withValue(mock) {
+    if status == 0 {
+      #expect((try? await Shortcuts.Executor.testing().run("name", cancellation: .ignore)) == "out")
+    } else {
+      await #expect(throws: Shortcuts.ExecutionError.executionFailed("err")) {
+        try await Shortcuts.Executor.testing().run("name", cancellation: .ignore)
+      }
+    }
+  }
+  #expect(events.values == ["launch", "stdout", "stderr", "wait", "status"])
 }
 
 @Test func cancellationAtSubprocessBoundary() async throws {

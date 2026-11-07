@@ -29,6 +29,7 @@ extension Core.Process {
     var run: ThrowingFunction?
     var waitUntilExit: Function?
     var terminationStatus: Int32
+    var observeTerminationStatus: Function?
     var terminationReason: Foundation.Process.TerminationReason
     var readStandardOutput: (@Sendable () throws -> Data?)?
     var readStandardError: (@Sendable () throws -> Data?)?
@@ -38,6 +39,7 @@ extension Core.Process {
       run: ThrowingFunction? = nil,
       waitUntilExit: Function? = nil,
       terminationStatus: Int32 = 0,
+      observeTerminationStatus: Function? = nil,
       terminationReason: Foundation.Process.TerminationReason = .exit,
       readStandardOutput: (@Sendable () throws -> Data?)? = nil,
       readStandardError: (@Sendable () throws -> Data?)? = nil
@@ -46,6 +48,7 @@ extension Core.Process {
       self.run = run
       self.waitUntilExit = waitUntilExit
       self.terminationStatus = terminationStatus
+      self.observeTerminationStatus = observeTerminationStatus
       self.terminationReason = terminationReason
       self.readStandardOutput = readStandardOutput
       self.readStandardError = readStandardError

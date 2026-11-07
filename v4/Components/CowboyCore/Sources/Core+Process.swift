@@ -142,9 +142,11 @@ public extension Core {
     /// Available after the process has exited.
     public var terminationStatus: Int32 {
       switch mode {
-      case .production(let process): process.terminationStatus
+      case .production(let process): return process.terminationStatus
       #if DEBUG
-      case .testing: Testing.mock.terminationStatus
+      case .testing:
+        Testing.mock.observeTerminationStatus?()
+        return Testing.mock.terminationStatus
       #endif
       }
     }
@@ -205,8 +207,18 @@ public extension Core {
       if case .testing = mode {
         try run()
         defer { waitUntilExit() }
-        let stdout = try Testing.mock.readStandardOutput.map { try $0() } ?? standardOutput?.fileHandleForReading.readToEnd()
-        let stderr = try Testing.mock.readStandardError.map { try $0() } ?? standardError?.fileHandleForReading.readToEnd()
+        let stdout: Data?
+        if let read = Testing.mock.readStandardOutput {
+          stdout = try read()
+        } else {
+          stdout = try standardOutput?.fileHandleForReading.readToEnd()
+        }
+        let stderr: Data?
+        if let read = Testing.mock.readStandardError {
+          stderr = try read()
+        } else {
+          stderr = try standardError?.fileHandleForReading.readToEnd()
+        }
         return (stdout, stderr)
       }
       #endif
@@ -419,7 +431,7 @@ private final class UnboundedStreamReads: @unchecked Sendable {
       lock.lock()
       if self.error == nil {
         self.error = error
-        if process.isRunning { process.terminate() }
+        if process.isRunning { kill(process.processIdentifier, SIGKILL) }
       }
       lock.unlock()
     }
