@@ -36,21 +36,26 @@ extension ShellScript {
     }
 
     func executeFile(at path: String) throws -> String? {
-      try execute(ShellScript.Builder(env).buildFile(at: path))
+      try Task.checkCancellation()
+      return try execute(ShellScript.Builder(env).buildFile(at: path))
     }
 
     func execute(_ processes: [Process]) throws -> String? {
+      try Task.checkCancellation()
       var output: String = ""
       for process in processes {
+        try Task.checkCancellation()
         if let pOutput = try execute(process) {
           output.append(pOutput)
         }
       }
 
+      try Task.checkCancellation()
       return output
     }
 
     func execute(_ process: Process) throws -> String? {
+      try Task.checkCancellation()
       let output: String?
 
       switch process.launchStyle {
@@ -66,6 +71,7 @@ extension ShellScript {
         process.arguments?.append(tempPath)
 
         do {
+          try Task.checkCancellation()
           guard fileManager.createFile(atPath: tempPath, contents: data) else {
             throw Error.createFileFailed
           }
@@ -73,6 +79,7 @@ extension ShellScript {
           output = try run(process)
         } catch {
           try? fileManager.removeItem(atPath: directoryPath)
+          try Task.checkCancellation()
           throw error
         }
 
@@ -92,6 +99,7 @@ extension ShellScript {
 
       let captured = try process.runAndCaptureOutput()
 
+      try Task.checkCancellation()
       if process.terminationReason != .exit || process.terminationStatus != 0 {
         throw ScriptProcessError(
           status: process.terminationStatus,

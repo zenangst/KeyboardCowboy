@@ -29,6 +29,9 @@ public extension Core {
         self.mode = .production(appleScript)
       #if DEBUG
       case .testing:
+        guard Testing.mock.createSource(source) else {
+          throw Error.unableToCreateAppleScript(source: source)
+        }
         self.mode = .testing
       #endif
       }
@@ -48,6 +51,9 @@ public extension Core {
         self.mode = .production(appleScript)
       #if DEBUG
       case .testing:
+        guard Testing.mock.createFile(url) else {
+          throw Error.unableToResolveAppleScript(path: url.absoluteString)
+        }
         self.mode = .testing
       #endif
       }
@@ -61,6 +67,7 @@ public extension Core {
         succeeded = appleScript.compileAndReturnError(&compilationError)
       #if DEBUG
       case .testing:
+        Testing.mock.onCompile()
         succeeded = Testing.mock.compileAndReturnError
         if !succeeded, let error = Testing.mock.compileError() {
           compilationError = [

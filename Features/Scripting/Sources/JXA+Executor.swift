@@ -13,6 +13,7 @@ extension JXA {
     }
 
     func execute(_ filePath: FilePath) throws -> (String?, [Process]) {
+      try Task.checkCancellation()
       let path = filePath.path
 
       guard fileManager.fileExists(atPath: path) else {
@@ -23,18 +24,21 @@ extension JXA {
     }
 
     func execute(_ source: String) throws -> (String?, [Process]) {
+      try Task.checkCancellation()
       let directory = try fileManager.createTemporaryDirectory()
       let tmpPath = directory.appendingPathComponent("script.js").path
       let data = source.data(using: .utf8)
 
       let result: (String?, [Process])
       do {
+        try Task.checkCancellation()
         guard fileManager.createFile(atPath: tmpPath, contents: data) else {
           throw JXA.Error.createFileFailed
         }
         result = try runScript(at: tmpPath)
       } catch {
         try? fileManager.removeItem(atPath: directory.path)
+        try Task.checkCancellation()
         throw error
       }
 

@@ -54,8 +54,9 @@ public struct ScriptInterpolation: Sendable {
 
 /// Dispatches requests without defining host cancellation or subprocess parity policies.
 /// Shell and JXA calls run synchronously on this actor: a long-running command
-/// delays later requests and cache invalidation. Cancellation does not terminate
-/// a process, and output after the post-exit drain deadline may be truncated.
+/// delays later requests and cache invalidation. Cancellation terminates and reaps
+/// the direct subprocess, but not its descendants. Output after the post-exit drain
+/// deadline may be truncated.
 /// Nonzero subprocess exits throw `ScriptProcessError` with status and raw output.
 /// Hosts must explicitly clear the AppleScript cache when lifecycle policy requires it.
 public actor ScriptCommandDispatcher {
@@ -113,18 +114,27 @@ public actor ScriptCommandDispatcher {
   }
 
   public func execute(_ request: ScriptRequest, interpolation: ScriptInterpolation = .init()) async throws -> String? {
-    switch (request.kind, request.source) {
-    case let (.appleScript, .path(path)):
-      // The legacy host routes JXA files through AppleScript too, without interpolation.
-      return try await routes.appleScriptFile((path as NSString).expandingTildeInPath, request.id)
-    case let (.appleScript(.regular), .inline(source)):
-      return try await routes.appleScriptInline(interpolation.apply(to: source), request.id)
-    case let (.appleScript(.jxa), .inline(source)):
-      return try routes.jxaInline(interpolation.apply(to: source))
-    case let (.shellScript, .inline(source)):
-      return try routes.shellInline(interpolation.apply(to: source))
-    case let (.shellScript, .path(path)):
-      return try routes.shellFile(interpolation.apply(to: path))
+    try Task.checkCancellation()
+    let output: String?
+    do {
+      switch (request.kind, request.source) {
+      case let (.appleScript, .path(path)):
+        // The legacy host routes JXA files through AppleScript too, without interpolation.
+        output = try await routes.appleScriptFile((path as NSString).expandingTildeInPath, request.id)
+      case let (.appleScript(.regular), .inline(source)):
+        output = try await routes.appleScriptInline(interpolation.apply(to: source), request.id)
+      case let (.appleScript(.jxa), .inline(source)):
+        output = try routes.jxaInline(interpolation.apply(to: source))
+      case let (.shellScript, .inline(source)):
+        output = try routes.shellInline(interpolation.apply(to: source))
+      case let (.shellScript, .path(path)):
+        output = try routes.shellFile(interpolation.apply(to: path))
+      }
+    } catch {
+      try Task.checkCancellation()
+      throw error
     }
+    try Task.checkCancellation()
+    return output
   }
 }

@@ -199,12 +199,24 @@ public extension Core {
     /// Stderr overflow is reported even when stdout would otherwise be preferred.
     /// On capture failure, the direct child is terminated and reaped.
     public func runAndCaptureOutput() throws -> (stdout: Data?, stderr: Data?) {
+      try Task.checkCancellation()
+      do {
+        return try captureOutput()
+      } catch {
+        try Task.checkCancellation()
+        throw error
+      }
+    }
+
+    private func captureOutput() throws -> (stdout: Data?, stderr: Data?) {
       #if DEBUG
       if case .testing = mode {
+        try Task.checkCancellation()
         try run()
         let stdout = try standardOutput?.fileHandleForReading.readToEnd()
         let stderr = try standardError?.fileHandleForReading.readToEnd()
         waitUntilExit()
+        try Task.checkCancellation()
         return (stdout, stderr)
       }
       #endif
@@ -240,6 +252,7 @@ public extension Core {
         }
       }
 
+      try Task.checkCancellation()
       try child.run()
       defer {
         standardOutput?.closeReading()
@@ -259,7 +272,8 @@ public extension Core {
       var exitedAt: UInt64?
       var pendingAtExit = [Int32](repeating: 0, count: 2)
       var buffer = [UInt8](repeating: 0, count: 65536)
-      while open.contains(true) {
+      while open.contains(true) || child.isRunning {
+        try Task.checkCancellation()
         let now = DispatchTime.now().uptimeNanoseconds
         if !child.isRunning && exitedAt == nil {
           exitedAt = now
@@ -314,11 +328,13 @@ public extension Core {
       }
       child.waitUntilExit()
       finished = true
+      try Task.checkCancellation()
       if child.terminationReason == .exit && child.terminationStatus == 0,
          String(data: stdout, encoding: .utf8) != nil { return (stdout, nil) }
       guard lseek(spool, 0, SEEK_SET) >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
       var stderr = Data()
       while true {
+        try Task.checkCancellation()
         let count = read(spool, &buffer, buffer.count)
         if count == 0 { break }
         if count < 0 {

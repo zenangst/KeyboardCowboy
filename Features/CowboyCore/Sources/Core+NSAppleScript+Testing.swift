@@ -7,9 +7,28 @@ extension Core.NSAppleScript {
   }
 
   public struct Mock: Sendable {
-    var compileAndReturnError: Bool = false
-    var execute: @Sendable () -> NSError? = { nil }
-    var compileError: @Sendable () -> NSError? = { nil }
+    var compileAndReturnError: Bool
+    var execute: @Sendable () -> NSError?
+    var compileError: @Sendable () -> NSError?
+    let createSource: @Sendable (String) -> Bool
+    let createFile: @Sendable (URL) -> Bool
+    let onCompile: @Sendable () -> Void
+
+    public init(
+      compileAndReturnError: Bool = false,
+      execute: @escaping @Sendable () -> NSError? = { nil },
+      compileError: @escaping @Sendable () -> NSError? = { nil },
+      createSource: @escaping @Sendable (String) -> Bool = { _ in true },
+      createFile: @escaping @Sendable (URL) -> Bool = { _ in true },
+      onCompile: @escaping @Sendable () -> Void = {},
+    ) {
+      self.compileAndReturnError = compileAndReturnError
+      self.execute = execute
+      self.compileError = compileError
+      self.createSource = createSource
+      self.createFile = createFile
+      self.onCompile = onCompile
+    }
   }
 }
 #endif
