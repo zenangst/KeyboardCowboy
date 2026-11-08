@@ -1,3 +1,5 @@
+import CowboyCore
+
 #if DEBUG
 extension UserSpace {
   public enum Testing {

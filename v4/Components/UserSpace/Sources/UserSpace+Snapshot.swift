@@ -1,3 +1,5 @@
+import CowboyCore
+
 public extension UserSpace {
   @MainActor final class Snapshot {
     public let apps: Apps

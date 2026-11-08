@@ -1,3 +1,5 @@
+import CowboyCore
+
 public extension UserSpace {
   struct Application: Sendable {
     public let bundleIdentifier: Core.BundleIdentifier

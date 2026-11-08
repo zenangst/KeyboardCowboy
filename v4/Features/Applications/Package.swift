@@ -20,6 +20,7 @@ let package = Package(
   dependencies: [
     .package(path: "../../Components/CowboyCore"),
     .package(path: "../../Components/Commands"),
+    .package(path: "../../Components/UserSpace"),
   ],
   targets: [
     .target(
@@ -27,13 +28,14 @@ let package = Package(
       dependencies: [
         .product(name: "CowboyCore", package: "CowboyCore"),
         .product(name: "Commands", package: "Commands"),
+        .product(name: "UserSpace", package: "UserSpace"),
       ],
       path: "Sources",
       linkerSettings: linkerSettings,
     ),
     .testTarget(
       name: "ApplicationsFeatureTests",
-      dependencies: ["CowboyCore", "Commands", "ApplicationsFeature"],
+      dependencies: ["CowboyCore", "Commands", "UserSpace", "ApplicationsFeature"],
       path: "Tests",
     ),
   ],

@@ -1,3 +1,4 @@
+import UserSpace
 import Commands
 @testable import ApplicationsFeature
 @testable import CowboyCore

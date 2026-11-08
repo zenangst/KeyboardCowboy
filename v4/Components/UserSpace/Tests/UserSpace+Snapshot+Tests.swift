@@ -1,4 +1,5 @@
 @testable import CowboyCore
+@testable import UserSpace
 import AppKit
 import Testing
 

@@ -1,3 +1,4 @@
+import UserSpace
 import Commands
 import AppKit
 import ApplicationsFeature
