@@ -6,5 +6,8 @@ let package = Package(
   name: "TextFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "TextFeature", targets: ["TextFeature"])],
-  targets: [.target(name: "TextFeature", path: "Sources")]
+  targets: [
+    .target(name: "TextFeature", path: "Sources"),
+    .testTarget(name: "TextFeatureTests", dependencies: ["TextFeature"], path: "Tests"),
+  ]
 )
