@@ -19,19 +19,25 @@ let package = Package(
   ],
   dependencies: [
     .package(path: "../../Components/CowboyCore"),
+    .package(path: "../../Components/AppleScriptSystem"),
+    .package(path: "../../Components/FileSystem"),
+    .package(path: "../../Components/ProcessSystem"),
   ],
   targets: [
     .target(
       name: "ScriptingFeature",
       dependencies: [
         .product(name: "CowboyCore", package: "CowboyCore"),
+        .product(name: "AppleScriptSystem", package: "AppleScriptSystem"),
+        .product(name: "FileSystem", package: "FileSystem"),
+        .product(name: "ProcessSystem", package: "ProcessSystem"),
       ],
       path: "Sources",
       linkerSettings: linkerSettings,
     ),
     .testTarget(
       name: "ScriptingFeatureTests",
-      dependencies: ["CowboyCore", "ScriptingFeature"],
+      dependencies: ["CowboyCore", "AppleScriptSystem", "FileSystem", "ProcessSystem", "ScriptingFeature"],
       path: "Tests",
     ),
   ],

@@ -1,3 +1,5 @@
+@testable import FileSystem
+@testable import ProcessSystem
 @testable import CowboyCore
 import Foundation
 @testable import ScriptingFeature

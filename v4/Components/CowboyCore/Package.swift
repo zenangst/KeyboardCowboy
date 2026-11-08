@@ -22,10 +22,5 @@ let package = Package(
       path: "Sources",
       linkerSettings: linkerSettings,
     ),
-    .testTarget(
-      name: "CowboyCoreTests",
-      dependencies: ["CowboyCore"],
-      path: "Tests",
-    ),
   ],
 )

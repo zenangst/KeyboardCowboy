@@ -1,3 +1,5 @@
+@testable import ApplicationSystem
+@testable import AppleScriptSystem
 import UserSpace
 import Commands
 @testable import ApplicationsFeature

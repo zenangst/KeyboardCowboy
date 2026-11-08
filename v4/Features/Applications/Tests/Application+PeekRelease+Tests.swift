@@ -1,3 +1,4 @@
+@testable import ApplicationSystem
 import UserSpace
 import Commands
 @testable import ApplicationsFeature

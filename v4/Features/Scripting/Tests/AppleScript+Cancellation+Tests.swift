@@ -1,3 +1,4 @@
+@testable import AppleScriptSystem
 @testable import CowboyCore
 import Foundation
 @testable import ScriptingFeature

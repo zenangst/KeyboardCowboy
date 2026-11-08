@@ -6,9 +6,9 @@ let package = Package(
   name: "ShortcutsFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "ShortcutsFeature", targets: ["ShortcutsFeature"])],
-  dependencies: [.package(path: "../../Components/CowboyCore")],
+  dependencies: [.package(path: "../../Components/CowboyCore"), .package(path: "../../Components/ProcessSystem")],
   targets: [
-    .target(name: "ShortcutsFeature", dependencies: ["CowboyCore"], path: "Sources"),
-    .testTarget(name: "ShortcutsFeatureTests", dependencies: ["CowboyCore", "ShortcutsFeature"], path: "Tests"),
+    .target(name: "ShortcutsFeature", dependencies: ["CowboyCore", "ProcessSystem"], path: "Sources"),
+    .testTarget(name: "ShortcutsFeatureTests", dependencies: ["CowboyCore", "ProcessSystem", "ShortcutsFeature"], path: "Tests"),
   ]
 )
