@@ -1,5 +1,6 @@
 import Testing
 import TextFeature
+import Carbon
 
 @Test @MainActor func typingResolvesInOrderAndPostsGraphemes() async throws {
   var log: [String] = []
@@ -44,4 +45,52 @@ import TextFeature
   let typing = TextTyping(lookup: { _, _, _ in called = true; return nil }, post: { _, _, _ in called = true }, observeReturn: { called = true })
   try await typing.run(TextExecution(input: "", mode: .typing, actions: [.insertEnter]))
   #expect(!called)
+}
+
+@Test(arguments: 0..<5) @MainActor func typingStopsAtFirstMatchingLookup(matchIndex: Int) async throws {
+  let attempts: [(TextTyping.Modifiers, Bool)] = [
+    ([], true), (.shift, true), (.option, true), ([.option, .shift], true), ([], false),
+  ]
+  var lookups: [(TextTyping.Modifiers, Bool)] = []
+  var posts: [(Int, TextTyping.KeyEvent, TextTyping.Modifiers)] = []
+  let typing = TextTyping(lookup: { _, modifiers, display in
+    lookups.append((modifiers, display))
+    return lookups.count - 1 == matchIndex ? 42 : nil
+  }, post: { posts.append(($0, $1, $2)) })
+  try await typing.run(TextExecution(input: "a", mode: .typing))
+  #expect(lookups.count == matchIndex + 1)
+  for (index, lookup) in lookups.enumerated() {
+    #expect(lookup.0 == attempts[index].0)
+    #expect(lookup.1 == attempts[index].1)
+  }
+  #expect(posts.count == 2)
+  #expect(posts[0].0 == 42 && posts[0].1 == .down && posts[0].2 == attempts[matchIndex].0)
+  #expect(posts[1].0 == 42 && posts[1].1 == .up && posts[1].2 == attempts[matchIndex].0)
+}
+
+@Test @MainActor func typingHandlesNewlinesAndCombinedCharacters() async throws {
+  var observed: [String] = []
+  var lookedUp: [String] = []
+  var codes: [Int] = []
+  let typing = TextTyping(lookup: { text, _, _ in
+    lookedUp.append(text)
+    return 7
+  }, post: { code, _, _ in codes.append(code) }, observeText: { observed.append($0) })
+  try await typing.run(TextExecution(input: "\n\r\r\ne\u{301}", mode: .typing))
+  #expect(observed == ["\n", "\r", "\r\n", "e\u{301}"])
+  #expect(lookedUp == ["e\u{301}"])
+  #expect(codes == [kVK_Return, kVK_Return, kVK_Return, kVK_Return, kVK_Return, kVK_Return, 7, 7])
+}
+
+@Test @MainActor func typingKeyUpFailureStopsBeforeNextCharacter() async {
+  enum Failure: Error { case post }
+  var log: [String] = []
+  let typing = TextTyping(lookup: { _, _, _ in 1 }, post: { _, event, _ in
+    log.append("\(event)")
+    if event == .up { throw Failure.post }
+  }, observeText: { log.append($0) }, observeReturn: { log.append("return") })
+  await #expect(throws: Failure.post) {
+    try await typing.run(TextExecution(input: "ab", mode: .typing, actions: [.insertEnter]))
+  }
+  #expect(log == ["a", "down", "up"])
 }

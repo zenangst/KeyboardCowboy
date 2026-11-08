@@ -62,3 +62,44 @@ import TextFeature
   try await instant.run(TextExecution(input: "", actions: [.insertEnter]))
   #expect(!called)
 }
+
+@Test(arguments: 0..<4) @MainActor func instantPostFailuresStopSubsequentEffects(failureIndex: Int) async {
+  enum Failure: Error { case post }
+  var log: [String] = []
+  var postCount = 0
+  let instant = TextInstant(
+    insertDirectly: { _ in false },
+    clearPasteboard: { log.append("clear") },
+    writePasteboard: { _ in log.append("write") },
+    post: { code, event, _ in
+      log.append("post:\(code):\(event)")
+      defer { postCount += 1 }
+      if postCount == failureIndex { throw Failure.post }
+    },
+    observeReturn: { log.append("return") },
+    sleep: { log.append("sleep:\($0)") },
+  )
+  await #expect(throws: Failure.post) {
+    try await instant.run(TextExecution(input: "x", actions: [.insertEnter]))
+  }
+  let effects = ["clear", "write", "sleep:0.1 seconds", "post:\(kVK_ANSI_V):down", "post:\(kVK_ANSI_V):up",
+                 "return", "sleep:0.05 seconds", "post:\(kVK_Return):down", "post:\(kVK_Return):up"]
+  let end = [4, 5, 8, 9][failureIndex]
+  #expect(log == Array(effects.prefix(end)))
+}
+
+@Test @MainActor func instantReturnSleepCancellationStopsReturnPosts() async {
+  var log: [String] = []
+  let instant = TextInstant(
+    insertDirectly: { _ in true },
+    clearPasteboard: { log.append("clear") },
+    writePasteboard: { _ in log.append("write") },
+    post: { _, _, _ in log.append("post") },
+    observeReturn: { log.append("return") },
+    sleep: { _ in throw CancellationError() },
+  )
+  await #expect(throws: CancellationError.self) {
+    try await instant.run(TextExecution(input: "x", actions: [.insertEnter]))
+  }
+  #expect(log == ["return"])
+}
