@@ -19,19 +19,21 @@ let package = Package(
   ],
   dependencies: [
     .package(path: "../../Components/CowboyCore"),
+    .package(path: "../../Components/Commands"),
   ],
   targets: [
     .target(
       name: "ApplicationsFeature",
       dependencies: [
         .product(name: "CowboyCore", package: "CowboyCore"),
+        .product(name: "Commands", package: "Commands"),
       ],
       path: "Sources",
       linkerSettings: linkerSettings,
     ),
     .testTarget(
       name: "ApplicationsFeatureTests",
-      dependencies: ["CowboyCore", "ApplicationsFeature"],
+      dependencies: ["CowboyCore", "Commands", "ApplicationsFeature"],
       path: "Tests",
     ),
   ],

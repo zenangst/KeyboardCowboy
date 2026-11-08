@@ -16,15 +16,9 @@ let package = Package(
       targets: ["CowboyCore"],
     ),
   ],
-  dependencies: [
-    .package(url: "https://github.com/zenangst/Apps.git", branch: "main"),
-  ],
   targets: [
     .target(
       name: "CowboyCore",
-      dependencies: [
-        .product(name: "Apps", package: "Apps"),
-      ],
       path: "Sources",
       linkerSettings: linkerSettings,
     ),

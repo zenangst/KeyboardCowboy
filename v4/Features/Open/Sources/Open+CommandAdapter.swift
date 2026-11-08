@@ -1,4 +1,4 @@
-import CowboyCore
+import Commands
 
 public extension Open.Executor {
   /// The host resolves interpolation and applies metadata policy before calling.

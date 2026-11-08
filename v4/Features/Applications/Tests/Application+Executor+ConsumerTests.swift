@@ -1,3 +1,4 @@
+import Commands
 import AppKit
 import ApplicationsFeature
 import CowboyCore

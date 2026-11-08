@@ -1,3 +1,4 @@
+import Commands
 import Apps
 import Cocoa
 import CowboyCore
