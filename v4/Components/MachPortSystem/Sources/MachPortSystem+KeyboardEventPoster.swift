@@ -36,7 +36,7 @@ public extension MachPortSystem {
       }
       event.flags = flags
       event.setIntegerValueField(.keyboardEventAutorepeat, value: isRepeat ? 1 : 0)
-      event.setIntegerValueField(.eventSourceUserData, value: syntheticSignature)
+      try tag(event)
       return event
     }
 
@@ -52,6 +52,31 @@ public extension MachPortSystem {
       let event = try createEvent(
         keyCode: keyCode, action: action, flags: flags, isRepeat: isRepeat,
       )
+      postEvent(event, tapLocation: tapLocation)
+      return event
+    }
+
+    /// Tags and reposts the same event, including flags-changed events.
+    /// This mutates its source-user-data field, as in the legacy MachPort API.
+    /// Throws without posting if Core Graphics does not apply the signature.
+    @discardableResult
+    public func repost(
+      _ event: CGEvent,
+      tapLocation: CGEventTapLocation = .cghidEventTap,
+    ) throws -> CGEvent {
+      try tag(event)
+      postEvent(event, tapLocation: tapLocation)
+      return event
+    }
+
+    private func tag(_ event: CGEvent) throws {
+      event.setIntegerValueField(.eventSourceUserData, value: syntheticSignature)
+      guard event.getIntegerValueField(.eventSourceUserData) == syntheticSignature else {
+        throw Error.syntheticTagFailed
+      }
+    }
+
+    private func postEvent(_ event: CGEvent, tapLocation: CGEventTapLocation) {
       #if DEBUG
       if let testingOperations {
         testingOperations.post(event, tapLocation)
@@ -61,7 +86,6 @@ public extension MachPortSystem {
       #else
       event.post(tap: tapLocation)
       #endif
-      return event
     }
 
     #if DEBUG

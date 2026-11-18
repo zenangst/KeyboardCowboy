@@ -45,4 +45,60 @@ import Testing
   #expect(creationCount == 2)
   #expect(posted.count == 1 && posted[0] === down)
 }
+
+@Test func repostPreservesCapturedEventAndTagsItBeforePosting() throws {
+  var posted: [(CGEvent, CGEventTapLocation)] = []
+  var signatureAtPost: Int64?
+  var creationCount = 0
+  let poster = MachPortSystem.KeyboardEventPoster(
+    eventSource: nil,
+    syntheticSignature: 12345,
+    testingOperations: .init(
+      create: { _, _, _ in creationCount += 1; return nil },
+      post: {
+        signatureAtPost = $0.getIntegerValueField(.eventSourceUserData)
+        posted.append(($0, $1))
+      },
+    ),
+  )
+  let event = try #require(CGEvent(source: nil))
+  event.type = .flagsChanged
+  event.flags = .maskShift
+  event.setIntegerValueField(.keyboardEventKeycode, value: 56)
+  let result = try poster.repost(event, tapLocation: .cgSessionEventTap)
+  #expect(result === event)
+  #expect(creationCount == 0)
+  #expect(posted.count == 1)
+  #expect(posted[0].0 === event && posted[0].1 == .cgSessionEventTap)
+  #expect(event.type == .flagsChanged && event.flags == .maskShift)
+  #expect(event.getIntegerValueField(.keyboardEventKeycode) == 56)
+  #expect(event.getIntegerValueField(.eventSourceUserData) == 12345)
+  #expect(signatureAtPost == 12345)
+
+  let router = MachPortSystem.EventRouter(syntheticSignature: 12345)
+  var called = false
+  let routed = router.route(event, type: event.type) { _ in
+    called = true
+    return .suppress
+  }
+  #expect(routed === event && !called)
+}
+
+@Test func repostRejectsEventsThatCannotBeRetagged() throws {
+  var posts = 0
+  let poster = MachPortSystem.KeyboardEventPoster(
+    eventSource: nil,
+    syntheticSignature: 12345,
+    testingOperations: .init(
+      create: { _, _, _ in nil },
+      post: { _, _ in posts += 1 },
+    ),
+  )
+  let event = try #require(CGEvent(source: nil))
+  event.setIntegerValueField(.eventSourceUserData, value: 987)
+  #expect(throws: MachPortSystem.KeyboardEventPoster.Error.syntheticTagFailed) {
+    try poster.repost(event)
+  }
+  #expect(posts == 0)
+}
 #endif
