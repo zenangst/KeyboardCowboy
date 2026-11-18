@@ -1,7 +1,6 @@
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import CoreGraphics
 import Foundation
 import Testing
@@ -19,7 +18,7 @@ private actor SnapshotLaunchRecorder {
     ("peek", .keyUp), ("peek", .keyDown),
   ]
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     await recorder.record()
     return .init(.testing(nil))
   })) {

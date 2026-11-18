@@ -1,11 +1,11 @@
 import ApplicationSystem
 import Cocoa
-import CowboyCore
+import RuntimeEnvironment
 
 extension Operation {
   final class Restart {
-    typealias Environment = Core.Environment
-    typealias RunningApplication = Core.RunningApplication
+    typealias Environment = RuntimeEnvironment.Mode
+    typealias RunningApplication = ApplicationSystem.RunningApplication
 
     enum Result: Hashable {
       case success
@@ -16,16 +16,16 @@ extension Operation {
     private let env: Environment
     private let retries: Int
     private let pollingInterval: Duration
-    private let workspace: Core.Workspace
+    private let workspace: Application.Workspace
 
     init(_ env: Environment, retries: Int, pollingInterval: Duration) {
       self.env = env
       self.retries = retries
       self.pollingInterval = pollingInterval
-      self.workspace = Core.Workspace(env)
+      self.workspace = Application.Workspace(env)
     }
 
-    func callAsFunction(_ bundleIdentifier: BundleIdentifier) async throws -> Result {
+    func callAsFunction(_ bundleIdentifier: ApplicationSystem.BundleIdentifier) async throws -> Result {
       try Task.checkCancellation()
       guard let application = RunningApplication.application(with: bundleIdentifier, env: env) else {
         try Task.checkCancellation()

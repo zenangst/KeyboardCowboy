@@ -1,18 +1,18 @@
 import ApplicationSystem
-import CowboyCore
+import RuntimeEnvironment
 
 extension Operation {
   final class Close: Sendable {
-    private let env: Core.Environment
+    private let env: RuntimeEnvironment.Mode
 
-    init(_ env: Core.Environment) {
+    init(_ env: RuntimeEnvironment.Mode) {
       self.env = env
     }
 
     @discardableResult
-    func callAsFunction(_ bundleIdentifier: Core.BundleIdentifier) async throws -> Bool {
+    func callAsFunction(_ bundleIdentifier: ApplicationSystem.BundleIdentifier) async throws -> Bool {
       try Task.checkCancellation()
-      guard let application = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
+      guard let application = ApplicationSystem.RunningApplication.application(with: bundleIdentifier, env: env) else {
         try Task.checkCancellation()
         return false
       }

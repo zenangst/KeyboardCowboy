@@ -2,7 +2,6 @@
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import CoreGraphics
 import Foundation
 import Testing
@@ -21,7 +20,7 @@ private func peekCommand(_ identifier: String = "example.target", action: String
     return .none
   })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     continuation.yield("launch")
     return .init(.testing(nil))
   })) {
@@ -36,11 +35,11 @@ private func peekCommand(_ identifier: String = "example.target", action: String
 
 @Test @MainActor func peekReleaseDefaultsToHidingTarget() async throws {
   let command = try peekCommand()
-  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
   let snapshot = UserSpace.Snapshot(apps: .init())
 
   try await confirmation("Expected one target hide") { hidden in
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplications: [target], onHide: { application in
         #expect(application === target)
         hidden()
@@ -66,12 +65,12 @@ private func peekCommand(_ identifier: String = "example.target", action: String
     return .open(previousCommand)
   })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
     #expect(url.path() == "/Applications/Previous.app")
     continuation.yield("previous")
     return .init(.testing(nil))
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       onHide: { _ in Issue.record("Previous-app release must not hide the peeked app"); return false }
     )) {
       let result = try await executor.execute(command, cgEventType: .keyUp, snapshot: snapshot)
@@ -88,7 +87,7 @@ private func peekCommand(_ identifier: String = "example.target", action: String
   let command = try peekCommand()
   let snapshot = UserSpace.Snapshot(apps: .init())
   let executor = Application.Executor(.testing, peekRelease: { _ in .none })
-  try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplicationsLookup: { _ in Issue.record("No-op release must not perform lookup"); return [] }
   )) {
     let result = try await executor.execute(command, cgEventType: .keyUp, snapshot: snapshot)
@@ -108,7 +107,7 @@ private func peekCommand(_ identifier: String = "example.target", action: String
   })
 
   try await confirmation("Expected previous application to open") { opened in
-    try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, configuration in
+    try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, configuration in
       #expect(url.path() == "/Applications/Previous.app")
       #expect(configuration.activates)
       #expect(!configuration.hides)
@@ -126,7 +125,7 @@ private func peekCommand(_ identifier: String = "example.target", action: String
   let snapshot = UserSpace.Snapshot(apps: .init())
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
+      await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplicationsLookup: { _ in Issue.record("Cancelled release must not perform lookup"); return [] }
       )) {
         do {

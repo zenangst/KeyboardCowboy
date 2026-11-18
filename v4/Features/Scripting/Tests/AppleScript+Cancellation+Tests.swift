@@ -1,5 +1,4 @@
-@testable import AppleScriptSystem
-@testable import CowboyCore
+@testable import AppleScriptRuntime
 import Foundation
 @testable import ScriptingFeature
 import System
@@ -9,7 +8,7 @@ import Testing
 func appleScriptCancelledBeforeExecutionDoesNotRun(file: Bool) async throws {
   let executor = AppleScript.Executor(.testing)
   let result = await Task { @MainActor in
-    Core.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true, execute: {
+    AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true, execute: {
       Issue.record("A cancelled task must not run a script")
       return nil
     })) {
@@ -29,7 +28,7 @@ func appleScriptCancelledBeforeExecutionDoesNotRun(file: Bool) async throws {
 func appleScriptCancelledDuringExecutionDoesNotCacheResult(file: Bool) async throws {
   let executor = AppleScript.Executor(.testing)
   let result = await Task { @MainActor in
-    Core.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true, execute: {
+    AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true, execute: {
       withUnsafeCurrentTask { $0?.cancel() }
       return nil
     })) {
@@ -42,8 +41,8 @@ func appleScriptCancelledDuringExecutionDoesNotCacheResult(file: Bool) async thr
     }
   }.value
   #expect(result)
-  Core.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: false)) {
-    #expect(throws: Core.NSAppleScript.Error.self) {
+  AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: false)) {
+    #expect(throws: AppleScriptRuntime.NSAppleScript.Error.self) {
       try executor.execute("source", key: "key")
     }
   }
@@ -52,11 +51,11 @@ func appleScriptCancelledDuringExecutionDoesNotCacheResult(file: Bool) async thr
 @Test(arguments: [false, true]) @MainActor
 func cachedAppleScriptCancellationTakesPrecedenceOverRuntimeError(file: Bool) async throws {
   let executor = AppleScript.Executor(.testing)
-  try Core.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true)) {
+  try AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true)) {
     _ = try executor.execute("source", key: "key")
   }
   let result = await Task { @MainActor in
-    Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+    AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
       withUnsafeCurrentTask { $0?.cancel() }
       return NSError(domain: "test", code: -1)
     })) {
@@ -75,7 +74,7 @@ func cachedAppleScriptCancellationTakesPrecedenceOverRuntimeError(file: Bool) as
 func appleScriptCancellationTakesPrecedenceOverCompileError(file: Bool) async {
   let executor = AppleScript.Executor(.testing)
   let result = await Task { @MainActor in
-    Core.NSAppleScript.Testing.$mock.withValue(.init(
+    AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(
       compileAndReturnError: false,
       execute: { Issue.record("Compilation failure must prevent execution"); return nil },
       compileError: {

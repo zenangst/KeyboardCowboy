@@ -1,6 +1,5 @@
 @testable import ApplicationSystem
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Testing
 
 private actor LaunchRecorder {
@@ -15,7 +14,7 @@ private enum LaunchError: Error {
 @Test func testLaunchCancellationTakesPrecedenceOverOpenError() async {
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+      await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
         withUnsafeCurrentTask { $0?.cancel() }
         throw LaunchError.failed
       })) {
@@ -38,7 +37,7 @@ private enum LaunchError: Error {
   let recorder = LaunchRecorder()
   let launch = Operation.Launch(.testing)
 
-  await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
+  await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
     await recorder.record(url.path())
     await Task.yield()
     throw LaunchError.failed
@@ -53,10 +52,10 @@ private enum LaunchError: Error {
 @Test func testLaunchReportsCancellationAfterOpenReturns() async {
   let recorder = LaunchRecorder()
   let cancelled = await Task {
-    await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
+    await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
       await recorder.record(url.path())
       withUnsafeCurrentTask { $0?.cancel() }
-      return Core.RunningApplication(.testing(nil))
+      return ApplicationSystem.RunningApplication(.testing(nil))
     })) {
       do {
         try await Operation.Launch(.testing)(at: "/tmp/foobar", with: [])
@@ -76,13 +75,13 @@ private enum LaunchError: Error {
   let launch = Operation.Launch(.testing)
 
   try await confirmation("Expected one open") { opened in
-    try await Core.Workspace.Testing.$mock.withValue(
-      Core.Workspace.Mock(openApplication: { url, config in
+    try await Application.Workspace.Testing.$mock.withValue(
+      Application.Workspace.Mock(openApplication: { url, config in
         #expect(url.path() == "/tmp/foobar")
         #expect(config.activates == true)
         #expect(config.hides == false)
         opened()
-        return Core.RunningApplication(.testing(nil))
+        return ApplicationSystem.RunningApplication(.testing(nil))
       }), operation: {
         try await launch(at: "/tmp/foobar", with: [])
       })
@@ -93,13 +92,13 @@ private enum LaunchError: Error {
   let launch = Operation.Launch(.testing)
 
   try await confirmation("Expected one background open") { opened in
-    try await Core.Workspace.Testing.$mock.withValue(
-      Core.Workspace.Mock(openApplication: { url, config in
+    try await Application.Workspace.Testing.$mock.withValue(
+      Application.Workspace.Mock(openApplication: { url, config in
         #expect(url.path() == "/tmp/foobar")
         #expect(config.activates == false)
         #expect(config.hides == true)
         opened()
-        return Core.RunningApplication(.testing(nil))
+        return ApplicationSystem.RunningApplication(.testing(nil))
       }), operation: {
         try await launch(at: "/tmp/foobar", with: [.hidden, .background])
       })

@@ -1,16 +1,15 @@
 @testable import ApplicationSystem
 import UserSpace
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Testing
 
 @Test func testUnhideFrontmostIsNoOp() async {
-  let identifier = BundleIdentifier("frontmost.app")
-  let frontmost = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("frontmost.app")
+  let frontmost = ApplicationSystem.RunningApplication(.testing(identifier))
   let snapshot = await UserSpace.Snapshot(apps: .init())
 
-  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+  await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { _ in
         Issue.record("Unhide of the frontmost app must not perform a lookup")
         return []
@@ -24,13 +23,13 @@ import Testing
 }
 
 @Test func testUnhideCancellationDuringLookupPreventsUnhide() async {
-  let identifier = BundleIdentifier("target.app")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("target.app")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let snapshot = await UserSpace.Snapshot(apps: .init())
   let (events, continuation) = AsyncStream<String>.makeStream()
   let result = await Task {
-    await Core.Workspace.Testing.$mock.withValue(.init()) {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await Application.Workspace.Testing.$mock.withValue(.init()) {
+      await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplicationsLookup: { requested in
           continuation.yield(requested == identifier ? "lookup target" : "lookup unexpected")
           withUnsafeCurrentTask { $0?.cancel() }
@@ -51,14 +50,14 @@ import Testing
 }
 
 @Test func testUnhideTargetsRequestedApplicationWithoutActivation() async {
-  let identifier = BundleIdentifier("target.app")
-  let target = Core.RunningApplication(.testing(identifier))
-  let frontmost = Core.RunningApplication(.testing(.init("frontmost.app")))
+  let identifier = ApplicationSystem.BundleIdentifier("target.app")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
+  let frontmost = ApplicationSystem.RunningApplication(.testing(.init("frontmost.app")))
   let snapshot = await UserSpace.Snapshot(apps: .init())
 
   await confirmation("Expected one unhide") { unhidden in
-    await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+      await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         activate: { _ in Issue.record("Unexpected activation"); return false },
         runningApplications: [target],
         onUnhide: { application in
@@ -74,15 +73,15 @@ import Testing
 }
 
 @Test func testUnhideWithMissingSnapshotApplications() async {
-  let identifier = BundleIdentifier("current.app")
-  let application = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("current.app")
+  let application = ApplicationSystem.RunningApplication(.testing(identifier))
   let snapshot = await UserSpace.Snapshot(apps: .init())
   let unhide = Operation.Unhide(.testing)
 
-  await Core.Workspace.Testing.$mock.withValue(.init(
-    frontmostApplication: Core.RunningApplication(.testing(BundleIdentifier("other.app")))
+  await Application.Workspace.Testing.$mock.withValue(.init(
+    frontmostApplication: ApplicationSystem.RunningApplication(.testing(ApplicationSystem.BundleIdentifier("other.app")))
   )) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplications: [application],
       unhide: true,
     )) {
@@ -92,11 +91,11 @@ import Testing
 }
 
 @Test func testUnhideRunnningApplication() async throws {
-  let currentBundleIdentifier = BundleIdentifier("current.app")
-  let currentRunningApplication = Core.RunningApplication(.testing(currentBundleIdentifier))
+  let currentBundleIdentifier = ApplicationSystem.BundleIdentifier("current.app")
+  let currentRunningApplication = ApplicationSystem.RunningApplication(.testing(currentBundleIdentifier))
 
-  let previousBundleIdentifier = BundleIdentifier("prev.app")
-  let previousRunningApplication = Core.RunningApplication(.testing(previousBundleIdentifier))
+  let previousBundleIdentifier = ApplicationSystem.BundleIdentifier("prev.app")
+  let previousRunningApplication = ApplicationSystem.RunningApplication(.testing(previousBundleIdentifier))
 
   let apps = UserSpace.Snapshot.Apps(
     frontMost: .init(
@@ -110,7 +109,7 @@ import Testing
   let snapshot = await UserSpace.Snapshot(apps: apps)
   let unhide = Operation.Unhide(.testing)
 
-  await Core.RunningApplication.Testing.$mock.withValue(.init(
+  await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplications: [
       currentRunningApplication,
     ],
@@ -121,11 +120,11 @@ import Testing
 }
 
 @Test func testUnhideFrontMostApplication() async throws {
-  let currentBundleIdentifier = BundleIdentifier("current.app")
-  let currentRunningApplication = Core.RunningApplication(.testing(currentBundleIdentifier))
+  let currentBundleIdentifier = ApplicationSystem.BundleIdentifier("current.app")
+  let currentRunningApplication = ApplicationSystem.RunningApplication(.testing(currentBundleIdentifier))
 
-  let previousBundleIdentifier = BundleIdentifier("prev.app")
-  let previousRunningApplication = Core.RunningApplication(.testing(previousBundleIdentifier))
+  let previousBundleIdentifier = ApplicationSystem.BundleIdentifier("prev.app")
+  let previousRunningApplication = ApplicationSystem.RunningApplication(.testing(previousBundleIdentifier))
 
   let apps = UserSpace.Snapshot.Apps(
     frontMost: .init(
@@ -139,10 +138,10 @@ import Testing
   let snapshot = await UserSpace.Snapshot(apps: apps)
   let unhide = Operation.Unhide(.testing)
 
-  await Core.Workspace.Testing.$mock.withValue(
-    Core.Workspace.Mock(frontmostApplication: currentRunningApplication),
+  await Application.Workspace.Testing.$mock.withValue(
+    Application.Workspace.Mock(frontmostApplication: currentRunningApplication),
     operation: {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
+      await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         activate: { _ in
           Issue.record("Unhide must not reactivate the snapshot application")
           return false
@@ -158,11 +157,11 @@ import Testing
 }
 
 @Test func testUnhideNonRunnningApplication() async throws {
-  let currentBundleIdentifier = BundleIdentifier("current.app")
-  let currentRunningApplication = Core.RunningApplication(.testing(currentBundleIdentifier))
+  let currentBundleIdentifier = ApplicationSystem.BundleIdentifier("current.app")
+  let currentRunningApplication = ApplicationSystem.RunningApplication(.testing(currentBundleIdentifier))
 
-  let previousBundleIdentifier = BundleIdentifier("prev.app")
-  let previousRunningApplication = Core.RunningApplication(.testing(previousBundleIdentifier))
+  let previousBundleIdentifier = ApplicationSystem.BundleIdentifier("prev.app")
+  let previousRunningApplication = ApplicationSystem.RunningApplication(.testing(previousBundleIdentifier))
 
   let apps = UserSpace.Snapshot.Apps(
     frontMost: .init(
@@ -176,7 +175,7 @@ import Testing
   let snapshot = await UserSpace.Snapshot(apps: apps)
   let unhide = Operation.Unhide(.testing)
 
-  await Core.RunningApplication.Testing.$mock.withValue(.init(
+  await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplications: [],
     unhide: true,
   ), operation: {

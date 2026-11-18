@@ -1,6 +1,5 @@
 @testable import FileSystem
 @testable import ProcessSystem
-@testable import CowboyCore
 import Foundation
 @testable import ScriptingFeature
 import Testing
@@ -19,7 +18,7 @@ func temporaryScriptFileLifecycle(jxa: Bool, creationSucceeds: Bool) async throw
   let scriptPath = directory.appendingPathComponent(jxa ? "script.js" : "script").path
   let (events, continuation) = AsyncStream<TemporaryScriptEvent>.makeStream()
 
-  try Core.FileManager.Testing.$mock.withValue(.init(
+  try FileSystem.FileManager.Testing.$mock.withValue(.init(
     createDirectoryAtUrl: {
       continuation.yield(.directory)
       return directory
@@ -30,7 +29,7 @@ func temporaryScriptFileLifecycle(jxa: Bool, creationSucceeds: Bool) async throw
     },
     removeItemAtPath: { path in continuation.yield(.remove(path)) }
   )) {
-    try Core.Process.Testing.$mock.withValue(.init(run: { continuation.yield(.run) })) {
+    try ProcessSystem.Process.Testing.$mock.withValue(.init(run: { continuation.yield(.run) })) {
       func execute() throws {
         if jxa {
           _ = try JXA.Executor(.testing).execute(source)

@@ -1,18 +1,18 @@
 import FileSystem
 import ProcessSystem
 import Cocoa
-import CowboyCore
 import Foundation
+import RuntimeEnvironment
 
 public extension ShellScript {
   final class Builder {
-    private let env: Core.Environment
+    private let env: RuntimeEnvironment.Mode
 
-    init(_ env: Core.Environment) {
+    init(_ env: RuntimeEnvironment.Mode) {
       self.env = env
     }
 
-    func build(_ source: String) throws -> [Core.Process] {
+    func build(_ source: String) throws -> [ProcessSystem.Process] {
       let process = Process(env, launchStyle: .shell(source))
       setEnvironment(on: process)
       configureShell(process, source: source)
@@ -20,7 +20,7 @@ public extension ShellScript {
     }
 
     /// Builds a direct executable invocation without parsing a shell command.
-    func buildExecutable(at url: URL, arguments: [String]) -> Core.Process {
+    func buildExecutable(at url: URL, arguments: [String]) -> ProcessSystem.Process {
       let process = Process(env, launchStyle: .headless(url.path))
       setEnvironment(on: process)
       process.executableURL = url
@@ -29,7 +29,7 @@ public extension ShellScript {
     }
 
     /// Builds a process for an existing script without copying or rewriting it.
-    func buildFile(at path: String) -> Core.Process {
+    func buildFile(at path: String) -> ProcessSystem.Process {
       let expandedPath = (path as NSString).expandingTildeInPath
       let contents = FileManager(env).contents(atPath: expandedPath)
         .flatMap { String(data: $0, encoding: .utf8) } ?? ""

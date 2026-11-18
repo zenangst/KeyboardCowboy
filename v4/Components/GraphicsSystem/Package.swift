@@ -11,6 +11,5 @@ let package = Package(
   name: "GraphicsSystem",
   platforms: [.macOS(.v14)],
   products: [.library(name: "GraphicsSystem", targets: ["GraphicsSystem"])],
-  dependencies: [.package(path: "../CowboyCore")],
-  targets: [.target(name: "GraphicsSystem", dependencies: ["CowboyCore"], path: "Sources", linkerSettings: linkerSettings)],
+  targets: [.target(name: "GraphicsSystem", path: "Sources", linkerSettings: linkerSettings)],
 )

@@ -11,10 +11,10 @@ let package = Package(
   name: "ApplicationSystem",
   platforms: [.macOS(.v14)],
   products: [.library(name: "ApplicationSystem", targets: ["ApplicationSystem"])],
-  dependencies: [.package(path: "../CowboyCore")],
+  dependencies: [.package(path: "../RuntimeEnvironment")],
   targets: [
-    .target(name: "ApplicationSystem", dependencies: ["CowboyCore"],
+    .target(name: "ApplicationSystem", dependencies: ["RuntimeEnvironment"],
             path: "Sources", linkerSettings: linkerSettings),
-    .testTarget(name: "ApplicationSystemTests", dependencies: ["ApplicationSystem", "CowboyCore"], path: "Tests"),
+    .testTarget(name: "ApplicationSystemTests", dependencies: ["ApplicationSystem"], path: "Tests"),
   ],
 )

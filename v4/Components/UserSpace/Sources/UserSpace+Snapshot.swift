@@ -1,5 +1,4 @@
 import ApplicationSystem
-import CowboyCore
 
 public extension UserSpace {
   @MainActor final class Snapshot {
@@ -20,9 +19,10 @@ public extension UserSpace {
     }
 
     /// Returns a new snapshot without mutating the state held by earlier commands.
-    public func refreshing(frontmost runningApplication: Core.RunningApplication?) -> Snapshot {
+    public func refreshing(frontmost runningApplication: ApplicationSystem.RunningApplication?) -> Snapshot {
       let current = runningApplication.flatMap { application -> Application? in
         guard !application.isTerminated, let identifier = application.bundleIdentifier else { return nil }
+
         return Application(bundleIdentifier: identifier, runningApplication: application)
       }
       let oldFrontmost = lastFrontmost.flatMap { $0.runningApplication.isTerminated ? nil : $0 }
@@ -32,12 +32,12 @@ public extension UserSpace {
           apps: .init(frontMost: nil, previous: oldFrontmost ?? oldPrevious),
           lastFrontmost: oldFrontmost, lastPrevious: oldPrevious)
       }
-      let candidate: Application?
-      if let oldFrontmost,
-         !current.runningApplication.isSameApplication(as: oldFrontmost.runningApplication) {
-        candidate = oldFrontmost
+
+      let candidate: Application? = if let oldFrontmost,
+                                       !current.runningApplication.isSameApplication(as: oldFrontmost.runningApplication) {
+        oldFrontmost
       } else {
-        candidate = oldPrevious
+        oldPrevious
       }
       let previous = candidate.flatMap { previous in
         return previous.runningApplication.isSameApplication(as: current.runningApplication) ? nil : previous

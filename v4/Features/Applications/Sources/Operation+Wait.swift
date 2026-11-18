@@ -1,6 +1,6 @@
 import ApplicationSystem
-import CowboyCore
 import Foundation
+import RuntimeEnvironment
 
 extension Operation {
   final class Wait: Sendable {
@@ -10,15 +10,15 @@ extension Operation {
       case skipped
     }
 
-    let env: Core.Environment
+    let env: RuntimeEnvironment.Mode
     let retries: Int
     let pollingInterval: Duration
-    let skippableBundleIdentifiers: Set<BundleIdentifier> = [BundleIdentifier("com.apple.Music")]
-    let workspace: Core.Workspace
+    let skippableBundleIdentifiers: Set<ApplicationSystem.BundleIdentifier> = [ApplicationSystem.BundleIdentifier("com.apple.Music")]
+    let workspace: Application.Workspace
     let finalSleepDuration: Duration
     private let sleep: @Sendable (Duration) async throws -> Void
 
-    init(_ env: Core.Environment,
+    init(_ env: RuntimeEnvironment.Mode,
          retries: Int = 20,
          finalSleepDuration: Duration = .milliseconds(50),
          pollingInterval: Duration = .milliseconds(100),
@@ -28,12 +28,12 @@ extension Operation {
       self.pollingInterval = pollingInterval
       self.retries = retries
       self.finalSleepDuration = finalSleepDuration
-      self.workspace = Core.Workspace(env)
+      self.workspace = Application.Workspace(env)
       self.sleep = sleep
     }
 
     @discardableResult
-    func callAsFunction(for bundleIdentifier: BundleIdentifier) async throws -> Result {
+    func callAsFunction(for bundleIdentifier: ApplicationSystem.BundleIdentifier) async throws -> Result {
       try Task.checkCancellation()
       guard !skippableBundleIdentifiers.contains(bundleIdentifier) else {
         return .skipped
@@ -42,7 +42,7 @@ extension Operation {
       var retries = self.retries
       while retries > 0 {
         try Task.checkCancellation()
-        if let application = Core.RunningApplication.application(with: bundleIdentifier, env: env),
+        if let application = ApplicationSystem.RunningApplication.application(with: bundleIdentifier, env: env),
            application.isFinishedLaunching {
           try Task.checkCancellation()
           try await sleep(finalSleepDuration)

@@ -1,16 +1,15 @@
 import ApplicationSystem
-import CowboyCore
 
 #if DEBUG
-extension UserSpace {
-  public enum Testing {
+public extension UserSpace {
+  enum Testing {
     @TaskLocal public static var mock: Mock = Mock()
   }
 
-  public struct Mock: Sendable {
-    let frontmostApplication: Core.RunningApplication?
+  struct Mock: Sendable {
+    let frontmostApplication: ApplicationSystem.RunningApplication?
 
-    init(frontmostApplication: Core.RunningApplication? = nil) {
+    init(frontmostApplication: ApplicationSystem.RunningApplication? = nil) {
       self.frontmostApplication = frontmostApplication
     }
   }

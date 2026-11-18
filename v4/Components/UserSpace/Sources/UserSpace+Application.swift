@@ -1,13 +1,12 @@
 import ApplicationSystem
-import CowboyCore
 
 public extension UserSpace {
   struct Application: Sendable {
-    public let bundleIdentifier: Core.BundleIdentifier
-    public let runningApplication: Core.RunningApplication
+    public let bundleIdentifier: ApplicationSystem.BundleIdentifier
+    public let runningApplication: ApplicationSystem.RunningApplication
 
-    public init(bundleIdentifier: Core.BundleIdentifier,
-         runningApplication: Core.RunningApplication) {
+    public init(bundleIdentifier: ApplicationSystem.BundleIdentifier,
+                runningApplication: ApplicationSystem.RunningApplication) {
       self.bundleIdentifier = bundleIdentifier
       self.runningApplication = runningApplication
     }

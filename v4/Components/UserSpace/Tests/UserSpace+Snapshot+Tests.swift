@@ -1,11 +1,10 @@
-@testable import ApplicationSystem
-@testable import CowboyCore
-@testable import UserSpace
 import AppKit
+@testable import ApplicationSystem
 import Testing
+@testable import UserSpace
 
 @Test @MainActor func snapshotCapturesFrontmostAndSuppliedHistory() {
-  let frontmost = Core.RunningApplication(.testing(.init("example.front")))
+  let frontmost = ApplicationSystem.RunningApplication(.testing(.init("example.front")))
   let previous = UserSpace.Application(
     bundleIdentifier: .init("example.previous"),
     runningApplication: .init(.testing(.init("example.previous"))))
@@ -21,7 +20,7 @@ import Testing
   let previous = UserSpace.Application(
     bundleIdentifier: .init("example.previous"),
     runningApplication: .init(.testing(.init("example.previous"))))
-  let frontmost = Core.RunningApplication(.testing(.init("example.front")))
+  let frontmost = ApplicationSystem.RunningApplication(.testing(.init("example.front")))
 
   UserSpace.Testing.$mock.withValue(.init()) {
     let snapshot = UserSpace(.testing).takeSnapshot()
@@ -29,7 +28,7 @@ import Testing
     #expect(snapshot.apps.previous == nil)
   }
   UserSpace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
-    Core.RunningApplication.Testing.$mock.withValue(.init(isTerminated: true)) {
+    ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(isTerminated: true)) {
       let snapshot = UserSpace(.testing).takeSnapshot(previous: previous)
       #expect(snapshot.apps.frontMost == nil)
       #expect(snapshot.apps.previous == nil)
@@ -38,9 +37,9 @@ import Testing
 }
 
 @Test @MainActor func snapshotRefreshTracksApplicationInstances() {
-  let first = Core.RunningApplication(.testing(.init("example.app")))
-  let second = Core.RunningApplication(.testing(.init("example.app")))
-  let oldPrevious = Core.RunningApplication(.testing(.init("example.previous")))
+  let first = ApplicationSystem.RunningApplication(.testing(.init("example.app")))
+  let second = ApplicationSystem.RunningApplication(.testing(.init("example.app")))
+  let oldPrevious = ApplicationSystem.RunningApplication(.testing(.init("example.previous")))
   let snapshot = UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: .init("example.app"), runningApplication: first),
     previous: .init(bundleIdentifier: .init("example.previous"), runningApplication: oldPrevious)))
@@ -57,9 +56,9 @@ import Testing
 }
 
 @Test @MainActor func snapshotRefreshRetainsHistoryAcrossUnavailableFrontmost() {
-  let first = Core.RunningApplication(.testing(.init("example.first")))
-  let previous = Core.RunningApplication(.testing(.init("example.previous")))
-  let other = Core.RunningApplication(.testing(.init("example.other")))
+  let first = ApplicationSystem.RunningApplication(.testing(.init("example.first")))
+  let previous = ApplicationSystem.RunningApplication(.testing(.init("example.previous")))
+  let other = ApplicationSystem.RunningApplication(.testing(.init("example.other")))
   let snapshot = UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: .init("example.first"), runningApplication: first),
     previous: .init(bundleIdentifier: .init("example.previous"), runningApplication: previous)))
@@ -74,7 +73,7 @@ import Testing
   #expect(changed.apps.frontMost?.runningApplication === other)
   #expect(changed.apps.previous?.runningApplication === first)
 
-  Core.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === first })) {
+  ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === first })) {
     let filtered = missing.refreshing(frontmost: nil)
     #expect(filtered.apps.previous?.runningApplication === previous)
     let changed = filtered.refreshing(frontmost: other)
@@ -83,9 +82,9 @@ import Testing
 }
 
 @Test @MainActor func snapshotTracksActivationHistoryAndRemovesTerminatedEntries() {
-  let first = Core.RunningApplication(.testing(.init("example.first")))
-  let second = Core.RunningApplication(.testing(.init("example.second")))
-  let current = Core.RunningApplication(.testing(.init("example.current")))
+  let first = ApplicationSystem.RunningApplication(.testing(.init("example.first")))
+  let second = ApplicationSystem.RunningApplication(.testing(.init("example.second")))
+  let current = ApplicationSystem.RunningApplication(.testing(.init("example.current")))
   let userSpace = UserSpace(.testing)
   userSpace.recordActivation(first)
   userSpace.recordActivation(second)
@@ -98,7 +97,7 @@ import Testing
     let repeated = userSpace.takeSnapshot()
     #expect(repeated.apps.previous?.runningApplication === second)
 
-    Core.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === second })) {
+    ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === second })) {
       let filtered = userSpace.takeSnapshot()
       #expect(filtered.apps.frontMost?.runningApplication === current)
       #expect(filtered.apps.previous?.runningApplication === first)
@@ -107,8 +106,8 @@ import Testing
 }
 
 @Test @MainActor func snapshotsTrackObservedFrontmostTransitions() {
-  let first = Core.RunningApplication(.testing(.init("example.first")))
-  let second = Core.RunningApplication(.testing(.init("example.second")))
+  let first = ApplicationSystem.RunningApplication(.testing(.init("example.first")))
+  let second = ApplicationSystem.RunningApplication(.testing(.init("example.second")))
   let userSpace = UserSpace(.testing)
 
   UserSpace.Testing.$mock.withValue(.init(frontmostApplication: first)) {
@@ -129,7 +128,7 @@ import Testing
 }
 
 @Test @MainActor func snapshotUsesRecentHistoryWhenFrontmostIsUnavailable() {
-  let previous = Core.RunningApplication(.testing(.init("example.previous")))
+  let previous = ApplicationSystem.RunningApplication(.testing(.init("example.previous")))
   let userSpace = UserSpace(.testing)
   userSpace.recordActivation(previous)
   UserSpace.Testing.$mock.withValue(.init()) {
@@ -140,13 +139,13 @@ import Testing
 }
 
 @Test @MainActor func snapshotRefreshFiltersIndependentlyTerminatedHistory() {
-  let current = Core.RunningApplication(.testing(.init("example.current")))
-  let previous = Core.RunningApplication(.testing(.init("example.previous")))
+  let current = ApplicationSystem.RunningApplication(.testing(.init("example.current")))
+  let previous = ApplicationSystem.RunningApplication(.testing(.init("example.previous")))
   let snapshot = UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: .init("example.current"), runningApplication: current),
     previous: .init(bundleIdentifier: .init("example.previous"), runningApplication: previous)))
 
-  Core.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === previous })) {
+  ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === previous })) {
     let refreshed = snapshot.refreshing(frontmost: current)
     #expect(refreshed.apps.frontMost?.runningApplication === current)
     #expect(refreshed.apps.previous == nil)
@@ -154,13 +153,13 @@ import Testing
 }
 
 @Test @MainActor func snapshotRefreshDoesNotReuseCurrentAppAsPreviousAfterTermination() {
-  let closed = Core.RunningApplication(.testing(.init("example.closed")))
-  let current = Core.RunningApplication(.testing(.init("example.current")))
+  let closed = ApplicationSystem.RunningApplication(.testing(.init("example.closed")))
+  let current = ApplicationSystem.RunningApplication(.testing(.init("example.current")))
   let snapshot = UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: .init("example.closed"), runningApplication: closed),
     previous: .init(bundleIdentifier: .init("example.current"), runningApplication: current)))
 
-  Core.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === closed })) {
+  ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(onIsTerminated: { $0 === closed })) {
     let updated = snapshot.refreshing(frontmost: current)
     #expect(updated.apps.frontMost?.runningApplication === current)
     #expect(updated.apps.previous == nil)

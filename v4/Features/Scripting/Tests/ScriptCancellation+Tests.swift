@@ -1,6 +1,5 @@
 @testable import FileSystem
 @testable import ProcessSystem
-@testable import CowboyCore
 import Darwin
 import Foundation
 @testable import ScriptingFeature
@@ -21,11 +20,11 @@ func cancellationCleansInlineTemporaryDirectory(jxa: Bool) async throws {
   let marker = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
   defer { try? FileManager.default.removeItem(at: marker) }
   let task = Task {
-    Core.FileManager.Testing.$mock.withValue(.init(createFile: true, removeItem: {
+    FileSystem.FileManager.Testing.$mock.withValue(.init(createFile: true, removeItem: {
       try Data().write(to: marker)
       throw CocoaError(.fileWriteUnknown)
     })) {
-      Core.Process.Testing.$mock.withValue(.init(run: {
+      ProcessSystem.Process.Testing.$mock.withValue(.init(run: {
         withUnsafeCurrentTask { $0?.cancel() }
       })) {
         #expect(throws: CancellationError.self) {
@@ -47,7 +46,7 @@ func cancellationCleansInlineTemporaryDirectory(jxa: Bool) async throws {
 func cancellationAfterTemporaryDirectoryCreationCleansUp(jxa: Bool) async {
   let (events, continuation) = AsyncStream<String>.makeStream()
   let result = await Task {
-    Core.FileManager.Testing.$mock.withValue(.init(
+    FileSystem.FileManager.Testing.$mock.withValue(.init(
       createDirectoryAtUrl: {
         withUnsafeCurrentTask { $0?.cancel() }
         return URL(fileURLWithPath: "/tmp/cancelled-script-test")
@@ -77,7 +76,7 @@ func cancellationAfterTemporaryDirectoryCreationCleansUp(jxa: Bool) async {
   let task = Task {
     let builder = ShellScript.Builder(.testing)
     let process = builder.buildExecutable(at: URL(fileURLWithPath: "/bin/false"), arguments: [])
-    Core.Process.Testing.$mock.withValue(.init(
+    ProcessSystem.Process.Testing.$mock.withValue(.init(
       run: {},
       waitUntilExit: { withUnsafeCurrentTask { $0?.cancel() } },
       terminationStatus: 1
@@ -99,7 +98,7 @@ func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
   let task = Task {
     let source = (closedPipes ? "close STDOUT; close STDERR; " : "")
       + "open(my $f, '>', $ARGV[0]) or die $!; print $f $$; close $f; sleep 30"
-    let process = Core.Process(.production, launchStyle: .headless(source))
+    let process = ProcessSystem.Process(.production, launchStyle: .headless(source))
     process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
     process.arguments = ["-e", source, pidFile.path]
     return try ShellScript.Executor(.production).execute(process)

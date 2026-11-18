@@ -1,6 +1,6 @@
 import ProcessSystem
 import Foundation
-import CowboyCore
+import RuntimeEnvironment
 
 public enum Shortcuts {
   public enum CancellationPolicy: Sendable {
@@ -19,14 +19,14 @@ public enum Shortcuts {
       self.init(environment: .production)
     }
 
-    private init(environment: Core.Environment) {
+    private init(environment: RuntimeEnvironment.Mode) {
       self.execute = { identifier in
         #if DEBUG
-        let mock = Core.Process.Testing.mock
+        let mock = ProcessSystem.Process.Testing.mock
         #endif
         return try await Task.detached {
           #if DEBUG
-          return try Core.Process.Testing.$mock.withValue(mock) {
+          return try ProcessSystem.Process.Testing.$mock.withValue(mock) {
             try runProcess(identifier: identifier, environment: environment)
           }
           #else
@@ -51,12 +51,12 @@ public enum Shortcuts {
   }
 }
 
-private func runProcess(identifier: String, environment: Core.Environment) throws -> String? {
-  let process = Core.Process(environment, launchStyle: .headless(identifier))
+private func runProcess(identifier: String, environment: RuntimeEnvironment.Mode) throws -> String? {
+  let process = ProcessSystem.Process(environment, launchStyle: .headless(identifier))
   process.executableURL = URL(filePath: "/usr/bin/shortcuts")
   process.arguments = ["run", identifier]
-  process.standardOutput = Core.Pipe(environment)
-  process.standardError = Core.Pipe(environment)
+  process.standardOutput = ProcessSystem.Pipe(environment)
+  process.standardError = ProcessSystem.Pipe(environment)
   let output = try process.runAndCaptureOutputUnbounded()
   if process.terminationStatus != 0 {
     throw Shortcuts.ExecutionError.executionFailed(output.stderr.flatMap { String(data: $0, encoding: .utf8) } ?? "")

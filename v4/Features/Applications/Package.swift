@@ -18,11 +18,11 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(path: "../../Components/CowboyCore"),
+    .package(path: "../../Components/RuntimeEnvironment"),
     .package(path: "../../Components/Commands"),
     .package(path: "../../Components/UserSpace"),
     .package(path: "../../Components/ApplicationSystem"),
-    .package(path: "../../Components/AppleScriptSystem"),
+    .package(path: "../../Components/AppleScriptRuntime"),
     .package(path: "../../Components/FileSystem"),
     .package(path: "../../Components/ProcessSystem"),
   ],
@@ -30,11 +30,11 @@ let package = Package(
     .target(
       name: "ApplicationsFeature",
       dependencies: [
-        .product(name: "CowboyCore", package: "CowboyCore"),
+        .product(name: "RuntimeEnvironment", package: "RuntimeEnvironment"),
         .product(name: "Commands", package: "Commands"),
         .product(name: "UserSpace", package: "UserSpace"),
         .product(name: "ApplicationSystem", package: "ApplicationSystem"),
-        .product(name: "AppleScriptSystem", package: "AppleScriptSystem"),
+        .product(name: "AppleScriptRuntime", package: "AppleScriptRuntime"),
         .product(name: "FileSystem", package: "FileSystem"),
         .product(name: "ProcessSystem", package: "ProcessSystem"),
       ],
@@ -43,7 +43,7 @@ let package = Package(
     ),
     .testTarget(
       name: "ApplicationsFeatureTests",
-      dependencies: ["CowboyCore", "Commands", "UserSpace", "ApplicationSystem", "AppleScriptSystem", "FileSystem", "ProcessSystem", "ApplicationsFeature"],
+      dependencies: ["Commands", "UserSpace", "ApplicationSystem", "AppleScriptRuntime", "FileSystem", "ProcessSystem", "ApplicationsFeature"],
       path: "Tests",
     ),
   ],

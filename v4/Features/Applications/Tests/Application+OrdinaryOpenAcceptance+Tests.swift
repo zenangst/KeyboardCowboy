@@ -1,9 +1,8 @@
 @testable import ApplicationSystem
-@testable import AppleScriptSystem
+@testable import AppleScriptRuntime
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
@@ -14,7 +13,7 @@ private func ordinaryAcceptanceCommand() throws -> Command.Application {
 
 @Test(arguments: ["unavailable", "empty", "matching"])
 @MainActor func ordinaryFrontmostOwnerAvailabilityControlsReopen(route: String) async throws {
-  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
   let (events, continuation) = AsyncStream<String>.makeStream()
   let availableOwners: @Sendable () async -> [String] = {
     continuation.yield("owners")
@@ -24,15 +23,15 @@ private func ordinaryAcceptanceCommand() throws -> Command.Application {
   let executor = Application.Executor(.testing, windowOwnerNames: owners)
   let initial = UserSpace.Snapshot(apps: .init())
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { _, _ in
     continuation.yield("reopen")
     return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in continuation.yield("activate"); return true },
       runningApplications: [target]
     )) {
-      try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         continuation.yield("fallback")
         return nil
       })) {
@@ -54,11 +53,11 @@ private func ordinaryAcceptanceCommand() throws -> Command.Application {
   let command = try ordinaryAcceptanceCommand()
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+      await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
         Issue.record("Cancelled owner lookup must prevent launch")
         return .init(.testing(nil))
       })) {
-        await Core.RunningApplication.Testing.$mock.withValue(.init(runningApplicationsLookup: { _ in
+        await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(runningApplicationsLookup: { _ in
           Issue.record("Cancelled owner lookup must prevent application lookup")
           return []
         })) {

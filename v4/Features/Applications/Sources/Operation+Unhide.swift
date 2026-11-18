@@ -1,22 +1,22 @@
 import ApplicationSystem
 import UserSpace
-import CowboyCore
+import RuntimeEnvironment
 
 extension Operation {
   final class Unhide: Sendable {
-    private let env: Core.Environment
-    private let workspace: Core.Workspace
+    private let env: RuntimeEnvironment.Mode
+    private let workspace: Application.Workspace
 
-    init(_ env: Core.Environment) {
+    init(_ env: RuntimeEnvironment.Mode) {
       self.env = env
-      self.workspace = Core.Workspace(env)
+      self.workspace = Application.Workspace(env)
     }
 
     @discardableResult
-    func callAsFunction(_ bundleIdentifier: BundleIdentifier, snapshot _: UserSpace.Snapshot) async -> Bool {
+    func callAsFunction(_ bundleIdentifier: ApplicationSystem.BundleIdentifier, snapshot _: UserSpace.Snapshot) async -> Bool {
       guard !Task.isCancelled else { return false }
       guard workspace.frontmostApplication?.bundleIdentifier != bundleIdentifier else { return false }
-      guard let application = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
+      guard let application = ApplicationSystem.RunningApplication.application(with: bundleIdentifier, env: env) else {
         return false
       }
 

@@ -1,16 +1,15 @@
 import ApplicationSystem
-import CowboyCore
-
 import Cocoa
 import Combine
+import RuntimeEnvironment
 
 @MainActor
 public final class UserSpace {
-  let env: Core.Environment
+  let env: RuntimeEnvironment.Mode
   private var history: [Application] = []
   private var activationObserver: AnyCancellable?
 
-  public init(_ env: Core.Environment) {
+  public init(_ env: RuntimeEnvironment.Mode) {
     self.env = env
     if case .production = env {
       let workspace = NSWorkspace.shared
@@ -20,6 +19,7 @@ public final class UserSpace {
         guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else {
           return
         }
+
         MainActor.assumeIsolated {
           self?.recordActivation(.init(.production(application)))
         }
@@ -32,9 +32,10 @@ public final class UserSpace {
   }
 
   /// Record an activation from the host's event stream when using a custom environment.
-  public func recordActivation(_ application: Core.RunningApplication) {
+  public func recordActivation(_ application: ApplicationSystem.RunningApplication) {
     history.removeAll { $0.runningApplication.isTerminated }
     guard !application.isTerminated, let identifier = application.bundleIdentifier else { return }
+
     history.removeAll { $0.runningApplication.isSameApplication(as: application) }
     history.insert(Application(bundleIdentifier: identifier, runningApplication: application), at: 0)
   }
@@ -42,7 +43,7 @@ public final class UserSpace {
   /// The optional host-supplied previous app overrides locally tracked history.
   /// Without a current app, the most recent live history entry is used as previous.
   public func takeSnapshot(previous: Application? = nil) -> Snapshot {
-    let runningApplication: Core.RunningApplication?
+    let runningApplication: ApplicationSystem.RunningApplication?
     switch env {
     case .production:
       runningApplication = NSWorkspace.shared.frontmostApplication.map { .init(.production($0)) }
@@ -54,6 +55,7 @@ public final class UserSpace {
 
     let frontMost = runningApplication.flatMap { application -> Application? in
       guard !application.isTerminated, let identifier = application.bundleIdentifier else { return nil }
+
       return Application(bundleIdentifier: identifier, runningApplication: application)
     }
     if let frontMost { recordActivation(frontMost.runningApplication) }
@@ -61,6 +63,7 @@ public final class UserSpace {
     let previous = previous.flatMap { $0.runningApplication.isTerminated ? nil : $0 }
       ?? history.first { candidate in
         guard let frontMost else { return true }
+
         return !candidate.runningApplication.isSameApplication(as: frontMost.runningApplication)
       }
     return Snapshot(apps: .init(frontMost: frontMost, previous: previous))

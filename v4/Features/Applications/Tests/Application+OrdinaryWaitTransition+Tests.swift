@@ -1,9 +1,8 @@
 @testable import ApplicationSystem
-@testable import AppleScriptSystem
+@testable import AppleScriptRuntime
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
@@ -34,10 +33,10 @@ private func ordinaryWaitCommand() throws -> Command.Application {
 
 @Test(arguments: ["reopen", "fallback", "post-launch-rejected"])
 @MainActor func ordinaryOpenWaitsUntilLaunchingFinishes(route: String) async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let frontmost = route == "post-launch-rejected"
-    ? Core.RunningApplication(.testing(.init("example.other"))) : target
+    ? ApplicationSystem.RunningApplication(.testing(.init("example.other"))) : target
   let trace = OrdinaryWaitTrace()
 
   // The synchronous finished-launching callback cannot await an actor. A bounded
@@ -54,12 +53,12 @@ private func ordinaryWaitCommand() throws -> Command.Application {
     return route == "fallback" ? [] : ["Target"]
   })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost, openApplication: { url, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost, openApplication: { url, _ in
     #expect(url.path() == "/Applications/Target.app")
     trace.record(route == "post-launch-rejected" ? "launch" : "reopen")
     return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { from, options in
         #expect(from === frontmost)
         #expect(options == (route == "post-launch-rejected" ? [] : [.activateAllWindows]))
@@ -88,7 +87,7 @@ private func ordinaryWaitCommand() throws -> Command.Application {
         return [target]
       }
     )) {
-      try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         trace.record("fallback")
         return nil
       })) {
@@ -118,9 +117,9 @@ private func ordinaryWaitCommand() throws -> Command.Application {
 
 @Test(arguments: ["launch", "reopen-fallback", "missing-fallback"])
 @MainActor func ordinaryOpenFailuresPreventTailWait(route: String) async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
-  let frontmost = route == "launch" ? Core.RunningApplication(.testing(.init("example.other"))) : target
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
+  let frontmost = route == "launch" ? ApplicationSystem.RunningApplication(.testing(.init("example.other"))) : target
   let trace = OrdinaryWaitTrace()
   let wait = Operation.Wait(.testing, sleep: { _ in trace.record("unexpected wait") })
   let executor = Application.Executor(.testing, wait: wait, windowOwnerNames: {
@@ -128,11 +127,11 @@ private func ordinaryWaitCommand() throws -> Command.Application {
     return ["Target"]
   })
 
-  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost, openApplication: { _, _ in
+  await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost, openApplication: { _, _ in
     trace.record(route == "launch" ? "launch" : "reopen")
     throw OrdinaryOpenFailure.launch
   })) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in trace.record("activate"); return true },
       isFinishedLaunching: { trace.record("unexpected finished check"); return false },
       runningApplicationsLookup: { requested in
@@ -141,7 +140,7 @@ private func ordinaryWaitCommand() throws -> Command.Application {
         return route == "missing-fallback" ? [] : [target]
       }
     )) {
-      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         trace.record("fallback")
         return NSError(domain: "ordinary-open-test", code: 73)
       })) {
@@ -150,7 +149,7 @@ private func ordinaryWaitCommand() throws -> Command.Application {
           Issue.record("Expected ordinary open to fail")
         } catch OrdinaryOpenFailure.launch {
           #expect(route == "launch")
-        } catch Core.NSAppleScript.Error.unableToExecute(let error) {
+        } catch AppleScriptRuntime.NSAppleScript.Error.unableToExecute(let error) {
           #expect(route != "launch")
           #expect((error as NSError).domain == "com.zenangst.KeyboardCowboy.AppleScriptPlugin")
           #expect((error as NSError).code == 73)

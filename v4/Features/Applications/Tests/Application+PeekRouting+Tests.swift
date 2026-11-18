@@ -2,7 +2,6 @@
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
@@ -16,7 +15,7 @@ import Testing
   for mode in 0...3 {
     let session = Application.PeekSession()
     let sessionID = UUID()
-    let target = Core.RunningApplication(.testing(.init("example.target")))
+    let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
     let snapshot = UserSpace.Snapshot(apps: .init())
     let (events, continuation) = AsyncStream<String>.makeStream()
     let executor = Application.Executor(.testing, peekRelease: { _ in
@@ -29,11 +28,11 @@ import Testing
     })
 
     #expect(await session.begin(id: sessionID, at: .zero))
-    try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
+    try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
       continuation.yield(url.lastPathComponent)
       return .init(.testing(nil))
     })) {
-      try await Core.RunningApplication.Testing.$mock.withValue(.init(
+      try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplications: [target], onHide: { application in
           #expect(application === target)
           continuation.yield("hide")

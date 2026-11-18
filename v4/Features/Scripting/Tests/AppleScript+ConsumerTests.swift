@@ -1,4 +1,3 @@
-import CowboyCore
 import ScriptingFeature
 import Testing
 

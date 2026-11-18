@@ -1,5 +1,4 @@
 import Commands
-import CowboyCore
 
 public extension Application.Executor.PeekReleaseAction {
   /// Matches the legacy release policy. The caller supplies its activity-history

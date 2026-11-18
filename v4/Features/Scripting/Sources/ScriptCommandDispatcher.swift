@@ -1,7 +1,7 @@
 import FileSystem
-import CowboyCore
 import Foundation
 import System
+import RuntimeEnvironment
 
 /// The feature-level execution request. Persistence and command metadata belong to the host.
 public struct ScriptRequest: Sendable {
@@ -94,7 +94,7 @@ public actor ScriptCommandDispatcher {
   }
 
   /// The same AppleScript executor is retained for all requests and cache invalidation.
-  @MainActor public init(_ environment: Core.Environment) {
+  @MainActor public init(_ environment: RuntimeEnvironment.Mode) {
     let appleScript = AppleScript.Executor(environment)
     self.routes = Routes(
       appleScriptInline: { source, key in try await appleScript.execute(source, key: key) },

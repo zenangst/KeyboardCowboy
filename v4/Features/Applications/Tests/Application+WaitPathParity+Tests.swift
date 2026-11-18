@@ -1,9 +1,8 @@
 @testable import ApplicationSystem
-@testable import AppleScriptSystem
+@testable import AppleScriptRuntime
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
@@ -35,8 +34,8 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
 @Test(arguments: ["reopen", "no-window", "failed-reopen", "rejected"])
 @MainActor func waitPathFrontmostReopenAndFallback(route: String) async throws {
   let command = try waitPathCommand()
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let initial = UserSpace.Snapshot(apps: .init())
   let trace = WaitPathTrace()
   let wait = Operation.Wait(.testing, retries: 2, pollingInterval: .milliseconds(13), sleep: { duration in
@@ -48,13 +47,13 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
     return route == "no-window" ? [] : ["Target"]
   }, willExecute: { _ in trace.record("hook") })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { url, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { url, _ in
     #expect(url.path() == "/Applications/Target.app")
     trace.record("reopen")
     if route == "failed-reopen" { throw WaitPathError.reopenFailed }
     return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { from, options in
         #expect(from === target)
         #expect(options == [.activateAllWindows])
@@ -68,7 +67,7 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
         return [target]
       }
     )) {
-      try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         trace.record("fallback")
         return nil
       })) {
@@ -87,11 +86,11 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
 
 @Test(arguments: ["background", "electron"], [false, true])
 @MainActor func waitPathBackgroundAndElectronMusic(route: String, music: Bool) async throws {
-  let identifier = Core.BundleIdentifier(music ? "com.apple.Music" : "example.target")
+  let identifier = ApplicationSystem.BundleIdentifier(music ? "com.apple.Music" : "example.target")
   var command = try waitPathCommand(identifier: identifier.value)
   if route == "background" { command.modifiers.insert(.background) }
   if route == "electron" { command.application.metadata.isElectron = true }
-  let target = Core.RunningApplication(.testing(identifier))
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let trace = WaitPathTrace()
   let wait = Operation.Wait(.testing, retries: 2, finalSleepDuration: .milliseconds(37), sleep: { duration in
     #expect(duration == .milliseconds(37))
@@ -101,12 +100,12 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
     trace.record("unexpected owners"); return []
   }, willExecute: { _ in trace.record("hook") })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, configuration in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, configuration in
     #expect(configuration.activates == (route == "electron"))
     trace.record("launch")
     return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       isFinishedLaunching: { trace.record("finished true"); return true },
       runningApplicationsLookup: { requested in
         #expect(requested == identifier)
@@ -127,8 +126,8 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
   var command = try waitPathCommand()
   if route == "running-guard" { command.modifiers.insert(.onlyIfNotRunning) }
   if route == "peek-no-event" { command.action = .peek }
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let initial = UserSpace.Snapshot(apps: .init())
   let trace = WaitPathTrace()
   let wait = Operation.Wait(.testing, retries: 2, pollingInterval: .milliseconds(11), sleep: { duration in
@@ -140,10 +139,10 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
   }, willExecute: { _ in trace.record("hook") }, selfApplication: route == "self" ? .init(bundleIdentifier: identifier, open: {
     trace.record("self")
   }) : nil)
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     trace.record("launch"); return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       isFinishedLaunching: { trace.record("finished \(route == "finished")"); return route == "finished" },
       runningApplicationsLookup: { requested in
         #expect(requested == identifier)

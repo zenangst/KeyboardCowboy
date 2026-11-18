@@ -1,9 +1,8 @@
 @testable import ApplicationSystem
-@testable import AppleScriptSystem
+@testable import AppleScriptRuntime
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import CoreGraphics
 import Foundation
 import Testing
@@ -63,7 +62,7 @@ private func cancelWhileSuspended(_ gate: AdapterGate, operation: @escaping @Sen
   let gate = AdapterGate()
   let executor = Application.Executor(.testing, willExecute: { _ in await gate.suspend() })
 
-  await Core.RunningApplication.Testing.$mock.withValue(.init(
+  await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplicationsLookup: { _ in Issue.record("Cancelled hook must prevent lookup"); return [] }
   )) {
     await cancelWhileSuspended(gate) {
@@ -85,11 +84,11 @@ private func cancelWhileSuspended(_ gate: AdapterGate, operation: @escaping @Sen
     return openPrevious ? .open(previous) : .hide
   })
 
-  await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     Issue.record("Cancelled release must not launch")
     return .init(.testing(nil))
   })) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { _ in Issue.record("Cancelled release must not look up applications"); return [] },
       onHide: { _ in Issue.record("Cancelled release must not hide"); return true }
     )) {
@@ -103,22 +102,22 @@ private func cancelWhileSuspended(_ gate: AdapterGate, operation: @escaping @Sen
 @Test(arguments: [false, true]) @MainActor func callerCancellationWhileWindowOwnersAreSuspendedPreventsOpen(frontmost: Bool) async throws {
   let command = try adapterCancellationCommand("open")
   let snapshot = UserSpace.Snapshot(apps: .init())
-  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
   let gate = AdapterGate()
   let executor = Application.Executor(.testing, windowOwnerNames: {
     await gate.suspend()
     return ["Target"]
   })
 
-  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost ? target : nil, openApplication: { _, _ in
+  await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost ? target : nil, openApplication: { _, _ in
     Issue.record("Cancelled owner lookup must not launch")
     return target
   })) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in Issue.record("Cancelled owner lookup must not activate"); return true },
       runningApplicationsLookup: { _ in Issue.record("Cancelled owner lookup must not look up applications"); return [target] }
     )) {
-      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         Issue.record("Cancelled owner lookup must not invoke fallback")
         return nil
       })) {

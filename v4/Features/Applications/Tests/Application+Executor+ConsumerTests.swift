@@ -3,15 +3,14 @@ import UserSpace
 import Commands
 import AppKit
 import ApplicationsFeature
-import CowboyCore
 import Foundation
 import Testing
 
 @Test @MainActor func applicationExecutorPublicAPI() async throws {
-  let identifier = Core.BundleIdentifier("com.example.editor")
+  let identifier = ApplicationSystem.BundleIdentifier("com.example.editor")
   let application = UserSpace.Application(
     bundleIdentifier: identifier,
-    runningApplication: Core.RunningApplication(.production(.current)))
+    runningApplication: ApplicationSystem.RunningApplication(.production(.current)))
   let snapshot = UserSpace.Snapshot(apps: .init(frontMost: application, previous: application))
   #expect(snapshot.apps.frontMost?.bundleIdentifier == identifier)
   #expect(snapshot.apps.previous?.bundleIdentifier == identifier)

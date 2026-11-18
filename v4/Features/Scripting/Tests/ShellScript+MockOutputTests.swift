@@ -1,5 +1,4 @@
 @testable import ProcessSystem
-@testable import CowboyCore
 import Foundation
 @testable import ScriptingFeature
 import Testing
@@ -11,7 +10,7 @@ func scriptedProcessStreamsAreIndependent(route: String) async throws {
   let (events, continuation) = AsyncStream<String>.makeStream()
   let process = ShellScript.Builder(.testing).buildExecutable(
     at: URL(fileURLWithPath: "/bin/echo"), arguments: [])
-  let mock = Core.Process.Mock(
+  let mock = ProcessSystem.Process.Mock(
     run: { continuation.yield("run") },
     waitUntilExit: { continuation.yield("wait") },
     readStandardOutput: {
@@ -25,7 +24,7 @@ func scriptedProcessStreamsAreIndependent(route: String) async throws {
     },
     readStandardError: { continuation.yield("stderr"); return Data("diagnostic".utf8) })
 
-  try Core.Process.Testing.$mock.withValue(mock) {
+  try ProcessSystem.Process.Testing.$mock.withValue(mock) {
     if route == "failure" {
       #expect(throws: MockReadError.failed) { try ShellScript.Executor(.testing).execute(process) }
     } else {

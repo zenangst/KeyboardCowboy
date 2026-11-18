@@ -1,12 +1,12 @@
-import AppleScriptSystem
+import AppleScriptRuntime
 import Cocoa
-import CowboyCore
+import RuntimeEnvironment
 
 extension Operation {
   final class BringToFront: Sendable {
-    let env: Core.Environment
+    let env: RuntimeEnvironment.Mode
 
-    init(_ env: Core.Environment) {
+    init(_ env: RuntimeEnvironment.Mode) {
       self.env = env
     }
 
@@ -18,7 +18,7 @@ extension Operation {
         click (menu item "Bring All to Front" of menu "Window" of menu bar 1 of frontmostProcess)
       end tell
       """
-      let appleScript = try Core.NSAppleScript(env, source: source)
+      let appleScript = try AppleScriptRuntime.NSAppleScript(env, source: source)
 
       var errorInfo: NSDictionary?
       do {

@@ -1,7 +1,6 @@
 import FileSystem
 import ProcessSystem
-import CowboyCore
 import Foundation
 
-typealias FileManager = Core.FileManager
-typealias ProcessInfo = Core.ProcessInfo
+typealias FileManager = FileSystem.FileManager
+typealias ProcessInfo = ProcessSystem.ProcessInfo

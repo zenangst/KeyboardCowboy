@@ -1,9 +1,8 @@
 @testable import ApplicationSystem
-@testable import AppleScriptSystem
+@testable import AppleScriptRuntime
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import System
 import Testing
 import Foundation
@@ -23,7 +22,7 @@ private actor OpenTrace {
 
 @Test(arguments: ["open", "close", "hide", "unhide", "peek"])
 @MainActor func selfApplicationRunsAfterHookForEveryAction(action: String) async throws {
-  let identifier = Core.BundleIdentifier("example.host")
+  let identifier = ApplicationSystem.BundleIdentifier("example.host")
   let fixture = #"{"application":{"bundleIdentifier":"example.host","bundleName":"Host","path":"/Applications/Host.app"},"action":"\#(action)","meta":{"id":"saved-command","name":"Host","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
@@ -34,11 +33,11 @@ private actor OpenTrace {
     continuation.yield("self")
   }))
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     Issue.record("Self-app handling must intercept the command")
     return .init(.testing(nil))
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { _ in Issue.record("Self-app handling must intercept the command"); return [] }
     )) {
       let result = try await executor.execute(command, cgEventType: .keyDown, snapshot: snapshot)
@@ -52,8 +51,8 @@ private actor OpenTrace {
 }
 
 @Test @MainActor func onlyIfNotRunningGuardPrecedesSelfApplicationHandler() async throws {
-  let identifier = Core.BundleIdentifier("example.host")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.host")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.host","bundleName":"Host","path":"/Applications/Host.app"},"action":"close","modifiers":["onlyIfNotRunning"],"meta":{"id":"saved-command","name":"Host","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
@@ -64,7 +63,7 @@ private actor OpenTrace {
     Issue.record("Running-app guard must precede self-app handler")
   }))
 
-  try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplicationsLookup: { _ in continuation.yield("lookup"); return [target] }
   )) {
     let result = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
@@ -77,8 +76,8 @@ private actor OpenTrace {
 }
 
 @Test @MainActor func willExecutePrecedesOnlyIfNotRunningGuard() async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["onlyIfNotRunning"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
@@ -88,11 +87,11 @@ private actor OpenTrace {
     continuation.yield("hook")
   })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     Issue.record("A running target must not be launched")
     return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { requested in
         #expect(requested == identifier)
         continuation.yield("lookup")
@@ -115,7 +114,7 @@ private actor OpenTrace {
   let snapshot = UserSpace.Snapshot(apps: .init())
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
+      await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplicationsLookup: { _ in Issue.record("Cancelled hook must prevent lookup"); return [] }
       )) {
         do {
@@ -136,14 +135,14 @@ private actor OpenTrace {
 }
 
 @Test @MainActor func cancellationDuringRunningGuardIsNotSwallowed() async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["onlyIfNotRunning"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
+      await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplicationsLookup: { _ in
           withUnsafeCurrentTask { $0?.cancel() }
           return [target]
@@ -165,8 +164,8 @@ private actor OpenTrace {
 }
 
 @Test @MainActor func frontmostAppWithTrackedWindowReopens() async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
@@ -176,15 +175,15 @@ private actor OpenTrace {
     return ["Target"]
   })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { url, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { url, _ in
     #expect(url.path() == "/Applications/Target.app")
     await trace.record("reopen")
     return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in true }, runningApplications: [target]
     )) {
-      try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         Issue.record("Unexpected fallback for successful reopen")
         return nil
       })) {
@@ -196,8 +195,8 @@ private actor OpenTrace {
 }
 
 @Test(arguments: [false, true]) @MainActor func frontmostNoWindowOrFailedReopenUsesFallback(hasWindow: Bool) async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
@@ -207,20 +206,20 @@ private actor OpenTrace {
     return hasWindow ? ["Target"] : ["Other"]
   })
 
-  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { _, _ in
+  await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { _, _ in
     await trace.record("reopen")
     throw ExecutorLaunchError.failed
   })) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in true }, runningApplications: [target]
     )) {
-      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         NSError(domain: "test", code: 77)
       })) {
         do {
           _ = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
           Issue.record("Expected fallback failure")
-        } catch Core.NSAppleScript.Error.unableToExecute(let error) {
+        } catch AppleScriptRuntime.NSAppleScript.Error.unableToExecute(let error) {
           #expect((error as NSError).code == 77)
         } catch {
           Issue.record("Unexpected error: \(error)")
@@ -232,19 +231,19 @@ private actor OpenTrace {
 }
 
 @Test @MainActor func cancelledReopenDoesNotRunFallback() async throws {
-  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
   let executor = Application.Executor(.testing, windowOwnerNames: { ["Target"] })
 
-  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { _, _ in
+  await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target, openApplication: { _, _ in
     throw CancellationError()
   })) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in true }, runningApplications: [target]
     )) {
-      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         Issue.record("Cancelled reopen must not trigger fallback")
         return nil
       })) {
@@ -258,8 +257,8 @@ private actor OpenTrace {
 
 @Test(arguments: [(true, true), (false, true), (false, false)])
 @MainActor func nonFrontmostLaunchActivatesAccordingToWindowState(hasWindow: Bool, hasFrontmost: Bool) async throws {
-  let target = Core.RunningApplication(.testing(.init("example.target")))
-  let frontmost = Core.RunningApplication(.testing(.init("example.other")))
+  let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
+  let frontmost = ApplicationSystem.RunningApplication(.testing(.init("example.other")))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
@@ -270,11 +269,11 @@ private actor OpenTrace {
   })
 
   try await confirmation("Expected one activation") { confirmed in
-    try await Core.Workspace.Testing.$mock.withValue(.init(
+    try await Application.Workspace.Testing.$mock.withValue(.init(
       frontmostApplication: hasFrontmost ? frontmost : nil,
       openApplication: { _, _ in await trace.record("launch"); return target }
     )) {
-      try await Core.RunningApplication.Testing.$mock.withValue(.init(
+      try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         activate: { options in
           #expect(!hasFrontmost)
           #expect(options == [.activateAllWindows])
@@ -304,7 +303,7 @@ private actor OpenTrace {
   let wait = Operation.Wait(.testing, sleep: { _ in Issue.record("Missing target should skip tail wait") })
   let executor = Application.Executor(.testing, wait: wait, windowOwnerNames: { [] })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     await trace.record("launch")
     return .init(.testing(nil))
   })) {
@@ -329,7 +328,7 @@ private actor OpenTrace {
     return []
   })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, configuration in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, configuration in
     #expect(configuration.activates == electron)
     await trace.record("launch")
     return .init(.testing(nil))
@@ -349,9 +348,9 @@ private actor OpenTrace {
     throw TestWaitError.reached
   })
 
-  await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     await trace.record("launch")
-    return Core.RunningApplication(.testing(nil))
+    return ApplicationSystem.RunningApplication(.testing(nil))
   })) {
     await #expect(throws: TestWaitError.reached) {
       try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
@@ -361,19 +360,19 @@ private actor OpenTrace {
 }
 
 @Test @MainActor func waitModifierSkipsAlreadyFinishedApplication() async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
   let trace = OpenTrace()
   let wait = Operation.Wait(.testing, sleep: { _ in Issue.record("A finished app must not be polled") })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     await trace.record("launch")
     return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       isFinishedLaunching: { true }, runningApplications: [target]
     )) {
       _ = try await Application.Executor(.testing, wait: wait).execute(command, cgEventType: nil, snapshot: snapshot)
@@ -383,8 +382,8 @@ private actor OpenTrace {
 }
 
 @Test(arguments: [true, false]) @MainActor func waitModifierFollowsActivationAndFallback(activationSucceeds: Bool) async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["waitForAppToLaunch"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
@@ -394,8 +393,8 @@ private actor OpenTrace {
     throw TestWaitError.reached
   })
 
-  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+  await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in
         continuation.yield("activate")
         return activationSucceeds
@@ -403,7 +402,7 @@ private actor OpenTrace {
       isFinishedLaunching: { false },
       runningApplications: [target]
     )) {
-      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         continuation.yield("fallback")
         return nil
       })) {
@@ -427,7 +426,7 @@ private actor OpenTrace {
   let trace = OpenTrace()
   let wait = Operation.Wait(.testing, retries: 1, sleep: { _ in await trace.record("wait") })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     await trace.record("launch")
     return .init(.testing(nil))
   })) {
@@ -442,10 +441,10 @@ private actor LaunchEvents {
 }
 
 @Test @MainActor func cancellationBeforeEffectsPreventsHideAndUnhide() async throws {
-  let frontmostID = Core.BundleIdentifier("example.frontmost")
-  let targetID = Core.BundleIdentifier("example.target")
-  let frontmost = Core.RunningApplication(.testing(frontmostID))
-  let target = Core.RunningApplication(.testing(targetID))
+  let frontmostID = ApplicationSystem.BundleIdentifier("example.frontmost")
+  let targetID = ApplicationSystem.BundleIdentifier("example.target")
+  let frontmost = ApplicationSystem.RunningApplication(.testing(frontmostID))
+  let target = ApplicationSystem.RunningApplication(.testing(targetID))
   let snapshot = UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: frontmostID, runningApplication: frontmost)))
 
@@ -454,8 +453,8 @@ private actor LaunchEvents {
     let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
     let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
       group.addTask {
-        await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
-          await Core.RunningApplication.Testing.$mock.withValue(.init(
+        await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+          await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
             activate: { _ in withUnsafeCurrentTask { $0?.cancel() }; return true },
             runningApplicationsLookup: { _ in
               if action == "unhide" { withUnsafeCurrentTask { $0?.cancel() } }
@@ -488,7 +487,7 @@ private actor LaunchEvents {
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
       withUnsafeCurrentTask { $0?.cancel() }
-      return await Core.RunningApplication.Testing.$mock.withValue(.init(
+      return await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplicationsLookup: { _ in
           Issue.record("A cancelled command must not look up an application")
           return []
@@ -516,16 +515,16 @@ private actor LaunchEvents {
   let events = LaunchEvents()
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
+      await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplicationsLookup: { _ in
           Issue.record("A cancelled launch must not start polling")
           return []
         }
       )) {
-        await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+        await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
           await events.record()
           withUnsafeCurrentTask { $0?.cancel() }
-          return Core.RunningApplication(.testing(nil))
+          return ApplicationSystem.RunningApplication(.testing(nil))
         })) {
           do {
             _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
@@ -545,13 +544,13 @@ private actor LaunchEvents {
 }
 
 @Test @MainActor func executorPropagatesTerminationFailure() async throws {
-  let identifier = Core.BundleIdentifier("example.target")
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"close","meta":{"id":"saved-command","name":"Close","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
 
-  await Core.RunningApplication.Testing.$mock.withValue(.init(
-    runningApplications: [Core.RunningApplication(.testing(identifier))],
+  await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplications: [ApplicationSystem.RunningApplication(.testing(identifier))],
     terminate: false
   )) {
     await #expect(throws: Application.Executor.ExecutionError.failedToTerminate(identifier)) {
@@ -567,7 +566,7 @@ private actor LaunchEvents {
   let initial = UserSpace.Snapshot(apps: .init())
   let executor = Application.Executor(.testing)
 
-  await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     await Task.yield()
     throw ExecutorLaunchError.failed
   })) {
@@ -580,15 +579,15 @@ private actor LaunchEvents {
 }
 
 @Test @MainActor func executorReturnsRefreshedSnapshotForConsecutiveCommands() async throws {
-  let first = Core.RunningApplication(.testing(.init("example.first")))
-  let second = Core.RunningApplication(.testing(.init("example.second")))
+  let first = ApplicationSystem.RunningApplication(.testing(.init("example.first")))
+  let second = ApplicationSystem.RunningApplication(.testing(.init("example.second")))
   let initial = UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: .init("example.first"), runningApplication: first)))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"close","meta":{"id":"saved-command","name":"Close","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let executor = Application.Executor(.testing)
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: second)) {
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: second)) {
     let updated = try await executor.execute(command, cgEventType: nil, snapshot: initial)
     #expect(updated.apps.frontMost?.runningApplication === second)
     #expect(updated.apps.previous?.runningApplication === first)
@@ -600,16 +599,16 @@ private actor LaunchEvents {
 }
 
 @Test @MainActor func executorRefreshesOpenButNotPeek() async throws {
-  let first = Core.RunningApplication(.testing(.init("example.first")))
-  let second = Core.RunningApplication(.testing(.init("example.second")))
+  let first = ApplicationSystem.RunningApplication(.testing(.init("example.first")))
+  let second = ApplicationSystem.RunningApplication(.testing(.init("example.second")))
   let initial = UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: .init("example.first"), runningApplication: first)))
   let fixture = #"{"application":{"bundleIdentifier":"example.second","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   var command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let executor = Application.Executor(.testing)
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: second)) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: second)) {
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in true }, runningApplications: [second]
     )) {
       let updated = try await executor.execute(command, cgEventType: nil, snapshot: initial)
@@ -623,18 +622,18 @@ private actor LaunchEvents {
 }
 
 @Test @MainActor func executorFallsBackAfterFrontmostActivationRejection() async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
   let (events, continuation) = AsyncStream<String>.makeStream()
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in continuation.yield("activate"); return false }, runningApplications: [target]
     )) {
-      try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         continuation.yield("fallback")
         return nil
       })) {
@@ -649,23 +648,23 @@ private actor LaunchEvents {
 }
 
 @Test @MainActor func executorPropagatesBringToFrontFailure() async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
 
-  await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+  await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in false }, runningApplications: [target]
     )) {
-      await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         NSError(domain: "test", code: 42)
       })) {
         do {
           _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
           Issue.record("Expected AppleScript failure")
-        } catch Core.NSAppleScript.Error.unableToExecute(let error) {
+        } catch AppleScriptRuntime.NSAppleScript.Error.unableToExecute(let error) {
           #expect((error as NSError).code == 42)
         } catch {
           Issue.record("Unexpected error: \(error)")
@@ -676,18 +675,18 @@ private actor LaunchEvents {
 }
 
 @Test @MainActor func cancelledActivationIsNotReportedAsFailure() async throws {
-  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"saved-command","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let snapshot = UserSpace.Snapshot(apps: .init())
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
-        await Core.RunningApplication.Testing.$mock.withValue(.init(
+      await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
+        await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
           activateFrom: { _, _ in withUnsafeCurrentTask { $0?.cancel() }; return false },
           runningApplications: [target]
         )) {
-          await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+          await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
             Issue.record("Cancellation must not trigger activation fallback")
             return nil
           })) {

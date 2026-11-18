@@ -1,15 +1,14 @@
 @testable import ApplicationSystem
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Testing
 
 @Test func restartCancellationAfterTerminationStopsPolling() async {
-  let identifier = BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let (events, continuation) = AsyncStream<String>.makeStream()
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      await Core.RunningApplication.Testing.$mock.withValue(.init(
+      await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplicationsLookup: { _ in
           continuation.yield("lookup")
           return [target]

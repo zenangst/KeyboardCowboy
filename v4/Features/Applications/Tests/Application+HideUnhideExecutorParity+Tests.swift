@@ -2,7 +2,6 @@
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
@@ -13,16 +12,16 @@ private func hideUnhideCommand(_ action: String, identifier: String = "example.t
 
 @Test(arguments: [true, false]) @MainActor
 func executorHideOrdersLiveActivationBeforeTargetHide(hideSucceeds: Bool) async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
-  let live = Core.RunningApplication(.testing(.init("example.live")))
-  let stale = Core.RunningApplication(.testing(.init("example.stale")))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
+  let live = ApplicationSystem.RunningApplication(.testing(.init("example.live")))
+  let stale = ApplicationSystem.RunningApplication(.testing(.init("example.stale")))
   let snapshot = UserSpace.Snapshot(apps: .init(frontMost: .init(bundleIdentifier: .init("example.stale"), runningApplication: stale)))
   let (events, trace) = AsyncStream<String>.makeStream()
   let executor = Application.Executor(.testing, willExecute: { _ in trace.yield("hook") })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: live)) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: live)) {
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { requested in
         trace.yield(requested == identifier ? "lookup target" : "lookup unexpected")
         return [target]
@@ -45,15 +44,15 @@ func executorHideOrdersLiveActivationBeforeTargetHide(hideSucceeds: Bool) async 
 
 @Test(arguments: [true, false]) @MainActor
 func executorUnhideOrdersLookupAndUnhideWithoutActivation(unhideSucceeds: Bool) async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let target = Core.RunningApplication(.testing(identifier))
-  let frontmost = Core.RunningApplication(.testing(.init("example.frontmost")))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
+  let frontmost = ApplicationSystem.RunningApplication(.testing(.init("example.frontmost")))
   let snapshot = UserSpace.Snapshot(apps: .init())
   let (events, trace) = AsyncStream<String>.makeStream()
   let executor = Application.Executor(.testing, willExecute: { _ in trace.yield("hook") })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { requested in
         trace.yield(requested == identifier ? "lookup target" : "lookup unexpected")
         return [target]
@@ -78,8 +77,8 @@ func executorMissingHideUnhideTargetStopsAfterLookup(action: String) async throw
   let (events, trace) = AsyncStream<String>.makeStream()
   let executor = Application.Executor(.testing, willExecute: { _ in trace.yield("hook") })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: .init(.testing(.init("example.frontmost"))))) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: .init(.testing(.init("example.frontmost"))))) {
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { requested in
         trace.yield(requested == .init("example.target") ? "lookup target" : "lookup unexpected")
         return []
@@ -100,19 +99,19 @@ func executorMissingHideUnhideTargetStopsAfterLookup(action: String) async throw
 
 @Test(arguments: [true, false]) @MainActor
 func executorHidePreviousUsesSnapshotWithoutLookup(hidden: Bool) async throws {
-  let identifier = Core.BundleIdentifier("example.previous")
-  let previous = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.previous")
+  let previous = ApplicationSystem.RunningApplication(.testing(identifier))
   let snapshot = UserSpace.Snapshot(apps: .init(previous: .init(bundleIdentifier: identifier, runningApplication: previous)))
   let (events, trace) = AsyncStream<String>.makeStream()
   let executor = Application.Executor(.testing, willExecute: { _ in trace.yield("hook") })
 
-  try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isHidden: hidden,
     runningApplicationsLookup: { _ in trace.yield("lookup unexpected"); return [] },
     onHide: { app in trace.yield(app === previous ? "hide previous" : "hide unexpected"); return true },
     onActivate: { _, _ in trace.yield("activate unexpected"); return true }
   )) {
-    let command = try hideUnhideCommand("hide", identifier: Core.BundleIdentifier.WildCard.previous.rawValue)
+    let command = try hideUnhideCommand("hide", identifier: ApplicationSystem.BundleIdentifier.WildCard.previous.rawValue)
     let result = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
     #expect(result === snapshot)
   }

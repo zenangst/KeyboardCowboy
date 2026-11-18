@@ -1,17 +1,17 @@
 import Commands
 import Apps
 import Cocoa
-import CowboyCore
 import Foundation
+import RuntimeEnvironment
 
 extension Operation {
   final class Launch: Sendable {
-    let env: Core.Environment
-    let workspace: Core.Workspace
+    let env: RuntimeEnvironment.Mode
+    let workspace: Application.Workspace
 
-    init(_ env: Core.Environment) {
+    init(_ env: RuntimeEnvironment.Mode) {
       self.env = env
-      self.workspace = Core.Workspace(env)
+      self.workspace = Application.Workspace(env)
     }
 
     func callAsFunction(at path: String, with modifiers: Set<Command.Application.Modifier>) async throws {

@@ -1,7 +1,7 @@
 import ApplicationSystem
 import Commands
 import CoreGraphics
-import CowboyCore
+import RuntimeEnvironment
 import UserSpace
 
 public extension Application {
@@ -15,19 +15,19 @@ public extension Application {
     }
 
     public struct SelfApplicationHandler: Sendable {
-      let bundleIdentifier: Core.BundleIdentifier
+      let bundleIdentifier: ApplicationSystem.BundleIdentifier
       let open: @Sendable () async -> Void
 
-      public init(bundleIdentifier: Core.BundleIdentifier, open: @escaping @Sendable () async -> Void) {
+      public init(bundleIdentifier: ApplicationSystem.BundleIdentifier, open: @escaping @Sendable () async -> Void) {
         self.bundleIdentifier = bundleIdentifier
         self.open = open
       }
     }
 
     public enum ExecutionError: Error, Equatable, Sendable {
-      case failedToTerminate(Core.BundleIdentifier)
-      case failedToActivate(Core.BundleIdentifier)
-      case applicationNotRunning(Core.BundleIdentifier)
+      case failedToTerminate(ApplicationSystem.BundleIdentifier)
+      case failedToActivate(ApplicationSystem.BundleIdentifier)
+      case applicationNotRunning(ApplicationSystem.BundleIdentifier)
       case missingFrontmostApplication
     }
 
@@ -41,9 +41,9 @@ public extension Application {
       let wait: Operation.Wait
     }
 
-    private let env: Core.Environment
+    private let env: RuntimeEnvironment.Mode
     private let operation: Operations
-    private let workspace: Core.Workspace
+    private let workspace: Application.Workspace
     private let windowOwnerNames: (@Sendable () async -> [String])?
     private let willExecute: (@Sendable (Command.Application) async -> Void)?
     private let selfApplication: SelfApplicationHandler?
@@ -55,7 +55,7 @@ public extension Application {
     /// launch skips window-dependent post-launch activation. An empty array instead
     /// enables the no-tracked-windows paths. Background/Electron opens bypass it.
     public convenience init(
-      _ env: Core.Environment,
+      _ env: RuntimeEnvironment.Mode,
       windowOwnerNames: (@Sendable () async -> [String])? = nil,
       willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
       selfApplication: SelfApplicationHandler? = nil,
@@ -65,7 +65,7 @@ public extension Application {
                 willExecute: willExecute, selfApplication: selfApplication, peekRelease: peekRelease)
     }
 
-    init(_ env: Core.Environment, wait: Operation.Wait,
+    init(_ env: RuntimeEnvironment.Mode, wait: Operation.Wait,
          windowOwnerNames: (@Sendable () async -> [String])? = nil,
          willExecute: (@Sendable (Command.Application) async -> Void)? = nil,
          selfApplication: SelfApplicationHandler? = nil,
@@ -80,7 +80,7 @@ public extension Application {
         unhide: Operation.Unhide(env),
         wait: wait,
       )
-      self.workspace = Core.Workspace(env)
+      self.workspace = Application.Workspace(env)
       self.windowOwnerNames = windowOwnerNames
       self.willExecute = willExecute
       self.selfApplication = selfApplication
@@ -105,7 +105,7 @@ public extension Application {
         return snapshot
       }
 
-      let bundleIdentifier = BundleIdentifier(command.application.bundleIdentifier)
+      let bundleIdentifier = ApplicationSystem.BundleIdentifier(command.application.bundleIdentifier)
       if let selfApplication, selfApplication.bundleIdentifier == bundleIdentifier {
         await selfApplication.open()
         try Task.checkCancellation()
@@ -155,11 +155,11 @@ public extension Application {
       if command.requiresLaunchAndWait {
         try await operation.launch(at: command.application.path, with: command.modifiers)
         try Task.checkCancellation()
-        try await operation.wait(for: BundleIdentifier(command.application.bundleIdentifier))
+        try await operation.wait(for: ApplicationSystem.BundleIdentifier(command.application.bundleIdentifier))
         return
       }
 
-      let bundleIdentifier = BundleIdentifier(command.application.bundleIdentifier)
+      let bundleIdentifier = ApplicationSystem.BundleIdentifier(command.application.bundleIdentifier)
       let owners = await windowOwnerNames?()
       try Task.checkCancellation()
       let isFrontMostApplication = bundleIdentifier == workspace.frontmostApplication?.bundleIdentifier
@@ -197,7 +197,7 @@ public extension Application {
             // Legacy treats post-launch activation as best effort.
             operation.activate(bundleIdentifier)
           } else {
-            guard let target = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
+            guard let target = ApplicationSystem.RunningApplication.application(with: bundleIdentifier, env: env) else {
               return
             }
 
@@ -213,7 +213,8 @@ public extension Application {
 
       try Task.checkCancellation()
       if command.modifiers.contains(.waitForAppToLaunch),
-         Core.RunningApplication.application(with: bundleIdentifier, env: env)?.isFinishedLaunching != true {
+         ApplicationSystem.RunningApplication.application(with: bundleIdentifier, env: env)?
+           .isFinishedLaunching != true {
         // Match legacy behavior: a timeout does not fail the command.
         try await operation.wait(for: bundleIdentifier)
       }
@@ -221,8 +222,8 @@ public extension Application {
 
     private func shouldSkipBecauseApplicationIsRunning(for command: Command.Application) -> Bool {
       if command.modifiers.contains(.onlyIfNotRunning),
-         Core.RunningApplication.application(
-           with: BundleIdentifier(command.application.bundleIdentifier),
+         ApplicationSystem.RunningApplication.application(
+           with: ApplicationSystem.BundleIdentifier(command.application.bundleIdentifier),
            env: env) != nil {
         return true
       }

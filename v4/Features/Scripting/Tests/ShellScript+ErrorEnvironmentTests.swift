@@ -1,6 +1,5 @@
 @testable import FileSystem
 @testable import ProcessSystem
-@testable import CowboyCore
 import Foundation
 @testable import ScriptingFeature
 import Testing
@@ -11,10 +10,10 @@ private enum ShellBoundaryError: Error {
 
 @Test func shellCreationFailureDoesNotLaunchAndPreservesOriginalError() throws {
   let processes = try ShellScript.Builder(.testing).build("echo hello")
-  Core.FileManager.Testing.$mock.withValue(.init(createFile: false, removeItem: {
+  FileSystem.FileManager.Testing.$mock.withValue(.init(createFile: false, removeItem: {
     throw ShellBoundaryError.cleanup
   })) {
-    Core.Process.Testing.$mock.withValue(.init(run: { throw ShellBoundaryError.launch })) {
+    ProcessSystem.Process.Testing.$mock.withValue(.init(run: { throw ShellBoundaryError.launch })) {
       #expect(throws: ShellScript.Executor.Error.createFileFailed) {
         try ShellScript.Executor(.testing).execute(processes)
       }
@@ -24,10 +23,10 @@ private enum ShellBoundaryError: Error {
 
 @Test func shellCleanupFailureAfterSuccessIsReported() throws {
   let processes = try ShellScript.Builder(.testing).build("echo hello")
-  Core.FileManager.Testing.$mock.withValue(.init(createFile: true, removeItem: {
+  FileSystem.FileManager.Testing.$mock.withValue(.init(createFile: true, removeItem: {
     throw ShellBoundaryError.cleanup
   })) {
-    Core.Process.Testing.$mock.withValue(.init(run: {}, waitUntilExit: {})) {
+    ProcessSystem.Process.Testing.$mock.withValue(.init(run: {}, waitUntilExit: {})) {
       #expect(throws: ShellBoundaryError.cleanup) {
         try ShellScript.Executor(.testing).execute(processes)
       }
@@ -37,10 +36,10 @@ private enum ShellBoundaryError: Error {
 
 @Test func shellDirectoryCreationFailureIsReported() throws {
   let processes = try ShellScript.Builder(.testing).build("echo hello")
-  Core.FileManager.Testing.$mock.withValue(.init(createDirectoryAtUrl: {
+  FileSystem.FileManager.Testing.$mock.withValue(.init(createDirectoryAtUrl: {
     throw ShellBoundaryError.directory
   }, createFile: true, removeItem: { throw ShellBoundaryError.cleanup })) {
-    Core.Process.Testing.$mock.withValue(.init(run: { throw ShellBoundaryError.launch })) {
+    ProcessSystem.Process.Testing.$mock.withValue(.init(run: { throw ShellBoundaryError.launch })) {
       #expect(throws: ShellBoundaryError.directory) {
         try ShellScript.Executor(.testing).execute(processes)
       }
@@ -49,7 +48,7 @@ private enum ShellBoundaryError: Error {
 }
 
 @Test func shellBuildersApplyEnvironmentConsistently() throws {
-  try Core.ProcessInfo.Testing.$mock.withValue([
+  try ProcessSystem.ProcessInfo.Testing.$mock.withValue([
     "PATH": "/custom/bin", "SHELL": "/bin/bash", "TERM": "original", "CUSTOM": "value",
   ]) {
     let builder = ShellScript.Builder(.testing)
@@ -70,7 +69,7 @@ private enum ShellBoundaryError: Error {
 
 @Test(arguments: [false, true]) func shellBuilderDefaultsMissingOrEmptyPath(empty: Bool) throws {
   let environment = empty ? ["PATH": ""] : [:]
-  try Core.ProcessInfo.Testing.$mock.withValue(environment) {
+  try ProcessSystem.ProcessInfo.Testing.$mock.withValue(environment) {
     let process = try #require(ShellScript.Builder(.testing).build("echo hello").first)
     #expect(process.environment?["PATH"] == "/usr/local/bin:/opt/homebrew/bin:")
     #expect(process.environment?["SHELL"] == "/bin/zsh")

@@ -2,7 +2,6 @@
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
@@ -11,7 +10,7 @@ import Testing
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   #expect(command.modifiers == [.waitForAppToLaunch, .hidden])
 
-  let identifier = Core.BundleIdentifier("example.target")
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
   let (events, continuation) = AsyncStream<String>.makeStream()
   let wait = Operation.Wait(.testing, retries: 1, pollingInterval: .milliseconds(11), sleep: { duration in
     #expect(duration == .milliseconds(11))
@@ -20,14 +19,14 @@ import Testing
   let executor = Application.Executor(.testing, wait: wait)
   let initial = UserSpace.Snapshot(apps: .init())
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, configuration in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, configuration in
     #expect(url.path() == "/Applications/Target.app")
     #expect(configuration.activates)
     #expect(configuration.hides)
     continuation.yield("launch")
-    return Core.RunningApplication(.testing(identifier))
+    return ApplicationSystem.RunningApplication(.testing(identifier))
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(runningApplicationsLookup: { requested in
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(runningApplicationsLookup: { requested in
       #expect(requested == identifier)
       continuation.yield("lookup")
       return []

@@ -1,6 +1,5 @@
 @testable import FileSystem
 @testable import ProcessSystem
-@testable import CowboyCore
 import Foundation
 import Darwin
 @testable import ScriptingFeature
@@ -23,7 +22,7 @@ enum ExecutorTestError: Error {
   let executor = ShellScript.Executor(.testing)
   let results = TestResults()
 
-  try Core.FileManager.Testing.$mock.withValue(
+  try FileSystem.FileManager.Testing.$mock.withValue(
     .init(
       contentsAtPath: nil,
       createDirectoryAtUrl: {
@@ -33,7 +32,7 @@ enum ExecutorTestError: Error {
       removeItem: {},
     ),
     operation: {
-      try Core.Process.Testing.$mock.withValue(
+      try ProcessSystem.Process.Testing.$mock.withValue(
         .init(
           run: { results.didRun = true },
           waitUntilExit: {
@@ -63,7 +62,7 @@ enum ExecutorTestError: Error {
 }
 
 private func executePerl(_ source: String) throws -> String? {
-  let process = Core.Process(.production, launchStyle: .headless(source))
+  let process = ProcessSystem.Process(.production, launchStyle: .headless(source))
   process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
   process.arguments = ["-e", source]
   return try ShellScript.Executor(.production).execute(process)
@@ -100,10 +99,10 @@ private func executePerl(_ source: String) throws -> String? {
   let pidFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
   defer { try? FileManager.default.removeItem(at: pidFile) }
   let source = "open(my $f, '>', $ARGV[0]) or die $!; print $f $$; close $f; print STDOUT 'valid'; while (1) { print STDERR 'e' x 65536 or die $! }"
-  let process = Core.Process(.production, launchStyle: .headless(source))
+  let process = ProcessSystem.Process(.production, launchStyle: .headless(source))
   process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
   process.arguments = ["-e", source, pidFile.path]
-  #expect(throws: Core.Process.CaptureError.standardErrorLimitExceeded(limit: 64 * 1024 * 1024)) {
+  #expect(throws: ProcessSystem.Process.CaptureError.standardErrorLimitExceeded(limit: 64 * 1024 * 1024)) {
     try ShellScript.Executor(.production).execute(process)
   }
   let pid = try #require(Int32(String(contentsOf: pidFile, encoding: .utf8)))
@@ -114,7 +113,7 @@ private func executePerl(_ source: String) throws -> String? {
   guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
   let output = try executePerl("alarm 30; binmode STDOUT; print 'x' x (64 * 1024 * 1024) or die $!")
   let value = try #require(output)
-  #expect(value.utf8.count == Core.Process.standardOutputCaptureLimit)
+  #expect(value.utf8.count == ProcessSystem.Process.standardOutputCaptureLimit)
   #expect(value.utf8.allSatisfy { $0 == 120 })
 }
 
@@ -123,10 +122,10 @@ private func executePerl(_ source: String) throws -> String? {
   let pidFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
   defer { try? FileManager.default.removeItem(at: pidFile) }
   let source = "alarm 30; open(my $f, '>', $ARGV[0]) or die $!; print $f $$; close $f; binmode STDOUT; while (1) { print STDOUT 'x' x 65536 or die $! }"
-  let process = Core.Process(.production, launchStyle: .headless(source))
+  let process = ProcessSystem.Process(.production, launchStyle: .headless(source))
   process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
   process.arguments = ["-e", source, pidFile.path]
-  #expect(throws: Core.Process.CaptureError.standardOutputLimitExceeded(limit: 64 * 1024 * 1024)) {
+  #expect(throws: ProcessSystem.Process.CaptureError.standardOutputLimitExceeded(limit: 64 * 1024 * 1024)) {
     try ShellScript.Executor(.production).execute(process)
   }
   let pid = try #require(Int32(String(contentsOf: pidFile, encoding: .utf8)))
@@ -136,11 +135,11 @@ private func executePerl(_ source: String) throws -> String? {
 @Test func shellCleansUpAndPreservesLaunchError() throws {
   let processes = try ShellScript.Builder(.testing).build("echo hello")
   let results = TestResults()
-  Core.FileManager.Testing.$mock.withValue(.init(createFile: true, removeItem: {
+  FileSystem.FileManager.Testing.$mock.withValue(.init(createFile: true, removeItem: {
     results.didRemoveDirectory = true
     throw ExecutorTestError.cleanup
   })) {
-    Core.Process.Testing.$mock.withValue(.init(run: { throw ExecutorTestError.launch })) {
+    ProcessSystem.Process.Testing.$mock.withValue(.init(run: { throw ExecutorTestError.launch })) {
       #expect(throws: ExecutorTestError.launch) {
         try ShellScript.Executor(.testing).execute(processes)
       }
@@ -158,7 +157,7 @@ private func executePerl(_ source: String) throws -> String? {
   let data = Data("A,B,C".utf8)
   var output: String?
 
-  try Core.FileManager.Testing.$mock.withValue(
+  try FileSystem.FileManager.Testing.$mock.withValue(
     .init(
       contentsAtPath: nil,
       createDirectoryAtUrl: {
@@ -171,13 +170,13 @@ private func executePerl(_ source: String) throws -> String? {
       },
     ),
     operation: {
-      try Core.Process.Testing.$mock.withValue(
+      try ProcessSystem.Process.Testing.$mock.withValue(
         .init(
           run: { results.didRun = true },
           waitUntilExit: {
             results.didWaitUntilExit = true
           }), operation: {
-          try Core.FileHandle.Testing.$mock.withValue(.init(readToEnd: data)) {
+          try ProcessSystem.FileHandle.Testing.$mock.withValue(.init(readToEnd: data)) {
             output = try executor.execute(script)
           }
         })

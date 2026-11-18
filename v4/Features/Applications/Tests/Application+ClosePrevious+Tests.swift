@@ -2,13 +2,12 @@
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
 @Test @MainActor func closingFrontmostDoesNotHideNewFrontmostAsPrevious() async throws {
-  let closed = Core.RunningApplication(.testing(.init("example.closed")))
-  let current = Core.RunningApplication(.testing(.init("example.current")))
+  let closed = ApplicationSystem.RunningApplication(.testing(.init("example.closed")))
+  let current = ApplicationSystem.RunningApplication(.testing(.init("example.current")))
   let snapshot = UserSpace.Snapshot(apps: .init(
     frontMost: .init(bundleIdentifier: .init("example.closed"), runningApplication: closed),
     previous: .init(bundleIdentifier: .init("example.current"), runningApplication: current)))
@@ -19,8 +18,8 @@ import Testing
   let executor = Application.Executor(.testing)
   let (events, continuation) = AsyncStream<String>.makeStream()
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: current)) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: current)) {
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplications: [closed],
       onHide: { _ in Issue.record("Current app must not be hidden as previous"); return true },
       onTerminate: { application in

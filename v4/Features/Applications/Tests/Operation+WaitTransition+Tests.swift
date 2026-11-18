@@ -1,11 +1,10 @@
 @testable import ApplicationSystem
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Testing
 
 @Test func waitTransitionsFromAbsentToUnfinishedToFinished() async throws {
-  let identifier = BundleIdentifier("starting.app")
-  let application = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("starting.app")
+  let application = ApplicationSystem.RunningApplication(.testing(identifier))
   let (firstLookup, lookupResponses) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(1))
   let (firstLaunchRead, launchResponses) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(1))
   let (events, trace) = AsyncStream<String>.makeStream()
@@ -14,7 +13,7 @@ import Testing
     trace.yield("sleep \(duration)")
   })
 
-  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isFinishedLaunching: {
       switch launchResponses.yield(()) {
       case .enqueued: trace.yield("unfinished"); return false

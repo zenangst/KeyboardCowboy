@@ -1,7 +1,7 @@
 import FileSystem
 import ProcessSystem
-import CowboyCore
 import Foundation
+import RuntimeEnvironment
 
 /// A script subprocess that exited unsuccessfully. Output is captured as raw
 /// bytes so diagnostics are preserved even when they are not UTF-8.
@@ -31,9 +31,9 @@ extension ShellScript {
       case createFileFailed
     }
 
-    let env: Core.Environment
+    let env: RuntimeEnvironment.Mode
 
-    init(_ env: Core.Environment) {
+    init(_ env: RuntimeEnvironment.Mode) {
       self.env = env
     }
 

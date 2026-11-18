@@ -1,18 +1,17 @@
 @testable import ApplicationSystem
-@testable import AppleScriptSystem
+@testable import AppleScriptRuntime
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
 @Test(arguments: ["unavailable", "matching", "other", "missing", "no-frontmost"])
 @MainActor func nonFrontmostOrdinaryOpenOrdersLaunchLookupAndBestEffortActivation(route: String) async throws {
-  let identifier = Core.BundleIdentifier("example.target")
-  let frontmost = Core.RunningApplication(.testing(.init("example.frontmost")))
-  let launched = Core.RunningApplication(.testing(.init("example.launched")))
-  let target = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("example.target")
+  let frontmost = ApplicationSystem.RunningApplication(.testing(.init("example.frontmost")))
+  let launched = ApplicationSystem.RunningApplication(.testing(.init("example.launched")))
+  let target = ApplicationSystem.RunningApplication(.testing(identifier))
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"trace","name":"Open","enabled":true}}"#
   let command = try JSONDecoder().decode(Command.Application.self, from: Data(fixture.utf8))
   let initial = UserSpace.Snapshot(apps: .init())
@@ -23,7 +22,7 @@ import Testing
   }
   let executor = Application.Executor(.testing, windowOwnerNames: route == "unavailable" ? nil : availableOwners)
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(
+  try await Application.Workspace.Testing.$mock.withValue(.init(
     frontmostApplication: route == "no-frontmost" ? nil : frontmost,
     openApplication: { url, configuration in
       #expect(url.path() == "/Applications/Target.app")
@@ -32,7 +31,7 @@ import Testing
       return launched
     }
   )) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { from, options in
         #expect(from === frontmost)
         #expect(options == (route == "matching" ? [] : [.activateAllWindows]))
@@ -51,7 +50,7 @@ import Testing
         return false
       }
     )) {
-      try await Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         Issue.record("Non-frontmost activation rejection must not invoke fallback")
         return nil
       })) {

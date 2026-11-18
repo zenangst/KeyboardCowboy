@@ -1,6 +1,6 @@
-import AppleScriptSystem
+import AppleScriptRuntime
 import Cocoa
-import CowboyCore
+import RuntimeEnvironment
 import System
 
 public extension AppleScript {
@@ -16,11 +16,11 @@ public extension AppleScript {
     }
 
     private var cache: Cache
-    private let env: Core.Environment
+    private let env: RuntimeEnvironment.Mode
     private var isExecuting = false
     private var shouldClearCache = false
 
-    public init(_ env: Core.Environment) {
+    public init(_ env: RuntimeEnvironment.Mode) {
       self.cache = Cache()
       self.env = env
     }
@@ -45,7 +45,7 @@ public extension AppleScript {
 
       do {
         var errorDictionary: NSDictionary?
-        let appleScript = try Core.NSAppleScript(env, contentsOf: URL(filePath: filePath.path), error: &errorDictionary)
+        let appleScript = try AppleScriptRuntime.NSAppleScript(env, contentsOf: URL(filePath: filePath.path), error: &errorDictionary)
         try Task.checkCancellation()
         try appleScript.compileAndReturnError(&errorDictionary)
         try Task.checkCancellation()
@@ -69,7 +69,7 @@ public extension AppleScript {
 
       do {
         var errorDictionary: NSDictionary?
-        let appleScript = try Core.NSAppleScript(env, source: source)
+        let appleScript = try AppleScriptRuntime.NSAppleScript(env, source: source)
         try Task.checkCancellation()
         try appleScript.compileAndReturnError(&errorDictionary)
         try Task.checkCancellation()
@@ -82,9 +82,9 @@ public extension AppleScript {
       }
     }
 
-    private func executeCached(_ script: Core.NSAppleScript,
+    private func executeCached(_ script: AppleScriptRuntime.NSAppleScript,
                                error: AutoreleasingUnsafeMutablePointer<NSDictionary?>?) throws -> String? {
-      let descriptor: Core.NSAppleEventDescriptor
+      let descriptor: AppleScriptRuntime.NSAppleEventDescriptor
       do {
         descriptor = try script.executeAndReturnError(error)
       } catch {
@@ -97,6 +97,7 @@ public extension AppleScript {
 
     private func beginExecution() throws {
       guard !isExecuting else { throw ExecutionError.reentrantExecution }
+
       isExecuting = true
     }
 

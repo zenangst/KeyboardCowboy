@@ -1,6 +1,5 @@
 @testable import ApplicationSystem
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Testing
 
 private actor SleepRecorder {
@@ -16,10 +15,10 @@ private actor SleepRecorder {
 }
 
 @Test func testOperationWaitSuccess() async throws {
-  let identifier = BundleIdentifier("current.app")
+  let identifier = ApplicationSystem.BundleIdentifier("current.app")
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, sleep: { await recorder.recordSleep($0) })
-  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isFinishedLaunching: { true },
     runningApplications: [.init(.testing(identifier))]
   )) {
@@ -30,11 +29,11 @@ private actor SleepRecorder {
 }
 
 @Test func testOperationWaitTimeOut() async throws {
-  let identifier = BundleIdentifier("current.app")
+  let identifier = ApplicationSystem.BundleIdentifier("current.app")
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, retries: 3, pollingInterval: .milliseconds(10),
                             sleep: { await recorder.recordSleep($0) })
-  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isFinishedLaunching: { false },
     runningApplications: [.init(.testing(identifier))]
   )) {
@@ -47,10 +46,10 @@ private actor SleepRecorder {
 @Test func testOperationWaitSkipAppleMusic() async throws {
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, sleep: { await recorder.recordSleep($0) })
-  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplicationsLookup: { _ in Issue.record("Skipped wait must not look up an application"); return [] }
   )) {
-    try await wait(for: BundleIdentifier("com.apple.Music"))
+    try await wait(for: ApplicationSystem.BundleIdentifier("com.apple.Music"))
   }
   #expect(result == .skipped)
   #expect(await recorder.recordedSleeps().isEmpty)
@@ -60,25 +59,25 @@ private actor SleepRecorder {
   let wait = Operation.Wait(.testing, retries: retries, sleep: { _ in
     Issue.record("Non-positive retries must not sleep")
   })
-  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplicationsLookup: { _ in
       Issue.record("Non-positive retries must not look up an application")
       return []
     }
   )) {
-    try await wait(for: BundleIdentifier("missing.app"))
+    try await wait(for: ApplicationSystem.BundleIdentifier("missing.app"))
   }
   #expect(result == .timedOut)
 }
 
 @Test func testWaitSleepFailureStopsFurtherPolling() async {
-  let identifier = BundleIdentifier("starting.app")
+  let identifier = ApplicationSystem.BundleIdentifier("starting.app")
   let (events, continuation) = AsyncStream<String>.makeStream()
   let wait = Operation.Wait(.testing, retries: 3, sleep: { _ in
     continuation.yield("sleep")
     throw CancellationError()
   })
-  await Core.RunningApplication.Testing.$mock.withValue(.init(
+  await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplicationsLookup: { requested in
       continuation.yield(requested == identifier ? "lookup target" : "lookup unexpected")
       return []
@@ -93,12 +92,12 @@ private actor SleepRecorder {
 }
 
 @Test func testWaitOperationForStartingApplication() async throws {
-  let identifier = BundleIdentifier("com.starting.app")
+  let identifier = ApplicationSystem.BundleIdentifier("com.starting.app")
   let (unfinishedReads, responses) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(2))
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, pollingInterval: .milliseconds(10),
                             sleep: { await recorder.recordSleep($0) })
-  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isFinishedLaunching: {
       switch responses.yield(()) {
       case .enqueued: false
@@ -120,9 +119,9 @@ private actor SleepRecorder {
 }
 
 @Test func testWaitPropagatesSleepCancellation() async {
-  let identifier = BundleIdentifier("current.app")
+  let identifier = ApplicationSystem.BundleIdentifier("current.app")
   let wait = Operation.Wait(.testing, sleep: { _ in throw CancellationError() })
-  await Core.RunningApplication.Testing.$mock.withValue(.init(
+  await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplications: [.init(.testing(identifier))]
   )) {
     await #expect(throws: CancellationError.self) { try await wait(for: identifier) }
@@ -130,11 +129,11 @@ private actor SleepRecorder {
 }
 
 @Test func testWaitForMissingApplicationSleepsAndTimesOut() async throws {
-  let identifier = BundleIdentifier("missing.app")
+  let identifier = ApplicationSystem.BundleIdentifier("missing.app")
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, retries: 3, pollingInterval: .milliseconds(10),
                             sleep: { await recorder.recordSleep($0) })
-  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init()) {
+  let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init()) {
     try await wait(for: identifier)
   }
   #expect(result == .timedOut)
@@ -142,13 +141,13 @@ private actor SleepRecorder {
 }
 
 @Test func testWaitFindsApplicationAfterMissingLookup() async throws {
-  let identifier = BundleIdentifier("starting.app")
-  let application = Core.RunningApplication(.testing(identifier))
+  let identifier = ApplicationSystem.BundleIdentifier("starting.app")
+  let application = ApplicationSystem.RunningApplication(.testing(identifier))
   let (missingLookups, responses) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(1))
   let (events, continuation) = AsyncStream<String>.makeStream()
   let wait = Operation.Wait(.testing, retries: 3, pollingInterval: .milliseconds(10),
                             sleep: { continuation.yield("sleep \($0)") })
-  let result = try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isFinishedLaunching: { continuation.yield("finished"); return true },
     runningApplicationsLookup: { requested in
       continuation.yield(requested == identifier ? "lookup target" : "lookup unexpected")
@@ -177,7 +176,7 @@ private actor SleepRecorder {
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
       withUnsafeCurrentTask { $0?.cancel() }
-      return await Core.RunningApplication.Testing.$mock.withValue(.init(
+      return await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         runningApplicationsLookup: { _ in
           Issue.record("A cancelled wait must not look up an application")
           return []
@@ -217,14 +216,14 @@ private actor SleepRecorder {
 
 @Test func testWaitChecksCancellationAfterInjectedSleepReturns() async {
   for finished in [false, true] {
-    let identifier = BundleIdentifier("current.app")
+    let identifier = ApplicationSystem.BundleIdentifier("current.app")
     let recorder = SleepRecorder()
     let cancelled = await Task {
       let wait = Operation.Wait(.testing, retries: 1, sleep: { duration in
         await recorder.recordSleep(duration)
         withUnsafeCurrentTask { $0?.cancel() }
       })
-      return await Core.RunningApplication.Testing.$mock.withValue(.init(
+      return await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         isFinishedLaunching: { finished },
         runningApplications: [.init(.testing(identifier))]
       )) {

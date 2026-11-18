@@ -2,7 +2,6 @@
 import UserSpace
 import Commands
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import CoreGraphics
 import Foundation
 import Testing
@@ -29,10 +28,10 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
     continuation.yield("release"); return .hide
   }, sleep: { _ in continuation.yield("sleep") })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
     continuation.yield("launch"); return .init(.testing(nil))
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { _ in continuation.yield("lookup"); return [] },
       onHide: { _ in continuation.yield("hide"); return true },
       onActivate: { _, _ in continuation.yield("activate"); return true }
@@ -53,16 +52,16 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
   let session = Application.PeekSession()
   let id = UUID()
   let other = UUID()
-  let target = Core.RunningApplication(.testing(.init("example.target")))
+  let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
   let (events, continuation) = AsyncStream<String>.makeStream()
   let executor = Application.Executor(.testing, peekRelease: { _ in
     continuation.yield("release"); return .hide
   })
 
-  try await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
+  try await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
     continuation.yield("launch \(url.lastPathComponent)"); return target
   })) {
-    try await Core.RunningApplication.Testing.$mock.withValue(.init(
+    try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { identifier in
         #expect(identifier == .init("example.target"))
         continuation.yield("lookup"); return [target]
@@ -112,12 +111,12 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
 
   let outcome = await withTaskGroup(of: String.self, returning: String.self) { group in
     group.addTask {
-      await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
+      await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
         continuation.yield("launch \(url.lastPathComponent)")
         if cancelled { withUnsafeCurrentTask { $0?.cancel() } }
         throw PeekEdgeFailure.launch
       })) {
-        await Core.RunningApplication.Testing.$mock.withValue(.init(
+        await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
           runningApplicationsLookup: { _ in continuation.yield("lookup"); return [] },
           onHide: { _ in continuation.yield("hide"); return true }
         )) {
@@ -161,7 +160,7 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
 
   let outcome = await withTaskGroup(of: String.self, returning: String.self) { group in
     group.addTask {
-      await Core.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
+      await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { url, _ in
         continuation.yield("launch \(url.lastPathComponent)")
         if url.lastPathComponent == "Previous.app" {
           if cancelled { withUnsafeCurrentTask { $0?.cancel() } }
@@ -169,7 +168,7 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
         }
         return .init(.testing(nil))
       })) {
-        await Core.RunningApplication.Testing.$mock.withValue(.init(
+        await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
           runningApplicationsLookup: { _ in continuation.yield("lookup"); return [] },
           onHide: { _ in continuation.yield("hide"); return true }
         )) {

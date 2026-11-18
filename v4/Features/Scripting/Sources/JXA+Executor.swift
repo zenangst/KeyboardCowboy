@@ -1,15 +1,15 @@
 import FileSystem
 import ProcessSystem
-import CowboyCore
 import Foundation
 import System
+import RuntimeEnvironment
 
 extension JXA {
   final class Executor {
-    let env: Core.Environment
+    let env: RuntimeEnvironment.Mode
     let fileManager: FileManager
 
-    init(_ env: Core.Environment) {
+    init(_ env: RuntimeEnvironment.Mode) {
       self.env = env
       self.fileManager = FileManager(env)
     }

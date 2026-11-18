@@ -12,9 +12,9 @@ let package = Package(
   name: "ProcessSystem",
   platforms: [.macOS(.v14)],
   products: [.library(name: "ProcessSystem", targets: ["ProcessSystem"])],
-  dependencies: [.package(path: "../CowboyCore")],
+  dependencies: [.package(path: "../RuntimeEnvironment")],
   targets: [
-    .target(name: "ProcessSystem", dependencies: ["CowboyCore"], path: "Sources", linkerSettings: linkerSettings),
-    .testTarget(name: "ProcessSystemTests", dependencies: ["ProcessSystem", "CowboyCore"], path: "Tests"),
-  ]
+    .target(name: "ProcessSystem", dependencies: ["RuntimeEnvironment"], path: "Sources", linkerSettings: linkerSettings),
+    .testTarget(name: "ProcessSystemTests", dependencies: ["ProcessSystem"], path: "Tests"),
+  ],
 )

@@ -1,6 +1,5 @@
 import FileSystem
 import ProcessSystem
-import CowboyCore
 import Darwin
 import Foundation
 @testable import ScriptingFeature
@@ -8,7 +7,7 @@ import System
 import Testing
 
 private func runProcess(_ source: String) throws -> String? {
-  let process = Core.Process(.production, launchStyle: .headless(source))
+  let process = ProcessSystem.Process(.production, launchStyle: .headless(source))
   process.executableURL = URL(fileURLWithPath: "/bin/sh")
   process.arguments = ["-c", source]
   return try ShellScript.Executor(.production).execute(process)

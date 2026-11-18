@@ -12,9 +12,9 @@ let package = Package(
   name: "FileSystem",
   platforms: [.macOS(.v14)],
   products: [.library(name: "FileSystem", targets: ["FileSystem"])],
-  dependencies: [.package(path: "../CowboyCore")],
+  dependencies: [.package(path: "../RuntimeEnvironment")],
   targets: [
-    .target(name: "FileSystem", dependencies: ["CowboyCore"], path: "Sources", linkerSettings: linkerSettings),
-    .testTarget(name: "FileSystemTests", dependencies: ["FileSystem", "CowboyCore"], path: "Tests"),
-  ]
+    .target(name: "FileSystem", dependencies: ["RuntimeEnvironment"], path: "Sources", linkerSettings: linkerSettings),
+    .testTarget(name: "FileSystemTests", dependencies: ["FileSystem"], path: "Tests"),
+  ],
 )

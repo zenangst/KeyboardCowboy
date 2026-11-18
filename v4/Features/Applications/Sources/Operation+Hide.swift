@@ -1,21 +1,21 @@
 import ApplicationSystem
 import UserSpace
-import CowboyCore
+import RuntimeEnvironment
 
 extension Operation {
   final class Hide: Sendable {
-    private let env: Core.Environment
-    private let workspace: Core.Workspace
+    private let env: RuntimeEnvironment.Mode
+    private let workspace: Application.Workspace
 
-    init(_ env: Core.Environment) {
+    init(_ env: RuntimeEnvironment.Mode) {
       self.env = env
-      self.workspace = Core.Workspace(env)
+      self.workspace = Application.Workspace(env)
     }
 
     @discardableResult
-    func callAsFunction(_ bundleIdentifier: BundleIdentifier, snapshot: UserSpace.Snapshot) async -> Bool {
+    func callAsFunction(_ bundleIdentifier: ApplicationSystem.BundleIdentifier, snapshot: UserSpace.Snapshot) async -> Bool {
       guard !Task.isCancelled else { return false }
-      if bundleIdentifier == BundleIdentifier.WildCard.previous {
+      if bundleIdentifier == ApplicationSystem.BundleIdentifier.WildCard.previous {
         if let previous = await snapshot.apps.previous, !previous.runningApplication.isHidden {
           guard !Task.isCancelled else { return false }
           previous.runningApplication.hide()
@@ -23,7 +23,7 @@ extension Operation {
         return false
       }
 
-      guard let application = Core.RunningApplication.application(with: bundleIdentifier, env: env) else {
+      guard let application = ApplicationSystem.RunningApplication.application(with: bundleIdentifier, env: env) else {
         return false
       }
 

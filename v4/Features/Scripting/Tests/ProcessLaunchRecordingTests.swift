@@ -1,21 +1,20 @@
 import FileSystem
 import ProcessSystem
-import CowboyCore
 import Foundation
 @testable import ScriptingFeature
 import Testing
 
 private final class LaunchRecorder: @unchecked Sendable {
   private let lock = NSLock()
-  private var storage: [Core.Process.LaunchConfiguration] = []
+  private var storage: [ProcessSystem.Process.LaunchConfiguration] = []
 
-  func record(_ configuration: Core.Process.LaunchConfiguration) {
+  func record(_ configuration: ProcessSystem.Process.LaunchConfiguration) {
     lock.lock()
     defer { lock.unlock() }
     storage.append(configuration)
   }
 
-  var launches: [Core.Process.LaunchConfiguration] {
+  var launches: [ProcessSystem.Process.LaunchConfiguration] {
     lock.lock()
     defer { lock.unlock() }
     return storage
@@ -25,11 +24,11 @@ private final class LaunchRecorder: @unchecked Sendable {
 @Test func recordsInlineShellConfigurationAtLaunch() throws {
   let recorder = LaunchRecorder()
   let processes = try ShellScript.Builder(.testing).build("echo hello")
-  try Core.FileManager.Testing.$mock.withValue(.init(
+  try FileSystem.FileManager.Testing.$mock.withValue(.init(
     createDirectoryAtUrl: { URL(filePath: "/tmp/launch path") },
     createFile: true
   )) {
-    try Core.Process.Testing.$mock.withValue(.init(observeLaunch: { recorder.record($0) })) {
+    try ProcessSystem.Process.Testing.$mock.withValue(.init(observeLaunch: { recorder.record($0) })) {
       _ = try ShellScript.Executor(.testing).execute(processes)
     }
   }
@@ -45,8 +44,8 @@ private final class LaunchRecorder: @unchecked Sendable {
 @Test func failedInlineFileCreationDoesNotLaunch() throws {
   let recorder = LaunchRecorder()
   let processes = try ShellScript.Builder(.testing).build("echo hello")
-  Core.FileManager.Testing.$mock.withValue(.init(createFile: false)) {
-    Core.Process.Testing.$mock.withValue(.init(observeLaunch: { recorder.record($0) })) {
+  FileSystem.FileManager.Testing.$mock.withValue(.init(createFile: false)) {
+    ProcessSystem.Process.Testing.$mock.withValue(.init(observeLaunch: { recorder.record($0) })) {
       #expect(throws: (any Error).self) {
         try ShellScript.Executor(.testing).execute(processes)
       }

@@ -1,13 +1,12 @@
-@testable import AppleScriptSystem
+@testable import AppleScriptRuntime
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Foundation
 import Testing
 
 @Test func bringToFrontCancellationTakesPrecedenceOverScriptError() async {
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
-      Core.NSAppleScript.Testing.$mock.withValue(.init(execute: {
+      AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         withUnsafeCurrentTask { $0?.cancel() }
         return NSError(domain: "test", code: 42)
       })) {

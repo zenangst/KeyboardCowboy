@@ -1,15 +1,14 @@
 @testable import ApplicationSystem
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Testing
 
-let bundleIdentifier = BundleIdentifier("close.me.please")
+let bundleIdentifier = ApplicationSystem.BundleIdentifier("close.me.please")
 
 @Test func testCloseRunningApplication() async throws {
-  try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     bundleIdentifier: bundleIdentifier,
     runningApplications: [
-      Core.RunningApplication(.testing(nil)),
+      ApplicationSystem.RunningApplication(.testing(nil)),
     ],
     terminate: true,
   ),
@@ -20,7 +19,7 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
 }
 
 @Test func testCloseRunningNonApplication() async throws {
-  try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     bundleIdentifier: bundleIdentifier,
     runningApplications: [],
     terminate: true,
@@ -32,8 +31,8 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
 }
 
 @Test func testCloseReportsTerminationFailure() async {
-  await Core.RunningApplication.Testing.$mock.withValue(.init(
-    runningApplications: [Core.RunningApplication(.testing(bundleIdentifier))],
+  await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
+    runningApplications: [ApplicationSystem.RunningApplication(.testing(bundleIdentifier))],
     terminate: false
   )) {
     await #expect(throws: Application.Executor.ExecutionError.failedToTerminate(bundleIdentifier)) {
@@ -43,10 +42,10 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
 }
 
 @Test func testCloseTerminatesOnlyFirstMatchingInstance() async throws {
-  let first = Core.RunningApplication(.testing(bundleIdentifier))
-  let second = Core.RunningApplication(.testing(bundleIdentifier))
+  let first = ApplicationSystem.RunningApplication(.testing(bundleIdentifier))
+  let second = ApplicationSystem.RunningApplication(.testing(bundleIdentifier))
   let (events, continuation) = AsyncStream<String>.makeStream()
-  try await Core.RunningApplication.Testing.$mock.withValue(.init(
+  try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplicationsLookup: { identifier in
       continuation.yield(identifier == bundleIdentifier ? "lookup target" : "lookup unexpected")
       return [first, second]
@@ -66,10 +65,10 @@ let bundleIdentifier = BundleIdentifier("close.me.please")
 }
 
 @Test func testCloseCancellationDuringLookupPreventsTermination() async {
-  let target = Core.RunningApplication(.testing(bundleIdentifier))
+  let target = ApplicationSystem.RunningApplication(.testing(bundleIdentifier))
   let (events, continuation) = AsyncStream<String>.makeStream()
   let cancelled = await Task {
-    await Core.RunningApplication.Testing.$mock.withValue(.init(
+    await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { _ in
         continuation.yield("lookup")
         withUnsafeCurrentTask { $0?.cancel() }

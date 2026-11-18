@@ -1,16 +1,15 @@
 @testable import ApplicationSystem
 @testable import ApplicationsFeature
-@testable import CowboyCore
 import Testing
 
 @Test func activationMatchesFrontmostIdentifierIgnoringCase() async {
-  let targetID = Core.BundleIdentifier("com.example.editor")
-  let target = Core.RunningApplication(.testing(targetID))
-  let frontmost = Core.RunningApplication(.testing(.init("COM.EXAMPLE.EDITOR")))
+  let targetID = ApplicationSystem.BundleIdentifier("com.example.editor")
+  let target = ApplicationSystem.RunningApplication(.testing(targetID))
+  let frontmost = ApplicationSystem.RunningApplication(.testing(.init("COM.EXAMPLE.EDITOR")))
 
   await confirmation("Expected all-windows activation") { activated in
-    Core.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
-      Core.RunningApplication.Testing.$mock.withValue(.init(
+    Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: frontmost)) {
+      ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         activateFrom: { application, options in
           #expect(application === frontmost)
           #expect(options == [.activateAllWindows])

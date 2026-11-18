@@ -1,6 +1,5 @@
 import Commands
 import Cocoa
-import CowboyCore
 
 extension NSWorkspace.OpenConfiguration {
   convenience init(_ modifiers: Set<Command.Application.Modifier>) {

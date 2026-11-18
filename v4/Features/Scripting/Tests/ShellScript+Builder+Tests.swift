@@ -1,11 +1,10 @@
 @testable import ProcessSystem
-@testable import CowboyCore
 import Foundation
 @testable import ScriptingFeature
 import Testing
 
 @Test func buildMixedInlineSourceAsOneShellScript() throws {
-  try Core.ProcessInfo.Testing.$mock.withValue(["FOO": "BAR"], operation: {
+  try ProcessSystem.ProcessInfo.Testing.$mock.withValue(["FOO": "BAR"], operation: {
     let builder = ShellScript.Builder(.testing)
     let input = "/opt/homebrew/bin/yabai -m window --space  1; /opt/homebrew/bin/yabai -m space --focus 1"
     let results = try builder.build(input)
@@ -21,7 +20,7 @@ import Testing
 }
 
 @Test func buildProcessShell() throws {
-  try Core.ProcessInfo.Testing.$mock.withValue(["FOO": "BAR"], operation: {
+  try ProcessSystem.ProcessInfo.Testing.$mock.withValue(["FOO": "BAR"], operation: {
     let builder = ShellScript.Builder(.testing)
     let input = "yabai -m window --space  1"
     let results = try builder.build(input)
@@ -38,7 +37,7 @@ import Testing
 }
 
 @Test func buildProcessShellWithShebang() throws {
-  try Core.ProcessInfo.Testing.$mock.withValue(["FOO": "BAR"], operation: {
+  try ProcessSystem.ProcessInfo.Testing.$mock.withValue(["FOO": "BAR"], operation: {
     let builder = ShellScript.Builder(.testing)
     let input = """
     #!/bin/bash

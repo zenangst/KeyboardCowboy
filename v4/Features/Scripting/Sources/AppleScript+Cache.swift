@@ -1,18 +1,17 @@
-import AppleScriptSystem
+import AppleScriptRuntime
 import Cocoa
-import CowboyCore
 
 extension AppleScript {
   struct Cache {
-    private var storage = [String: Core.NSAppleScript]()
+    private var storage = [String: AppleScriptRuntime.NSAppleScript]()
 
     init() {}
 
-    func get(for key: String) -> Core.NSAppleScript? {
+    func get(for key: String) -> AppleScriptRuntime.NSAppleScript? {
       storage[key]
     }
 
-    mutating func set(_ appleScript: Core.NSAppleScript, for key: String) {
+    mutating func set(_ appleScript: AppleScriptRuntime.NSAppleScript, for key: String) {
       storage[key] = appleScript
     }
 
