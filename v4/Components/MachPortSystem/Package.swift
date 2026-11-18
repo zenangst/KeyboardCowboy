@@ -6,5 +6,8 @@ let package = Package(
   name: "MachPortSystem",
   platforms: [.macOS(.v14)],
   products: [.library(name: "MachPortSystem", targets: ["MachPortSystem"])],
-  targets: [.target(name: "MachPortSystem", path: "Sources")]
+  targets: [
+    .target(name: "MachPortSystem", path: "Sources"),
+    .testTarget(name: "MachPortSystemTests", dependencies: ["MachPortSystem"], path: "Tests")
+  ]
 )
