@@ -1,0 +1,34 @@
+// swift-tools-version: 6.3
+
+import Foundation
+import PackageDescription
+
+let infoPlist = URL(filePath: #filePath).deletingLastPathComponent()
+  .appending(path: "Resources/Info.plist").path()
+
+let package = Package(
+  name: "KeyboardCowboyService",
+  platforms: [.macOS(.v14)],
+  products: [.executable(name: "KeyboardCowboy", targets: ["ServiceApp"])],
+  dependencies: [
+    .package(path: "../Components/MachPortSystem"),
+    .package(path: "../Features/Text"),
+  ],
+  targets: [
+    .executableTarget(
+      name: "ServiceApp",
+      dependencies: ["HostInput"],
+      path: "Sources",
+      linkerSettings: [.unsafeFlags([
+        "-Xlinker", "-sectcreate", "-Xlinker", "__TEXT", "-Xlinker", "__info_plist",
+        "-Xlinker", infoPlist,
+      ])],
+    ),
+    .target(
+      name: "HostInput",
+      dependencies: ["MachPortSystem", .product(name: "TextFeature", package: "Text")],
+      path: "RuntimeInput",
+    ),
+    .testTarget(name: "HostInputTests", dependencies: ["HostInput"]),
+  ],
+)

@@ -3,7 +3,6 @@ import SwiftUI
 extension SidebarSplit {
   @Injectable
   struct AddGroup: View {
-
     let action: () -> Void
 
     var content: some View {

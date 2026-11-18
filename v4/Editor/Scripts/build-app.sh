@@ -14,9 +14,9 @@ APP_PATH="$APP_BUILD_DIR/$PRODUCT_NAME.app"
 
 mkdir -p "$APP_BUILD_DIR"
 
-swift build --configuration "$CONFIGURATION" --product "$EXECUTABLE_NAME"
+swift build --package-path "$ROOT_DIR" --configuration "$CONFIGURATION" --product "$EXECUTABLE_NAME" >&2
 
-BIN_DIR="$(swift build --configuration "$CONFIGURATION" --show-bin-path)"
+BIN_DIR="$(swift build --package-path "$ROOT_DIR" --configuration "$CONFIGURATION" --show-bin-path)"
 EXECUTABLE_PATH="$BIN_DIR/$EXECUTABLE_NAME"
 
 if [[ ! -f "$EXECUTABLE_PATH" ]]; then
