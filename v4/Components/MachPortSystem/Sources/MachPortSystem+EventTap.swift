@@ -15,7 +15,7 @@ public extension MachPortSystem {
     private let owner: CFRunLoop
     private let context: Context
     private let operations: Operations
-    private var handle: AnyObject?
+    private var handle: Handle?
 
     public init(
       configuration: TapConfiguration = .init(),
@@ -41,6 +41,13 @@ public extension MachPortSystem {
     public var isRunning: Bool {
       checkOwner()
       return handle != nil
+    }
+
+    /// Whether the installed tap is enabled, not whether all requested events are authorized.
+    public var isEnabled: Bool {
+      checkOwner()
+      guard let handle else { return false }
+      return operations.isEnabled(handle)
     }
 
     /// The source shared with intercepted events and keyboard posters, if available.

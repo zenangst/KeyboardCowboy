@@ -42,11 +42,26 @@ extension MachPortSystem.EventTap {
   }
 
   struct Operations {
-    let start: (MachPortSystem.TapConfiguration, CFRunLoop, Context) -> AnyObject?
-    let stop: (AnyObject, CFRunLoop, CFRunLoopMode) -> Void
+    let start: (MachPortSystem.TapConfiguration, CFRunLoop, Context) -> Handle?
+    let stop: (Handle, CFRunLoop, CFRunLoopMode) -> Void
+    let isEnabled: (Handle) -> Bool
+
+    init<Value>(
+      start: @escaping (MachPortSystem.TapConfiguration, CFRunLoop, Context) -> Value?,
+      stop: @escaping (Value, CFRunLoop, CFRunLoopMode) -> Void,
+      isEnabled: @escaping (Value) -> Bool = { _ in true },
+    ) {
+      self.start = { configuration, loop, context in
+        start(configuration, loop, context).map {
+          Handle($0, stop: stop, isEnabled: isEnabled)
+        }
+      }
+      self.stop = { handle, loop, mode in handle.stop(loop, mode) }
+      self.isEnabled = { handle in handle.isEnabled() }
+    }
 
     static var live: Self {
-      .init(start: { configuration, loop, context in
+      .init(start: { configuration, loop, context -> LiveHandle? in
         let pointer = Unmanaged.passUnretained(context).toOpaque()
         guard let port = CGEvent.tapCreate(
           tap: configuration.location, place: configuration.placement,
@@ -66,10 +81,11 @@ extension MachPortSystem.EventTap {
         CGEvent.tapEnable(tap: port, enable: true)
         return handle
       }, stop: { handle, loop, mode in
-        let handle = handle as! LiveHandle
         CGEvent.tapEnable(tap: handle.port, enable: false)
         CFRunLoopRemoveSource(loop, handle.source, mode)
         CFMachPortInvalidate(handle.port)
+      }, isEnabled: { handle in
+        CGEvent.tapIsEnabled(tap: handle.port)
       })
     }
   }
