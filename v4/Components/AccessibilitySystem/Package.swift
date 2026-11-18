@@ -6,5 +6,8 @@ let package = Package(
   name: "AccessibilitySystem",
   platforms: [.macOS(.v14)],
   products: [.library(name: "AccessibilitySystem", targets: ["AccessibilitySystem"])],
-  targets: [.target(name: "AccessibilitySystem", path: "Sources")]
+  targets: [
+    .target(name: "AccessibilitySystem", path: "Sources"),
+    .testTarget(name: "AccessibilitySystemTests", dependencies: ["AccessibilitySystem"], path: "Tests")
+  ]
 )
