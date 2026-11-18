@@ -5,6 +5,9 @@ public extension MachPortSystem {
   final class KeyboardEventPoster {
     public let eventSource: CGEventSource?
     private let syntheticSignature: Int64
+    #if DEBUG
+    private var testingOperations: TestingOperations?
+    #endif
 
     public init(eventSource: CGEventSource?, syntheticSignature: Int64) {
       precondition(syntheticSignature != 0, "Synthetic signature must be nonzero")
@@ -18,11 +21,17 @@ public extension MachPortSystem {
       flags: CGEventFlags = [],
       isRepeat: Bool = false,
     ) throws -> CGEvent {
-      guard let event = CGEvent(
-        keyboardEventSource: eventSource,
-        virtualKey: keyCode,
-        keyDown: action == .down,
-      ) else {
+      #if DEBUG
+      let event: CGEvent?
+      if let testingOperations {
+        event = testingOperations.create(eventSource, keyCode, action == .down)
+      } else {
+        event = CGEvent(keyboardEventSource: eventSource, virtualKey: keyCode, keyDown: action == .down)
+      }
+      #else
+      let event = CGEvent(keyboardEventSource: eventSource, virtualKey: keyCode, keyDown: action == .down)
+      #endif
+      guard let event else {
         throw Error.eventCreationFailed
       }
       event.flags = flags
@@ -43,8 +52,27 @@ public extension MachPortSystem {
       let event = try createEvent(
         keyCode: keyCode, action: action, flags: flags, isRepeat: isRepeat,
       )
+      #if DEBUG
+      if let testingOperations {
+        testingOperations.post(event, tapLocation)
+      } else {
+        event.post(tap: tapLocation)
+      }
+      #else
       event.post(tap: tapLocation)
+      #endif
       return event
     }
+
+    #if DEBUG
+    convenience init(
+      eventSource: CGEventSource?,
+      syntheticSignature: Int64,
+      testingOperations: TestingOperations,
+    ) {
+      self.init(eventSource: eventSource, syntheticSignature: syntheticSignature)
+      self.testingOperations = testingOperations
+    }
+    #endif
   }
 }
