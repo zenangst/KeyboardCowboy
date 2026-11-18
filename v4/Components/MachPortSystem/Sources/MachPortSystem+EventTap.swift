@@ -59,6 +59,15 @@ public extension MachPortSystem {
       return context.eventSource
     }
 
+    /// Creates a poster on the owning run loop with this tap's source and
+    /// signature. Other taps that must bypass these events need the same
+    /// signature. The tap does not have to be installed to create the poster.
+    public func makeKeyboardEventPoster() throws -> KeyboardEventPoster {
+      checkOwner()
+      guard let source = context.eventSource else { throw Failure.eventSourceCreationFailed }
+      return KeyboardEventPoster(eventSource: source, syntheticSignature: context.syntheticSignature)
+    }
+
     /// Idempotent while installed. A disabled tap remains installed until stopped
     /// or reloaded; `isRunning` describes installation, not permission or health.
     public func start() throws {

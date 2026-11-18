@@ -12,6 +12,7 @@ extension MachPortSystem.EventTap {
   // cannot destroy the context while that callback is in flight.
   final class Context {
     let router: MachPortSystem.EventRouter
+    let syntheticSignature: Int64
     let eventSource: CGEventSource?
     let handler: (MachPortSystem.InterceptedEvent) -> MachPortSystem.EventDisposition
     let onDisruption: (Disruption) -> Void
@@ -20,6 +21,7 @@ extension MachPortSystem.EventTap {
          handler: @escaping (MachPortSystem.InterceptedEvent) -> MachPortSystem.EventDisposition,
          onDisruption: @escaping (Disruption) -> Void) {
       router = .init(syntheticSignature: signature)
+      syntheticSignature = signature
       eventSource = CGEventSource(stateID: configuration.sourceState)
       self.handler = handler
       self.onDisruption = onDisruption
