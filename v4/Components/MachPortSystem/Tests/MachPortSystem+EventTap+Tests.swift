@@ -216,4 +216,53 @@ private final class FakeHandle {
   #expect(ids.count == 2)
   #expect(ids[0] != ids[1])
 }
+
+@Test func reloadMakesOneAttemptAndTearsDownTapThatCannotEnable() throws {
+  var calls: [String] = []
+  var canEnable = true
+  let operations = MachPortSystem.EventTap.Operations(
+    start: { _, _, context in
+      calls.append("start")
+      return FakeHandle(context)
+    },
+    stop: { _, _, _ in calls.append("stop") },
+    isEnabled: { _ in
+      calls.append("check")
+      return canEnable
+    },
+  )
+  let tap = MachPortSystem.EventTap(
+    syntheticSignature: 42, handler: { _ in .passThrough }, operations: operations,
+  )
+  try tap.start()
+  canEnable = false
+  #expect(throws: MachPortSystem.EventTap.Failure.enableFailed) { try tap.reload() }
+  #expect(!tap.isRunning && !tap.isEnabled)
+  tap.stop()
+  #expect(calls == ["start", "check", "stop", "start", "check", "stop"])
+}
+
+@Test func tapDeliversFlagsAndKeysInOrderAndRoutesDisruptionSeparately() throws {
+  var deliveries: [String] = []
+  let context = MachPortSystem.EventTap.Context(
+    configuration: .init(),
+    signature: 42,
+    handler: { event in
+      deliveries.append(event.type == .flagsChanged ? "flags" : "key")
+      return .passThrough
+    },
+    onDisruption: { _ in deliveries.append("disruption") },
+  )
+  let key = try #require(CGEvent(keyboardEventSource: nil, virtualKey: 1, keyDown: true))
+  let flags = try #require(CGEvent(source: nil))
+  flags.type = .flagsChanged
+  let synthetic = try #require(key.copy())
+  synthetic.setIntegerValueField(.eventSourceUserData, value: 42)
+  _ = context.deliver(type: .keyDown, event: key)
+  _ = context.deliver(type: .flagsChanged, event: flags)
+  _ = context.deliver(type: .keyDown, event: synthetic)
+  _ = context.deliver(type: .tapDisabledByUserInput, event: key)
+  _ = context.deliver(type: .keyDown, event: key)
+  #expect(deliveries == ["key", "flags", "disruption", "key"])
+}
 #endif

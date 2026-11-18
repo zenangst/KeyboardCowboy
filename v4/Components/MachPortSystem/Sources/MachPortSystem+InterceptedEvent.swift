@@ -2,7 +2,8 @@ import CoreGraphics
 import Foundation
 
 public extension MachPortSystem {
-  /// A live event, available only for the duration of synchronous interception.
+  /// A live event for synchronous use on the tap's owning run loop.
+  /// Pass a snapshot, not the live event or its source, to asynchronous work.
   struct InterceptedEvent {
     public let id: UUID
     public let event: CGEvent

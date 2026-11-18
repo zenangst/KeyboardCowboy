@@ -17,6 +17,9 @@ public extension MachPortSystem {
     private let operations: Operations
     private var handle: Handle?
 
+    /// `handler` receives each routed event, including flags changes, once in
+    /// run-loop delivery order. Matching synthetic events bypass it; system
+    /// disable notifications go exclusively to `onDisruption`.
     public init(
       configuration: TapConfiguration = .init(),
       syntheticSignature: Int64,
@@ -66,6 +69,10 @@ public extension MachPortSystem {
       guard let newHandle = operations.start(configuration, owner, context) else {
         throw Failure.creationFailed
       }
+      guard operations.isEnabled(newHandle) else {
+        operations.stop(newHandle, owner, configuration.runLoopMode)
+        throw Failure.enableFailed
+      }
 
       handle = newHandle
     }
@@ -79,7 +86,8 @@ public extension MachPortSystem {
       context.router.reset()
     }
 
-    /// Removes the old tap before attempting a new one. On failure it is stopped.
+    /// Makes one recovery attempt, removing the old tap before installing a new
+    /// one. On failure it is stopped. The host decides whether to retry.
     public func reload() throws {
       checkOwner()
       stop()
