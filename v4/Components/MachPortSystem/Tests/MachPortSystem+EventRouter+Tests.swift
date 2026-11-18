@@ -83,3 +83,37 @@ private func key(_ code: CGKeyCode, down: Bool = true, repeating: Bool = false) 
   #expect(ids[3] == ids[4])
   #expect(ids[4] != ids[5])
 }
+
+@Test func flagsAreDeliveredAndResetLegacyKeyIdentity() throws {
+  let router = MachPortSystem.EventRouter(syntheticSignature: 12345)
+  let down = try key(1)
+  let flags = try #require(CGEvent(source: nil))
+  flags.type = .flagsChanged
+  flags.flags = .maskShift
+  let up = try key(1, down: false)
+  var ids: [UUID] = []
+  for event in [down, flags, up] {
+    _ = router.route(event, type: event.type) { intercepted in
+      ids.append(intercepted.id)
+      if intercepted.type == .flagsChanged {
+        #expect(intercepted.event.flags == .maskShift)
+      }
+      return .passThrough
+    }
+  }
+  #expect(ids.count == 3)
+  #expect(ids[0] != ids[2])
+}
+
+@Test func unrelatedSyntheticSignatureIsDelivered() throws {
+  let router = MachPortSystem.EventRouter(syntheticSignature: 12345)
+  let event = try key(1)
+  event.setIntegerValueField(.eventSourceUserData, value: 67890)
+  var called = false
+  let result = router.route(event, type: .keyDown) { _ in
+    called = true
+    return .suppress
+  }
+  #expect(called)
+  #expect(result == nil)
+}
