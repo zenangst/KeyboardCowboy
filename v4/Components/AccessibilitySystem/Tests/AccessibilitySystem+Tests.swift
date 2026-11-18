@@ -3,7 +3,7 @@ import ApplicationServices
 import Foundation
 import Testing
 
-private typealias AX = AccessibilitySystem
+private typealias AX = AccessibilitySystem // swiftlint:disable:this type_name
 
 // A fresh fixture is constructed on the worker for every transaction.
 private final class Fixture: AX.Transport {
@@ -260,9 +260,18 @@ private final class Fixture: AX.Transport {
   if case .url(let value) = try decode(url as CFURL, "AXURL") {
     #expect(value == url)
   } else { Issue.record("Expected URL") }
+  let element = AXUIElementCreateApplication(getpid())
+  if case .elements(let values) = try decode([element] as CFArray, "AXChildren") {
+    #expect(values.count == 1)
+    #expect(values[0].native.map { CFEqual($0, element) } == true)
+  } else { Issue.record("Expected elements") }
+  if case .elements(let values) = try decode([] as CFArray, "AXChildren") {
+    #expect(values.isEmpty)
+  } else { Issue.record("Expected empty elements") }
   #expect(throws: AX.Failure.self) { try decode(nil, "AXURL") }
   #expect(throws: AX.Failure.self) { try decode(kCFBooleanTrue, "AXURL") }
   #expect(throws: AX.Failure.self) { try decode(["not an element"] as CFArray, "AXChildren") }
+  #expect(throws: AX.Failure.self) { try decode([element, "not an element"] as CFArray, "AXChildren") }
 }
 
 private final class ConcurrencyProbe: @unchecked Sendable {

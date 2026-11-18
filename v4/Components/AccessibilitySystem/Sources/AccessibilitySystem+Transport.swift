@@ -65,16 +65,29 @@ extension AccessibilitySystem {
 
       switch CFGetTypeID(value) {
       case CFStringGetTypeID():
-        return .string(value as! String)
+        guard let string = value as? String else {
+          throw Failure(.malformedValue, operation: name)
+        }
+        return .string(string)
       case CFURLGetTypeID():
-        return .url(value as! URL)
+        guard let url = value as? URL else {
+          throw Failure(.malformedValue, operation: name)
+        }
+        return .url(url)
       case CFArrayGetTypeID():
-        let values = value as! [CFTypeRef]
-        guard values.allSatisfy({ CFGetTypeID($0) == AXUIElementGetTypeID() }) else {
+        guard let values = value as? [CFTypeRef] else {
           throw Failure(.malformedValue, operation: name)
         }
 
-        return .elements(values.map { Handle(native: ($0 as! AXUIElement)) })
+        let handles = try values.map { value -> Handle in
+          guard CFGetTypeID(value) == AXUIElementGetTypeID() else {
+            throw Failure(.malformedValue, operation: name)
+          }
+          // Swift cannot conditionally cast an opaque CF type; the type ID
+          // check above validates this cast before it is performed.
+          return Handle(native: (value as! AXUIElement)) // swiftlint:disable:this force_cast
+        }
+        return .elements(handles)
       default:
         throw Failure(.malformedValue, operation: name)
       }
