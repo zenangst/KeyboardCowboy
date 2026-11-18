@@ -101,4 +101,49 @@ import Testing
   }
   #expect(posts == 0)
 }
+
+@Test func flagsPostingUsesSourceTagsAndDestination() throws {
+  let source = try #require(CGEventSource(stateID: .privateState))
+  var receivedSource: CGEventSource?
+  var posted: [(CGEvent, CGEventTapLocation)] = []
+  let poster = MachPortSystem.KeyboardEventPoster(
+    eventSource: source,
+    syntheticSignature: 12345,
+    testingOperations: .init(
+      create: { _, _, _ in nil },
+      createFlags: { receivedSource = $0; return CGEvent(source: $0) },
+      post: { posted.append(($0, $1)) },
+    ),
+  )
+  let event = try poster.postFlags(.maskShift, tapLocation: .cgSessionEventTap)
+  #expect(receivedSource === source)
+  #expect(posted.count == 1)
+  #expect(posted[0].0 === event && posted[0].1 == .cgSessionEventTap)
+  #expect(event.type == .flagsChanged && event.flags == .maskShift)
+  #expect(event.getIntegerValueField(.eventSourceUserData) == 12345)
+  let router = MachPortSystem.EventRouter(syntheticSignature: 12345)
+  var called = false
+  #expect(router.route(event, type: .flagsChanged) { _ in
+    called = true
+    return .suppress
+  } === event)
+  #expect(!called)
+}
+
+@Test func flagsCreationFailureDoesNotPost() {
+  var posts = 0
+  let poster = MachPortSystem.KeyboardEventPoster(
+    eventSource: nil,
+    syntheticSignature: 12345,
+    testingOperations: .init(
+      create: { _, _, _ in nil },
+      createFlags: { _ in nil },
+      post: { _, _ in posts += 1 },
+    ),
+  )
+  #expect(throws: MachPortSystem.KeyboardEventPoster.Error.eventCreationFailed) {
+    try poster.postFlags(.maskShift)
+  }
+  #expect(posts == 0)
+}
 #endif

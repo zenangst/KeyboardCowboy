@@ -56,6 +56,30 @@ public extension MachPortSystem {
       return event
     }
 
+    /// Posts a flags-changed event. Core Graphics does not report delivery.
+    @discardableResult
+    public func postFlags(
+      _ flags: CGEventFlags,
+      tapLocation: CGEventTapLocation = .cghidEventTap,
+    ) throws -> CGEvent {
+      #if DEBUG
+      let event: CGEvent?
+      if let testingOperations {
+        event = testingOperations.createFlags(eventSource)
+      } else {
+        event = CGEvent(source: eventSource)
+      }
+      #else
+      let event = CGEvent(source: eventSource)
+      #endif
+      guard let event else { throw Error.eventCreationFailed }
+      event.type = .flagsChanged
+      event.flags = flags
+      try tag(event)
+      postEvent(event, tapLocation: tapLocation)
+      return event
+    }
+
     /// Tags and reposts the same event, including flags-changed events.
     /// This mutates its source-user-data field, as in the legacy MachPort API.
     /// Throws without posting if Core Graphics does not apply the signature.
