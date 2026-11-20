@@ -15,6 +15,7 @@ private final class Fixture: AX.Transport {
   var failWindows = false
   var failTimeout = false
   var missingFirstURL = false
+  var stringURL = false
   var cycle = false
   var malformedRole = false
   var onRead: (() -> Void)?
@@ -57,6 +58,7 @@ private final class Fixture: AX.Transport {
 
     if name == "AXURL" {
       if handle == first && missingFirstURL { throw AX.Failure(.noValue, operation: name) }
+      if stringURL { return .string("https://example.com") }
       let path = handle == first ? "first" : handle == second ? "second" : "nested"
       return .url(URL(string: "https://example.com/\(path)")!)
     }
@@ -71,6 +73,23 @@ private final class Fixture: AX.Transport {
     try session.windows().map { try session.read(.url, of: $0).absoluteString }
   }
   #expect(urls == ["https://example.com/first", "https://example.com/second"])
+}
+
+@Test func typedURLReadRejectsString() async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.stringURL = true
+    return fixture
+  })
+  do {
+    _ = try await client.withApplication(processIdentifier: 42) { session in
+      try session.read(.url, of: session.application)
+    }
+    Issue.record("Expected URL read to reject a string")
+  } catch let failure as AX.Failure {
+    #expect(failure.kind == .malformedValue)
+    #expect(failure.operation == "AXURL")
+  }
 }
 
 @Test func rootInclusionAndPreorder() async throws {
@@ -269,7 +288,13 @@ private final class Fixture: AX.Transport {
     #expect(values.isEmpty)
   } else { Issue.record("Expected empty elements") }
   #expect(throws: AX.Failure.self) { try decode(nil, "AXURL") }
-  #expect(throws: AX.Failure.self) { try decode(kCFBooleanTrue, "AXURL") }
+  do {
+    _ = try decode(kCFBooleanTrue, "AXURL")
+    Issue.record("Expected decoder to reject a Boolean")
+  } catch let failure as AX.Failure {
+    #expect(failure.kind == .malformedValue)
+    #expect(failure.operation == "AXURL")
+  }
   #expect(throws: AX.Failure.self) { try decode(["not an element"] as CFArray, "AXChildren") }
   #expect(throws: AX.Failure.self) { try decode([element, "not an element"] as CFArray, "AXChildren") }
 }
