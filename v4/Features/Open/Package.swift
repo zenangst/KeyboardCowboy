@@ -6,9 +6,12 @@ let package = Package(
   name: "OpenFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "OpenFeature", targets: ["OpenFeature"])],
-  dependencies: [.package(path: "../../Components/Commands")],
+  dependencies: [
+    .package(path: "../../Components/AccessibilitySystem"),
+    .package(path: "../../Components/Commands"),
+  ],
   targets: [
-    .target(name: "OpenFeature", dependencies: ["Commands"], path: "Sources"),
+    .target(name: "OpenFeature", dependencies: ["AccessibilitySystem", "Commands"], path: "Sources"),
     .testTarget(name: "OpenFeatureTests", dependencies: ["OpenFeature", "Commands"], path: "Tests"),
   ]
 )
