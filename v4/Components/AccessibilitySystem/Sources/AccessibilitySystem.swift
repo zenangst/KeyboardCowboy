@@ -14,7 +14,7 @@ public extension AccessibilitySystem {
 
   struct Failure: Error, Sendable {
     public enum Kind: Sendable {
-      case noValue, attributeUnsupported, invalidElement, apiDisabled
+      case noValue, attributeUnsupported, actionUnsupported, invalidElement, apiDisabled
       case cannotComplete, malformedValue, traversalLimitReached, expiredScope
       case invalidConfiguration, other
     }
@@ -33,6 +33,10 @@ public extension AccessibilitySystem {
   struct Attribute<Value> {
     let name: String
     let decode: (ReadValue) throws -> Value
+  }
+
+  enum Action: Sendable {
+    case raise
   }
 
   /// Session-scoped identity, not a persistent window ID or an IPC token.

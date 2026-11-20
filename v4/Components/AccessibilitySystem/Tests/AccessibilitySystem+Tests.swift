@@ -14,6 +14,8 @@ private final class Fixture: AX.Transport {
   var timeoutHandles: Set<AX.Handle> = []
   var failWindows = false
   var failTimeout = false
+  var failRaise = false
+  var raisedHandles: [AX.Handle] = []
   var missingFirstURL = false
   var stringURL = false
   var cycle = false
@@ -64,6 +66,18 @@ private final class Fixture: AX.Transport {
     }
 
     throw AX.Failure(.attributeUnsupported, operation: name)
+  }
+
+  func perform(_ action: AX.Action, on handle: AX.Handle) throws {
+    #expect(timeoutHandles.contains(handle))
+    switch action {
+    case .raise:
+      if failRaise {
+        throw AX.Failure(.actionUnsupported, operation: kAXRaiseAction,
+                         rawAXStatus: AXError.actionUnsupported.rawValue)
+      }
+      raisedHandles.append(handle)
+    }
   }
 }
 
@@ -130,6 +144,44 @@ private final class Fixture: AX.Transport {
   } catch let failure as AX.Failure {
     #expect(failure.kind == .cannotComplete)
     #expect(failure.rawAXStatus == -25204)
+  }
+}
+
+@Test func raiseUsesWindowHandleAndChecksCancellationBeforeDispatch() throws {
+  let queue = DispatchQueue(label: "AccessibilitySystemTests.raise")
+  try queue.sync {
+    let fixture = Fixture()
+    let request = AX.Request()
+    let session = try AX.Session(pid: 42, transport: fixture, timeout: 0.25,
+                                 queue: queue, request: request)
+    defer { session.invalidate() }
+    let window = try #require(session.windows().first)
+
+    try session.perform(.raise, on: window)
+    #expect(fixture.raisedHandles == [fixture.first])
+
+    request.cancel()
+    #expect(throws: CancellationError.self) { try session.perform(.raise, on: window) }
+    #expect(fixture.raisedHandles == [fixture.first])
+  }
+}
+
+@Test func failedRaisePreservesStatus() async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.failRaise = true
+    return fixture
+  })
+  do {
+    try await client.withApplication(processIdentifier: 42) { session in
+      let window = try #require(session.windows().first)
+      try session.perform(.raise, on: window)
+    }
+    Issue.record("Expected raise failure")
+  } catch let failure as AX.Failure {
+    #expect(failure.kind == .actionUnsupported)
+    #expect(failure.operation == kAXRaiseAction)
+    #expect(failure.rawAXStatus == AXError.actionUnsupported.rawValue)
   }
 }
 

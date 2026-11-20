@@ -63,6 +63,12 @@ public extension AccessibilitySystem {
       return try attribute.decode(value)
     }
 
+    public func perform(_ action: Action, on element: Element) throws {
+      let handle = try handle(for: element)
+      try transport.perform(action, on: handle)
+      try checkpoint()
+    }
+
     /// Depth-first pre-order, retaining source child order. Matched roles prune
     /// their descendants even when the requested value is missing (legacy policy).
     /// Missing role and leaf children may be skipped only under the skip policy.
