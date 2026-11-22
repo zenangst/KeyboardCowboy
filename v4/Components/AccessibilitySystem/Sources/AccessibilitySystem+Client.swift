@@ -39,7 +39,7 @@ public extension AccessibilitySystem {
       try await withSession(
         root: { try $0.focusedElement() },
         operation: { session in
-          try operation(FocusedElement(session: session))
+          try operation(FocusedElement(in: session))
         })
     }
 
@@ -53,7 +53,7 @@ public extension AccessibilitySystem {
       try await withSession(
         root: { try $0.element(at: point) },
         operation: { session in
-          try operation(HitElement(session: session))
+          try operation(HitElement(in: session))
         })
     }
 
@@ -98,26 +98,6 @@ public extension AccessibilitySystem {
       } onCancel: {
         request.cancel()
       }
-    }
-  }
-
-  struct FocusedElement {
-    fileprivate let session: Session
-
-    public func read<Value>(_ attribute: Attribute<Value>) throws -> Value {
-      try session.read(attribute, of: session.application)
-    }
-
-    public func write(_ attribute: WritableAttribute<String>, value: String) throws {
-      try session.write(attribute, value: value, to: session.application)
-    }
-  }
-
-  struct HitElement {
-    fileprivate let session: Session
-
-    public func read<Value>(_ attribute: Attribute<Value>) throws -> Value {
-      try session.read(attribute, of: session.application)
     }
   }
 }
