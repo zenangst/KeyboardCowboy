@@ -28,17 +28,18 @@ for tab search on a clean miss.
 
 ### Debug browser smoke test
 
-Build the Debug app and start a log stream in another terminal:
+From `v4`, build the Debug app once and start the log stream in another
+terminal:
 
 ```sh
-app="$(CONFIGURATION=debug v4/Scripts/build-app.sh)"
-log stream --predicate 'subsystem == "com.zenangst.keyboardcowboy.v4" AND category == "BrowserSmoke"'
+./smoke-open-browser.sh --build
+./smoke-open-browser.sh --logs
 ```
 
 With Safari already running, launch a one-shot instance of the packaged Service:
 
 ```sh
-open -n "$app" --args --smoke-open-browser com.apple.Safari \
+./smoke-open-browser.sh com.apple.Safari \
   'https://example.com/?kc-smoke=match'
 ```
 
