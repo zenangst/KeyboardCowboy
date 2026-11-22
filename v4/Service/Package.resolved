@@ -1,0 +1,15 @@
+{
+  "originHash" : "7f1d772af72c40c2cf7dfef9651bdc25f32bad2ef34461746384a99ab884d89e",
+  "pins" : [
+    {
+      "identity" : "apps",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zenangst/Apps.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "f9bcc4dad032b7f0ab9acb2912530515b9fdcd0c"
+      }
+    }
+  ],
+  "version" : 3
+}

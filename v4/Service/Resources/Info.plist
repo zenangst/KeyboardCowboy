@@ -18,5 +18,7 @@
   <string>14.0</string>
   <key>LSUIElement</key>
   <true/>
+  <key>NSAppleEventsUsageDescription</key>
+  <string>Keyboard Cowboy uses Apple Events to open Finder folders and select matching browser tabs.</string>
 </dict>
 </plist>

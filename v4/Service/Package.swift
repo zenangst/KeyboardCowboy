@@ -11,13 +11,16 @@ let package = Package(
   platforms: [.macOS(.v14)],
   products: [.executable(name: "KeyboardCowboy", targets: ["ServiceApp"])],
   dependencies: [
+    .package(path: "../Components/AppleScriptRuntime"),
     .package(path: "../Components/MachPortSystem"),
+    .package(path: "../Components/Commands"),
+    .package(path: "../Features/Open"),
     .package(path: "../Features/Text"),
   ],
   targets: [
     .executableTarget(
       name: "ServiceApp",
-      dependencies: ["HostInput"],
+      dependencies: ["HostInput", "HostOpen"],
       path: "Sources",
       linkerSettings: [.unsafeFlags([
         "-Xlinker", "-sectcreate", "-Xlinker", "__TEXT", "-Xlinker", "__info_plist",
@@ -29,6 +32,12 @@ let package = Package(
       dependencies: ["MachPortSystem", .product(name: "TextFeature", package: "Text")],
       path: "RuntimeInput",
     ),
+    .target(
+      name: "HostOpen",
+      dependencies: ["AppleScriptRuntime", "Commands", .product(name: "OpenFeature", package: "Open")],
+      path: "RuntimeOpen",
+    ),
     .testTarget(name: "HostInputTests", dependencies: ["HostInput"]),
+    .testTarget(name: "HostOpenTests", dependencies: ["HostOpen", "Commands"]),
   ],
 )
