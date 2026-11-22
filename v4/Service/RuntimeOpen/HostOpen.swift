@@ -8,6 +8,9 @@ import OpenFeature
 package struct HostOpen: Sendable {
   package enum Event: String, Sendable {
     case tabSearchStarted = "tab search started"
+    case tabSearchNoMatch = "tab search found no matching tab"
+    case tabSearchAutomationDenied = "tab search was denied Automation permission"
+    case tabSearchFailed = "tab search script failed"
     case browserSucceeded = "browser route succeeded"
     case browserFailed = "browser route failed"
     case genericOpenStarted = "generic open started"
@@ -24,7 +27,16 @@ package struct HostOpen: Sendable {
   ) {
     let browser = Open.Browser(tabSearch: .init { _, source, checkCancellation in
       record(.tabSearchStarted)
-      return try await Self.executeScript(source, checkCancellation: checkCancellation)
+      do {
+        return try await Self.executeScript(source, checkCancellation: checkCancellation)
+      } catch AppleScriptRuntime.NSAppleScript.Error.unableToExecute(let error)
+                where (error as NSError).code == -1743 {
+        record(.tabSearchAutomationDenied)
+        throw AppleScriptRuntime.NSAppleScript.Error.unableToExecute(error)
+      } catch {
+        if !(error is CancellationError) { record(.tabSearchFailed) }
+        throw error
+      }
     })
     let finder = Open.Finder { _, source, checkCancellation in
       _ = try await Self.executeScript(source, checkCancellation: checkCancellation)
@@ -41,6 +53,7 @@ package struct HostOpen: Sendable {
             try await browser.open(path, application: application, checkCancellation: checkCancellation)
             record(.browserSucceeded)
           } catch {
+            if error is Open.BrowserTabSearch.SearchError { record(.tabSearchNoMatch) }
             record(.browserFailed)
             throw error
           }
