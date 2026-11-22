@@ -26,6 +26,27 @@ public extension AccessibilitySystem {
       processIdentifier: Int32,
       _ operation: @escaping @Sendable (Session) throws -> Value,
     ) async throws -> Value {
+      try await withSession(
+        root: { $0.application(processIdentifier) },
+        operation: operation)
+    }
+
+    /// Captures system-wide focus once. The closure cannot suspend, and the
+    /// focused element's operations are valid only during this transaction.
+    public func withFocusedElement<Value: Sendable>(
+      _ operation: @escaping @Sendable (FocusedElement) throws -> Value,
+    ) async throws -> Value {
+      try await withSession(
+        root: { try $0.focusedElement() },
+        operation: { session in
+          try operation(FocusedElement(session: session))
+        })
+    }
+
+    private func withSession<Value: Sendable>(
+      root: @escaping @Sendable (any Transport) throws -> Handle,
+      operation: @escaping @Sendable (Session) throws -> Value,
+    ) async throws -> Value {
       let request = Request()
       return try await withTaskCancellationHandler {
         try Task.checkCancellation()
@@ -41,9 +62,11 @@ public extension AccessibilitySystem {
 
               let value: Value
               do {
+                let transport = makeTransport()
+                try request.check()
                 let session = try Session(
-                  pid: processIdentifier,
-                  transport: makeTransport(),
+                  root: root(transport),
+                  transport: transport,
                   timeout: seconds,
                   queue: queue,
                   request: request,
@@ -61,6 +84,18 @@ public extension AccessibilitySystem {
       } onCancel: {
         request.cancel()
       }
+    }
+  }
+
+  struct FocusedElement {
+    fileprivate let session: Session
+
+    public func read<Value>(_ attribute: Attribute<Value>) throws -> Value {
+      try session.read(attribute, of: session.application)
+    }
+
+    public func write(_ attribute: WritableAttribute<String>, value: String) throws {
+      try session.write(attribute, value: value, to: session.application)
     }
   }
 }

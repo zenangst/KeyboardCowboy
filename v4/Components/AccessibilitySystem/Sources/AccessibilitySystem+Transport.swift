@@ -32,15 +32,29 @@ extension AccessibilitySystem {
 
   protocol Transport {
     func application(_ pid: Int32) -> Handle
+    func focusedElement() throws -> Handle
     func setTimeout(_ seconds: Float, on handle: Handle) throws
     func read(_ name: String, from handle: Handle) throws -> ReadValue
     func perform(_ action: Action, on handle: Handle) throws
     func write(_ name: String, value: Bool, to handle: Handle) throws
+    func write(_ name: String, value: String, to handle: Handle) throws
   }
 
   struct NativeTransport: Transport {
     func application(_ pid: Int32) -> Handle {
       Handle(native: AXUIElementCreateApplication(pid))
+    }
+
+    func focusedElement() throws -> Handle {
+      let name = kAXFocusedUIElementAttribute
+      let system = AXUIElementCreateSystemWide()
+      var value: CFTypeRef?
+      try check(AXUIElementCopyAttributeValue(system, name as CFString, &value), operation: name)
+      guard let value, CFGetTypeID(value) == AXUIElementGetTypeID() else {
+        throw Failure(.malformedValue, operation: name)
+      }
+
+      return Handle(native: (value as! AXUIElement)) // swiftlint:disable:this force_cast
     }
 
     func setTimeout(_ seconds: Float, on handle: Handle) throws {
@@ -73,12 +87,19 @@ extension AccessibilitySystem {
     }
 
     func write(_ name: String, value: Bool, to handle: Handle) throws {
+      try setAttribute(name, value: value ? kCFBooleanTrue : kCFBooleanFalse, on: handle)
+    }
+
+    func write(_ name: String, value: String, to handle: Handle) throws {
+      try setAttribute(name, value: value as CFString, on: handle)
+    }
+
+    private func setAttribute(_ name: String, value: CFTypeRef, on handle: Handle) throws {
       guard let native = handle.native else {
         throw Failure(.invalidElement, operation: name)
       }
 
-      try check(AXUIElementSetAttributeValue(native, name as CFString, value ? kCFBooleanTrue : kCFBooleanFalse),
-                operation: name)
+      try check(AXUIElementSetAttributeValue(native, name as CFString, value), operation: name)
     }
 
     // Type IDs are checked before every Foundation/Core Foundation conversion.

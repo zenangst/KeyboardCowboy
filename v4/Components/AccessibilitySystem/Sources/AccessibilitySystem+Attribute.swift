@@ -12,3 +12,18 @@ public extension AccessibilitySystem {
 public extension AccessibilitySystem.WritableAttribute where Value == Bool {
   static var main: Self { Self(name: "AXMain") }
 }
+
+public extension AccessibilitySystem.WritableAttribute where Value == String {
+  static var selectedText: Self { Self(name: "AXSelectedText") }
+}
+
+public extension AccessibilitySystem.Attribute where Value == String {
+  static var selectedText: Self {
+    Self(name: "AXSelectedText") { value in
+      guard case .string(let text) = value else {
+        throw AccessibilitySystem.Failure(.malformedValue, operation: "AXSelectedText")
+      }
+      return text
+    }
+  }
+}

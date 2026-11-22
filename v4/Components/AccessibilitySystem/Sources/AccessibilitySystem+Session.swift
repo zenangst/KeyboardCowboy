@@ -15,13 +15,22 @@ public extension AccessibilitySystem {
     private var handles: [UUID: Handle] = [:]
     public let application: Element
 
-    init(pid: Int32, transport: any Transport, timeout: Float,
+    convenience init(pid: Int32, transport: any Transport, timeout: Float,
+                     queue: DispatchQueue, request: Request) throws {
+      try self.init(
+        root: transport.application(pid),
+        transport: transport,
+        timeout: timeout,
+        queue: queue,
+        request: request)
+    }
+
+    init(root handle: Handle, transport: any Transport, timeout: Float,
          queue: DispatchQueue, request: Request) throws {
       self.transport = transport
       self.timeout = timeout
       self.queue = queue
       self.request = request
-      let handle = transport.application(pid)
       let key = UUID()
       application = Element(key: key, scope: scope)
       try checkpoint()
@@ -70,6 +79,12 @@ public extension AccessibilitySystem {
     }
 
     public func write(_ attribute: WritableAttribute<Bool>, value: Bool, to element: Element) throws {
+      let handle = try handle(for: element)
+      try transport.write(attribute.name, value: value, to: handle)
+      try checkpoint()
+    }
+
+    public func write(_ attribute: WritableAttribute<String>, value: String, to element: Element) throws {
       let handle = try handle(for: element)
       try transport.write(attribute.name, value: value, to: handle)
       try checkpoint()

@@ -17,6 +17,8 @@ private final class Fixture: AX.Transport {
   var failRaise = false
   var raisedHandles: [AX.Handle] = []
   var mainHandle: AX.Handle?
+  var selectedText = ""
+  var missingSelection = false
   var missingFirstURL = false
   var stringURL = false
   var cycle = false
@@ -24,6 +26,7 @@ private final class Fixture: AX.Transport {
   var onRead: (() -> Void)?
 
   func application(_ pid: Int32) -> AX.Handle { app }
+  func focusedElement() throws -> AX.Handle { first }
 
   func setTimeout(_ seconds: Float, on handle: AX.Handle) throws {
     #expect(seconds > 0)
@@ -40,6 +43,11 @@ private final class Fixture: AX.Transport {
   func read(_ name: String, from handle: AX.Handle) throws -> AX.ReadValue {
     onRead?()
     #expect(timeoutHandles.contains(handle))
+    if name == "AXSelectedText" {
+      #expect(handle == first)
+      if missingSelection { throw AX.Failure(.noValue, operation: name) }
+      return .string(selectedText)
+    }
     if name == "AXWindows" {
       if failWindows {
         throw AX.Failure(.cannotComplete, operation: name, rawAXStatus: -25204)
@@ -85,6 +93,37 @@ private final class Fixture: AX.Transport {
     #expect(timeoutHandles.contains(handle))
     #expect(name == "AXMain")
     mainHandle = value ? handle : nil
+  }
+
+  func write(_ name: String, value: String, to handle: AX.Handle) throws {
+    #expect(timeoutHandles.contains(handle))
+    #expect(handle == first)
+    #expect(name == "AXSelectedText")
+    selectedText = value
+  }
+}
+
+@Test func focusedElementCanReadEmptySelectionAndWriteReplacement() async throws {
+  let client = AX.Client(makeTransport: { Fixture() })
+  try await client.withFocusedElement { focused in
+    #expect(try focused.read(.selectedText).isEmpty)
+    try focused.write(.selectedText, value: "replacement")
+    #expect(try focused.read(.selectedText) == "replacement")
+  }
+}
+
+@Test func missingSelectionIsNotAnEmptySelection() async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.missingSelection = true
+    return fixture
+  })
+  do {
+    _ = try await client.withFocusedElement { try $0.read(.selectedText) }
+    Issue.record("Expected no selected text value")
+  } catch let failure as AX.Failure {
+    #expect(failure.kind == .noValue)
+    #expect(failure.operation == "AXSelectedText")
   }
 }
 
