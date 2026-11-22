@@ -67,3 +67,20 @@ URL within the app's site to the same script. With one AX window, expect
 the target page in a background window and check for
 `Web-app AX main and raise succeeded`, then confirm that window came forward.
 The log distinguishes a polling miss from a route failure and generic fallback.
+
+### Debug hit-test smoke check
+
+From `v4`, build the Debug app and grant that bundle Accessibility access.
+Then run:
+
+```sh
+open -g -n -W 'Service/.build/app/debug/Keyboard Cowboy.app' --args --smoke-hit-test
+log show --last 1m --style compact \
+  --predicate 'subsystem == "com.zenangst.keyboardcowboy.v4" AND category == "HitTestSmoke"'
+```
+
+Move the pointer over a known control within five seconds of launch. The
+check logs the AX point and role, not the control's title or contents. Try
+a button on the primary display, then repeat on a secondary display arranged
+to the left or above it. Check that the role matches the control and that
+the corresponding coordinate is negative on the secondary display.

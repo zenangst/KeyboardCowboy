@@ -35,12 +35,15 @@ private final class SmokeDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ notification: Notification) {
     let arguments = CommandLine.arguments.dropFirst()
     guard let command = arguments.first,
-          command == "--smoke-open-browser" || command == "--smoke-selected-text" else { return }
+          ["--smoke-open-browser", "--smoke-selected-text", "--smoke-hit-test"].contains(command) else { return }
     Task {
-      if command == "--smoke-open-browser" {
+      switch command {
+      case "--smoke-open-browser":
         await HostOpen.smokeBrowser(arguments: Array(arguments.dropFirst()))
-      } else {
+      case "--smoke-selected-text":
         await HostInput.smokeSelectedText(arguments: Array(arguments.dropFirst()))
+      default:
+        await HostInput.smokeHitTest(arguments: Array(arguments.dropFirst()))
       }
       NSApp.terminate(nil)
     }
