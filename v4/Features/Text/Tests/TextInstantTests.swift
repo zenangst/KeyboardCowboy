@@ -2,6 +2,18 @@ import Carbon
 import Testing
 import TextFeature
 
+@Test @MainActor func instantCancelledDirectInsertionDoesNotPaste() async {
+  let instant = TextInstant(
+    insertDirectly: { _ in throw CancellationError() },
+    clearPasteboard: { Issue.record("Unexpected pasteboard clear") },
+    writePasteboard: { _ in Issue.record("Unexpected pasteboard write") },
+    post: { _, _, _ in Issue.record("Unexpected key post") },
+  )
+  await #expect(throws: CancellationError.self) {
+    try await instant.run(TextExecution(input: "hello"))
+  }
+}
+
 @Test @MainActor func instantFallbackPreservesEffectOrder() async throws {
   var log: [String] = []
   let instant = TextInstant(

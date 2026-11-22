@@ -11,10 +11,27 @@ let package = Package(
   name: "UserSpace",
   platforms: [.macOS(.v14)],
   products: [.library(name: "UserSpace", targets: ["UserSpace"])],
-  dependencies: [.package(path: "../RuntimeEnvironment"), .package(path: "../ApplicationSystem")],
+  dependencies: [
+    .package(path: "../AccessibilitySystem"),
+    .package(path: "../RuntimeEnvironment"),
+    .package(path: "../ApplicationSystem"),
+  ],
   targets: [
-    .target(name: "UserSpace", dependencies: ["RuntimeEnvironment", "ApplicationSystem"],
-            path: "Sources", linkerSettings: linkerSettings),
-    .testTarget(name: "UserSpaceTests", dependencies: ["UserSpace", "ApplicationSystem"], path: "Tests"),
+    .target(
+      name: "UserSpace",
+      dependencies: [
+        "AccessibilitySystem",
+        "RuntimeEnvironment",
+        "ApplicationSystem",
+      ],
+      path: "Sources", linkerSettings: linkerSettings),
+    .testTarget(
+      name: "UserSpaceTests",
+      dependencies: [
+        "UserSpace",
+        "ApplicationSystem",
+      ],
+      path: "Tests",
+    ),
   ],
 )

@@ -3,7 +3,7 @@ import Carbon
 /// Instant insertion with a host-supplied direct insertion attempt and paste fallback.
 @MainActor
 public struct TextInstant {
-  private let insertDirectly: @MainActor (String) -> Bool
+  private let insertDirectly: @MainActor (String) async throws -> Bool
   private let clearPasteboard: @MainActor () -> Void
   private let writePasteboard: @MainActor (String) -> Void
   private let post: TextTyping.Post
@@ -15,7 +15,7 @@ public struct TextInstant {
   /// and the host attempted insertion, even if the underlying write was unsuccessful.
   /// Focus lookup failure and a nil selection must return false.
   public init(
-    insertDirectly: @escaping @MainActor (String) -> Bool,
+    insertDirectly: @escaping @MainActor (String) async throws -> Bool,
     clearPasteboard: @escaping @MainActor () -> Void,
     writePasteboard: @escaping @MainActor (String) -> Void,
     post: @escaping TextTyping.Post,
@@ -36,7 +36,7 @@ public struct TextInstant {
   public func run(_ execution: TextExecution) async throws {
     guard !execution.input.isEmpty else { return }
 
-    if !insertDirectly(execution.input) {
+    if try await !insertDirectly(execution.input) {
       clearPasteboard()
       writePasteboard(execution.input)
       observeText(execution.input)
