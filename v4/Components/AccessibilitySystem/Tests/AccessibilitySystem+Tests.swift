@@ -50,6 +50,8 @@ private final class Fixture: AX.Transport {
   func read(_ name: String, from handle: AX.Handle) throws -> AX.ReadValue {
     onRead?()
     #expect(timeoutHandles.contains(handle))
+    if name == "AXFocusedWindow", handle == app { return .element(second) }
+    if name == "AXParent", handle == first { return .element(second) }
     if name == "AXPosition" { return .point(CGPoint(x: -140, y: 40)) }
     if name == "AXSize" { return .size(CGSize(width: 30, height: 10)) }
     if name == "AXSelectedText" {
@@ -118,6 +120,16 @@ private final class Fixture: AX.Transport {
     #expect(try focused.read(.selectedText).isEmpty)
     try focused.write(.selectedText, value: "replacement")
     #expect(try focused.read(.selectedText) == "replacement")
+  }
+}
+
+@Test func focusAndWindowRelationsShareOneSession() async throws {
+  let client = AX.Client(makeTransport: { Fixture() })
+  try await client.withApplication(processIdentifier: 42) { session in
+    let focus = try session.focusedElement()
+    let window = try #require(try session.focusedWindow())
+    #expect(try session.parent(of: focus) == window)
+    #expect(try session.parent(of: window) == nil)
   }
 }
 

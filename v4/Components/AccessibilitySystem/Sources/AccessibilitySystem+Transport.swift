@@ -27,7 +27,7 @@ extension AccessibilitySystem {
   }
 
   enum ReadValue {
-    case string(String), url(URL), elements([Handle]), point(CGPoint), size(CGSize), malformed
+    case string(String), url(URL), element(Handle), elements([Handle]), point(CGPoint), size(CGSize), malformed
   }
 
   protocol Transport {
@@ -123,6 +123,8 @@ extension AccessibilitySystem {
       guard let value else { throw Failure(.malformedValue, operation: name) }
 
       switch CFGetTypeID(value) {
+      case AXUIElementGetTypeID():
+        return .element(Handle(native: (value as! AXUIElement))) // swiftlint:disable:this force_cast
       case AXValueGetTypeID():
         let geometry = value as! AXValue // swiftlint:disable:this force_cast
         switch AXValueGetType(geometry) {

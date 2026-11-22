@@ -41,7 +41,7 @@ public enum UIElement {
     return false
   }
 
-  private static func optional<Value>(allowNonString: Bool = false, _ read: () throws -> Value) throws -> Value? {
+  static func optional<Value>(allowNonString: Bool = false, _ read: () throws -> Value) throws -> Value? {
     do {
       return try read()
     } catch let failure as AccessibilitySystem.Failure

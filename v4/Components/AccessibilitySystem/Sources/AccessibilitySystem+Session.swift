@@ -65,6 +65,30 @@ public extension AccessibilitySystem {
       try elements("AXChildren", of: element)
     }
 
+    public func focusedElement() throws -> Element {
+      try checkpoint()
+      return try element(transport.focusedElement())
+    }
+
+    public func focusedWindow() throws -> Element? {
+      try relatedElement("AXFocusedWindow", of: application)
+    }
+
+    public func parent(of element: Element) throws -> Element? {
+      try relatedElement("AXParent", of: element)
+    }
+
+    private func relatedElement(_ name: String, of source: Element) throws -> Element? {
+      let handle = try handle(for: source)
+      let value = try toleratingMissing(.skipNoValueOrUnsupported) { try transport.read(name, from: handle) }
+      try checkpoint()
+      guard let value else { return nil }
+      guard case .element(let related) = value else {
+        throw Failure(.malformedValue, operation: name)
+      }
+      return try element(related)
+    }
+
     public func read<Value>(_ attribute: Attribute<Value>, of element: Element) throws -> Value {
       let handle = try handle(for: element)
       let value = try transport.read(attribute.name, from: handle)
