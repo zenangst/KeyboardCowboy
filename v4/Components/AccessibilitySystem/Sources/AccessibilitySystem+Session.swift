@@ -69,6 +69,12 @@ public extension AccessibilitySystem {
       try checkpoint()
     }
 
+    public func write(_ attribute: WritableAttribute<Bool>, value: Bool, to element: Element) throws {
+      let handle = try handle(for: element)
+      try transport.write(attribute.name, value: value, to: handle)
+      try checkpoint()
+    }
+
     /// Depth-first pre-order, retaining source child order. Matched roles prune
     /// their descendants even when the requested value is missing (legacy policy).
     /// Missing role and leaf children may be skipped only under the skip policy.

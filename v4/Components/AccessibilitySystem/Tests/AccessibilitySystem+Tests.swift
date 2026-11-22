@@ -16,6 +16,7 @@ private final class Fixture: AX.Transport {
   var failTimeout = false
   var failRaise = false
   var raisedHandles: [AX.Handle] = []
+  var mainHandle: AX.Handle?
   var missingFirstURL = false
   var stringURL = false
   var cycle = false
@@ -78,6 +79,12 @@ private final class Fixture: AX.Transport {
       }
       raisedHandles.append(handle)
     }
+  }
+
+  func write(_ name: String, value: Bool, to handle: AX.Handle) throws {
+    #expect(timeoutHandles.contains(handle))
+    #expect(name == "AXMain")
+    mainHandle = value ? handle : nil
   }
 }
 
@@ -157,10 +164,14 @@ private final class Fixture: AX.Transport {
     defer { session.invalidate() }
     let window = try #require(session.windows().first)
 
+    try session.write(.main, value: true, to: window)
+    #expect(fixture.mainHandle == fixture.first)
     try session.perform(.raise, on: window)
     #expect(fixture.raisedHandles == [fixture.first])
 
     request.cancel()
+    #expect(throws: CancellationError.self) { try session.write(.main, value: false, to: window) }
+    #expect(fixture.mainHandle == fixture.first)
     #expect(throws: CancellationError.self) { try session.perform(.raise, on: window) }
     #expect(fixture.raisedHandles == [fixture.first])
   }

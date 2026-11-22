@@ -35,6 +35,7 @@ extension AccessibilitySystem {
     func setTimeout(_ seconds: Float, on handle: Handle) throws
     func read(_ name: String, from handle: Handle) throws -> ReadValue
     func perform(_ action: Action, on handle: Handle) throws
+    func write(_ name: String, value: Bool, to handle: Handle) throws
   }
 
   struct NativeTransport: Transport {
@@ -69,6 +70,15 @@ extension AccessibilitySystem {
       }
 
       try check(AXUIElementPerformAction(native, name as CFString), operation: name)
+    }
+
+    func write(_ name: String, value: Bool, to handle: Handle) throws {
+      guard let native = handle.native else {
+        throw Failure(.invalidElement, operation: name)
+      }
+
+      try check(AXUIElementSetAttributeValue(native, name as CFString, value ? kCFBooleanTrue : kCFBooleanFalse),
+                operation: name)
     }
 
     // Type IDs are checked before every Foundation/Core Foundation conversion.

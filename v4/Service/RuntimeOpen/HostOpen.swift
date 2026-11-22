@@ -4,7 +4,7 @@ import Foundation
 import OpenFeature
 
 /// Service-side Open composition. The caller resolves the command path and
-/// supplies host interception and web-app behavior.
+/// supplies host interception.
 package struct HostOpen: Sendable {
   package enum Event: String, Sendable {
     case tabSearchStarted = "tab search started"
@@ -22,7 +22,10 @@ package struct HostOpen: Sendable {
     hostBundleIdentifier: String,
     hostBundleURL: URL,
     openHost: @escaping @Sendable () async -> Void,
-    openWebApp: @escaping @Sendable (String, Open.TargetApplication, Bool) async throws -> Void,
+    openWebApp: @escaping @Sendable (String, Open.TargetApplication, Bool) async throws -> Void = { [webApp = Open.WebApp()]
+      path, application, _ in
+      try await webApp.open(path, application: application)
+    },
     record: @escaping @Sendable (Event) -> Void = { _ in },
   ) {
     let browser = Open.Browser(tabSearch: .init { _, source, checkCancellation in

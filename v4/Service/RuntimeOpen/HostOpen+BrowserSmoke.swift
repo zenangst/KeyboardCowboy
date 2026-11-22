@@ -1,5 +1,6 @@
 #if DEBUG
 import AppKit
+import ApplicationServices
 import Commands
 import OSLog
 
@@ -7,6 +8,10 @@ package extension HostOpen {
   @MainActor
   static func smokeBrowser(arguments: [String]) async {
     let log = Logger(subsystem: "com.zenangst.keyboardcowboy.v4", category: "BrowserSmoke")
+    if arguments == ["--check-accessibility"] {
+      log.notice("Accessibility trusted: \(AXIsProcessTrusted(), privacy: .public)")
+      return
+    }
     guard arguments.count == 2,
           let url = URL(string: arguments[1]),
           let scheme = url.scheme?.lowercased(),
@@ -30,6 +35,7 @@ package extension HostOpen {
       return
     }
 
+    log.notice("Accessibility trusted: \(AXIsProcessTrusted(), privacy: .public)")
     let name = bundle.object(forInfoDictionaryKey: "CFBundleName") as? String
       ?? browserURL.deletingPathExtension().lastPathComponent
     let command = Command.Open(

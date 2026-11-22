@@ -22,9 +22,10 @@ The script signs the Editor before the outer app. `CONFIGURATION` defaults to
 install event taps or execute workflows yet.
 
 `HostOpen` composes the Open command for the future workflow runner. It accepts
-an already-resolved path and leaves host interception and web-app handling to
-the caller. Browser reuse tries Accessibility first, then uses Apple Events
-for tab search on a clean miss.
+an already-resolved path and leaves host interception to the caller. Browser
+reuse tries Accessibility first, then uses Apple Events for tab search on a
+clean miss. The default web-app route uses Accessibility to make matching
+windows main and raise them.
 
 ### Debug browser smoke test
 
@@ -35,6 +36,10 @@ terminal:
 ./smoke-open-browser.sh --build
 ./smoke-open-browser.sh --logs
 ```
+
+Run `./smoke-open-browser.sh --check-accessibility` to see whether the packaged
+Service is trusted. It reports to the same log stream without requesting
+permission or opening a browser.
 
 With Safari already running, launch a one-shot instance of the packaged Service:
 

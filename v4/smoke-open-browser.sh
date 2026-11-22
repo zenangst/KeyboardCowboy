@@ -8,6 +8,7 @@ usage() {
   printf '%s\n' \
     "Usage: $0 --build" \
     "       $0 --logs" \
+    "       $0 --check-accessibility" \
     "       $0 <bundle-id> <http-or-https-url>"
 }
 
@@ -19,7 +20,9 @@ if [[ $# -eq 1 ]]; then
   esac
 fi
 
-if [[ $# -ne 2 || "$1" == -* || ( "$2" != http://* && "$2" != https://* ) ]]; then
+if [[ $# -eq 1 && "$1" == --check-accessibility ]]; then
+  :
+elif [[ $# -ne 2 || "$1" == -* || ( "$2" != http://* && "$2" != https://* ) ]]; then
   usage >&2
   exit 2
 fi
@@ -29,4 +32,4 @@ if [[ ! -x "$app/Contents/MacOS/KeyboardCowboy" ]]; then
   exit 1
 fi
 
-exec /usr/bin/open -n "$app" --args --smoke-open-browser "$1" "$2"
+exec /usr/bin/open -n "$app" --args --smoke-open-browser "$@"
