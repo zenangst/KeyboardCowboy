@@ -1,4 +1,3 @@
-
 public extension AccessibilitySystem {
   struct Configuration: Sendable {
     /// Per-message timeout, not an overall transaction deadline.

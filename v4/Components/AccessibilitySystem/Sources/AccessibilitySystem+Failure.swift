@@ -1,4 +1,3 @@
-
 public extension AccessibilitySystem {
   struct Failure: Error, Sendable {
     public enum Kind: Sendable {

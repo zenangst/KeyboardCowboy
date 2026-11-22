@@ -6,6 +6,13 @@ import OpenFeature
 /// Service-side Open composition. The caller resolves the command path and
 /// supplies host interception and web-app behavior.
 package struct HostOpen: Sendable {
+  package enum Event: String, Sendable {
+    case tabSearchStarted = "tab search started"
+    case browserSucceeded = "browser route succeeded"
+    case browserFailed = "browser route failed"
+    case genericOpenStarted = "generic open started"
+  }
+
   private let executor: Open.Executor
 
   package init(
@@ -13,21 +20,37 @@ package struct HostOpen: Sendable {
     hostBundleURL: URL,
     openHost: @escaping @Sendable () async -> Void,
     openWebApp: @escaping @Sendable (String, Open.TargetApplication, Bool) async throws -> Void,
+    record: @escaping @Sendable (Event) -> Void = { _ in },
   ) {
     let browser = Open.Browser(tabSearch: .init { _, source, checkCancellation in
-      try await Self.executeScript(source, checkCancellation: checkCancellation)
+      record(.tabSearchStarted)
+      return try await Self.executeScript(source, checkCancellation: checkCancellation)
     })
     let finder = Open.Finder { _, source, checkCancellation in
       _ = try await Self.executeScript(source, checkCancellation: checkCancellation)
     }
+    let generic = Open.Generic()
     executor = Open.Executor(
       hostBundleIdentifier: hostBundleIdentifier,
       hostBundleURL: hostBundleURL,
       operations: .init(
-        finder: finder,
         openHost: openHost,
-        openBrowser: { try await browser.open($0, application: $1, checkCancellation: $2) },
+        openFinder: { try await finder.open($0, checkCancellation: $1) },
+        openBrowser: { path, application, checkCancellation in
+          do {
+            try await browser.open(path, application: application, checkCancellation: checkCancellation)
+            record(.browserSucceeded)
+          } catch {
+            record(.browserFailed)
+            throw error
+          }
+        },
         openWebApp: openWebApp,
+        openGeneric: {
+          record(.genericOpenStarted)
+          try await generic.open($0, application: $1)
+        },
+        isDirectory: { try generic.isDirectory($0) },
       ),
     )
   }

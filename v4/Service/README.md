@@ -25,3 +25,32 @@ install event taps or execute workflows yet.
 an already-resolved path and leaves host interception and web-app handling to
 the caller. Browser reuse tries Accessibility first, then uses Apple Events
 for tab search on a clean miss.
+
+### Debug browser smoke test
+
+Build the Debug app and start a log stream in another terminal:
+
+```sh
+app="$(CONFIGURATION=debug v4/Scripts/build-app.sh)"
+log stream --predicate 'subsystem == "com.zenangst.keyboardcowboy.v4" AND category == "BrowserSmoke"'
+```
+
+With Safari already running, launch a one-shot instance of the packaged Service:
+
+```sh
+open -n "$app" --args --smoke-open-browser com.apple.Safari \
+  'https://example.com/?kc-smoke=match'
+```
+
+Repeat with `com.google.Chrome` or `org.chromium.Chromium`. Grant Accessibility
+to the packaged Service in System Settings for the first two cases, and allow
+Automation when macOS prompts for tab search.
+
+| Setup | Expected result |
+| --- | --- |
+| URL is active in a background browser window | Window comes forward; `browser route succeeded` without `tab search started`. |
+| URL is only in an inactive tab | `tab search started`, then `browser route succeeded`; the tab becomes active. |
+| Accessibility is denied, browser is running | `browser route failed`, then `generic open started`, with no `tab search started`. |
+
+The smoke instance quits after one command. Logs omit URLs and window titles.
+Release builds do not recognize this launch option.
