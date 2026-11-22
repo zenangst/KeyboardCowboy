@@ -24,9 +24,16 @@ private final class Fixture: AX.Transport {
   var cycle = false
   var malformedRole = false
   var onRead: (() -> Void)?
+  var hitPoint: CGPoint?
 
   func application(_ pid: Int32) -> AX.Handle { app }
   func focusedElement() throws -> AX.Handle { first }
+  func element(at point: CGPoint) throws -> AX.Handle {
+    guard point == hitPoint else {
+      throw AX.Failure(.noValue, operation: "elementAtPosition", rawAXStatus: AXError.noValue.rawValue)
+    }
+    return first
+  }
 
   func setTimeout(_ seconds: Float, on handle: AX.Handle) throws {
     #expect(seconds > 0)
@@ -109,6 +116,38 @@ private final class Fixture: AX.Transport {
     #expect(try focused.read(.selectedText).isEmpty)
     try focused.write(.selectedText, value: "replacement")
     #expect(try focused.read(.selectedText) == "replacement")
+  }
+}
+
+@Test func hitTestUsesGlobalCoordinatesAndReadsHitElement() async throws {
+  let point = CGPoint(x: -120.5, y: 44.25)
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.hitPoint = point
+    return fixture
+  })
+
+  let role = try await client.withElement(at: point) { try $0.read(.role) }
+  #expect(role == "AXWebArea")
+}
+
+@Test func hitTestPreservesNoValueAndDoesNotCallOperation() async {
+  let client = AX.Client(makeTransport: { Fixture() })
+  do {
+    try await client.withElement(at: .zero) { _ in Issue.record("Unexpected hit") }
+    Issue.record("Expected hit-test failure")
+  } catch let failure as AX.Failure {
+    #expect(failure.kind == .noValue)
+    #expect(failure.operation == "elementAtPosition")
+    #expect(failure.rawAXStatus == AXError.noValue.rawValue)
+  } catch {
+    Issue.record("Unexpected error: \(error)")
+  }
+}
+
+@Test func nativeHitTestRejectsInvalidCoordinatesBeforeAXCall() {
+  #expect(throws: AX.Failure.self) {
+    try AX.NativeTransport().element(at: CGPoint(x: CGFloat.infinity, y: 0))
   }
 }
 

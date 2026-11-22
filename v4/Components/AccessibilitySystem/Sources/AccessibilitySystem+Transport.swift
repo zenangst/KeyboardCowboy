@@ -33,6 +33,7 @@ extension AccessibilitySystem {
   protocol Transport {
     func application(_ pid: Int32) -> Handle
     func focusedElement() throws -> Handle
+    func element(at point: CGPoint) throws -> Handle
     func setTimeout(_ seconds: Float, on handle: Handle) throws
     func read(_ name: String, from handle: Handle) throws -> ReadValue
     func perform(_ action: Action, on handle: Handle) throws
@@ -55,6 +56,21 @@ extension AccessibilitySystem {
       }
 
       return Handle(native: (value as! AXUIElement)) // swiftlint:disable:this force_cast
+    }
+
+    func element(at point: CGPoint) throws -> Handle {
+      let operation = "elementAtPosition"
+      let x = Float(point.x)
+      let y = Float(point.y)
+      guard x.isFinite, y.isFinite else {
+        throw Failure(.invalidConfiguration, operation: operation)
+      }
+
+      var element: AXUIElement?
+      try check(AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(), x, y, &element),
+                operation: operation)
+      guard let element else { throw Failure(.malformedValue, operation: operation) }
+      return Handle(native: element)
     }
 
     func setTimeout(_ seconds: Float, on handle: Handle) throws {

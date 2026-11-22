@@ -43,6 +43,20 @@ public extension AccessibilitySystem {
         })
     }
 
+    /// The point is in AX global screen coordinates (origin at the top left
+    /// of the primary display, y increasing downward). No conversion is applied.
+    /// The closure cannot suspend, and the hit element is scoped to this transaction.
+    public func withElement<Value: Sendable>(
+      at point: CGPoint,
+      _ operation: @escaping @Sendable (HitElement) throws -> Value,
+    ) async throws -> Value {
+      try await withSession(
+        root: { try $0.element(at: point) },
+        operation: { session in
+          try operation(HitElement(session: session))
+        })
+    }
+
     private func withSession<Value: Sendable>(
       root: @escaping @Sendable (any Transport) throws -> Handle,
       operation: @escaping @Sendable (Session) throws -> Value,
@@ -96,6 +110,14 @@ public extension AccessibilitySystem {
 
     public func write(_ attribute: WritableAttribute<String>, value: String) throws {
       try session.write(attribute, value: value, to: session.application)
+    }
+  }
+
+  struct HitElement {
+    fileprivate let session: Session
+
+    public func read<Value>(_ attribute: Attribute<Value>) throws -> Value {
+      try session.read(attribute, of: session.application)
     }
   }
 }
