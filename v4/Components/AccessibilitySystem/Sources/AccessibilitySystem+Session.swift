@@ -99,6 +99,45 @@ public extension AccessibilitySystem {
       includingRoot: Bool, missingValue: MissingValuePolicy,
       budget: TraversalBudget = .init(),
     ) throws -> Value? {
+      try traverse(under: root, includingRoot: includingRoot, missingValue: missingValue, budget: budget) { node in
+        let nodeRole = try toleratingMissing(missingValue) { try read(.role, of: node) }
+        try checkpoint()
+        guard nodeRole == role else { return .descend }
+        if let value = try toleratingMissing(missingValue, { try read(attribute, of: node) }) {
+          return .match(value)
+        }
+        return .prune
+      }
+    }
+
+    /// Searches in depth-first pre-order. The caller owns matching and pruning
+    /// policy; the session enforces the traversal budget and element lifetime.
+    public func firstElement(
+      under root: Element, includingRoot: Bool, missingChildren: MissingValuePolicy,
+      budget: TraversalBudget = .init(),
+      visit: (Element) throws -> SearchDecision,
+    ) throws -> Element? {
+      try traverse(under: root, includingRoot: includingRoot, missingValue: missingChildren, budget: budget) { node in
+        switch try visit(node) {
+        case .match: .match(node)
+        case .descend: .descend
+        case .prune: .prune
+        }
+      }
+    }
+
+    public enum SearchDecision {
+      case match, descend, prune
+    }
+
+    private enum Visit<Value> {
+      case match(Value), descend, prune
+    }
+
+    private func traverse<Value>(
+      under root: Element, includingRoot: Bool, missingValue: MissingValuePolicy,
+      budget: TraversalBudget, visit: (Element) throws -> Visit<Value>,
+    ) throws -> Value? {
       let rootHandle = try handle(for: root)
       guard budget.maximumNodes > 0, budget.maximumDepth >= 0, budget.elapsedLimit > .zero else {
         throw Failure(.invalidConfiguration, operation: "traversalBudget")
@@ -120,17 +159,6 @@ public extension AccessibilitySystem {
         }
       }
 
-      func toleratingMissing<T>(_ operation: () throws -> T) throws -> T? {
-        do {
-          return try operation()
-        } catch let failure as Failure {
-          guard missingValue == .skipNoValueOrUnsupported,
-                failure.kind == .noValue || failure.kind == .attributeUnsupported else { throw failure }
-
-          return nil
-        }
-      }
-
       while let (siblings, depth) = stack.popLast() {
         try checkBudget()
         var remaining = siblings
@@ -145,20 +173,30 @@ public extension AccessibilitySystem {
 
         let node = try element(handle)
         if includingRoot || depth > 0 {
-          let nodeRole = try toleratingMissing { try read(.role, of: node) }
+          let decision = try visit(node)
           try checkBudget()
-          if nodeRole == role {
-            let value = try toleratingMissing { try read(attribute, of: node) }
-            try checkBudget()
-            if let value { return value }
-            continue
+          switch decision {
+          case .match(let value): return value
+          case .prune: continue
+          case .descend: break
           }
         }
-        let children = try toleratingMissing { try elementHandles("AXChildren", of: node) } ?? []
+        let children = try toleratingMissing(missingValue) { try elementHandles("AXChildren", of: node) } ?? []
         try checkBudget()
         if !children.isEmpty { stack.append((children[...], depth + 1)) }
       }
       return nil
+    }
+
+    private func toleratingMissing<T>(_ policy: MissingValuePolicy, _ operation: () throws -> T) throws -> T? {
+      do {
+        return try operation()
+      } catch let failure as Failure {
+        guard policy == .skipNoValueOrUnsupported,
+              failure.kind == .noValue || failure.kind == .attributeUnsupported else { throw failure }
+
+        return nil
+      }
     }
 
     private func validate(_ element: Element) throws {

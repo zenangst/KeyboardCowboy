@@ -374,6 +374,42 @@ private final class Fixture: AX.Transport {
   }
 }
 
+@Test func elementSearchPrunesSubtreesAndPreservesSiblingOrder() async throws {
+  let client = AX.Client(makeTransport: { Fixture() })
+  let path = try await client.withApplication(processIdentifier: 42) { session in
+    var visited: [String] = []
+    let result = try session.firstElement(under: session.application, includingRoot: false,
+                                          missingChildren: .skipNoValueOrUnsupported) { element in
+      let path = try session.read(.url, of: element).lastPathComponent
+      visited.append(path)
+      return path == "first" ? .prune : .match
+    }
+    #expect(visited == ["first", "second"])
+    return try result.map { try session.read(.url, of: $0).lastPathComponent }
+  }
+  #expect(path == "second")
+}
+
+@Test func elementSearchBudgetStopsBeforeCallingVisitorForAnotherNode() async {
+  let client = AX.Client(makeTransport: { Fixture() })
+  do {
+    _ = try await client.withApplication(processIdentifier: 42) { session in
+      let result = try session.firstElement(under: session.application, includingRoot: false,
+                                            missingChildren: .skipNoValueOrUnsupported,
+                                            budget: .init(maximumNodes: 1)) { _ in
+        Issue.record("Visitor called beyond node budget")
+        return .match
+      }
+      return result != nil
+    }
+    Issue.record("Expected traversal limit failure")
+  } catch let failure as AX.Failure {
+    #expect(failure.kind == .traversalLimitReached)
+  } catch {
+    Issue.record("Unexpected error: \(error)")
+  }
+}
+
 @Test func invalidTimeoutIsRejected() async throws {
   let client = AX.Client(configuration: .init(messagingTimeout: .zero), makeTransport: { Fixture() })
   await #expect(throws: AX.Failure.self) {

@@ -7,10 +7,7 @@ struct V4App: App {
 
   var body: some Scene {
     WindowGroup("v4") {
-      MainContentView()
-        .frame(minWidth: 480, minHeight: 320)
-        .environment(\.brand, dependencies.brand)
-        .environment(\.cornerRadiusValue, dependencies.brand.cornerRadius.large)
+      content
     }
     .commands {
       CommandGroup(replacing: .appInfo) {
@@ -20,5 +17,25 @@ struct V4App: App {
         }
       }
     }
+  }
+
+  @ViewBuilder
+  private var content: some View {
+    #if DEBUG
+    if let preview = CapturePreview(arguments: Array(CommandLine.arguments.dropFirst())) {
+      preview
+    } else {
+      editor
+    }
+    #else
+    editor
+    #endif
+  }
+
+  private var editor: some View {
+    MainContentView()
+      .frame(minWidth: 480, minHeight: 320)
+      .environment(\.brand, dependencies.brand)
+      .environment(\.cornerRadiusValue, dependencies.brand.cornerRadius.large)
   }
 }

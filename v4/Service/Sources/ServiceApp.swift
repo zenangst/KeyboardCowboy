@@ -35,15 +35,26 @@ private final class SmokeDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ notification: Notification) {
     let arguments = CommandLine.arguments.dropFirst()
     guard let command = arguments.first,
-          ["--smoke-open-browser", "--smoke-selected-text", "--smoke-hit-test"].contains(command) else { return }
+          ["--smoke-open-browser", "--smoke-selected-text", "--smoke-hit-test", "--smoke-capture"].contains(command) else { return }
     Task {
+      let options = Array(arguments.dropFirst())
       switch command {
       case "--smoke-open-browser":
-        await HostOpen.smokeBrowser(arguments: Array(arguments.dropFirst()))
+        await HostOpen.smokeBrowser(arguments: options)
       case "--smoke-selected-text":
-        await HostInput.smokeSelectedText(arguments: Array(arguments.dropFirst()))
-      default:
-        await HostInput.smokeHitTest(arguments: Array(arguments.dropFirst()))
+        await HostInput.smokeSelectedText(arguments: options)
+      case "--smoke-hit-test":
+        await HostInput.smokeHitTest(arguments: options)
+      case "--smoke-capture":
+        await HostInput.smokeCapture(arguments: options) { hit in
+          let frame = hit.frame
+          try await EditorLauncher.open(arguments: [
+            "--capture-preview", hit.role ?? "",
+            String(Double(frame.minX)), String(Double(frame.minY)),
+            String(Double(frame.width)), String(Double(frame.height)),
+          ])
+        }
+      default: return
       }
       NSApp.terminate(nil)
     }

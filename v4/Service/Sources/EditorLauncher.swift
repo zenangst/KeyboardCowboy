@@ -2,7 +2,7 @@ import AppKit
 
 @MainActor
 enum EditorLauncher {
-  static func open() async throws {
+  static func open(arguments: [String] = []) async throws {
     let bundle = Bundle.main
     let editor: URL
     if bundle.bundleURL.pathExtension == "app" {
@@ -22,7 +22,8 @@ enum EditorLauncher {
     }
     let configuration = NSWorkspace.OpenConfiguration()
     configuration.activates = true
-    configuration.createsNewApplicationInstance = false
+    configuration.arguments = arguments
+    configuration.createsNewApplicationInstance = !arguments.isEmpty
     try await NSWorkspace.shared.openApplication(at: editor, configuration: configuration)
   }
 

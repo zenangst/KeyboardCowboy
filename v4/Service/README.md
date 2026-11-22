@@ -85,3 +85,23 @@ a button on the primary display, then repeat on a secondary display arranged
 to the left or above it. Check that the role matches the control and that
 the corresponding coordinate is negative on the secondary display. For a
 control that exposes geometry, its AX frame should contain the pointer.
+
+### Debug Command-click capture smoke check
+
+From `v4`, grant the packaged Debug Service Accessibility and Input
+Monitoring, then run:
+
+```sh
+open -g -n -W 'Service/.build/app/debug/Keyboard Cowboy.app' --args --smoke-capture
+log show --last 1m --style compact \
+  --predicate 'subsystem == "com.zenangst.keyboardcowboy.v4" AND category == "CaptureSmoke"'
+```
+
+Command-click a harmless control within 15 seconds. The Service suppresses
+the click and logs the control’s role and frame, not its title or contents.
+Press Escape to cancel. The smoke instance stops its tap and quits after one
+result, cancellation, disruption, or timeout.
+
+Add `--show-in-editor` after `--smoke-capture` to open a read-only preview
+in a separate bundled Debug Editor instance. The Service stops the capture tap
+before opening the preview and passes only the role and frame, not an AX handle.
