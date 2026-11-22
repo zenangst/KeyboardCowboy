@@ -3,18 +3,23 @@ import Foundation
 
 public extension Open {
   struct WebApp: Sendable {
+    public enum Outcome: Sendable {
+      case notOpened, pollingSkipped, noMatch, raised
+    }
+
     private let system = System(environment: .production)
     private let accessibility = AccessibilitySystem.Client()
 
     public init() {}
 
-    public func open(_ path: String, application: TargetApplication) async throws {
+    @discardableResult
+    public func open(_ path: String, application: TargetApplication) async throws -> Outcome {
       guard let pid = system.firstRunningProcess(bundleIdentifier: application.bundleIdentifier),
-            let url = URL(string: path) else { return }
+            let url = URL(string: path) else { return .notOpened }
 
       try await system.open(url, applicationURL: URL(fileURLWithPath: application.path))
       let count = try await accessibility.withApplication(processIdentifier: pid) { try $0.windows().count }
-      try await Self.poll(initialWindowCount: count, wait: { try await Task.sleep(for: .milliseconds(100)) }) {
+      return try await Self.poll(initialWindowCount: count, wait: { try await Task.sleep(for: .milliseconds(100)) }) {
         try await accessibility.withApplication(processIdentifier: pid) { session in
           try Self.activateMatchingWindows(
             path: path,
@@ -30,16 +35,18 @@ public extension Open {
       }
     }
 
+    @discardableResult
     static func poll(
       initialWindowCount: Int,
       wait: () async throws -> Void,
       match: () async throws -> Bool,
-    ) async throws {
-      guard initialWindowCount > 1 else { return }
+    ) async throws -> Outcome {
+      guard initialWindowCount > 1 else { return .pollingSkipped }
       for _ in 0..<10 {
         try await wait()
-        if try await match() { return }
+        if try await match() { return .raised }
       }
+      return .noMatch
     }
 
     static func activateMatchingWindows<Window>(

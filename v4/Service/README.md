@@ -60,3 +60,10 @@ Automation when macOS prompts for tab search.
 
 The smoke instance quits after one command. Logs omit URLs and window titles.
 Release builds do not recognize this launch option.
+
+To test a running Safari or Orion web app, pass its bundle identifier and a
+URL within the app's site to the same script. With one AX window, expect
+`Web-app polling skipped: at most one AX window`. With multiple windows, leave
+the target page in a background window and check for
+`Web-app AX main and raise succeeded`, then confirm that window came forward.
+The log distinguishes a polling miss from a route failure and generic fallback.

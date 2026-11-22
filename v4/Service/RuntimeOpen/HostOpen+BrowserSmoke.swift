@@ -2,6 +2,7 @@
 import AppKit
 import ApplicationServices
 import Commands
+import OpenFeature
 import OSLog
 
 package extension HostOpen {
@@ -27,11 +28,9 @@ package extension HostOpen {
           NSRunningApplication.runningApplications(withBundleIdentifier: identifier).contains(where: { !$0.isTerminated }),
           let hostIdentifier = Bundle.main.bundleIdentifier,
           identifier != hostIdentifier,
-          !identifier.hasPrefix("com.apple.Safari.WebApp"),
-          !identifier.hasPrefix("com.kagi.kagimacOS.WebApp"),
           identifier.lowercased() != "com.apple.finder"
     else {
-      log.notice("Expected an installed, running browser")
+      log.notice("Expected an installed, running browser or web app")
       return
     }
 
@@ -46,7 +45,19 @@ package extension HostOpen {
       hostBundleIdentifier: hostIdentifier,
       hostBundleURL: Bundle.main.bundleURL,
       openHost: { log.error("Unexpected host route") },
-      openWebApp: { _, _, _ in log.error("Unexpected web-app route") },
+      openWebApp: { path, application, _ in
+        do {
+          switch try await Open.WebApp().open(path, application: application) {
+          case .notOpened: log.notice("Web app not opened")
+          case .pollingSkipped: log.notice("Web-app polling skipped: at most one AX window")
+          case .noMatch: log.notice("Web-app polling finished without a match")
+          case .raised: log.notice("Web-app AX main and raise succeeded")
+          }
+        } catch {
+          log.error("Web-app route failed")
+          throw error
+        }
+      },
       record: { log.notice("\($0.rawValue, privacy: .public)") },
     )
     do {

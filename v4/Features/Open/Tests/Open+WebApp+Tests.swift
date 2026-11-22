@@ -5,20 +5,22 @@ import Testing
 @Test(arguments: [0, 1, 2])
 func webAppPollsAtMostTenTimesAndSkipsSingleWindow(_ count: Int) async throws {
   var events: [String] = []
-  try await Open.WebApp.poll(initialWindowCount: count, wait: { events.append("wait") }) {
+  let outcome = try await Open.WebApp.poll(initialWindowCount: count, wait: { events.append("wait") }) {
     events.append("scan")
     return false
   }
   #expect(events == (count > 1 ? Array(repeating: ["wait", "scan"], count: 10).flatMap { $0 } : []))
+  #expect(outcome == (count > 1 ? .noMatch : .pollingSkipped))
 }
 
 @Test func webAppStopsPollingAfterFirstMatchingPass() async throws {
   var scans = 0
-  try await Open.WebApp.poll(initialWindowCount: 2, wait: {}) {
+  let outcome = try await Open.WebApp.poll(initialWindowCount: 2, wait: {}) {
     scans += 1
     return scans == 2
   }
   #expect(scans == 2)
+  #expect(outcome == .raised)
 }
 
 @Test func webAppCancellationDuringWaitSkipsScan() async {
