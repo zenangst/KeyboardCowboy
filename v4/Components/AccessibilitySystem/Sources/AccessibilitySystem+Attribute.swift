@@ -43,19 +43,17 @@ public extension AccessibilitySystem.WritableAttribute where Value == String {
 }
 
 public extension AccessibilitySystem.Attribute where Value == String {
-  static var textValue: Self {
-    Self(name: "AXValue") { value in
-      guard case .string(let text) = value else {
-        throw AccessibilitySystem.Failure(.malformedValue, operation: "AXValue")
-      }
-      return text
-    }
-  }
+  static var accessibilityDescription: Self { string(named: "AXDescription") }
+  static var identifier: Self { string(named: "AXIdentifier") }
+  static var title: Self { string(named: "AXTitle") }
+  static var subrole: Self { string(named: "AXSubrole") }
+  static var textValue: Self { string(named: "AXValue") }
+  static var selectedText: Self { string(named: "AXSelectedText") }
 
-  static var selectedText: Self {
-    Self(name: "AXSelectedText") { value in
+  private static func string(named name: String) -> Self {
+    Self(name: name) { value in
       guard case .string(let text) = value else {
-        throw AccessibilitySystem.Failure(.malformedValue, operation: "AXSelectedText")
+        throw AccessibilitySystem.Failure(.malformedValue, operation: name)
       }
       return text
     }

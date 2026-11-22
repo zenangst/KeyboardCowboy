@@ -6,5 +6,9 @@ let package = Package(
   name: "UIElementFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "UIElementFeature", targets: ["UIElementFeature"])],
-  targets: [.target(name: "UIElementFeature", path: "Sources")]
+  dependencies: [.package(path: "../../Components/AccessibilitySystem")],
+  targets: [
+    .target(name: "UIElementFeature", dependencies: ["AccessibilitySystem"], path: "Sources"),
+    .testTarget(name: "UIElementFeatureTests", dependencies: ["UIElementFeature"], path: "Tests"),
+  ]
 )
