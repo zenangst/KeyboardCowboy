@@ -105,3 +105,31 @@ result, cancellation, disruption, or timeout.
 Add `--show-in-editor` after `--smoke-capture` to open a read-only preview
 in a separate bundled Debug Editor instance. The Service stops the capture tap
 before opening the preview and passes only the role and frame, not an AX handle.
+
+### Debug UI-element activation smoke check
+
+With the packaged Debug Service trusted, focus a Safari window with its
+sidebar hidden. Run from `v4` without bringing the terminal to the front
+(or add `sleep 5;` before `open` and switch back to Safari):
+
+```sh
+open -g -n -W 'Service/.build/app/debug/Keyboard Cowboy.app' --args --smoke-ui-element
+log show --last 1m --style compact \
+  --predicate 'subsystem == "com.zenangst.keyboardcowboy.v4" AND category == "UIElementSmoke"'
+```
+
+The check matches an English Safari button whose Accessibility title or
+description contains `Sidebar` or `sidebar`. Expect the sidebar to open and
+`UIElement activated: true` in the log. Append `--miss` for a nonmatching predicate;
+it should log `UIElement activated: false` without changing the window.
+
+If the button does not activate, append `--inspect` instead and hover over
+**Show Sidebar** within five seconds. This read-only mode reports whether
+the hovered role and label match the predicate and whether the focused-window
+search found it. It does not log the label itself.
+
+For the click-and-restore path, run the same `open` command with
+`--smoke-static-text` instead. Keep the **Static Text Click Smoke Test** window
+focused and move the pointer outside it within five seconds. Hold the pointer
+still until the window reports the result. A pass shows `Clicks: 1` and confirms
+that the pointer returned to its original position. Close the window to exit.

@@ -47,6 +47,7 @@ public extension AccessibilitySystem.Attribute where Value == String {
   static var identifier: Self { string(named: "AXIdentifier") }
   static var title: Self { string(named: "AXTitle") }
   static var subrole: Self { string(named: "AXSubrole") }
+  static var roleDescription: Self { string(named: "AXRoleDescription") }
   static var textValue: Self { string(named: "AXValue") }
   static var selectedText: Self { string(named: "AXSelectedText") }
 

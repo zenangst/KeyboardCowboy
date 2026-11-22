@@ -8,7 +8,13 @@ public extension UIElement {
     predicates: [Predicate],
     budget: AccessibilitySystem.TraversalBudget = .init(),
   ) throws -> AccessibilitySystem.Element? {
-    guard let window = try resolveWindow(
+    guard let window = try focusedWindow(inFrontmostApplication: session) else { return nil }
+    return try firstMatch(in: session, under: window, predicates: predicates, budget: budget)
+  }
+
+  /// The application root must represent the frontmost app for the fallback.
+  static func focusedWindow(inFrontmostApplication session: AccessibilitySystem.Session) throws -> AccessibilitySystem.Element? {
+    try resolveWindow(
       focus: session.focusedElement,
       ancestor: { focus in
         var current: AccessibilitySystem.Element? = focus
@@ -21,8 +27,7 @@ public extension UIElement {
         return nil
       },
       fallback: session.focusedWindow,
-    ) else { return nil }
-    return try firstMatch(in: session, under: window, predicates: predicates, budget: budget)
+    )
   }
 
   enum FocusError: Error {

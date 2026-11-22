@@ -19,6 +19,7 @@ let package = Package(
     .package(path: "../Components/Commands"),
     .package(path: "../Features/Open"),
     .package(path: "../Features/Text"),
+    .package(path: "../Features/UIElement"),
   ],
   targets: [
     .executableTarget(
@@ -38,6 +39,7 @@ let package = Package(
         "AccessibilitySystem",
         "MachPortSystem",
         .product(name: "TextFeature", package: "Text"),
+        .product(name: "UIElementFeature", package: "UIElement"),
       ],
       path: "RuntimeInput",
     ),
