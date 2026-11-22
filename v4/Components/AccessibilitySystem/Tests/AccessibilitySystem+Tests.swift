@@ -50,6 +50,8 @@ private final class Fixture: AX.Transport {
   func read(_ name: String, from handle: AX.Handle) throws -> AX.ReadValue {
     onRead?()
     #expect(timeoutHandles.contains(handle))
+    if name == "AXPosition" { return .point(CGPoint(x: -140, y: 40)) }
+    if name == "AXSize" { return .size(CGSize(width: 30, height: 10)) }
     if name == "AXSelectedText" {
       #expect(handle == first)
       if missingSelection { throw AX.Failure(.noValue, operation: name) }
@@ -127,8 +129,27 @@ private final class Fixture: AX.Transport {
     return fixture
   })
 
-  let role = try await client.withElement(at: point) { try $0.read(.role) }
+  let (role, frame) = try await client.withElement(at: point) { (try $0.read(.role), try $0.frame()) }
   #expect(role == "AXWebArea")
+  #expect(frame == CGRect(x: -140, y: 40, width: 30, height: 10))
+  #expect(frame.contains(point))
+}
+
+@Test func nativeDecoderValidatesGeometryWithoutRemoteCalls() throws {
+  var position = CGPoint(x: -140, y: 40)
+  var size = CGSize(width: 30, height: 10)
+  var range = CFRange(location: 0, length: 1)
+
+  let axPosition = try #require(AXValueCreate(.cgPoint, &position))
+  let axSize = try #require(AXValueCreate(.cgSize, &size))
+  let axRange = try #require(AXValueCreate(.cfRange, &range))
+  let positionAttribute = AX.Attribute<CGPoint>.position
+  let sizeAttribute = AX.Attribute<CGSize>.size
+  let decodedPosition = try AX.NativeTransport.decode(axPosition, operation: "AXPosition")
+  #expect(try positionAttribute.decode(decodedPosition) == position)
+  #expect(try sizeAttribute.decode(AX.NativeTransport.decode(axSize, operation: "AXSize")) == size)
+  #expect(throws: AX.Failure.self) { try sizeAttribute.decode(decodedPosition) }
+  #expect(throws: AX.Failure.self) { try AX.NativeTransport.decode(axRange, operation: "AXPosition") }
 }
 
 @Test func hitTestPreservesNoValueAndDoesNotCallOperation() async {
@@ -326,6 +347,30 @@ private final class Fixture: AX.Transport {
     Issue.record("Expected budget failure")
   } catch let failure as AX.Failure {
     #expect(failure.kind == .traversalLimitReached)
+  }
+}
+
+@Test func traversalBudgetsDoNotSetTimeoutsOnUnvisitedChildren() throws {
+  let queue = DispatchQueue(label: "AccessibilitySystemTests.traversal")
+  try queue.sync {
+    let fixture = Fixture()
+    let session = try AX.Session(pid: 42, transport: fixture, timeout: 0.25,
+                                 queue: queue, request: AX.Request())
+    defer { session.invalidate() }
+
+    for budget in [AX.TraversalBudget(maximumNodes: 1), .init(maximumDepth: 0)] {
+      #expect(throws: AX.Failure.self) {
+        try session.firstValue(of: .url, atRole: "AXWebArea", under: session.application,
+                               includingRoot: true, missingValue: .skipNoValueOrUnsupported,
+                               budget: budget)
+      }
+      #expect(fixture.timeoutHandles == [fixture.app])
+    }
+    let match = try session.firstValue(of: .url, atRole: "AXWebArea", under: session.application,
+                                       includingRoot: true, missingValue: .skipNoValueOrUnsupported,
+                                       budget: .init(maximumNodes: 2))
+    #expect(match?.lastPathComponent == "first")
+    #expect(fixture.timeoutHandles == [fixture.app, fixture.first])
   }
 }
 

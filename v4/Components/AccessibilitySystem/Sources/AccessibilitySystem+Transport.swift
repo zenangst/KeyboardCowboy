@@ -27,7 +27,7 @@ extension AccessibilitySystem {
   }
 
   enum ReadValue {
-    case string(String), url(URL), elements([Handle]), malformed
+    case string(String), url(URL), elements([Handle]), point(CGPoint), size(CGSize), malformed
   }
 
   protocol Transport {
@@ -123,6 +123,24 @@ extension AccessibilitySystem {
       guard let value else { throw Failure(.malformedValue, operation: name) }
 
       switch CFGetTypeID(value) {
+      case AXValueGetTypeID():
+        let geometry = value as! AXValue // swiftlint:disable:this force_cast
+        switch AXValueGetType(geometry) {
+        case .cgPoint:
+          var point = CGPoint.zero
+          if AXValueGetValue(geometry, .cgPoint, &point), point.x.isFinite, point.y.isFinite {
+            return .point(point)
+          }
+        case .cgSize:
+          var size = CGSize.zero
+          if AXValueGetValue(geometry, .cgSize, &size),
+             size.width.isFinite, size.height.isFinite, size.width >= 0, size.height >= 0 {
+            return .size(size)
+          }
+        default:
+          break
+        }
+        throw Failure(.malformedValue, operation: name)
       case CFStringGetTypeID():
         guard let string = value as? String else {
           throw Failure(.malformedValue, operation: name)

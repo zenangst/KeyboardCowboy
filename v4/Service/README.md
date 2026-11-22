@@ -83,4 +83,5 @@ Move the pointer over a known control within five seconds of launch. The
 check logs the AX point and role, not the control's title or contents. Try
 a button on the primary display, then repeat on a secondary display arranged
 to the left or above it. Check that the role matches the control and that
-the corresponding coordinate is negative on the secondary display.
+the corresponding coordinate is negative on the secondary display. For a
+control that exposes geometry, its AX frame should contain the pointer.

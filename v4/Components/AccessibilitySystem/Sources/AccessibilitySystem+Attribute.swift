@@ -1,3 +1,5 @@
+import CoreGraphics
+
 public extension AccessibilitySystem {
   struct Attribute<Value> {
     let name: String
@@ -6,6 +8,29 @@ public extension AccessibilitySystem {
 
   struct WritableAttribute<Value> {
     let name: String
+  }
+}
+
+public extension AccessibilitySystem.Attribute where Value == CGPoint {
+  /// Top-left origin in AX global screen coordinates.
+  static var position: Self {
+    Self(name: "AXPosition") { value in
+      guard case .point(let point) = value else {
+        throw AccessibilitySystem.Failure(.malformedValue, operation: "AXPosition")
+      }
+      return point
+    }
+  }
+}
+
+public extension AccessibilitySystem.Attribute where Value == CGSize {
+  static var size: Self {
+    Self(name: "AXSize") { value in
+      guard case .size(let size) = value else {
+        throw AccessibilitySystem.Failure(.malformedValue, operation: "AXSize")
+      }
+      return size
+    }
   }
 }
 

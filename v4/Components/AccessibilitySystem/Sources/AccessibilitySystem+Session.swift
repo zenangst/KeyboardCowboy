@@ -99,7 +99,7 @@ public extension AccessibilitySystem {
       includingRoot: Bool, missingValue: MissingValuePolicy,
       budget: TraversalBudget = .init(),
     ) throws -> Value? {
-      try validate(root)
+      let rootHandle = try handle(for: root)
       guard budget.maximumNodes > 0, budget.maximumDepth >= 0, budget.elapsedLimit > .zero else {
         throw Failure(.invalidConfiguration, operation: "traversalBudget")
       }
@@ -109,8 +109,8 @@ public extension AccessibilitySystem {
       let previousDeadline = traversalDeadline
       traversalDeadline = min(previousDeadline ?? deadline, deadline)
       defer { traversalDeadline = previousDeadline }
-      var visited: Set<Element> = []
-      var stack: [(Element, Int)] = [(root, 0)]
+      var visited: Set<Handle> = []
+      var stack: [(remaining: ArraySlice<Handle>, depth: Int)] = [([rootHandle][...], 0)]
       var count = 0
 
       func checkBudget() throws {
@@ -131,15 +131,19 @@ public extension AccessibilitySystem {
         }
       }
 
-      while let (node, depth) = stack.popLast() {
+      while let (siblings, depth) = stack.popLast() {
         try checkBudget()
-        guard visited.insert(node).inserted else { continue }
+        var remaining = siblings
+        guard let handle = remaining.popFirst() else { continue }
+        if !remaining.isEmpty { stack.append((remaining, depth)) }
+        guard visited.insert(handle).inserted else { continue }
 
         count += 1
         guard count <= budget.maximumNodes, depth <= budget.maximumDepth else {
           throw Failure(.traversalLimitReached, operation: "traversal")
         }
 
+        let node = try element(handle)
         if includingRoot || depth > 0 {
           let nodeRole = try toleratingMissing { try read(.role, of: node) }
           try checkBudget()
@@ -150,9 +154,9 @@ public extension AccessibilitySystem {
             continue
           }
         }
-        let children = try toleratingMissing { try self.children(of: node) } ?? []
+        let children = try toleratingMissing { try elementHandles("AXChildren", of: node) } ?? []
         try checkBudget()
-        stack.append(contentsOf: children.reversed().map { ($0, depth + 1) })
+        if !children.isEmpty { stack.append((children[...], depth + 1)) }
       }
       return nil
     }
@@ -187,6 +191,10 @@ public extension AccessibilitySystem {
     }
 
     private func elements(_ name: String, of parent: Element) throws -> [Element] {
+      try elementHandles(name, of: parent).map { try element($0) }
+    }
+
+    private func elementHandles(_ name: String, of parent: Element) throws -> [Handle] {
       let handle = try handle(for: parent)
       let value = try transport.read(name, from: handle)
 
@@ -196,7 +204,7 @@ public extension AccessibilitySystem {
         throw Failure(.malformedValue, operation: name)
       }
 
-      return try handles.map { try element($0) }
+      return handles
     }
   }
 }
