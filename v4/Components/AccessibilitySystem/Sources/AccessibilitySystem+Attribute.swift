@@ -18,6 +18,15 @@ public extension AccessibilitySystem.WritableAttribute where Value == String {
 }
 
 public extension AccessibilitySystem.Attribute where Value == String {
+  static var textValue: Self {
+    Self(name: "AXValue") { value in
+      guard case .string(let text) = value else {
+        throw AccessibilitySystem.Failure(.malformedValue, operation: "AXValue")
+      }
+      return text
+    }
+  }
+
   static var selectedText: Self {
     Self(name: "AXSelectedText") { value in
       guard case .string(let text) = value else {

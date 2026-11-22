@@ -1,5 +1,6 @@
 import AppKit
 #if DEBUG
+import HostInput
 import HostOpen
 #endif
 import SwiftUI
@@ -7,7 +8,7 @@ import SwiftUI
 @main
 struct ServiceApp: App {
   #if DEBUG
-  @NSApplicationDelegateAdaptor(BrowserSmokeDelegate.self) private var browserSmoke
+  @NSApplicationDelegateAdaptor(SmokeDelegate.self) private var smoke
   #endif
 
   var body: some Scene {
@@ -30,12 +31,17 @@ struct ServiceApp: App {
 
 #if DEBUG
 @MainActor
-private final class BrowserSmokeDelegate: NSObject, NSApplicationDelegate {
+private final class SmokeDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ notification: Notification) {
     let arguments = CommandLine.arguments.dropFirst()
-    guard arguments.first == "--smoke-open-browser" else { return }
+    guard let command = arguments.first,
+          command == "--smoke-open-browser" || command == "--smoke-selected-text" else { return }
     Task {
-      await HostOpen.smokeBrowser(arguments: Array(arguments.dropFirst()))
+      if command == "--smoke-open-browser" {
+        await HostOpen.smokeBrowser(arguments: Array(arguments.dropFirst()))
+      } else {
+        await HostInput.smokeSelectedText(arguments: Array(arguments.dropFirst()))
+      }
       NSApp.terminate(nil)
     }
   }
