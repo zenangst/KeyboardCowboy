@@ -94,6 +94,7 @@ extension AccessibilitySystem {
     func perform(_ action: Action, on handle: Handle) throws {
       let name = switch action {
       case .raise: kAXRaiseAction
+      case .press: kAXPressAction
       }
       guard let native = handle.native else {
         throw Failure(.invalidElement, operation: name)

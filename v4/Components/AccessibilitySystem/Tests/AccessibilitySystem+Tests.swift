@@ -16,6 +16,7 @@ private final class Fixture: AX.Transport {
   var failTimeout = false
   var failRaise = false
   var raisedHandles: [AX.Handle] = []
+  var pressedHandles: [AX.Handle] = []
   var mainHandle: AX.Handle?
   var selectedText = ""
   var missingSelection = false
@@ -97,6 +98,8 @@ private final class Fixture: AX.Transport {
                          rawAXStatus: AXError.actionUnsupported.rawValue)
       }
       raisedHandles.append(handle)
+    case .press:
+      pressedHandles.append(handle)
     }
   }
 
@@ -111,6 +114,19 @@ private final class Fixture: AX.Transport {
     #expect(handle == first)
     #expect(name == "AXSelectedText")
     selectedText = value
+  }
+}
+
+@Test func pressUsesScopedElementHandle() throws {
+  let queue = DispatchQueue(label: "AccessibilitySystemTests.press")
+  try queue.sync {
+    let fixture = Fixture()
+    let session = try AX.Session(pid: 42, transport: fixture, timeout: 0.25,
+                                 queue: queue, request: AX.Request())
+    defer { session.invalidate() }
+    let target = try session.focusedElement()
+    try session.perform(.press, on: target)
+    #expect(fixture.pressedHandles == [fixture.first])
   }
 }
 
