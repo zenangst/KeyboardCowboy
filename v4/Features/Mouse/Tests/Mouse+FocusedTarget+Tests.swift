@@ -33,7 +33,7 @@ func otherRolesDoNotReadGenericFrame(_ role: String) throws {
   } == nil)
 }
 
-@Test(arguments: ["table", "outline"])
+@Test(arguments: ["table", "outline", "list", "collection"])
 func selectedRowUsesItsFrameWithoutContainerFallback(_ role: String) throws {
   let frame = CGRect(x: -100, y: 20, width: 40, height: 20)
   let point = try Mouse.target(roleDescription: role, at: .center, selectedFrame: { frame }) {
@@ -43,7 +43,7 @@ func selectedRowUsesItsFrameWithoutContainerFallback(_ role: String) throws {
   #expect(point == CGPoint(x: -75, y: 35))
 }
 
-@Test(arguments: ["table", "outline"])
+@Test(arguments: ["table", "outline", "list", "collection"])
 func selectedRowResolutionPreservesMissingSelectionAndFrameFailure(_ role: String) {
   enum Failure: Error { case frameUnavailable }
   func containerFrame() -> CGRect {

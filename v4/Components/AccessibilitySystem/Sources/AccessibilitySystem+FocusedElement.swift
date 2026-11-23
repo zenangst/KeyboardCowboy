@@ -14,6 +14,14 @@ public extension AccessibilitySystem {
       try session.write(attribute, value: value, to: session.application)
     }
 
+    public func children() throws -> [Child] {
+      try Child(session: session, element: session.application).children()
+    }
+
+    public func checkpoint() throws {
+      try session.checkpoint()
+    }
+
     /// Searches only direct children, in source order.
     public func firstChild(where matches: (Child) throws -> Bool) throws -> Child? {
       let match = try session.firstElement(under: session.application, includingRoot: false,
@@ -29,6 +37,10 @@ public extension AccessibilitySystem {
 
       public func read<Value>(_ attribute: Attribute<Value>) throws -> Value {
         try session.read(attribute, of: element)
+      }
+
+      public func children() throws -> [Child] {
+        try session.children(of: element).map { Child(session: session, element: $0) }
       }
     }
   }

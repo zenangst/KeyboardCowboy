@@ -30,7 +30,7 @@ public enum Mouse {
     case noSelectedChild
   }
 
-  /// Resolves direct-frame roles, groups, tables, and outlines. Other roles
+  /// Resolves direct-frame roles, groups, tables, outlines, lists, and collections. Other roles
   /// return nil rather than falling back to an unrelated click point.
   public static func focusedTarget(
     at anchor: Anchor,
@@ -48,7 +48,15 @@ public enum Mouse {
       return try target(
         roleDescription: role,
         at: anchor, selectedFrame: {
-          let child = try element.firstChild { (try? $0.read(.selected)) == true }
+          let child: AccessibilitySystem.FocusedElement.Child?
+          if role == "list" || role == "collection" {
+            child = try selectedItem(
+              in: element.children(), collection: role == "collection",
+              children: { try $0.children() }, focused: { try $0.read(.focused) },
+              selected: { try $0.read(.selected) }, checkpoint: element.checkpoint)
+          } else {
+            child = try element.firstChild { (try? $0.read(.selected)) == true }
+          }
           return try child.map { try CGRect(origin: $0.read(.position), size: $0.read(.size)) }
         }, frame: {
           try CGRect(origin: element.read(.position), size: element.read(.size))
@@ -63,7 +71,7 @@ public enum Mouse {
     switch roleDescription {
     case "group", "image", "outline row", "text", "text field":
       return try anchor.point(in: frame())
-    case "table", "outline":
+    case "table", "outline", "list", "collection":
       guard let frame = try selectedFrame() else { throw TargetError.noSelectedChild }
 
       return anchor.point(in: frame)
