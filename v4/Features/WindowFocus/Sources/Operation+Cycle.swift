@@ -3,72 +3,41 @@ import AccessibilitySystem
 import CoreGraphics
 import Darwin
 
-public enum WindowFocus {
-  /// A host-provided focus transition for the active app. Discard it when
-  /// the app instance changes; the executor does not observe or store history.
-  public struct History: Sendable {
-    let processIdentifier: pid_t
-    let current: CGWindowID
-    let previous: CGWindowID
-
-    public init(processIdentifier: pid_t, current: CGWindowID, previous: CGWindowID) {
-      self.processIdentifier = processIdentifier
-      self.current = current
-      self.previous = previous
+extension Operation {
+  struct Cycle: Sendable {
+    enum Direction: Sendable {
+      case next
+      case previous(WindowFocus.History?)
     }
-  }
 
-  enum Direction {
-    case next
-    case previous(History?)
+    let accessibility: AccessibilitySystem.Client
   }
+}
 
-  /// Cycles within the active app in ascending CG ID order, independent of
-  /// Z-order changes after a raise. No IDs are retained between calls.
-  @discardableResult
-  public static func nextWindow(
-    in processIdentifier: pid_t,
-    using accessibility: AccessibilitySystem.Client = .init(),
-    isAppActive: @escaping @Sendable () -> Bool,
-  ) async throws -> Bool {
-    try await move(.next, in: processIdentifier, using: accessibility, isAppActive: isAppActive)
-  }
-
-  /// Prefers the last focused eligible window, otherwise cycles backward.
-  @discardableResult
-  public static func previousWindow(
-    in processIdentifier: pid_t,
-    history: History? = nil,
-    using accessibility: AccessibilitySystem.Client = .init(),
-    isAppActive: @escaping @Sendable () -> Bool,
-  ) async throws -> Bool {
-    try await move(.previous(history), in: processIdentifier, using: accessibility, isAppActive: isAppActive)
-  }
-
-  private static func move(
+extension Operation.Cycle {
+  func callAsFunction(
     _ direction: Direction,
     in processIdentifier: pid_t,
-    using accessibility: AccessibilitySystem.Client,
     isAppActive: @escaping @Sendable () -> Bool,
   ) async throws -> Bool {
     // AX can execute a same-process action inline on this off-main worker.
     guard processIdentifier > 0, processIdentifier != getpid(), isAppActive() else { return false }
 
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
-      try move(
+      try Self.run(
         direction,
         in: processIdentifier,
         isAppActive: isAppActive,
         focusedWindow: session.focusedWindow,
         windows: session.windows,
         candidates: session.debugWindowIDCandidates(for:),
-        onScreenOwners: onScreenOwners,
+        onScreenOwners: Self.onScreenOwners,
         raise: { try session.perform(.raise, on: $0) },
       )
     }
   }
 
-  static func move<Window: Equatable>(
+  static func run<Window: Equatable>(
     _ direction: Direction,
     in pid: pid_t,
     isAppActive: () -> Bool,

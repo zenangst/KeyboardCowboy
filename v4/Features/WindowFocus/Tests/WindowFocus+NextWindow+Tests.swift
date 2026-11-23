@@ -117,8 +117,8 @@ private final class NextWindowFixture {
   var raised: [Int] = []
   var snapshots = 0
 
-  func run(_ direction: WindowFocus.Direction = .next) throws -> Bool {
-    try WindowFocus.move(
+  func run(_ direction: Operation.Cycle.Direction = .next) throws -> Bool {
+    try Operation.Cycle.run(
       direction,
       in: 42, isAppActive: { isActive }, focusedWindow: { focused }, windows: { order },
       candidates: { windows in bridgeAvailable ? windows.map { ids[$0] } : nil },
