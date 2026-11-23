@@ -105,11 +105,12 @@ Release builds do not recognize this launch option.
 
 For an automated check, grant Accessibility to the signed Debug bundle, then
 run `v4/Scripts/smoke-next-window.sh` from the repository root. This opens a
-disposable AppKit fixture with three windows at identical positions and checks
-which window actually becomes key on each invocation. The fixture briefly
-takes focus; leave it frontmost until the script finishes. Pass the bundle
-path as the only argument to test a different signed Debug artifact. The
-script prints the macOS version and exits nonzero on failure.
+disposable AppKit fixture with three windows at identical positions. It checks
+cycling and wraparound, skips a minimized window, keeps focus when only one
+window is eligible, and includes the minimized window again after restoration.
+The fixture briefly takes focus; leave it frontmost until the script finishes.
+Pass the bundle path as the only argument to test a different signed Debug
+artifact. The script prints the macOS version and exits nonzero on failure.
 
 To smoke-test another app manually:
 

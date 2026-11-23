@@ -27,7 +27,8 @@ struct NextWindowSmokeFixture {
     guard let screen = NSScreen.main else { return "FAIL: no screen for fixture" }
     let frame = NSRect(x: screen.visibleFrame.minX + 50, y: screen.visibleFrame.minY + 80, width: 320, height: 180)
     let windows = (1...3).map { number in
-      let window = NSWindow(contentRect: frame, styleMask: [.titled, .closable], backing: .buffered, defer: false)
+      let window = NSWindow(contentRect: frame, styleMask: [.titled, .closable, .miniaturizable],
+                            backing: .buffered, defer: false)
       window.title = "Next Window Test \(number)"
       window.isReleasedWhenClosed = false
       window.orderFrontRegardless()
@@ -38,31 +39,55 @@ struct NextWindowSmokeFixture {
     windows[0].makeKeyAndOrderFront(nil)
     app.activate()
     let pid = getpid()
-    var passed = 0
     do {
       try await Task.sleep(for: .milliseconds(500))
       guard app.isActive, windows[0].isKeyWindow else { return "FAIL: fixture did not become active" }
       for index in [1, 2, 0] {
-        guard app.isActive else { return "FAIL: fixture lost focus; rerun without switching apps" }
-        let status = try await Task.detached {
-          // Wait for the one-shot launch without blocking the fixture's AX run loop.
-          let process = Process()
-          process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-          process.arguments = ["-g", "-n", "-W", service, "--args", "--smoke-next-window", String(pid)]
-          try process.run()
-          process.waitUntilExit()
-          return process.terminationStatus
-        }.value
-        guard status == 0 else { return "FAIL: Service launch exited with \(status)" }
-        try await Task.sleep(for: .milliseconds(150))
-        guard app.isActive, windows[index].isKeyWindow else {
-          return "FAIL: expected fixture window \(index + 1) after \(passed) successful raises; check Accessibility and WindowFocusSmoke logs"
-        }
-        passed += 1
+        try await expectKeyWindow(windows[index], service: service, pid: pid, scenario: "cycle")
       }
+
+      // A minimized window can still exist in AX, but must not be raised.
+      windows[1].miniaturize(nil)
+      try await Task.sleep(for: .milliseconds(500))
+      guard windows[1].isMiniaturized else { return "FAIL: fixture window 2 did not minimize" }
+      try await expectKeyWindow(windows[2], service: service, pid: pid, scenario: "skip minimized window")
+      guard windows[1].isMiniaturized else { return "FAIL: Service restored minimized window 2" }
+
+      windows[0].close()
+      try await expectKeyWindow(windows[2], service: service, pid: pid, scenario: "one eligible window")
+      guard windows[1].isMiniaturized else { return "FAIL: one-window check restored minimized window 2" }
+
+      windows[1].deminiaturize(nil)
+      try await Task.sleep(for: .milliseconds(500))
+      windows[2].makeKeyAndOrderFront(nil)
+      try await expectKeyWindow(windows[1], service: service, pid: pid, scenario: "restored window")
     } catch {
-      return "FAIL: \(error)"
+      return "FAIL: \(error); check Accessibility and WindowFocusSmoke logs"
     }
-    return "PASS: signed Service focused windows 1 → 2 → 3 → 1"
+    return "PASS: signed Service cycled, skipped a minimized window, kept focus with one eligible window, and included the restored window"
+  }
+
+  private enum Failure: Error {
+    case fixtureInactive
+    case launchFailed(Int32)
+    case unexpectedFocus(scenario: String, expected: String)
+  }
+
+  private static func expectKeyWindow(_ window: NSWindow, service: String, pid: pid_t, scenario: String) async throws {
+    guard NSApp.isActive else { throw Failure.fixtureInactive }
+    let status = try await Task.detached {
+      // Wait for the one-shot launch without blocking the fixture's AX run loop.
+      let process = Process()
+      process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+      process.arguments = ["-g", "-n", "-W", service, "--args", "--smoke-next-window", String(pid)]
+      try process.run()
+      process.waitUntilExit()
+      return process.terminationStatus
+    }.value
+    guard status == 0 else { throw Failure.launchFailed(status) }
+    try await Task.sleep(for: .milliseconds(150))
+    guard NSApp.isActive, window.isKeyWindow else {
+      throw Failure.unexpectedFocus(scenario: scenario, expected: window.title)
+    }
   }
 }
