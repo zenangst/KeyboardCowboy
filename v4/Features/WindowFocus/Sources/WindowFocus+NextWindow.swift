@@ -4,6 +4,25 @@ import CoreGraphics
 import Darwin
 
 public enum WindowFocus {
+  /// A host-provided focus transition for the active app. Discard it when
+  /// the app instance changes; the executor does not observe or store history.
+  public struct History: Sendable {
+    let processIdentifier: pid_t
+    let current: CGWindowID
+    let previous: CGWindowID
+
+    public init(processIdentifier: pid_t, current: CGWindowID, previous: CGWindowID) {
+      self.processIdentifier = processIdentifier
+      self.current = current
+      self.previous = previous
+    }
+  }
+
+  enum Direction {
+    case next
+    case previous(History?)
+  }
+
   /// Cycles within the active app in ascending CG ID order, independent of
   /// Z-order changes after a raise. No IDs are retained between calls.
   @discardableResult
@@ -12,11 +31,32 @@ public enum WindowFocus {
     using accessibility: AccessibilitySystem.Client = .init(),
     isAppActive: @escaping @Sendable () -> Bool,
   ) async throws -> Bool {
+    try await move(.next, in: processIdentifier, using: accessibility, isAppActive: isAppActive)
+  }
+
+  /// Prefers the last focused eligible window, otherwise cycles backward.
+  @discardableResult
+  public static func previousWindow(
+    in processIdentifier: pid_t,
+    history: History? = nil,
+    using accessibility: AccessibilitySystem.Client = .init(),
+    isAppActive: @escaping @Sendable () -> Bool,
+  ) async throws -> Bool {
+    try await move(.previous(history), in: processIdentifier, using: accessibility, isAppActive: isAppActive)
+  }
+
+  private static func move(
+    _ direction: Direction,
+    in processIdentifier: pid_t,
+    using accessibility: AccessibilitySystem.Client,
+    isAppActive: @escaping @Sendable () -> Bool,
+  ) async throws -> Bool {
     // AX can execute a same-process action inline on this off-main worker.
     guard processIdentifier > 0, processIdentifier != getpid(), isAppActive() else { return false }
 
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
-      try nextWindow(
+      try move(
+        direction,
         in: processIdentifier,
         isAppActive: isAppActive,
         focusedWindow: session.focusedWindow,
@@ -28,7 +68,8 @@ public enum WindowFocus {
     }
   }
 
-  static func nextWindow<Window: Equatable>(
+  static func move<Window: Equatable>(
+    _ direction: Direction,
     in pid: pid_t,
     isAppActive: () -> Bool,
     focusedWindow: () throws -> Window?,
@@ -55,16 +96,26 @@ public enum WindowFocus {
       .sorted { $0.id < $1.id }
     guard eligible.count > 1, let cursor = eligible.firstIndex(where: { $0.id == focusedID }) else { return false }
 
-    let next = eligible[(cursor + 1) % eligible.count]
+    let target = switch direction {
+    case .next:
+      eligible[(cursor + 1) % eligible.count]
+    case .previous(let history):
+      if let history, history.processIdentifier == pid, history.current == focusedID,
+         history.previous != focusedID, let prior = eligible.first(where: { $0.id == history.previous }) {
+        prior
+      } else {
+        eligible[(cursor + eligible.count - 1) % eligible.count]
+      }
+    }
 
     // Do not use the old snapshot if focus, either AX association, or current
     // on-screen ownership changed. Never retarget or retry this invocation.
     guard try focusedWindow() == focused,
-          try candidates([focused, next.window]) == [focusedID, next.id],
-          let fresh = onScreenOwners(), fresh[focusedID] == [pid], fresh[next.id] == [pid],
+          try candidates([focused, target.window]) == [focusedID, target.id],
+          let fresh = onScreenOwners(), fresh[focusedID] == [pid], fresh[target.id] == [pid],
           isAppActive() else { return false }
 
-    try raise(next.window)
+    try raise(target.window)
     return true
   }
 

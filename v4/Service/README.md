@@ -106,8 +106,10 @@ Release builds do not recognize this launch option.
 For an automated check, grant Accessibility to the signed Debug bundle, then
 run `v4/Scripts/smoke-next-window.sh` from the repository root. This opens a
 disposable AppKit fixture with three windows at identical positions. It checks
-cycling and wraparound, skips a minimized window, keeps focus when only one
-window is eligible, and includes the minimized window again after restoration.
+cycling and wraparound, prefers the last focused window for Previous Window,
+and falls back to reverse cycling when that window is minimized. It also
+checks that a lone eligible window keeps focus and a restored window rejoins
+the cycle.
 The fixture briefly takes focus; leave it frontmost until the script finishes.
 Pass the bundle path as the only argument to test a different signed Debug
 artifact. The script prints the macOS version and exits nonzero on failure.
@@ -132,6 +134,11 @@ window or a different active app, expect `Next window raise succeeded: false`.
 It does not activate an app, post input, or cache window IDs. Standard Release
 builds do not recognize this launch option.
 
+To test Previous Window, replace the launch arguments with
+`--smoke-previous-window "$pid" "$current_id" "$previous_id"`. The history IDs
+are supplied explicitly because each smoke invocation is a new process.
+Omit both IDs to test reverse cycling without history.
+
 #### Opt-in Window Focus validation build
 
 To check the private bridge in a distribution-style build without enabling it
@@ -144,12 +151,11 @@ v4/Scripts/smoke-next-window.sh "$app"
 ```
 
 The candidate is under `v4/Service/.build/app/window-focus-validation/`. It
-contains only the next-window smoke entry point, not the other Debug commands.
-Grant Accessibility to the exact candidate if needed. The build does not
-submit anything for notarization. For the notarization gate, archive and
-submit this candidate through your Developer ID notarization workflow, staple
-the accepted ticket, and run the smoke test against the stapled app. Keep
-this validation artifact separate from builds intended for distribution.
+contains only the next- and previous-window smoke commands, not the other
+Debug commands.
+Grant Accessibility to the exact candidate if needed. Notarization is not
+required for this validation. Keep this artifact separate from builds intended
+for distribution; notarize the app when it is ready to ship.
 
 ### Debug hit-test smoke check
 

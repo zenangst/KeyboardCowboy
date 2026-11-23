@@ -46,6 +46,20 @@ struct NextWindowSmokeFixture {
         try await expectKeyWindow(windows[index], service: service, pid: pid, scenario: "cycle")
       }
 
+      windows[2].makeKeyAndOrderFront(nil)
+      let history = ["--smoke-previous-window", String(pid), String(windows[2].windowNumber), String(windows[0].windowNumber)]
+      try await expectKeyWindow(windows[0], service: service, pid: pid, scenario: "previous history", command: history)
+
+      windows[2].makeKeyAndOrderFront(nil)
+      windows[0].miniaturize(nil)
+      try await Task.sleep(for: .milliseconds(500))
+      guard windows[0].isMiniaturized else { return "FAIL: prior window did not minimize" }
+      try await expectKeyWindow(windows[1], service: service, pid: pid, scenario: "previous fallback", command: history)
+      guard windows[0].isMiniaturized else { return "FAIL: previous restored a minimized history window" }
+      windows[0].deminiaturize(nil)
+      try await Task.sleep(for: .milliseconds(500))
+      windows[0].makeKeyAndOrderFront(nil)
+
       // A minimized window can still exist in AX, but must not be raised.
       windows[1].miniaturize(nil)
       try await Task.sleep(for: .milliseconds(500))
@@ -64,7 +78,7 @@ struct NextWindowSmokeFixture {
     } catch {
       return "FAIL: \(error); check Accessibility and WindowFocusSmoke logs"
     }
-    return "PASS: signed Service cycled, skipped a minimized window, kept focus with one eligible window, and included the restored window"
+    return "PASS: signed Service cycled, preferred previous focus history, fell back when it was minimized, and handled window eligibility"
   }
 
   private enum Failure: Error {
@@ -73,13 +87,15 @@ struct NextWindowSmokeFixture {
     case unexpectedFocus(scenario: String, expected: String)
   }
 
-  private static func expectKeyWindow(_ window: NSWindow, service: String, pid: pid_t, scenario: String) async throws {
+  private static func expectKeyWindow(
+    _ window: NSWindow, service: String, pid: pid_t, scenario: String, command: [String]? = nil
+  ) async throws {
     guard NSApp.isActive else { throw Failure.fixtureInactive }
     let status = try await Task.detached {
       // Wait for the one-shot launch without blocking the fixture's AX run loop.
       let process = Process()
       process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-      process.arguments = ["-g", "-n", "-W", service, "--args", "--smoke-next-window", String(pid)]
+      process.arguments = ["-g", "-n", "-W", service, "--args"] + (command ?? ["--smoke-next-window", String(pid)])
       try process.run()
       process.waitUntilExit()
       return process.terminationStatus

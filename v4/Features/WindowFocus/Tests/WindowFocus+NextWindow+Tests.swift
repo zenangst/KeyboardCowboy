@@ -19,6 +19,40 @@ import Testing
   #expect(fixture.raised == [20, 30, 10])
 }
 
+@Test func previousPrefersHistoryOverTheReverseNeighbor() throws {
+  let fixture = NextWindowFixture()
+  fixture.focused = 30
+  #expect(try fixture.run(.previous(.init(processIdentifier: 42, current: 30, previous: 10))))
+  #expect(fixture.raised == [10])
+}
+
+private enum UnusableHistory: CaseIterable {
+  case missing, staleCurrent, offScreen, differentApp, sameWindow
+}
+
+@Test(arguments: UnusableHistory.allCases)
+private func previousCyclesBackwardWhenHistoryIsMissingOrIneligible(reason: UnusableHistory) throws {
+  let fixture = NextWindowFixture()
+  let history: WindowFocus.History? = switch reason {
+  case .staleCurrent: .init(processIdentifier: 42, current: 30, previous: 20)
+  case .offScreen: .init(processIdentifier: 42, current: 10, previous: 20)
+  case .differentApp: .init(processIdentifier: 99, current: 10, previous: 20)
+  case .sameWindow: .init(processIdentifier: 42, current: 10, previous: 10)
+  case .missing: nil
+  }
+  if reason == .offScreen { fixture.owners?[20] = nil }
+  #expect(try fixture.run(.previous(history)))
+  #expect(fixture.raised == [30])
+}
+
+@Test func previousDoesNotRetargetIfHistoryWindowVanishedAfterSelection() throws {
+  let fixture = NextWindowFixture()
+  fixture.focused = 30
+  fixture.afterFirstSnapshot = { fixture.owners?[10] = nil }
+  #expect(try !fixture.run(.previous(.init(processIdentifier: 42, current: 30, previous: 10))))
+  #expect(fixture.raised.isEmpty)
+}
+
 @Test func skipsOffScreenWrongOwnerAndAmbiguousIDs() throws {
   let fixture = NextWindowFixture()
   fixture.order = [10, 20, 30, 31, 40, 50, 51, 60]
@@ -83,8 +117,9 @@ private final class NextWindowFixture {
   var raised: [Int] = []
   var snapshots = 0
 
-  func run() throws -> Bool {
-    try WindowFocus.nextWindow(
+  func run(_ direction: WindowFocus.Direction = .next) throws -> Bool {
+    try WindowFocus.move(
+      direction,
       in: 42, isAppActive: { isActive }, focusedWindow: { focused }, windows: { order },
       candidates: { windows in bridgeAvailable ? windows.map { ids[$0] } : nil },
       onScreenOwners: {
