@@ -1,3 +1,4 @@
+import AccessibilitySystem
 import CoreGraphics
 @testable import MouseFeature
 import Testing
@@ -18,33 +19,47 @@ func mouseAnchorsUseGlobalCoordinatesAndLegacyOffset(_ anchor: Mouse.Anchor, _ e
   #expect(anchor.point(in: CGRect(x: -100, y: 20, width: 40, height: 20)) == expected)
 }
 
-@Test(arguments: ["group", "image", "outline row", "text", "text field"])
-func directFrameRolesResolveAnchor(_ role: String) throws {
-  #expect(try Mouse.target(roleDescription: role, at: .center, selectedFrame: { nil }) {
+@Test(arguments: [Mouse.TargetKind.group, .frame])
+func directFrameRolesResolveAnchor(_ kind: Mouse.TargetKind) throws {
+  #expect(try Mouse.target(kind: kind, at: .center, selectedFrame: { nil }) {
     CGRect(x: 0, y: 0, width: 10, height: 10)
   } == CGPoint(x: 10, y: 10))
 }
 
-@Test(arguments: ["button", "Image", "text entry area", "HTML content"])
-func otherRolesDoNotReadGenericFrame(_ role: String) throws {
-  #expect(try Mouse.target(roleDescription: role, at: .center, selectedFrame: { nil }) {
-    Issue.record("Unexpected generic frame read")
-    return .zero
-  } == nil)
+@Test(arguments: [
+  (AccessibilitySystem.Role.group, Mouse.TargetKind.group),
+  (.image, .frame), (.textField, .frame), (.table, .selectedChild),
+  (.outline, .selectedChild), (.list, .list),
+])
+func stableRolesDoNotReadLocalizedDescription(_ role: AccessibilitySystem.Role, _ kind: Mouse.TargetKind) {
+  #expect(Mouse.targetKind(role: role) {
+    Issue.record("Unexpected localized description read")
+    return "collection"
+  } == kind)
 }
 
-@Test(arguments: ["table", "outline", "list", "collection"])
-func selectedRowUsesItsFrameWithoutContainerFallback(_ role: String) throws {
+@Test(arguments: ["outline row", "text", "collection", "row", "HTML content"])
+func unclassifiedRolesUseOnlySupportedLegacyDescriptions(_ description: String) {
+  let expected: Mouse.TargetKind? = switch description {
+  case "outline row", "text": .frame
+  case "collection": .collection
+  default: nil
+  }
+  #expect(Mouse.targetKind(role: .init(rawValue: "AXUnclassified"), legacyDescription: { description }) == expected)
+}
+
+@Test(arguments: [Mouse.TargetKind.selectedChild, .list, .collection])
+func selectedRowUsesItsFrameWithoutContainerFallback(_ kind: Mouse.TargetKind) throws {
   let frame = CGRect(x: -100, y: 20, width: 40, height: 20)
-  let point = try Mouse.target(roleDescription: role, at: .center, selectedFrame: { frame }) {
+  let point = try Mouse.target(kind: kind, at: .center, selectedFrame: { frame }) {
     Issue.record("Unexpected container frame read")
     return .zero
   }
   #expect(point == CGPoint(x: -75, y: 35))
 }
 
-@Test(arguments: ["table", "outline", "list", "collection"])
-func selectedRowResolutionPreservesMissingSelectionAndFrameFailure(_ role: String) {
+@Test(arguments: [Mouse.TargetKind.selectedChild, .list, .collection])
+func selectedRowResolutionPreservesMissingSelectionAndFrameFailure(_ kind: Mouse.TargetKind) {
   enum Failure: Error { case frameUnavailable }
   func containerFrame() -> CGRect {
     Issue.record("Unexpected container frame fallback")
@@ -52,10 +67,10 @@ func selectedRowResolutionPreservesMissingSelectionAndFrameFailure(_ role: Strin
   }
 
   #expect(throws: Mouse.TargetError.noSelectedChild) {
-    try Mouse.target(roleDescription: role, at: .center, selectedFrame: { nil }, frame: containerFrame)
+    try Mouse.target(kind: kind, at: .center, selectedFrame: { nil }, frame: containerFrame)
   }
   #expect(throws: Failure.frameUnavailable) {
-    try Mouse.target(roleDescription: role, at: .center, selectedFrame: { throw Failure.frameUnavailable },
+    try Mouse.target(kind: kind, at: .center, selectedFrame: { throw Failure.frameUnavailable },
                      frame: containerFrame)
   }
 }

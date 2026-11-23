@@ -37,8 +37,9 @@ public enum Mouse {
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> CGPoint? {
     try await accessibility.withFocusedElement { element in
-      let role = try element.read(.roleDescription)
-      if role == "group", let child = try element.firstChild(where: { child in
+      guard let kind = try targetKind(role: element.read(.role), legacyDescription: { try element.read(.roleDescription) })
+      else { return nil }
+      if kind == .group, let child = try element.firstChild(where: { child in
         isGroupTarget(focused: { try child.read(.focused) },
                       selected: { try child.read(.selected) })
       }) {
@@ -46,12 +47,12 @@ public enum Mouse {
                                            size: child.read(.size)))
       }
       return try target(
-        roleDescription: role,
+        kind: kind,
         at: anchor, selectedFrame: {
           let child: AccessibilitySystem.FocusedElement.Child?
-          if role == "list" || role == "collection" {
+          if kind == .list || kind == .collection {
             child = try selectedItem(
-              in: element.children(), collection: role == "collection",
+              in: element.children(), collection: kind == .collection,
               children: { try $0.children() }, focused: { try $0.read(.focused) },
               selected: { try $0.read(.selected) }, checkpoint: element.checkpoint)
           } else {
@@ -64,19 +65,40 @@ public enum Mouse {
     }
   }
 
+  enum TargetKind {
+    case group, frame, selectedChild, list, collection
+  }
+
+  static func targetKind(
+    role: AccessibilitySystem.Role, legacyDescription: () throws -> String,
+  ) rethrows -> TargetKind? {
+    switch role {
+    case .group: return .group
+    case .image, .textField: return .frame
+    case .table, .outline: return .selectedChild
+    case .list: return .list
+    default: break
+    }
+
+    // Keep the legacy distinctions until these targets have verified role/subrole mappings.
+    switch try legacyDescription() {
+    case "outline row", "text": return .frame
+    case "collection": return .collection
+    default: return nil
+    }
+  }
+
   static func target(
-    roleDescription: String, at anchor: Anchor,
+    kind: TargetKind, at anchor: Anchor,
     selectedFrame: () throws -> CGRect?, frame: () throws -> CGRect,
-  ) throws -> CGPoint? {
-    switch roleDescription {
-    case "group", "image", "outline row", "text", "text field":
+  ) throws -> CGPoint {
+    switch kind {
+    case .group, .frame:
       return try anchor.point(in: frame())
-    case "table", "outline", "list", "collection":
+    case .selectedChild, .list, .collection:
       guard let frame = try selectedFrame() else { throw TargetError.noSelectedChild }
 
       return anchor.point(in: frame)
-    default:
-      return nil
     }
   }
 
