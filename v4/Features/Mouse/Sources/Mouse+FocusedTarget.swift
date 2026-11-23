@@ -30,13 +30,13 @@ public enum Mouse {
     case noSelectedChild
   }
 
-  /// Resolves direct-frame roles, groups, tables, outlines, lists, and collections. Other roles
-  /// return nil rather than falling back to an unrelated click point.
+  /// Resolves direct-frame roles, groups, tables, outlines, lists, collections,
+  /// and scroll areas. Unsupported roles return nil.
   public static func focusedTarget(
     at anchor: Anchor,
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> CGPoint? {
-    try await accessibility.withFocusedElement { element in
+    try await accessibility.withFocusedElement { element -> CGPoint? in
       guard let kind = try targetKind(role: element.read(.role), legacyDescription: { try element.read(.roleDescription) })
       else { return nil }
       if kind == .group, let child = try element.firstChild(where: { child in
@@ -55,6 +55,10 @@ public enum Mouse {
               in: element.children(), collection: kind == .collection,
               children: { try $0.children() }, focused: { try $0.read(.focused) },
               selected: { try $0.read(.selected) }, checkpoint: element.checkpoint)
+          } else if kind == .scrollArea {
+            child = try element.firstInSubtreeWithReadableChildren { node in
+              isGroupTarget(focused: { try node.read(.focused) }, selected: { try node.read(.selected) })
+            }
           } else {
             child = try element.firstChild { (try? $0.read(.selected)) == true }
           }
@@ -66,7 +70,7 @@ public enum Mouse {
   }
 
   enum TargetKind {
-    case group, frame, selectedChild, list, collection
+    case group, frame, selectedChild, list, collection, scrollArea
   }
 
   static func targetKind(
@@ -77,6 +81,7 @@ public enum Mouse {
     case .image, .textField: return .frame
     case .table, .outline: return .selectedChild
     case .list: return .list
+    case .scrollArea: return .scrollArea
     default: break
     }
 
@@ -95,7 +100,7 @@ public enum Mouse {
     switch kind {
     case .group, .frame:
       return try anchor.point(in: frame())
-    case .selectedChild, .list, .collection:
+    case .selectedChild, .list, .collection, .scrollArea:
       guard let frame = try selectedFrame() else { throw TargetError.noSelectedChild }
 
       return anchor.point(in: frame)

@@ -155,13 +155,23 @@ public extension AccessibilitySystem {
       case match, descend, prune
     }
 
+    func firstElementWithReadableChildren(
+      under root: Element, budget: TraversalBudget, matches: (Element) throws -> Bool,
+    ) throws -> Element? {
+      try traverse(under: root, includingRoot: true, missingValue: .fail, budget: budget,
+                   requiresReadableChildren: true) { node in
+        try matches(node) ? .match(node) : .descend
+      }
+    }
+
     private enum Visit<Value> {
       case match(Value), descend, prune
     }
 
     private func traverse<Value>(
       under root: Element, includingRoot: Bool, missingValue: MissingValuePolicy,
-      budget: TraversalBudget, visit: (Element) throws -> Visit<Value>,
+      budget: TraversalBudget, requiresReadableChildren: Bool = false,
+      visit: (Element) throws -> Visit<Value>,
     ) throws -> Value? {
       let rootHandle = try handle(for: root)
       guard budget.maximumNodes > 0, budget.maximumDepth >= 0, budget.elapsedLimit > .zero else {
@@ -197,6 +207,18 @@ public extension AccessibilitySystem {
         }
 
         let node = try element(handle)
+        let prefetched: [Handle]?
+        if requiresReadableChildren {
+          do {
+            prefetched = try elementHandles(kAXChildrenAttribute, of: node)
+          } catch let failure as Failure
+            where failure.kind != .traversalLimitReached && failure.kind != .expiredScope {
+            try checkBudget()
+            continue
+          }
+        } else {
+          prefetched = nil
+        }
         if includingRoot || depth > 0 {
           let decision = try visit(node)
           try checkBudget()
@@ -206,7 +228,7 @@ public extension AccessibilitySystem {
           case .descend: break
           }
         }
-        let children = try toleratingMissing(missingValue) { try elementHandles(kAXChildrenAttribute, of: node) } ?? []
+        let children = try prefetched ?? toleratingMissing(missingValue) { try elementHandles(kAXChildrenAttribute, of: node) } ?? []
         try checkBudget()
         if !children.isEmpty { stack.append((children[...], depth + 1)) }
       }

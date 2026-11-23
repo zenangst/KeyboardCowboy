@@ -22,6 +22,17 @@ public extension AccessibilitySystem {
       try session.checkpoint()
     }
 
+    /// Searches the focused element and its descendants in source order.
+    /// Nodes whose children cannot be read are skipped with their subtree.
+    public func firstInSubtreeWithReadableChildren(
+      budget: TraversalBudget = .init(), where matches: (Child) throws -> Bool,
+    ) throws -> Child? {
+      let match = try session.firstElementWithReadableChildren(under: session.application, budget: budget) {
+        try matches(Child(session: session, element: $0))
+      }
+      return match.map { Child(session: session, element: $0) }
+    }
+
     /// Searches only direct children, in source order.
     public func firstChild(where matches: (Child) throws -> Bool) throws -> Child? {
       let match = try session.firstElement(under: session.application, includingRoot: false,

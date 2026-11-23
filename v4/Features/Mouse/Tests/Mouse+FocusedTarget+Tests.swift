@@ -29,7 +29,7 @@ func directFrameRolesResolveAnchor(_ kind: Mouse.TargetKind) throws {
 @Test(arguments: [
   (AccessibilitySystem.Role.group, Mouse.TargetKind.group),
   (.image, .frame), (.textField, .frame), (.table, .selectedChild),
-  (.outline, .selectedChild), (.list, .list),
+  (.outline, .selectedChild), (.list, .list), (.scrollArea, .scrollArea),
 ])
 func stableRolesDoNotReadLocalizedDescription(_ role: AccessibilitySystem.Role, _ kind: Mouse.TargetKind) {
   #expect(Mouse.targetKind(role: role) {
@@ -48,7 +48,7 @@ func unclassifiedRolesUseOnlySupportedLegacyDescriptions(_ description: String) 
   #expect(Mouse.targetKind(role: .init(rawValue: "AXUnclassified"), legacyDescription: { description }) == expected)
 }
 
-@Test(arguments: [Mouse.TargetKind.selectedChild, .list, .collection])
+@Test(arguments: [Mouse.TargetKind.selectedChild, .list, .collection, .scrollArea])
 func selectedRowUsesItsFrameWithoutContainerFallback(_ kind: Mouse.TargetKind) throws {
   let frame = CGRect(x: -100, y: 20, width: 40, height: 20)
   let point = try Mouse.target(kind: kind, at: .center, selectedFrame: { frame }) {
@@ -58,7 +58,7 @@ func selectedRowUsesItsFrameWithoutContainerFallback(_ kind: Mouse.TargetKind) t
   #expect(point == CGPoint(x: -75, y: 35))
 }
 
-@Test(arguments: [Mouse.TargetKind.selectedChild, .list, .collection])
+@Test(arguments: [Mouse.TargetKind.selectedChild, .list, .collection, .scrollArea])
 func selectedRowResolutionPreservesMissingSelectionAndFrameFailure(_ kind: Mouse.TargetKind) {
   enum Failure: Error { case frameUnavailable }
   func containerFrame() -> CGRect {

@@ -27,6 +27,7 @@ private final class Fixture: AX.Transport {
   var onRead: (() -> Void)?
   var hitPoint: CGPoint?
   var selectBothDirectChildren = false
+  var secondHasReadableChildren = false
 
   func application(_ pid: Int32) -> AX.Handle { app }
   var focusOnApp = false
@@ -76,6 +77,7 @@ private final class Fixture: AX.Transport {
     if name == "AXChildren" {
       if handle == app { return .elements([first, second]) }
       if handle == first { return .elements([nested]) }
+      if handle == second, secondHasReadableChildren { return .elements([]) }
       if cycle { return .elements([app]) }
       throw AX.Failure(.attributeUnsupported, operation: name)
     }
@@ -137,6 +139,33 @@ private final class Fixture: AX.Transport {
     #expect(url?.lastPathComponent == "first")
     let nested = try group.firstChild { try $0.read(.url).lastPathComponent == "nested" }
     #expect(nested == nil)
+  }
+}
+
+@Test func readableChildrenSearchSkipsUnreadableNodeAndKeepsPreorder() async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.focusOnApp = true
+    fixture.secondHasReadableChildren = true
+    return fixture
+  })
+  try await client.withFocusedElement { root in
+    var visited: [String] = []
+    let match = try root.firstInSubtreeWithReadableChildren { node in
+      visited.append(try node.read(.role) == .webArea ? node.read(.url).lastPathComponent : "root")
+      return try node.read(.focused)
+    }
+    #expect(visited == ["root", "first", "second"])
+    #expect(try match?.read(.url).lastPathComponent == "second")
+  }
+}
+
+@Test func readableChildrenSearchReportsBudgetExhaustion() async {
+  let client = AX.Client(makeTransport: { Fixture() })
+  await #expect(throws: AX.Failure.self) {
+    try await client.withFocusedElement { root in
+      try root.firstInSubtreeWithReadableChildren(budget: .init(maximumNodes: 1)) { _ in false } != nil
+    }
   }
 }
 

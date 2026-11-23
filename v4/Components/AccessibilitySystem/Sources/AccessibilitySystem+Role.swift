@@ -16,6 +16,7 @@ public extension AccessibilitySystem {
     public static let link = Self(rawValue: "AXLink")
     public static let list = Self(rawValue: kAXListRole)
     public static let outline = Self(rawValue: kAXOutlineRole)
+    public static let scrollArea = Self(rawValue: kAXScrollAreaRole)
     public static let staticText = Self(rawValue: kAXStaticTextRole)
     public static let table = Self(rawValue: kAXTableRole)
     public static let textField = Self(rawValue: kAXTextFieldRole)
