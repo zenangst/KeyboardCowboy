@@ -6,9 +6,12 @@ let package = Package(
   name: "MouseFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "MouseFeature", targets: ["MouseFeature"])],
-  dependencies: [.package(path: "../../Components/AccessibilitySystem")],
+  dependencies: [
+    .package(path: "../../Components/AccessibilitySystem"),
+    .package(path: "../../Components/Commands"),
+  ],
   targets: [
-    .target(name: "MouseFeature", dependencies: ["AccessibilitySystem"], path: "Sources"),
-    .testTarget(name: "MouseFeatureTests", dependencies: ["MouseFeature"], path: "Tests"),
+    .target(name: "MouseFeature", dependencies: ["AccessibilitySystem", "Commands"], path: "Sources"),
+    .testTarget(name: "MouseFeatureTests", dependencies: ["MouseFeature", "Commands"], path: "Tests"),
   ]
 )
