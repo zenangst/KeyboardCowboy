@@ -38,6 +38,20 @@ public extension AccessibilitySystem.WritableAttribute where Value == Bool {
   static var main: Self { Self(name: "AXMain") }
 }
 
+public extension AccessibilitySystem.Attribute where Value == Bool {
+  static var focused: Self { boolean(named: "AXFocused") }
+  static var selected: Self { boolean(named: "AXSelected") }
+
+  private static func boolean(named name: String) -> Self {
+    Self(name: name) { value in
+      guard case .bool(let flag) = value else {
+        throw AccessibilitySystem.Failure(.malformedValue, operation: name)
+      }
+      return flag
+    }
+  }
+}
+
 public extension AccessibilitySystem.WritableAttribute where Value == String {
   static var selectedText: Self { Self(name: "AXSelectedText") }
 }

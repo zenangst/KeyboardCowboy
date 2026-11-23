@@ -26,14 +26,20 @@ public enum Mouse {
     }
   }
 
-  /// Resolves roles that use their own frame. Roles requiring specialized
+  /// Resolves direct-frame roles and groups. Other roles requiring specialized
   /// resolvers return nil rather than falling back to an unrelated click point.
   public static func focusedTarget(
     at anchor: Anchor,
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> CGPoint? {
     try await accessibility.withFocusedElement { element in
-      try target(roleDescription: element.read(.roleDescription), at: anchor) {
+      let role = try element.read(.roleDescription)
+      if role == "group", let child = try element.firstChild(where: { child in
+        isGroupTarget(focused: { try child.read(.focused) }, selected: { try child.read(.selected) })
+      }) {
+        return try anchor.point(in: CGRect(origin: child.read(.position), size: child.read(.size)))
+      }
+      return try target(roleDescription: role, at: anchor) {
         try CGRect(origin: element.read(.position), size: element.read(.size))
       }
     }
@@ -41,10 +47,14 @@ public enum Mouse {
 
   static func target(roleDescription: String, at anchor: Anchor, frame: () throws -> CGRect) rethrows -> CGPoint? {
     switch roleDescription {
-    case "image", "outline row", "text", "text field":
+    case "group", "image", "outline row", "text", "text field":
       try anchor.point(in: frame())
     default:
       nil
     }
+  }
+
+  static func isGroupTarget(focused: () throws -> Bool, selected: () throws -> Bool) -> Bool {
+    (try? focused()) == true || (try? selected()) == true
   }
 }

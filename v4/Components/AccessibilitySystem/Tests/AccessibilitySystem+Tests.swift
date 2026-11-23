@@ -28,7 +28,8 @@ private final class Fixture: AX.Transport {
   var hitPoint: CGPoint?
 
   func application(_ pid: Int32) -> AX.Handle { app }
-  func focusedElement() throws -> AX.Handle { first }
+  var focusOnApp = false
+  func focusedElement() throws -> AX.Handle { focusOnApp ? app : first }
   func element(at point: CGPoint) throws -> AX.Handle {
     guard point == hitPoint else {
       throw AX.Failure(.noValue, operation: "elementAtPosition", rawAXStatus: AXError.noValue.rawValue)
@@ -51,6 +52,8 @@ private final class Fixture: AX.Transport {
   func read(_ name: String, from handle: AX.Handle) throws -> AX.ReadValue {
     onRead?()
     #expect(timeoutHandles.contains(handle))
+    if name == "AXFocused" { return .bool(handle == second) }
+    if name == "AXSelected" { return .bool(handle == first || handle == nested) }
     if name == "AXFocusedWindow", handle == app { return .element(second) }
     if name == "AXParent", handle == first { return .element(second) }
     if name == "AXPosition" { return .point(CGPoint(x: -140, y: 40)) }
@@ -114,6 +117,23 @@ private final class Fixture: AX.Transport {
     #expect(handle == first)
     #expect(name == "AXSelectedText")
     selectedText = value
+  }
+}
+
+@Test func focusedChildSearchPreservesOrderAndDoesNotDescend() async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.focusOnApp = true
+    return fixture
+  })
+  try await client.withFocusedElement { group in
+    let first = try group.firstChild {
+      try $0.read(.focused) || $0.read(.selected)
+    }
+    let url = try first?.read(.url)
+    #expect(url?.lastPathComponent == "first")
+    let nested = try group.firstChild { try $0.read(.url).lastPathComponent == "nested" }
+    #expect(nested == nil)
   }
 }
 
@@ -539,12 +559,15 @@ private final class Fixture: AX.Transport {
   } else { Issue.record("Expected empty elements") }
   #expect(throws: AX.Failure.self) { try decode(nil, "AXURL") }
   do {
-    _ = try decode(kCFBooleanTrue, "AXURL")
+    let value = try decode(kCFBooleanTrue, "AXURL")
+    _ = try AX.Attribute<URL>.url.decode(value)
     Issue.record("Expected decoder to reject a Boolean")
   } catch let failure as AX.Failure {
     #expect(failure.kind == .malformedValue)
     #expect(failure.operation == "AXURL")
   }
+  #expect(try AX.Attribute<Bool>.focused.decode(decode(kCFBooleanTrue, "AXFocused")))
+  #expect(try !AX.Attribute<Bool>.selected.decode(decode(kCFBooleanFalse, "AXSelected")))
   #expect(throws: AX.Failure.self) { try decode(["not an element"] as CFArray, "AXChildren") }
   #expect(throws: AX.Failure.self) { try decode([element, "not an element"] as CFArray, "AXChildren") }
 }

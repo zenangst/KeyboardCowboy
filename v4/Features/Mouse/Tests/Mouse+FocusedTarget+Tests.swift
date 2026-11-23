@@ -18,17 +18,27 @@ func mouseAnchorsUseGlobalCoordinatesAndLegacyOffset(_ anchor: Mouse.Anchor, _ e
   #expect(anchor.point(in: CGRect(x: -100, y: 20, width: 40, height: 20)) == expected)
 }
 
-@Test(arguments: ["image", "outline row", "text", "text field"])
+@Test(arguments: ["group", "image", "outline row", "text", "text field"])
 func directFrameRolesResolveAnchor(_ role: String) {
   #expect(Mouse.target(roleDescription: role, at: .center) {
     CGRect(x: 0, y: 0, width: 10, height: 10)
   } == CGPoint(x: 10, y: 10))
 }
 
-@Test(arguments: ["button", "Image", "group", "table", "text entry area", "HTML content"])
+@Test(arguments: ["button", "Image", "table", "text entry area", "HTML content"])
 func otherRolesDoNotReadGenericFrame(_ role: String) {
   #expect(Mouse.target(roleDescription: role, at: .center) {
     Issue.record("Unexpected generic frame read")
     return .zero
   } == nil)
+}
+
+@Test func groupTargetToleratesMissingFocusAndShortCircuitsWhenFocused() {
+  enum Failure: Error { case unavailable }
+  #expect(Mouse.isGroupTarget(focused: { throw Failure.unavailable }, selected: { true }))
+  #expect(Mouse.isGroupTarget(focused: { true }, selected: {
+    Issue.record("Unexpected selection read")
+    return false
+  }))
+  #expect(!Mouse.isGroupTarget(focused: { false }, selected: { throw Failure.unavailable }))
 }
