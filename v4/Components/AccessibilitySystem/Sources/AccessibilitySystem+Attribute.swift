@@ -51,6 +51,7 @@ public extension AccessibilitySystem.WritableAttribute where Value == Bool {
 }
 
 public extension AccessibilitySystem.Attribute where Value == Bool {
+  static var enabled: Self { boolean(named: kAXEnabledAttribute) }
   static var focused: Self { boolean(named: kAXFocusedAttribute) }
   static var selected: Self { boolean(named: kAXSelectedAttribute) }
 

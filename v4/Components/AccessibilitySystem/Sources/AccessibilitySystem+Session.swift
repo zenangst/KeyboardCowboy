@@ -75,6 +75,10 @@ public extension AccessibilitySystem {
       try relatedElement(kAXFocusedWindowAttribute, of: application)
     }
 
+    public func menuBar() throws -> Element? {
+      try relatedElement(kAXMenuBarAttribute, of: application)
+    }
+
     public func parent(of element: Element) throws -> Element? {
       try relatedElement(kAXParentAttribute, of: element)
     }

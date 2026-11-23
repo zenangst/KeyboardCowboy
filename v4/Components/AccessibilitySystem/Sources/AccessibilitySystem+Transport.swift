@@ -125,6 +125,7 @@ extension AccessibilitySystem {
       let name = switch action {
       case .raise: kAXRaiseAction
       case .press: kAXPressAction
+      case .pick: kAXPickAction
       }
       guard let native = handle.native else {
         throw Failure(.invalidElement, operation: name)

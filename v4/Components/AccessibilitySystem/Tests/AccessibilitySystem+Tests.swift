@@ -61,6 +61,8 @@ private final class Fixture: AX.Transport {
       return .bool(handle == first || handle == nested || (selectBothDirectChildren && handle == second))
     }
     if name == "AXFocusedWindow", handle == app { return .element(second) }
+    if name == kAXMenuBarAttribute, handle == app { return .element(first) }
+    if name == kAXEnabledAttribute { return .bool(handle == nested) }
     if name == "AXParent", handle == first { return .element(second) }
     if name == "AXPosition" { return .point(CGPoint(x: -140, y: 40)) }
     if name == kAXSelectedTextRangeAttribute { return .range(selectedRange) }
@@ -119,6 +121,8 @@ private final class Fixture: AX.Transport {
       raisedHandles.append(handle)
     case .press:
       pressedHandles.append(handle)
+    case .pick:
+      #expect(handle == nested)
     }
   }
 
@@ -133,6 +137,16 @@ private final class Fixture: AX.Transport {
     #expect(handle == first)
     #expect(name == "AXSelectedText")
     selectedText = value
+  }
+}
+
+@Test func applicationMenuBarSupportsTypedEnabledReadsAndPick() async throws {
+  let client = AX.Client(makeTransport: { Fixture() })
+  try await client.withApplication(processIdentifier: 42) { session in
+    let menu = try #require(try session.menuBar())
+    let item = try #require(try session.children(of: menu).first)
+    #expect(try session.read(.enabled, of: item))
+    try session.perform(.pick, on: item)
   }
 }
 

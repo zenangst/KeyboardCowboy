@@ -1,5 +1,5 @@
 public extension AccessibilitySystem {
   enum Action: Sendable {
-    case raise, press
+    case raise, press, pick
   }
 }
