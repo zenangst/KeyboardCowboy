@@ -36,7 +36,8 @@ private final class SmokeDelegate: NSObject, NSApplicationDelegate {
     let arguments = CommandLine.arguments.dropFirst()
     guard let command = arguments.first,
           ["--smoke-open-browser", "--smoke-selected-text", "--smoke-hit-test",
-           "--smoke-capture", "--smoke-ui-element", "--smoke-static-text", "--smoke-window-id"].contains(command) else { return }
+           "--smoke-capture", "--smoke-ui-element", "--smoke-static-text",
+           "--smoke-window-id", "--smoke-next-window"].contains(command) else { return }
     Task {
       let options = Array(arguments.dropFirst())
       switch command {
@@ -52,6 +53,8 @@ private final class SmokeDelegate: NSObject, NSApplicationDelegate {
         await HostInput.smokeStaticText(arguments: options)
       case "--smoke-window-id":
         await HostInput.smokeWindowID(arguments: options)
+      case "--smoke-next-window":
+        await HostInput.smokeNextWindow(arguments: options)
       case "--smoke-capture":
         await HostInput.smokeCapture(arguments: options) { hit in
           let frame = hit.frame

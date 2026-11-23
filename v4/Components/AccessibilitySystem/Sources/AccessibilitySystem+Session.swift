@@ -66,6 +66,15 @@ public extension AccessibilitySystem {
     /// Diagnostic candidates only, not verified CG associations. A nil array
     /// means the bridge is unavailable; nil entries mean individual lookups failed.
     public func debugWindowIDCandidates() throws -> [CGWindowID?]? {
+      try debugWindowIDCandidates(resolving: windows)
+    }
+
+    /// Returns unverified candidates in the supplied elements' order.
+    public func debugWindowIDCandidates(for windows: [Element]) throws -> [CGWindowID?]? {
+      try debugWindowIDCandidates(resolving: { windows })
+    }
+
+    private func debugWindowIDCandidates(resolving windows: () throws -> [Element]) throws -> [CGWindowID?]? {
       try checkpoint()
       return try DebugWindowID.withLookup { lookup in
         try windows().map { window in

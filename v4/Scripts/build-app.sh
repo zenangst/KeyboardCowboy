@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT_DIR="${0:A:h:h}"
 SERVICE_DIR="$ROOT_DIR/Service"
 export CONFIGURATION="${CONFIGURATION:-debug}"
+if [[ "$CONFIGURATION" == debug && -z "${SIGNING_IDENTITY:-}" ]]; then
+  SIGNING_IDENTITY="$(git -C "$ROOT_DIR" config --local --get keyboardcowboy.debugSigningIdentity || true)"
+fi
 export SIGNING_IDENTITY="${SIGNING_IDENTITY:--}"
 APP_PATH="$SERVICE_DIR/.build/app/$CONFIGURATION/Keyboard Cowboy.app"
 EDITOR_PATH="$("$ROOT_DIR/Editor/Scripts/build-app.sh")"

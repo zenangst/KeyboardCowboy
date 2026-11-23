@@ -21,6 +21,7 @@ let package = Package(
     .package(path: "../Features/Mouse"),
     .package(path: "../Features/Text"),
     .package(path: "../Features/UIElement"),
+    .package(path: "../Features/WindowFocus"),
   ],
   targets: [
     .executableTarget(
@@ -42,6 +43,7 @@ let package = Package(
         .product(name: "MouseFeature", package: "Mouse"),
         .product(name: "TextFeature", package: "Text"),
         .product(name: "UIElementFeature", package: "UIElement"),
+        .product(name: "WindowFocusFeature", package: "WindowFocus"),
       ],
       path: "RuntimeInput",
     ),

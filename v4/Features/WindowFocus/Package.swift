@@ -8,7 +8,7 @@ let package = Package(
   products: [.library(name: "WindowFocusFeature", targets: ["WindowFocusFeature"])],
   dependencies: [.package(path: "../../Components/AccessibilitySystem")],
   targets: [
-    .target(name: "WindowFocusFeature", path: "Sources"),
-    .testTarget(name: "WindowFocusFeatureTests", dependencies: ["AccessibilitySystem"], path: "Tests"),
+    .target(name: "WindowFocusFeature", dependencies: ["AccessibilitySystem"], path: "Sources"),
+    .testTarget(name: "WindowFocusFeatureTests", dependencies: ["AccessibilitySystem", "WindowFocusFeature"], path: "Tests"),
   ]
 )

@@ -1,0 +1,110 @@
+#if DEBUG
+import CoreGraphics
+import Testing
+@testable import WindowFocusFeature
+
+@Test func rejectsSameProcessBeforeEnteringTheAXWorker() async throws {
+  let raised = try await WindowFocus.nextWindow(in: getpid()) {
+    Issue.record("The same-process target should be rejected before checking focus")
+    return true
+  }
+  #expect(!raised)
+}
+
+@Test func cyclesByVerifiedIDEvenWhenRaisingChangesAXOrder() throws {
+  let fixture = NextWindowFixture()
+  #expect(try fixture.run())
+  #expect(try fixture.run())
+  #expect(try fixture.run())
+  #expect(fixture.raised == [20, 30, 10])
+}
+
+@Test func skipsOffScreenWrongOwnerAndAmbiguousIDs() throws {
+  let fixture = NextWindowFixture()
+  fixture.order = [10, 20, 30, 31, 40, 50, 51, 60]
+  fixture.ids = [10: 10, 20: 20, 30: 30, 31: 30, 40: 40, 51: 0, 60: 60]
+  fixture.owners = [10: [42], 30: [42], 40: [99], 51: [42], 60: [42]]
+  #expect(try fixture.run())
+  #expect(fixture.raised == [60])
+}
+
+@Test func noOpsWhenCurrentCannotBeVerifiedOrIsTheOnlyEligibleWindow() throws {
+  let fixture = NextWindowFixture()
+  fixture.bridgeAvailable = false
+  #expect(try !fixture.run())
+  fixture.bridgeAvailable = true
+  fixture.owners = [20: [42]]
+  #expect(try !fixture.run())
+  fixture.owners = [10: [42]]
+  #expect(try !fixture.run())
+  #expect(fixture.raised.isEmpty)
+}
+
+private enum Invalidation: CaseIterable {
+  case changedFocus, changedAssociation, windowLeftSpace, wrongOwner, changedApp, unavailableSnapshot
+}
+
+@Test(arguments: Invalidation.allCases)
+private func rechecksAndDoesNotRetargetOnInvalidation(reason: Invalidation) throws {
+  let fixture = NextWindowFixture()
+  fixture.afterFirstSnapshot = {
+    switch reason {
+    case .changedFocus: fixture.focused = 30
+    case .changedAssociation: fixture.ids[20] = 21
+    case .windowLeftSpace: fixture.owners?.removeValue(forKey: 20)
+    case .wrongOwner: fixture.owners?[20] = [99]
+    case .changedApp: fixture.isActive = false
+    case .unavailableSnapshot: fixture.owners = nil
+    }
+  }
+  #expect(try !fixture.run())
+  #expect(fixture.raised.isEmpty)
+}
+
+@Test func attemptsOneRaiseAndPropagatesFailure() {
+  let fixture = NextWindowFixture()
+  fixture.failRaise = true
+  #expect(throws: NextWindowFixture.Failure.raise) { try fixture.run() }
+  #expect(fixture.raised == [20])
+  #expect(fixture.snapshots == 2)
+}
+
+private final class NextWindowFixture {
+  enum Failure: Error { case raise }
+
+  var order = [30, 10, 20]
+  var focused = 10
+  var ids: [Int: CGWindowID] = [10: 10, 20: 20, 30: 30]
+  var owners: [CGWindowID: Set<pid_t>]? = [10: [42], 20: [42], 30: [42]]
+  var isActive = true
+  var bridgeAvailable = true
+  var failRaise = false
+  var afterFirstSnapshot: (() -> Void)?
+  var raised: [Int] = []
+  var snapshots = 0
+
+  func run() throws -> Bool {
+    try WindowFocus.nextWindow(
+      in: 42, isAppActive: { isActive }, focusedWindow: { focused }, windows: { order },
+      candidates: { windows in bridgeAvailable ? windows.map { ids[$0] } : nil },
+      onScreenOwners: {
+        snapshots += 1
+        let snapshot = owners
+        if snapshots == 1 {
+          let update = afterFirstSnapshot
+          afterFirstSnapshot = nil
+          update?()
+        }
+        return snapshot
+      },
+      raise: { target in
+        raised.append(target)
+        if failRaise { throw Failure.raise }
+        order.removeAll { $0 == target }
+        order.insert(target, at: 0)
+        focused = target
+      },
+    )
+  }
+}
+#endif

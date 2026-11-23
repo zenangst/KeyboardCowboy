@@ -18,8 +18,22 @@ open "$app"
 ```
 
 The script signs the Editor before the outer app. `CONFIGURATION` defaults to
-`debug`, and `SIGNING_IDENTITY` defaults to ad hoc (`-`). The service does not
-install event taps or execute workflows yet.
+`debug`. An explicit `SIGNING_IDENTITY` takes precedence; otherwise Debug builds
+use the repository-local identity below when configured. Other builds, and
+Debug builds without a configured identity, default to ad hoc signing (`-`).
+The service does not install event taps or execute workflows yet.
+
+To keep the Debug app's signing requirement stable across rebuilds, choose a
+named identity from `security find-identity -v -p codesigning` and store its
+exact name for this checkout:
+
+```sh
+git config --local keyboardcowboy.debugSigningIdentity 'Developer ID Application: Your Name (TEAMID)'
+```
+
+Rebuild and re-add the exact Debug bundle in System Settings → Privacy &
+Security → Accessibility when switching from ad hoc signing. Keep the same
+identity, bundle identifier, and app path for subsequent smoke tests.
 
 `HostOpen` composes the Open command for the future workflow runner. It accepts
 an already-resolved path and leaves host interception to the caller. Browser
@@ -86,6 +100,26 @@ or titles, raise a window, or post input. Repeat after closing a window or
 changing Spaces. A match verifies ownership in the current snapshot, not that
 the window is on the active Space or that the association remains valid later.
 Release builds do not recognize this launch option.
+
+### Debug next-window smoke test
+
+Build the Debug app as above and grant it Accessibility. Put at least two
+ordinary windows of the same test app on the current Space, set `pid` to that
+app's PID, and leave it frontmost when running the command (for example, run
+it from a separate terminal session without bringing the terminal forward):
+
+```sh
+open -g -n -W "$app" --args --smoke-next-window "$pid"
+log show --last 1m --style compact \
+  --predicate 'subsystem == "com.zenangst.keyboardcowboy.v4" AND category == "WindowFocusSmoke"'
+```
+
+Run repeatedly to check that the same windows cycle and wrap. The command
+raises at most one window, only if the specified app is still active and the
+current and target windows are still verified on-screen. With one eligible
+window or a different active app, expect `Next window raise succeeded: false`.
+It does not activate an app, post input, or cache window IDs. Release builds
+do not recognize this launch option.
 
 ### Debug hit-test smoke check
 
