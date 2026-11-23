@@ -6,5 +6,18 @@ let package = Package(
   name: "KeyboardFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "KeyboardFeature", targets: ["KeyboardFeature"])],
-  targets: [.target(name: "KeyboardFeature", path: "Sources")]
+  dependencies: [.package(path: "../../Components/MachPortSystem")],
+  targets: [
+    .target(
+      name: "KeyboardFeature",
+      dependencies: ["MachPortSystem"],
+      path: "Sources"),
+    .testTarget(
+      name: "KeyboardFeatureTests",
+      dependencies: [
+        "KeyboardFeature",
+        "MachPortSystem",
+      ],
+      path: "Tests"),
+  ],
 )
