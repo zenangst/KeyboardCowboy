@@ -26,8 +26,12 @@ public enum Mouse {
     }
   }
 
-  /// Resolves direct-frame roles and groups. Other roles requiring specialized
-  /// resolvers return nil rather than falling back to an unrelated click point.
+  public enum TargetError: Error {
+    case noSelectedChild
+  }
+
+  /// Resolves direct-frame roles, groups, tables, and outlines. Other roles
+  /// return nil rather than falling back to an unrelated click point.
   public static func focusedTarget(
     at anchor: Anchor,
     using accessibility: AccessibilitySystem.Client = .init(),
@@ -39,18 +43,27 @@ public enum Mouse {
       }) {
         return try anchor.point(in: CGRect(origin: child.read(.position), size: child.read(.size)))
       }
-      return try target(roleDescription: role, at: anchor) {
+      return try target(roleDescription: role, at: anchor, selectedFrame: {
+        let child = try element.firstChild { (try? $0.read(.selected)) == true }
+        return try child.map { try CGRect(origin: $0.read(.position), size: $0.read(.size)) }
+      }) {
         try CGRect(origin: element.read(.position), size: element.read(.size))
       }
     }
   }
 
-  static func target(roleDescription: String, at anchor: Anchor, frame: () throws -> CGRect) rethrows -> CGPoint? {
+  static func target(
+    roleDescription: String, at anchor: Anchor,
+    selectedFrame: () throws -> CGRect?, frame: () throws -> CGRect,
+  ) throws -> CGPoint? {
     switch roleDescription {
     case "group", "image", "outline row", "text", "text field":
-      try anchor.point(in: frame())
+      return try anchor.point(in: frame())
+    case "table", "outline":
+      guard let frame = try selectedFrame() else { throw TargetError.noSelectedChild }
+      return anchor.point(in: frame)
     default:
-      nil
+      return nil
     }
   }
 

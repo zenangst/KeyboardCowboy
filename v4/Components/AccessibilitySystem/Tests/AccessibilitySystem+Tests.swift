@@ -26,6 +26,7 @@ private final class Fixture: AX.Transport {
   var malformedRole = false
   var onRead: (() -> Void)?
   var hitPoint: CGPoint?
+  var selectBothDirectChildren = false
 
   func application(_ pid: Int32) -> AX.Handle { app }
   var focusOnApp = false
@@ -53,7 +54,9 @@ private final class Fixture: AX.Transport {
     onRead?()
     #expect(timeoutHandles.contains(handle))
     if name == "AXFocused" { return .bool(handle == second) }
-    if name == "AXSelected" { return .bool(handle == first || handle == nested) }
+    if name == "AXSelected" {
+      return .bool(handle == first || handle == nested || (selectBothDirectChildren && handle == second))
+    }
     if name == "AXFocusedWindow", handle == app { return .element(second) }
     if name == "AXParent", handle == first { return .element(second) }
     if name == "AXPosition" { return .point(CGPoint(x: -140, y: 40)) }
@@ -134,6 +137,24 @@ private final class Fixture: AX.Transport {
     #expect(url?.lastPathComponent == "first")
     let nested = try group.firstChild { try $0.read(.url).lastPathComponent == "nested" }
     #expect(nested == nil)
+  }
+}
+
+@Test func selectedDirectChildSearchStopsAtFirstMatch() async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.focusOnApp = true
+    fixture.selectBothDirectChildren = true
+    return fixture
+  })
+  try await client.withFocusedElement { container in
+    var inspected: [String] = []
+    let child = try container.firstChild {
+      inspected.append(try $0.read(.url).lastPathComponent)
+      return try $0.read(.selected)
+    }
+    #expect(try child?.read(.url).lastPathComponent == "first")
+    #expect(inspected == ["first"])
   }
 }
 

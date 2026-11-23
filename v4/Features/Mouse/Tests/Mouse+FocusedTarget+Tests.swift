@@ -19,18 +19,45 @@ func mouseAnchorsUseGlobalCoordinatesAndLegacyOffset(_ anchor: Mouse.Anchor, _ e
 }
 
 @Test(arguments: ["group", "image", "outline row", "text", "text field"])
-func directFrameRolesResolveAnchor(_ role: String) {
-  #expect(Mouse.target(roleDescription: role, at: .center) {
+func directFrameRolesResolveAnchor(_ role: String) throws {
+  #expect(try Mouse.target(roleDescription: role, at: .center, selectedFrame: { nil }) {
     CGRect(x: 0, y: 0, width: 10, height: 10)
   } == CGPoint(x: 10, y: 10))
 }
 
-@Test(arguments: ["button", "Image", "table", "text entry area", "HTML content"])
-func otherRolesDoNotReadGenericFrame(_ role: String) {
-  #expect(Mouse.target(roleDescription: role, at: .center) {
+@Test(arguments: ["button", "Image", "text entry area", "HTML content"])
+func otherRolesDoNotReadGenericFrame(_ role: String) throws {
+  #expect(try Mouse.target(roleDescription: role, at: .center, selectedFrame: { nil }) {
     Issue.record("Unexpected generic frame read")
     return .zero
   } == nil)
+}
+
+@Test(arguments: ["table", "outline"])
+func selectedRowUsesItsFrameWithoutContainerFallback(_ role: String) throws {
+  let frame = CGRect(x: -100, y: 20, width: 40, height: 20)
+  let point = try Mouse.target(roleDescription: role, at: .center, selectedFrame: { frame }) {
+    Issue.record("Unexpected container frame read")
+    return .zero
+  }
+  #expect(point == CGPoint(x: -75, y: 35))
+}
+
+@Test(arguments: ["table", "outline"])
+func selectedRowResolutionPreservesMissingSelectionAndFrameFailure(_ role: String) {
+  enum Failure: Error { case frameUnavailable }
+  func containerFrame() -> CGRect {
+    Issue.record("Unexpected container frame fallback")
+    return .zero
+  }
+
+  #expect(throws: Mouse.TargetError.noSelectedChild) {
+    try Mouse.target(roleDescription: role, at: .center, selectedFrame: { nil }, frame: containerFrame)
+  }
+  #expect(throws: Failure.frameUnavailable) {
+    try Mouse.target(roleDescription: role, at: .center, selectedFrame: { throw Failure.frameUnavailable },
+                     frame: containerFrame)
+  }
 }
 
 @Test func groupTargetToleratesMissingFocusAndShortCircuitsWhenFocused() {
