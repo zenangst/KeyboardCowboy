@@ -28,6 +28,7 @@ private final class Fixture: AX.Transport {
   var hitPoint: CGPoint?
   var selectBothDirectChildren = false
   var secondHasReadableChildren = false
+  var nestedHasReadableChildren = false
 
   func application(_ pid: Int32) -> AX.Handle { app }
   var focusOnApp = false
@@ -78,6 +79,7 @@ private final class Fixture: AX.Transport {
       if handle == app { return .elements([first, second]) }
       if handle == first { return .elements([nested]) }
       if handle == second, secondHasReadableChildren { return .elements([]) }
+      if handle == nested, nestedHasReadableChildren { return .elements([]) }
       if cycle { return .elements([app]) }
       throw AX.Failure(.attributeUnsupported, operation: name)
     }
@@ -165,6 +167,38 @@ private final class Fixture: AX.Transport {
   await #expect(throws: AX.Failure.self) {
     try await client.withFocusedElement { root in
       try root.firstInSubtreeWithReadableChildren(budget: .init(maximumNodes: 1)) { _ in false } != nil
+    }
+  }
+}
+
+@Test func leafSearchReadsOnlyLeavesInDepthFirstOrder() async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.focusOnApp = true
+    fixture.nestedHasReadableChildren = true
+    fixture.secondHasReadableChildren = true
+    return fixture
+  })
+  try await client.withFocusedElement { root in
+    var visited: [String] = []
+    let match = try root.firstLeaf { leaf in
+      let path = try leaf.read(.url).lastPathComponent
+      visited.append(path)
+      return path == "second"
+    }
+    #expect(visited == ["nested", "second"])
+    #expect(try match?.read(.url).lastPathComponent == "second")
+  }
+}
+
+@Test func leafSearchDoesNotTreatUnreadableChildrenAsALeaf() async {
+  let client = AX.Client(makeTransport: { Fixture() })
+  await #expect(throws: AX.Failure.self) {
+    try await client.withFocusedElement { root in
+      try root.firstLeaf { _ in
+        Issue.record("Unreadable children must not count as a leaf")
+        return true
+      } != nil
     }
   }
 }

@@ -124,7 +124,7 @@ public extension AccessibilitySystem {
       includingRoot: Bool, missingValue: MissingValuePolicy,
       budget: TraversalBudget = .init(),
     ) throws -> Value? {
-      try traverse(under: root, includingRoot: includingRoot, missingValue: missingValue, budget: budget) { node in
+      try traverse(under: root, includingRoot: includingRoot, missingValue: missingValue, budget: budget) { node, _ in
         let nodeRole = try toleratingMissing(missingValue) { try read(.role, of: node) }
         try checkpoint()
         guard nodeRole == role else { return .descend }
@@ -142,7 +142,7 @@ public extension AccessibilitySystem {
       budget: TraversalBudget = .init(),
       visit: (Element) throws -> SearchDecision,
     ) throws -> Element? {
-      try traverse(under: root, includingRoot: includingRoot, missingValue: missingChildren, budget: budget) { node in
+      try traverse(under: root, includingRoot: includingRoot, missingValue: missingChildren, budget: budget) { node, _ in
         switch try visit(node) {
         case .match: .match(node)
         case .descend: .descend
@@ -159,9 +159,20 @@ public extension AccessibilitySystem {
       under root: Element, budget: TraversalBudget, matches: (Element) throws -> Bool,
     ) throws -> Element? {
       try traverse(under: root, includingRoot: true, missingValue: .fail, budget: budget,
-                   requiresReadableChildren: true) { node in
+                   readChildrenBeforeVisit: .skipUnreadable) { node, _ in
         try matches(node) ? .match(node) : .descend
       }
+    }
+
+    func firstLeaf(under root: Element, budget: TraversalBudget, matches: (Element) throws -> Bool) throws -> Element? {
+      try traverse(under: root, includingRoot: true, missingValue: .fail, budget: budget,
+                   readChildrenBeforeVisit: .fail) { node, isLeaf in
+        try isLeaf && matches(node) ? .match(node) : .descend
+      }
+    }
+
+    private enum EarlyChildRead {
+      case skipUnreadable, fail
     }
 
     private enum Visit<Value> {
@@ -170,8 +181,8 @@ public extension AccessibilitySystem {
 
     private func traverse<Value>(
       under root: Element, includingRoot: Bool, missingValue: MissingValuePolicy,
-      budget: TraversalBudget, requiresReadableChildren: Bool = false,
-      visit: (Element) throws -> Visit<Value>,
+      budget: TraversalBudget, readChildrenBeforeVisit: EarlyChildRead? = nil,
+      visit: (Element, Bool) throws -> Visit<Value>,
     ) throws -> Value? {
       let rootHandle = try handle(for: root)
       guard budget.maximumNodes > 0, budget.maximumDepth >= 0, budget.elapsedLimit > .zero else {
@@ -208,11 +219,12 @@ public extension AccessibilitySystem {
 
         let node = try element(handle)
         let prefetched: [Handle]?
-        if requiresReadableChildren {
+        if let readChildrenBeforeVisit {
           do {
             prefetched = try elementHandles(kAXChildrenAttribute, of: node)
           } catch let failure as Failure
-            where failure.kind != .traversalLimitReached && failure.kind != .expiredScope {
+            where readChildrenBeforeVisit == .skipUnreadable
+              && failure.kind != .traversalLimitReached && failure.kind != .expiredScope {
             try checkBudget()
             continue
           }
@@ -220,7 +232,7 @@ public extension AccessibilitySystem {
           prefetched = nil
         }
         if includingRoot || depth > 0 {
-          let decision = try visit(node)
+          let decision = try visit(node, prefetched?.isEmpty == true)
           try checkBudget()
           switch decision {
           case .match(let value): return value

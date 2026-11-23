@@ -22,6 +22,14 @@ public extension AccessibilitySystem {
       try session.checkpoint()
     }
 
+    /// Searches leaves in source order. A leaf must have a readable, empty child list.
+    public func firstLeaf(budget: TraversalBudget = .init(), where matches: (Child) throws -> Bool) throws -> Child? {
+      let match = try session.firstLeaf(under: session.application, budget: budget) {
+        try matches(Child(session: session, element: $0))
+      }
+      return match.map { Child(session: session, element: $0) }
+    }
+
     /// Searches the focused element and its descendants in source order.
     /// Nodes whose children cannot be read are skipped with their subtree.
     public func firstInSubtreeWithReadableChildren(

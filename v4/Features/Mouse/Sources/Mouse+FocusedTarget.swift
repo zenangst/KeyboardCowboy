@@ -31,9 +31,10 @@ public enum Mouse {
   }
 
   /// Resolves direct-frame roles, groups, tables, outlines, lists, collections,
-  /// and scroll areas. Unsupported roles return nil.
+  /// scroll areas, and web areas. Unsupported roles return nil.
   public static func focusedTarget(
     at anchor: Anchor,
+    selectedText: String = "",
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> CGPoint? {
     try await accessibility.withFocusedElement { element -> CGPoint? in
@@ -59,6 +60,15 @@ public enum Mouse {
             child = try element.firstInSubtreeWithReadableChildren { node in
               isGroupTarget(focused: { try node.read(.focused) }, selected: { try node.read(.selected) })
             }
+          } else if kind == .webArea {
+            var selection = HTMLSelection(selectedText)
+            child = try element.firstLeaf { leaf in
+              selection.matchesLeaf(
+                text: { try? leaf.read(.textValue) },
+                isFocusedOrSelected: {
+                  isGroupTarget(focused: { try leaf.read(.focused) }, selected: { try leaf.read(.selected) })
+                })
+            }
           } else {
             child = try element.firstChild { (try? $0.read(.selected)) == true }
           }
@@ -70,7 +80,7 @@ public enum Mouse {
   }
 
   enum TargetKind {
-    case group, frame, selectedChild, list, collection, scrollArea
+    case group, frame, selectedChild, list, collection, scrollArea, webArea
   }
 
   static func targetKind(
@@ -82,6 +92,7 @@ public enum Mouse {
     case .table, .outline: return .selectedChild
     case .list: return .list
     case .scrollArea: return .scrollArea
+    case .webArea: return .webArea
     default: break
     }
 
@@ -89,6 +100,7 @@ public enum Mouse {
     switch try legacyDescription() {
     case "outline row", "text": return .frame
     case "collection": return .collection
+    case "HTML content": return .webArea
     default: return nil
     }
   }
@@ -100,7 +112,7 @@ public enum Mouse {
     switch kind {
     case .group, .frame:
       return try anchor.point(in: frame())
-    case .selectedChild, .list, .collection, .scrollArea:
+    case .selectedChild, .list, .collection, .scrollArea, .webArea:
       guard let frame = try selectedFrame() else { throw TargetError.noSelectedChild }
 
       return anchor.point(in: frame)
