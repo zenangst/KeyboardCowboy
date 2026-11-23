@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG || WINDOW_FOCUS_VALIDATION
 import AccessibilitySystem
 import CoreGraphics
 import Darwin
@@ -14,6 +14,7 @@ public enum WindowFocus {
   ) async throws -> Bool {
     // AX can execute a same-process action inline on this off-main worker.
     guard processIdentifier > 0, processIdentifier != getpid(), isAppActive() else { return false }
+
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
       try nextWindow(
         in: processIdentifier,
@@ -37,6 +38,7 @@ public enum WindowFocus {
     raise: (Window) throws -> Void,
   ) throws -> Bool {
     guard let focused = try focusedWindow() else { return false }
+
     let windows = try windows()
     guard let focusedIndex = windows.firstIndex(of: focused),
           let ids = try candidates(windows), ids.count == windows.count,
@@ -44,11 +46,15 @@ public enum WindowFocus {
           let onScreen = onScreenOwners() else { return false }
 
     let idCounts = Dictionary(ids.compactMap { $0 }.map { ($0, 1) }, uniquingKeysWith: +)
-    let eligible = zip(ids, windows).compactMap { id, window -> (id: CGWindowID, window: Window)? in
-      guard let id, id != kCGNullWindowID, idCounts[id] == 1, onScreen[id] == [pid] else { return nil }
-      return (id, window)
-    }.sorted { $0.id < $1.id }
+    let eligible = zip(ids, windows)
+      .compactMap { id, window -> (id: CGWindowID, window: Window)? in
+        guard let id, id != kCGNullWindowID, idCounts[id] == 1, onScreen[id] == [pid] else { return nil }
+
+        return (id, window)
+      }
+      .sorted { $0.id < $1.id }
     guard eligible.count > 1, let cursor = eligible.firstIndex(where: { $0.id == focusedID }) else { return false }
+
     let next = eligible[(cursor + 1) % eligible.count]
 
     // Do not use the old snapshot if focus, either AX association, or current
@@ -57,6 +63,7 @@ public enum WindowFocus {
           try candidates([focused, next.window]) == [focusedID, next.id],
           let fresh = onScreenOwners(), fresh[focusedID] == [pid], fresh[next.id] == [pid],
           isAppActive() else { return false }
+
     try raise(next.window)
     return true
   }
@@ -64,9 +71,11 @@ public enum WindowFocus {
   private static func onScreenOwners() -> [CGWindowID: Set<pid_t>]? {
     guard let rows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
       as? [[String: Any]] else { return nil }
+
     return rows.reduce(into: [:]) { owners, row in
       guard let id = row[kCGWindowNumber as String] as? CGWindowID,
             let owner = row[kCGWindowOwnerPID as String] as? pid_t else { return }
+
       owners[id, default: []].insert(owner)
     }
   }

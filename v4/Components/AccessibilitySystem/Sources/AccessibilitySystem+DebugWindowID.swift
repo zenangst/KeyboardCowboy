@@ -1,4 +1,4 @@
-#if DEBUG
+#if DEBUG || WINDOW_FOCUS_VALIDATION
 import ApplicationServices
 import Darwin
 

@@ -4,8 +4,8 @@ set -euo pipefail
 root="${0:A:h:h}"
 service="${1:-$root/Service/.build/app/debug/Keyboard Cowboy.app}"
 if [[ $# -gt 1 || ! -x "$service/Contents/MacOS/KeyboardCowboy" ]]; then
-  print -u2 "Usage: $0 [path to signed Debug Service.app]"
-  print -u2 "Build and grant Accessibility to the Debug Service before running."
+  print -u2 "Usage: $0 [path to signed Debug or Window Focus validation Service.app]"
+  print -u2 "Build and grant Accessibility to that Service before running."
   exit 1
 fi
 service="${service:A}"

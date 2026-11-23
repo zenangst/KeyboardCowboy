@@ -1,13 +1,15 @@
 import AppKit
-#if DEBUG
+#if DEBUG || WINDOW_FOCUS_VALIDATION
 import HostInput
+#endif
+#if DEBUG
 import HostOpen
 #endif
 import SwiftUI
 
 @main
 struct ServiceApp: App {
-  #if DEBUG
+  #if DEBUG || WINDOW_FOCUS_VALIDATION
   @NSApplicationDelegateAdaptor(SmokeDelegate.self) private var smoke
   #endif
 
@@ -29,18 +31,25 @@ struct ServiceApp: App {
   }
 }
 
-#if DEBUG
+#if DEBUG || WINDOW_FOCUS_VALIDATION
 @MainActor
 private final class SmokeDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ notification: Notification) {
     let arguments = CommandLine.arguments.dropFirst()
-    guard let command = arguments.first,
-          ["--smoke-open-browser", "--smoke-selected-text", "--smoke-hit-test",
+    #if DEBUG
+    let commands = ["--smoke-open-browser", "--smoke-selected-text", "--smoke-hit-test",
            "--smoke-capture", "--smoke-ui-element", "--smoke-static-text",
-           "--smoke-window-id", "--smoke-next-window"].contains(command) else { return }
+           "--smoke-window-id", "--smoke-next-window"]
+    #else
+    let commands = ["--smoke-next-window"]
+    #endif
+    guard let command = arguments.first, commands.contains(command) else { return }
     Task {
       let options = Array(arguments.dropFirst())
       switch command {
+      case "--smoke-next-window":
+        await HostInput.smokeNextWindow(arguments: options)
+      #if DEBUG
       case "--smoke-open-browser":
         await HostOpen.smokeBrowser(arguments: options)
       case "--smoke-selected-text":
@@ -53,8 +62,6 @@ private final class SmokeDelegate: NSObject, NSApplicationDelegate {
         await HostInput.smokeStaticText(arguments: options)
       case "--smoke-window-id":
         await HostInput.smokeWindowID(arguments: options)
-      case "--smoke-next-window":
-        await HostInput.smokeNextWindow(arguments: options)
       case "--smoke-capture":
         await HostInput.smokeCapture(arguments: options) { hit in
           let frame = hit.frame
@@ -64,6 +71,7 @@ private final class SmokeDelegate: NSObject, NSApplicationDelegate {
             String(Double(frame.width)), String(Double(frame.height)),
           ])
         }
+      #endif
       default: return
       }
       NSApp.terminate(nil)

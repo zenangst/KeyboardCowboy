@@ -12,7 +12,7 @@ struct NextWindowSmokeFixture {
     let result = URL(fileURLWithPath: CommandLine.arguments[2])
 
     DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
-      try? "FAIL: timed out waiting for the Debug Service\n".write(to: result, atomically: true, encoding: .utf8)
+      try? "FAIL: timed out waiting for the Service\n".write(to: result, atomically: true, encoding: .utf8)
       app.terminate(nil)
     }
     Task { @MainActor in

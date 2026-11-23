@@ -62,7 +62,7 @@ public extension AccessibilitySystem {
       return try elements(kAXWindowsAttribute, of: application)
     }
 
-    #if DEBUG
+    #if DEBUG || WINDOW_FOCUS_VALIDATION
     /// Diagnostic candidates only, not verified CG associations. A nil array
     /// means the bridge is unavailable; nil entries mean individual lookups failed.
     public func debugWindowIDCandidates() throws -> [CGWindowID?]? {

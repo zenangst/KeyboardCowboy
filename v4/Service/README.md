@@ -129,8 +129,27 @@ Run repeatedly to check that the same windows cycle and wrap. The command
 raises at most one window, only if the specified app is still active and the
 current and target windows are still verified on-screen. With one eligible
 window or a different active app, expect `Next window raise succeeded: false`.
-It does not activate an app, post input, or cache window IDs. Release builds
-do not recognize this launch option.
+It does not activate an app, post input, or cache window IDs. Standard Release
+builds do not recognize this launch option.
+
+#### Opt-in Window Focus validation build
+
+To check the private bridge in a distribution-style build without enabling it
+in standard Release, build a separate optimized, hardened-runtime bundle.
+Set `developer_id` to your Developer ID Application signing identity:
+
+```sh
+app="$(CONFIGURATION=release WINDOW_FOCUS_VALIDATION=1 SIGNING_IDENTITY="$developer_id" v4/Scripts/build-app.sh)"
+v4/Scripts/smoke-next-window.sh "$app"
+```
+
+The candidate is under `v4/Service/.build/app/window-focus-validation/`. It
+contains only the next-window smoke entry point, not the other Debug commands.
+Grant Accessibility to the exact candidate if needed. The build does not
+submit anything for notarization. For the notarization gate, archive and
+submit this candidate through your Developer ID notarization workflow, staple
+the accepted ticket, and run the smoke test against the stapled app. Keep
+this validation artifact separate from builds intended for distribution.
 
 ### Debug hit-test smoke check
 
