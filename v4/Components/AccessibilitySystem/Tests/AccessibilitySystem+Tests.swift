@@ -7,6 +7,11 @@ private typealias AX = AccessibilitySystem // swiftlint:disable:this type_name
 
 // A fresh fixture is constructed on the worker for every transaction.
 private final class Fixture: AX.Transport {
+  var frameWrites: [String] = []
+  var failGeometry: String?
+  var framePosition = CGPoint(x: -140, y: 40)
+  var frameSize = CGSize(width: 30, height: 10)
+  var geometryReadError = false
   let app = AX.Handle()
   let first = AX.Handle()
   let second = AX.Handle()
@@ -65,9 +70,12 @@ private final class Fixture: AX.Transport {
     if name == kAXMenuBarAttribute, handle == app { return .element(first) }
     if name == kAXEnabledAttribute { return .bool(handle == nested) }
     if name == "AXParent", handle == first { return .element(second) }
-    if name == "AXPosition" { return .point(CGPoint(x: -140, y: 40)) }
+    if name == "AXPosition" {
+      if geometryReadError { throw AX.Failure(.noValue, operation: name) }
+      return .point(framePosition)
+    }
     if name == kAXSelectedTextRangeAttribute { return .range(selectedRange) }
-    if name == "AXSize" { return .size(CGSize(width: 30, height: 10)) }
+    if name == "AXSize" { return .size(frameSize) }
     if name == "AXSelectedText" {
       #expect(handle == first)
       if missingSelection { throw AX.Failure(.noValue, operation: name) }
@@ -138,6 +146,75 @@ private final class Fixture: AX.Transport {
     #expect(handle == first)
     #expect(name == "AXSelectedText")
     selectedText = value
+  }
+
+  func write(_ name: String, value: CGPoint, to handle: AX.Handle) throws {
+    #expect(timeoutHandles.contains(handle))
+    #expect(name == kAXPositionAttribute)
+    frameWrites.append(name)
+    if failGeometry == name { throw AX.Failure(.cannotComplete, operation: name, rawAXStatus: -25204) }
+    framePosition = value
+  }
+
+  func write(_ name: String, value: CGSize, to handle: AX.Handle) throws {
+    #expect(timeoutHandles.contains(handle))
+    #expect(name == kAXSizeAttribute)
+    frameWrites.append(name)
+    if failGeometry == name { throw AX.Failure(.cannotComplete, operation: name, rawAXStatus: -25204) }
+    frameSize = CGSize(width: max(100, value.width), height: value.height)
+  }
+}
+
+@Test func frameWriteReportsObservedClampingAndOrdersPositionBeforeSize() throws {
+  try withGeometryFixture { fixture, session, window in
+    let requested = CGRect(x: -400, y: -20, width: 65, height: 200)
+    let observed = try session.setFrame(requested, of: window)
+    #expect(observed == CGRect(x: -400, y: -20, width: 100, height: 200))
+    #expect(fixture.frameWrites == [kAXPositionAttribute, kAXSizeAttribute])
+  }
+}
+
+@Test(arguments: [AX.FrameWriteFailure.Step.position, .size, .readback])
+private func frameWriteReportsFailedStepWithoutRollback(step: AX.FrameWriteFailure.Step) throws {
+  try withGeometryFixture { fixture, session, window in
+    fixture.failGeometry = step == .position ? kAXPositionAttribute : step == .size ? kAXSizeAttribute : nil
+    fixture.geometryReadError = step == .readback
+    let requested = CGRect(x: 20, y: 40, width: 300, height: 200)
+    do {
+      _ = try session.setFrame(requested, of: window)
+      Issue.record("Expected frame write failure")
+    } catch let failure as AX.FrameWriteFailure {
+      #expect(failure.step == step)
+      let cause = try #require(failure.cause as? AX.Failure)
+      #expect(cause.kind == (step == .readback ? .noValue : .cannotComplete))
+      #expect(cause.rawAXStatus == (step == .readback ? nil : -25204))
+    }
+    #expect(fixture.frameWrites == (step == .position ? [kAXPositionAttribute] : [kAXPositionAttribute, kAXSizeAttribute]))
+    #expect(fixture.framePosition.x == (step == .position ? -140 : 20))
+    #expect(fixture.frameSize.width == (step == .readback ? 300 : 30))
+  }
+}
+
+@Test func invalidGeometryDoesNotWriteAnyAttribute() throws {
+  try withGeometryFixture { fixture, session, window in
+    #expect(throws: AX.Failure.self) {
+      try session.setFrame(CGRect(x: 20, y: 40, width: -1, height: 200), of: window)
+    }
+    #expect(throws: AX.Failure.self) {
+      try session.write(.position, value: CGPoint(x: CGFloat.infinity, y: 0), to: window)
+    }
+    #expect(fixture.frameWrites.isEmpty)
+  }
+}
+
+private func withGeometryFixture(_ test: (Fixture, AX.Session, AX.Element) throws -> Void) throws {
+  let queue = DispatchQueue(label: "GeometryFixture")
+  try queue.sync {
+    let fixture = Fixture()
+    let session = try AX.Session(pid: 42, transport: fixture, timeout: 1, queue: queue, request: .init())
+    defer { session.invalidate() }
+    let window = try #require(try session.focusedWindow())
+    try test(fixture, session, window)
   }
 }
 

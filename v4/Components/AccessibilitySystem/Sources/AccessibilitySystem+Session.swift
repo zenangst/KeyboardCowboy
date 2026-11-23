@@ -151,6 +151,16 @@ public extension AccessibilitySystem {
       try checkpoint()
     }
 
+    // Report the AX acknowledgment before testing cancellation at the next
+    // operation, so frame writes can distinguish which steps completed.
+    func transportWrite(_ name: String, position: CGPoint, to element: Element) throws {
+      try transport.write(name, value: position, to: handle(for: element))
+    }
+
+    func transportWrite(_ name: String, size: CGSize, to element: Element) throws {
+      try transport.write(name, value: size, to: handle(for: element))
+    }
+
     /// Depth-first pre-order, retaining source child order. Matched roles prune
     /// their descendants even when the requested value is missing (legacy policy).
     /// Missing role and leaf children may be skipped only under the skip policy.

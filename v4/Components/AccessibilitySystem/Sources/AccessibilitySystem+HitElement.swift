@@ -14,7 +14,7 @@ public extension AccessibilitySystem {
 
     /// Reads position and size separately in AX global screen coordinates.
     public func frame() throws -> CGRect {
-      try CGRect(origin: read(.position), size: read(.size))
+      try session.frame(of: session.application)
     }
   }
 }

@@ -49,6 +49,8 @@ extension AccessibilitySystem {
     func perform(_ action: Action, on handle: Handle) throws
     func write(_ name: String, value: Bool, to handle: Handle) throws
     func write(_ name: String, value: String, to handle: Handle) throws
+    func write(_ name: String, value: CGPoint, to handle: Handle) throws
+    func write(_ name: String, value: CGSize, to handle: Handle) throws
   }
 
   struct NativeTransport: Transport {
@@ -143,6 +145,22 @@ extension AccessibilitySystem {
 
     func write(_ name: String, value: String, to handle: Handle) throws {
       try setAttribute(name, value: value as CFString, on: handle)
+    }
+
+    func write(_ name: String, value: CGPoint, to handle: Handle) throws {
+      var point = value
+      guard let geometry = AXValueCreate(.cgPoint, &point) else {
+        throw Failure(.malformedValue, operation: name)
+      }
+      try setAttribute(name, value: geometry, on: handle)
+    }
+
+    func write(_ name: String, value: CGSize, to handle: Handle) throws {
+      var size = value
+      guard let geometry = AXValueCreate(.cgSize, &size) else {
+        throw Failure(.malformedValue, operation: name)
+      }
+      try setAttribute(name, value: geometry, on: handle)
     }
 
     private func setAttribute(_ name: String, value: CFTypeRef, on handle: Handle) throws {
