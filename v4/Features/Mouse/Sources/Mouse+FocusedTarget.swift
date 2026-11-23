@@ -31,10 +31,11 @@ public enum Mouse {
   }
 
   /// Resolves direct-frame roles, groups, tables, outlines, lists, collections,
-  /// scroll areas, and web areas. Unsupported roles return nil.
+  /// scroll areas, web areas, and text-entry areas. Unsupported roles return nil.
   public static func focusedTarget(
     at anchor: Anchor,
     selectedText: String = "",
+    applicationBundleIdentifier: String? = nil,
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> CGPoint? {
     try await accessibility.withFocusedElement { element -> CGPoint? in
@@ -73,6 +74,12 @@ public enum Mouse {
             child = try element.firstChild { (try? $0.read(.selected)) == true }
           }
           return try child.map { try CGRect(origin: $0.read(.position), size: $0.read(.size)) }
+        }, textBounds: {
+          let bounds = try element.bounds(for: element.read(.selectedTextRange))
+          guard kind == .textRange else { return bounds }
+          return try textTargetFrame(bounds, at: anchor, applicationBundleIdentifier: applicationBundleIdentifier) {
+            try CGRect(origin: element.read(.position), size: element.read(.size))
+          }
         }, frame: {
           try CGRect(origin: element.read(.position), size: element.read(.size))
         })
@@ -80,7 +87,7 @@ public enum Mouse {
   }
 
   enum TargetKind {
-    case group, frame, selectedChild, list, collection, scrollArea, webArea
+    case group, frame, selectedChild, list, collection, scrollArea, webArea, textRange, editor
   }
 
   static func targetKind(
@@ -93,6 +100,7 @@ public enum Mouse {
     case .list: return .list
     case .scrollArea: return .scrollArea
     case .webArea: return .webArea
+    case .textArea: return .textRange
     default: break
     }
 
@@ -101,17 +109,21 @@ public enum Mouse {
     case "outline row", "text": return .frame
     case "collection": return .collection
     case "HTML content": return .webArea
+    case "editor": return .editor
+    case "text entry area": return .textRange
     default: return nil
     }
   }
 
   static func target(
     kind: TargetKind, at anchor: Anchor,
-    selectedFrame: () throws -> CGRect?, frame: () throws -> CGRect,
+    selectedFrame: () throws -> CGRect?, textBounds: () throws -> CGRect, frame: () throws -> CGRect,
   ) throws -> CGPoint {
     switch kind {
     case .group, .frame:
       return try anchor.point(in: frame())
+    case .textRange, .editor:
+      return try anchor.point(in: textBounds())
     case .selectedChild, .list, .collection, .scrollArea, .webArea:
       guard let frame = try selectedFrame() else { throw TargetError.noSelectedChild }
 
@@ -121,5 +133,14 @@ public enum Mouse {
 
   static func isGroupTarget(focused: () throws -> Bool, selected: () throws -> Bool) -> Bool {
     (try? focused()) == true || (try? selected()) == true
+  }
+
+  static func textTargetFrame(
+    _ bounds: CGRect, at anchor: Anchor, applicationBundleIdentifier: String?, controlFrame: () throws -> CGRect,
+  ) rethrows -> CGRect {
+    guard applicationBundleIdentifier == "com.apple.dt.Xcode", anchor != .center else { return bounds }
+    let control = try controlFrame()
+    let x = anchor == .trailing ? control.maxX - 16 : control.minX + 8
+    return CGRect(origin: CGPoint(x: x, y: bounds.minY), size: bounds.size)
   }
 }

@@ -19,6 +19,7 @@ public extension AccessibilitySystem {
     public static let scrollArea = Self(rawValue: kAXScrollAreaRole)
     public static let staticText = Self(rawValue: kAXStaticTextRole)
     public static let table = Self(rawValue: kAXTableRole)
+    public static let textArea = Self(rawValue: kAXTextAreaRole)
     public static let textField = Self(rawValue: kAXTextFieldRole)
     public static let webArea = Self(rawValue: "AXWebArea")
     public static let window = Self(rawValue: kAXWindowRole)

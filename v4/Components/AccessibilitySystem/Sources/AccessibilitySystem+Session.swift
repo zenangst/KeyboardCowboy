@@ -97,6 +97,13 @@ public extension AccessibilitySystem {
       return try attribute.decode(value)
     }
 
+    func bounds(for range: NSRange, of element: Element) throws -> CGRect {
+      let handle = try handle(for: element)
+      let bounds = try transport.bounds(for: range, from: handle)
+      try checkpoint()
+      return bounds
+    }
+
     public func perform(_ action: Action, on element: Element) throws {
       let handle = try handle(for: element)
       try transport.perform(action, on: handle)

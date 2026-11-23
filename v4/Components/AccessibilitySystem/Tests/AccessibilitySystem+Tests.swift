@@ -19,6 +19,7 @@ private final class Fixture: AX.Transport {
   var pressedHandles: [AX.Handle] = []
   var mainHandle: AX.Handle?
   var selectedText = ""
+  var selectedRange = NSRange(location: 0, length: 0)
   var missingSelection = false
   var missingFirstURL = false
   var stringURL = false
@@ -62,6 +63,7 @@ private final class Fixture: AX.Transport {
     if name == "AXFocusedWindow", handle == app { return .element(second) }
     if name == "AXParent", handle == first { return .element(second) }
     if name == "AXPosition" { return .point(CGPoint(x: -140, y: 40)) }
+    if name == kAXSelectedTextRangeAttribute { return .range(selectedRange) }
     if name == "AXSize" { return .size(CGSize(width: 30, height: 10)) }
     if name == "AXSelectedText" {
       #expect(handle == first)
@@ -97,6 +99,13 @@ private final class Fixture: AX.Transport {
     }
 
     throw AX.Failure(.attributeUnsupported, operation: name)
+  }
+
+  func bounds(for range: NSRange, from handle: AX.Handle) throws -> CGRect {
+    #expect(timeoutHandles.contains(handle))
+    #expect(handle == first)
+    #expect(range == selectedRange)
+    return CGRect(x: -140, y: 40, width: range.length * 8, height: 10)
   }
 
   func perform(_ action: AX.Action, on handle: AX.Handle) throws {
@@ -281,7 +290,40 @@ private final class Fixture: AX.Transport {
   #expect(try positionAttribute.decode(decodedPosition) == position)
   #expect(try sizeAttribute.decode(AX.NativeTransport.decode(axSize, operation: "AXSize")) == size)
   #expect(throws: AX.Failure.self) { try sizeAttribute.decode(decodedPosition) }
-  #expect(throws: AX.Failure.self) { try AX.NativeTransport.decode(axRange, operation: "AXPosition") }
+  let rangeValue = try AX.NativeTransport.decode(axRange, operation: kAXSelectedTextRangeAttribute)
+  #expect(try AX.Attribute<NSRange>.selectedTextRange.decode(rangeValue) == NSRange(location: 0, length: 1))
+  #expect(throws: AX.Failure.self) { try positionAttribute.decode(rangeValue) }
+}
+
+@Test(arguments: [0, 3])
+func focusedElementRequestsBoundsForCaretOrSelection(_ length: Int) async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.selectedRange = NSRange(location: 4, length: length)
+    return fixture
+  })
+  let bounds = try await client.withFocusedElement { focused in
+    try focused.bounds(for: focused.read(.selectedTextRange))
+  }
+  #expect(bounds == CGRect(x: -140, y: 40, width: length * 8, height: 10))
+}
+
+@Test func nativeDecoderValidatesRangeAndBoundsPayloads() throws {
+  let operation = kAXBoundsForRangeParameterizedAttribute
+  var rect = CGRect(x: -200, y: -10, width: 0, height: 16)
+  let value = try #require(AXValueCreate(.cgRect, &rect))
+  guard case .rect(let bounds) = try AX.NativeTransport.decode(value, operation: operation) else {
+    Issue.record("Expected typed bounds")
+    return
+  }
+  #expect(bounds == rect)
+
+  rect = CGRect(x: -1, y: -1, width: -1, height: -1)
+  let sentinel = try #require(AXValueCreate(.cgRect, &rect))
+  #expect(throws: AX.Failure.self) { try AX.NativeTransport.decode(sentinel, operation: operation) }
+  var malformedRange = CFRange(location: -1, length: 0)
+  let range = try #require(AXValueCreate(.cfRange, &malformedRange))
+  #expect(throws: AX.Failure.self) { try AX.NativeTransport.decode(range, operation: kAXSelectedTextRangeAttribute) }
 }
 
 @Test func hitTestPreservesNoValueAndDoesNotCallOperation() async {

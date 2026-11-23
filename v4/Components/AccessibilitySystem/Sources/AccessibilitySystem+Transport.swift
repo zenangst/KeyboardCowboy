@@ -34,6 +34,8 @@ extension AccessibilitySystem {
     case elements([Handle])
     case point(CGPoint)
     case size(CGSize)
+    case range(NSRange)
+    case rect(CGRect)
     case malformed
   }
 
@@ -43,6 +45,7 @@ extension AccessibilitySystem {
     func element(at point: CGPoint) throws -> Handle
     func setTimeout(_ seconds: Float, on handle: Handle) throws
     func read(_ name: String, from handle: Handle) throws -> ReadValue
+    func bounds(for range: NSRange, from handle: Handle) throws -> CGRect
     func perform(_ action: Action, on handle: Handle) throws
     func write(_ name: String, value: Bool, to handle: Handle) throws
     func write(_ name: String, value: String, to handle: Handle) throws
@@ -99,6 +102,25 @@ extension AccessibilitySystem {
       return try Self.decode(value, operation: name)
     }
 
+    func bounds(for range: NSRange, from handle: Handle) throws -> CGRect {
+      let name = kAXBoundsForRangeParameterizedAttribute
+      guard range.location >= 0, range.location != NSNotFound, range.length >= 0,
+            range.length <= Int.max - range.location else {
+        throw Failure(.invalidConfiguration, operation: name)
+      }
+      guard let native = handle.native else { throw Failure(.invalidElement, operation: name) }
+      var parameter = CFRange(location: range.location, length: range.length)
+      guard let argument = AXValueCreate(.cfRange, &parameter) else {
+        throw Failure(.malformedValue, operation: name)
+      }
+      var value: CFTypeRef?
+      try check(AXUIElementCopyParameterizedAttributeValue(native, name as CFString, argument, &value), operation: name)
+      guard case .rect(let rect) = try Self.decode(value, operation: name) else {
+        throw Failure(.malformedValue, operation: name)
+      }
+      return rect
+    }
+
     func perform(_ action: Action, on handle: Handle) throws {
       let name = switch action {
       case .raise: kAXRaiseAction
@@ -149,6 +171,22 @@ extension AccessibilitySystem {
           if AXValueGetValue(geometry, .cgSize, &size),
              size.width.isFinite, size.height.isFinite, size.width >= 0, size.height >= 0 {
             return .size(size)
+          }
+        case .cfRange:
+          var range = CFRange()
+          if AXValueGetValue(geometry, .cfRange, &range),
+             range.location >= 0, range.location != NSNotFound, range.length >= 0,
+             range.length <= Int.max - range.location {
+            return .range(NSRange(location: range.location, length: range.length))
+          }
+        case .cgRect:
+          var rect = CGRect.zero
+          if AXValueGetValue(geometry, .cgRect, &rect),
+             rect.origin.x.isFinite, rect.origin.y.isFinite,
+             rect.size.width.isFinite, rect.size.height.isFinite,
+             rect.size.width >= 0, rect.size.height >= 0,
+             rect.maxX.isFinite, rect.maxY.isFinite {
+            return .rect(rect)
           }
         default:
           break

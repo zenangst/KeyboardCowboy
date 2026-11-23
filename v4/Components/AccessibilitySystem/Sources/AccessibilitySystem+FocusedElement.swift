@@ -1,3 +1,5 @@
+import Foundation
+
 public extension AccessibilitySystem {
   struct FocusedElement {
     fileprivate let session: Session
@@ -20,6 +22,11 @@ public extension AccessibilitySystem {
 
     public func checkpoint() throws {
       try session.checkpoint()
+    }
+
+    /// Returns text bounds in AX global screen coordinates, including for a caret.
+    public func bounds(for range: NSRange) throws -> CGRect {
+      try session.bounds(for: range, of: session.application)
     }
 
     /// Searches leaves in source order. A leaf must have a readable, empty child list.

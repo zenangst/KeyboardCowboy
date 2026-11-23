@@ -1,4 +1,5 @@
 import ApplicationServices
+import Foundation
 
 public extension AccessibilitySystem {
   struct Attribute<Value> {
@@ -30,6 +31,17 @@ public extension AccessibilitySystem.Attribute where Value == CGSize {
         throw AccessibilitySystem.Failure(.malformedValue, operation: kAXSizeAttribute)
       }
       return size
+    }
+  }
+}
+
+public extension AccessibilitySystem.Attribute where Value == NSRange {
+  static var selectedTextRange: Self {
+    Self(name: kAXSelectedTextRangeAttribute) { value in
+      guard case .range(let range) = value else {
+        throw AccessibilitySystem.Failure(.malformedValue, operation: kAXSelectedTextRangeAttribute)
+      }
+      return range
     }
   }
 }

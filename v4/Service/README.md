@@ -133,3 +133,24 @@ For the click-and-restore path, run the same `open` command with
 focused and move the pointer outside it within five seconds. Hold the pointer
 still until the window reports the result. A pass shows `Clicks: 1` and confirms
 that the pointer returned to its original position. Close the window to exit.
+
+Append `--mouse-post left`, `--mouse-post right`, or `--mouse-post double`
+to exercise Mouse event posting in the same fixture. A pass also verifies
+the delivered mouse button and click state.
+
+### Debug text-range geometry smoke check
+
+Focus a disposable TextEdit document, select some text, then run from `v4`:
+
+```sh
+open -g -n -W 'Service/.build/app/debug/Keyboard Cowboy.app' --args --smoke-selected-text --bounds
+log show --last 1m --style compact \
+  --predicate 'subsystem == "com.zenangst.keyboardcowboy.v4" AND category == "SelectedTextSmoke"'
+```
+
+Repeat with an empty selection. The log reports the AX screen bounds and
+whether the range is a caret. This mode does not read the text or post clicks.
+
+For Xcode, focus a source editor with a selection and use `--xcode-anchors`
+instead of `--bounds`. The log reports the leading, center, and trailing
+target points without editing the document or posting clicks.

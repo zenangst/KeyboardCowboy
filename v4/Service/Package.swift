@@ -18,6 +18,7 @@ let package = Package(
     .package(path: "../Components/MachPortSystem"),
     .package(path: "../Components/Commands"),
     .package(path: "../Features/Open"),
+    .package(path: "../Features/Mouse"),
     .package(path: "../Features/Text"),
     .package(path: "../Features/UIElement"),
   ],
@@ -38,6 +39,7 @@ let package = Package(
       dependencies: [
         "AccessibilitySystem",
         "MachPortSystem",
+        .product(name: "MouseFeature", package: "Mouse"),
         .product(name: "TextFeature", package: "Text"),
         .product(name: "UIElementFeature", package: "UIElement"),
       ],
