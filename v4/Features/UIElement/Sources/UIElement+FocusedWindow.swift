@@ -21,7 +21,7 @@ public extension UIElement {
         var visited: Set<AccessibilitySystem.Element> = []
         while let element = current, visited.insert(element).inserted {
           guard visited.count <= 64 else { throw FocusError.ancestorLimitReached }
-          if try optional({ try session.read(.role, of: element) }) == "AXWindow" { return element }
+          if try optional({ try session.read(.role, of: element) }) == .window { return element }
           current = try session.parent(of: element)
         }
         return nil

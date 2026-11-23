@@ -1,4 +1,4 @@
-import CoreGraphics
+import ApplicationServices
 
 public extension AccessibilitySystem {
   struct Attribute<Value> {
@@ -14,9 +14,9 @@ public extension AccessibilitySystem {
 public extension AccessibilitySystem.Attribute where Value == CGPoint {
   /// Top-left origin in AX global screen coordinates.
   static var position: Self {
-    Self(name: "AXPosition") { value in
+    Self(name: kAXPositionAttribute) { value in
       guard case .point(let point) = value else {
-        throw AccessibilitySystem.Failure(.malformedValue, operation: "AXPosition")
+        throw AccessibilitySystem.Failure(.malformedValue, operation: kAXPositionAttribute)
       }
       return point
     }
@@ -25,9 +25,9 @@ public extension AccessibilitySystem.Attribute where Value == CGPoint {
 
 public extension AccessibilitySystem.Attribute where Value == CGSize {
   static var size: Self {
-    Self(name: "AXSize") { value in
+    Self(name: kAXSizeAttribute) { value in
       guard case .size(let size) = value else {
-        throw AccessibilitySystem.Failure(.malformedValue, operation: "AXSize")
+        throw AccessibilitySystem.Failure(.malformedValue, operation: kAXSizeAttribute)
       }
       return size
     }
@@ -35,12 +35,12 @@ public extension AccessibilitySystem.Attribute where Value == CGSize {
 }
 
 public extension AccessibilitySystem.WritableAttribute where Value == Bool {
-  static var main: Self { Self(name: "AXMain") }
+  static var main: Self { Self(name: kAXMainAttribute) }
 }
 
 public extension AccessibilitySystem.Attribute where Value == Bool {
-  static var focused: Self { boolean(named: "AXFocused") }
-  static var selected: Self { boolean(named: "AXSelected") }
+  static var focused: Self { boolean(named: kAXFocusedAttribute) }
+  static var selected: Self { boolean(named: kAXSelectedAttribute) }
 
   private static func boolean(named name: String) -> Self {
     Self(name: name) { value in
@@ -53,17 +53,17 @@ public extension AccessibilitySystem.Attribute where Value == Bool {
 }
 
 public extension AccessibilitySystem.WritableAttribute where Value == String {
-  static var selectedText: Self { Self(name: "AXSelectedText") }
+  static var selectedText: Self { Self(name: kAXSelectedTextAttribute) }
 }
 
 public extension AccessibilitySystem.Attribute where Value == String {
-  static var accessibilityDescription: Self { string(named: "AXDescription") }
-  static var identifier: Self { string(named: "AXIdentifier") }
-  static var title: Self { string(named: "AXTitle") }
-  static var subrole: Self { string(named: "AXSubrole") }
-  static var roleDescription: Self { string(named: "AXRoleDescription") }
-  static var textValue: Self { string(named: "AXValue") }
-  static var selectedText: Self { string(named: "AXSelectedText") }
+  static var accessibilityDescription: Self { string(named: kAXDescriptionAttribute) }
+  static var identifier: Self { string(named: kAXIdentifierAttribute) }
+  static var title: Self { string(named: kAXTitleAttribute) }
+  static var subrole: Self { string(named: kAXSubroleAttribute) }
+  static var roleDescription: Self { string(named: kAXRoleDescriptionAttribute) }
+  static var textValue: Self { string(named: kAXValueAttribute) }
+  static var selectedText: Self { string(named: kAXSelectedTextAttribute) }
 
   private static func string(named name: String) -> Self {
     Self(name: name) { value in

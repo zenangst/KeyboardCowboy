@@ -27,7 +27,14 @@ extension AccessibilitySystem {
   }
 
   enum ReadValue {
-    case string(String), bool(Bool), url(URL), element(Handle), elements([Handle]), point(CGPoint), size(CGSize), malformed
+    case string(String)
+    case bool(Bool)
+    case url(URL)
+    case element(Handle)
+    case elements([Handle])
+    case point(CGPoint)
+    case size(CGSize)
+    case malformed
   }
 
   protocol Transport {
@@ -70,6 +77,7 @@ extension AccessibilitySystem {
       try check(AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(), x, y, &element),
                 operation: operation)
       guard let element else { throw Failure(.malformedValue, operation: operation) }
+
       return Handle(native: element)
     }
 
@@ -150,11 +158,13 @@ extension AccessibilitySystem {
         guard let string = value as? String else {
           throw Failure(.malformedValue, operation: name)
         }
+
         return .string(string)
       case CFURLGetTypeID():
         guard let url = value as? URL else {
           throw Failure(.malformedValue, operation: name)
         }
+
         return .url(url)
       case CFArrayGetTypeID():
         guard let values = value as? [CFTypeRef] else {
@@ -165,6 +175,7 @@ extension AccessibilitySystem {
           guard CFGetTypeID(value) == AXUIElementGetTypeID() else {
             throw Failure(.malformedValue, operation: name)
           }
+
           // Swift cannot conditionally cast an opaque CF type; the type ID
           // check above validates this cast before it is performed.
           return Handle(native: (value as! AXUIElement)) // swiftlint:disable:this force_cast

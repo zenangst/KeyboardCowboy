@@ -32,7 +32,7 @@ package extension HostInput {
         switch result {
         case .success(let hit):
           captured = hit
-          log.notice("Captured role: \(hit.role ?? "unavailable", privacy: .public); AX frame: \(String(describing: hit.frame), privacy: .public)")
+          log.notice("Captured role: \(hit.role?.rawValue ?? "unavailable", privacy: .public); AX frame: \(String(describing: hit.frame), privacy: .public)")
         case .failure(let error):
           if let failure = error as? AccessibilitySystem.Failure {
             log.error("Capture failed: \(failure.operation, privacy: .public) \(String(describing: failure.kind), privacy: .public)")

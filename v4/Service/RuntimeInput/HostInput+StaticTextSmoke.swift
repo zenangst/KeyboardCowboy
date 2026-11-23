@@ -27,7 +27,7 @@ package extension HostInput {
          !fixture.window.frame.contains(NSEvent.mouseLocation), fixture.clickCount == 0,
          let before = CGEvent(source: nil)?.location {
         let activated = try await UIElement.activate(predicates: [
-          .init(role: "AXStaticText", properties: [.identifier], comparison: .equals, value: fixture.identifier),
+          .init(role: .staticText, properties: [.identifier], comparison: .equals, value: fixture.identifier),
         ])
         try await Task.sleep(for: .milliseconds(150))
         let restored = CGEvent(source: nil).map {

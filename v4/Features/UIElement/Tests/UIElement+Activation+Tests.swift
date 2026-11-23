@@ -3,10 +3,10 @@ import Testing
 @testable import UIElementFeature
 
 @Test func pointerClickRequiresMouseBasedRoleAndKnownPosition() {
-  #expect(UIElement.usesPointerClick(role: "AXStaticText", pointer: .zero))
-  #expect(UIElement.usesPointerClick(role: "AXCell", pointer: .zero))
-  #expect(!UIElement.usesPointerClick(role: "AXCell", pointer: nil))
-  #expect(!UIElement.usesPointerClick(role: "AXButton", pointer: .zero))
+  #expect(UIElement.usesPointerClick(role: .staticText, pointer: .zero))
+  #expect(UIElement.usesPointerClick(role: .cell, pointer: .zero))
+  #expect(!UIElement.usesPointerClick(role: .cell, pointer: nil))
+  #expect(!UIElement.usesPointerClick(role: .button, pointer: .zero))
 }
 
 @MainActor

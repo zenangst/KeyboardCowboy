@@ -17,7 +17,7 @@ import Testing
   let point = CGPoint(x: -30, y: 40)
   let session = HostInput.CaptureSession(taps: taps) {
     #expect($0 == point)
-    return .init(role: "AXButton", frame: CGRect(origin: point, size: CGSize(width: 20, height: 10)))
+    return .init(role: .button, frame: CGRect(origin: point, size: CGSize(width: 20, height: 10)))
   }
   let (results, result) = AsyncStream<HostInput.CapturedElement>.makeStream()
   try session.start(onResult: {
@@ -40,7 +40,7 @@ import Testing
   #expect(router.route(up, type: .leftMouseUp, handler: handler) == nil)
   var iterator = results.makeAsyncIterator()
   let captured = await iterator.next()
-  #expect(captured?.role == "AXButton")
+  #expect(captured?.role == .button)
 
   let escape = try #require(CGEvent(keyboardEventSource: nil, virtualKey: CGKeyCode(kVK_Escape), keyDown: true))
   #expect(router.route(escape, type: .keyDown, handler: handler) === escape)

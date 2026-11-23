@@ -3,10 +3,10 @@ import Testing
 
 @Test func incompatiblePredicateRejectsCandidateBeforeLaterPredicates() {
   let predicates: [UIElement.Predicate] = [
-    .init(role: "AXLink", properties: [.title], comparison: .equals, value: "Open"),
+    .init(role: .link, properties: [.title], comparison: .equals, value: "Open"),
     .init(properties: [.title], comparison: .equals, value: "Open"),
   ]
-  #expect(!UIElement.matches(role: "AXButton", predicates: predicates) { _ in
+  #expect(!UIElement.matches(role: .button, predicates: predicates) { _ in
     Issue.record("An incompatible role should not read properties")
     return "Open"
   })
@@ -14,11 +14,11 @@ import Testing
 
 @Test func compatiblePredicatesTryPropertiesUntilFirstMatch() {
   let predicates: [UIElement.Predicate] = [
-    .init(role: "AXButton", properties: [.identifier, .title], comparison: .equals, value: "open"),
+    .init(role: .button, properties: [.identifier, .title], comparison: .equals, value: "open"),
     .init(properties: [.description, .subrole], comparison: .prefix, value: "Open"),
   ]
   var reads: [UIElement.Property] = []
-  let match = UIElement.matches(role: "AXButton", predicates: predicates) { property in
+  let match = UIElement.matches(role: .button, predicates: predicates) { property in
     reads.append(property)
     switch property {
     case .title: return "Open"

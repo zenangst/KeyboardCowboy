@@ -178,7 +178,7 @@ private final class Fixture: AX.Transport {
   })
 
   let (role, frame) = try await client.withElement(at: point) { (try $0.read(.role), try $0.frame()) }
-  #expect(role == "AXWebArea")
+  #expect(role == .webArea)
   #expect(frame == CGRect(x: -140, y: 40, width: 30, height: 10))
   #expect(frame.contains(point))
 }
@@ -264,9 +264,9 @@ private final class Fixture: AX.Transport {
   let client = AX.Client(makeTransport: { Fixture() })
   let values = try await client.withApplication(processIdentifier: 42) { session in
     let root = try session.windows()[0]
-    let included = try session.firstValue(of: .url, atRole: "AXWebArea", under: root,
+    let included = try session.firstValue(of: .url, atRole: .webArea, under: root,
                                           includingRoot: true, missingValue: .skipNoValueOrUnsupported)
-    let excluded = try session.firstValue(of: .url, atRole: "AXWebArea", under: root,
+    let excluded = try session.firstValue(of: .url, atRole: .webArea, under: root,
                                           includingRoot: false, missingValue: .skipNoValueOrUnsupported)
     return [included?.lastPathComponent, excluded?.lastPathComponent]
   }
@@ -280,7 +280,7 @@ private final class Fixture: AX.Transport {
     return fixture
   })
   let result = try await client.withApplication(processIdentifier: 42) { session in
-    try session.firstValue(of: .url, atRole: "AXWebArea", under: session.application,
+    try session.firstValue(of: .url, atRole: .webArea, under: session.application,
                            includingRoot: true, missingValue: .skipNoValueOrUnsupported)
   }
   #expect(result?.lastPathComponent == "second")
@@ -362,7 +362,7 @@ private final class Fixture: AX.Transport {
   })
   do {
     _ = try await client.withApplication(processIdentifier: 42) { session in
-      try session.firstValue(of: .url, atRole: "AXWebArea", under: session.application,
+      try session.firstValue(of: .url, atRole: .webArea, under: session.application,
                              includingRoot: true, missingValue: .skipNoValueOrUnsupported)
     }
     Issue.record("Expected malformed value failure")
@@ -378,7 +378,7 @@ private final class Fixture: AX.Transport {
     return fixture
   })
   let result = try await client.withApplication(processIdentifier: 42) { session in
-    try session.firstValue(of: .url, atRole: "AXButton", under: session.application,
+    try session.firstValue(of: .url, atRole: .button, under: session.application,
                            includingRoot: true, missingValue: .skipNoValueOrUnsupported)
   }
   #expect(result == nil)
@@ -388,7 +388,7 @@ private final class Fixture: AX.Transport {
   let client = AX.Client(makeTransport: { Fixture() })
   do {
     _ = try await client.withApplication(processIdentifier: 42) { session in
-      try session.firstValue(of: .url, atRole: "AXButton", under: session.application,
+      try session.firstValue(of: .url, atRole: .button, under: session.application,
                              includingRoot: true, missingValue: .skipNoValueOrUnsupported,
                              budget: .init(maximumNodes: 1))
     }
@@ -408,13 +408,13 @@ private final class Fixture: AX.Transport {
 
     for budget in [AX.TraversalBudget(maximumNodes: 1), .init(maximumDepth: 0)] {
       #expect(throws: AX.Failure.self) {
-        try session.firstValue(of: .url, atRole: "AXWebArea", under: session.application,
+        try session.firstValue(of: .url, atRole: .webArea, under: session.application,
                                includingRoot: true, missingValue: .skipNoValueOrUnsupported,
                                budget: budget)
       }
       #expect(fixture.timeoutHandles == [fixture.app])
     }
-    let match = try session.firstValue(of: .url, atRole: "AXWebArea", under: session.application,
+    let match = try session.firstValue(of: .url, atRole: .webArea, under: session.application,
                                        includingRoot: true, missingValue: .skipNoValueOrUnsupported,
                                        budget: .init(maximumNodes: 2))
     #expect(match?.lastPathComponent == "first")
@@ -504,7 +504,7 @@ private final class Fixture: AX.Transport {
   })
   do {
     _ = try await client.withApplication(processIdentifier: 42) { session in
-      try session.firstValue(of: .url, atRole: "AXWebArea", under: session.application,
+      try session.firstValue(of: .url, atRole: .webArea, under: session.application,
                              includingRoot: true, missingValue: .fail)
     }
     Issue.record("Expected missing-value failure")
@@ -529,7 +529,7 @@ private final class Fixture: AX.Transport {
     let client = AX.Client(makeTransport: { Fixture() })
     do {
       _ = try await client.withApplication(processIdentifier: 42) { session in
-        try session.firstValue(of: .url, atRole: "AXButton", under: session.application,
+        try session.firstValue(of: .url, atRole: .button, under: session.application,
                                includingRoot: true, missingValue: .skipNoValueOrUnsupported,
                                budget: budget)
       }
@@ -538,6 +538,11 @@ private final class Fixture: AX.Transport {
       #expect(failure.kind == .traversalLimitReached)
     }
   }
+}
+
+@Test func roleDecoderPreservesAnUnrecognizedRole() throws {
+  let role = try AX.Attribute<AX.Role>.role.decode(.string("AXExampleCustomRole"))
+  #expect(role.rawValue == "AXExampleCustomRole")
 }
 
 @Test func nativeDecoderValidatesCFTypesWithoutRemoteCalls() throws {

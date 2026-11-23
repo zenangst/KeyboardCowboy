@@ -19,7 +19,7 @@ public extension Open {
             path: path,
             windows: { try session.windows() },
             firstWebAreaURL: { window in
-              try session.firstValue(of: .url, atRole: "AXWebArea", under: window,
+              try session.firstValue(of: .url, atRole: .webArea, under: window,
                                      includingRoot: true, missingValue: .skipNoValueOrUnsupported)
             },
             raise: { try session.perform(.raise, on: $0) },

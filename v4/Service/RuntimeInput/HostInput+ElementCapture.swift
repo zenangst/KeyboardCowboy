@@ -4,7 +4,7 @@ import CoreGraphics
 public extension HostInput {
   /// A value-only snapshot; no accessibility handle leaves the transaction.
   struct CapturedElement: Sendable {
-    public let role: String?
+    public let role: AccessibilitySystem.Role?
     public let frame: CGRect
   }
 
@@ -15,7 +15,7 @@ public extension HostInput {
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> CapturedElement {
     try await accessibility.withElement(at: point) { hit in
-      let role: String?
+      let role: AccessibilitySystem.Role?
       do {
         role = try hit.read(.role)
       } catch let failure as AccessibilitySystem.Failure

@@ -27,7 +27,7 @@ package extension HostInput {
 
     let labels = miss ? ["Keyboard Cowboy smoke: \(UUID().uuidString)"] : ["Sidebar", "sidebar"]
     let predicates = labels.map {
-      UIElement.Predicate(role: "AXButton", properties: [.description, .title], comparison: .contains, value: $0)
+      UIElement.Predicate(role: .button, properties: [.description, .title], comparison: .contains, value: $0)
     }
     do {
       if inspect {
@@ -44,7 +44,7 @@ package extension HostInput {
           let names = [try? hit.read(.accessibilityDescription), try? hit.read(.title)].compactMap { $0 }
           return (role, names.contains { name in labels.contains { name.contains($0) } })
         }
-        log.notice("Hovered role: \(role, privacy: .public); label matches sidebar predicate: \(labelMatches, privacy: .public)")
+        log.notice("Hovered role: \(role.rawValue, privacy: .public); label matches sidebar predicate: \(labelMatches, privacy: .public)")
         let pid = safari.processIdentifier
         let (hasWindow, hasMatch) = try await client.withApplication(processIdentifier: pid) { session in
           guard let window = try UIElement.focusedWindow(inFrontmostApplication: session) else { return (false, false) }

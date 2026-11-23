@@ -25,7 +25,7 @@ public enum UIElement {
   }
 
   static func matches(
-    role: String,
+    role: AccessibilitySystem.Role,
     predicates: [Predicate],
     read: (Property) throws -> String?,
   ) rethrows -> Bool {

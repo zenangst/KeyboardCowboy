@@ -1,5 +1,6 @@
 import AccessibilitySystem
 import AppKit
+import ApplicationServices
 
 public extension UIElement {
   /// Activates the first matching element in the focused window. Returns false
@@ -44,8 +45,8 @@ public extension UIElement {
     case eventPostingUnavailable, eventCreationFailed
   }
 
-  internal static func usesPointerClick(role: String, pointer: CGPoint?) -> Bool {
-    pointer != nil && (role == "AXStaticText" || role == "AXCell")
+  internal static func usesPointerClick(role: AccessibilitySystem.Role, pointer: CGPoint?) -> Bool {
+    pointer != nil && (role == .staticText || role == .cell)
   }
 
   @MainActor

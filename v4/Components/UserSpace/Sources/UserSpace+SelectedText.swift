@@ -24,7 +24,7 @@ public extension UserSpace {
   }
 
   // Nil signals that the caller should try copying the selection.
-  nonisolated internal static func textWithoutSelection(role: String?) -> String? {
-    role == "AXWebArea" || role == "AXGroup" ? nil : ""
+  nonisolated internal static func textWithoutSelection(role: AccessibilitySystem.Role?) -> String? {
+    role == .webArea || role == .group ? nil : ""
   }
 }

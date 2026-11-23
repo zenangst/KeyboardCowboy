@@ -54,7 +54,7 @@ private final class SmokeDelegate: NSObject, NSApplicationDelegate {
         await HostInput.smokeCapture(arguments: options) { hit in
           let frame = hit.frame
           try await EditorLauncher.open(arguments: [
-            "--capture-preview", hit.role ?? "",
+            "--capture-preview", hit.role?.rawValue ?? "",
             String(Double(frame.minX)), String(Double(frame.minY)),
             String(Double(frame.width)), String(Double(frame.height)),
           ])

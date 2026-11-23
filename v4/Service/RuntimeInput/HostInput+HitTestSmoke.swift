@@ -27,7 +27,7 @@ package extension HostInput {
       let onPrimary = CGDisplayBounds(CGMainDisplayID()).contains(point)
       log.notice("AX point: (\(Double(point.x), privacy: .public), \(Double(point.y), privacy: .public)); primary display: \(onPrimary, privacy: .public)")
       let hit = try await captureElement(at: point)
-      log.notice("Hit role: \(hit.role ?? "unavailable", privacy: .public)")
+      log.notice("Hit role: \(hit.role?.rawValue ?? "unavailable", privacy: .public)")
       log.notice("AX frame: \(String(describing: hit.frame), privacy: .public); contains pointer: \(hit.frame.contains(point), privacy: .public)")
     } catch let failure as AccessibilitySystem.Failure {
       log.error("Hit test failed: \(failure.operation, privacy: .public) \(String(describing: failure.kind), privacy: .public)")

@@ -19,13 +19,16 @@ public extension Open {
 
       try await system.open(url, applicationURL: URL(fileURLWithPath: application.path))
       let count = try await accessibility.withApplication(processIdentifier: pid) { try $0.windows().count }
-      return try await Self.poll(initialWindowCount: count, wait: { try await Task.sleep(for: .milliseconds(100)) }) {
+      return try await Self.poll(
+        initialWindowCount: count,
+        wait: { try await Task.sleep(for: .milliseconds(100)) },
+      ) {
         try await accessibility.withApplication(processIdentifier: pid) { session in
           try Self.activateMatchingWindows(
             path: path,
             windows: session.windows(),
             firstWebAreaURL: { window in
-              try session.firstValue(of: .url, atRole: "AXWebArea", under: window,
+              try session.firstValue(of: .url, atRole: .webArea, under: window,
                                      includingRoot: true, missingValue: .skipNoValueOrUnsupported)
             },
             setMain: { try session.write(.main, value: true, to: $0) },
@@ -42,7 +45,8 @@ public extension Open {
       match: () async throws -> Bool,
     ) async throws -> Outcome {
       guard initialWindowCount > 1 else { return .pollingSkipped }
-      for _ in 0..<10 {
+
+      for _ in 0 ..< 10 {
         try await wait()
         if try await match() { return .raised }
       }
@@ -59,6 +63,7 @@ public extension Open {
       var matched = false
       for window in windows {
         guard let url = try firstWebAreaURL(window), url.absoluteString.contains(path) else { continue }
+
         try setMain(window)
         try raise(window)
         matched = true

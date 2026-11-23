@@ -1,3 +1,4 @@
+import ApplicationServices
 import Dispatch
 import Foundation
 
@@ -58,11 +59,11 @@ public extension AccessibilitySystem {
 
     public func windows() throws -> [Element] {
       try checkpoint()
-      return try elements("AXWindows", of: application)
+      return try elements(kAXWindowsAttribute, of: application)
     }
 
     public func children(of element: Element) throws -> [Element] {
-      try elements("AXChildren", of: element)
+      try elements(kAXChildrenAttribute, of: element)
     }
 
     public func focusedElement() throws -> Element {
@@ -71,11 +72,11 @@ public extension AccessibilitySystem {
     }
 
     public func focusedWindow() throws -> Element? {
-      try relatedElement("AXFocusedWindow", of: application)
+      try relatedElement(kAXFocusedWindowAttribute, of: application)
     }
 
     public func parent(of element: Element) throws -> Element? {
-      try relatedElement("AXParent", of: element)
+      try relatedElement(kAXParentAttribute, of: element)
     }
 
     private func relatedElement(_ name: String, of source: Element) throws -> Element? {
@@ -119,7 +120,7 @@ public extension AccessibilitySystem {
     /// Missing role and leaf children may be skipped only under the skip policy.
     /// Budget exhaustion is an error, never a successful no-match result.
     public func firstValue<Value>(
-      of attribute: Attribute<Value>, atRole role: String, under root: Element,
+      of attribute: Attribute<Value>, atRole role: Role, under root: Element,
       includingRoot: Bool, missingValue: MissingValuePolicy,
       budget: TraversalBudget = .init(),
     ) throws -> Value? {
@@ -205,7 +206,7 @@ public extension AccessibilitySystem {
           case .descend: break
           }
         }
-        let children = try toleratingMissing(missingValue) { try elementHandles("AXChildren", of: node) } ?? []
+        let children = try toleratingMissing(missingValue) { try elementHandles(kAXChildrenAttribute, of: node) } ?? []
         try checkBudget()
         if !children.isEmpty { stack.append((children[...], depth + 1)) }
       }
