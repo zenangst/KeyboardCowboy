@@ -5,7 +5,7 @@ import Testing
 @Test(arguments: [0, 1, 2])
 func webAppPollsAtMostTenTimesAndSkipsSingleWindow(_ count: Int) async throws {
   var events: [String] = []
-  let outcome = try await Open.WebApp.poll(initialWindowCount: count, wait: { events.append("wait") }) {
+  let outcome = try await Operation.WebApp.poll(initialWindowCount: count, wait: { events.append("wait") }) {
     events.append("scan")
     return false
   }
@@ -15,7 +15,7 @@ func webAppPollsAtMostTenTimesAndSkipsSingleWindow(_ count: Int) async throws {
 
 @Test func webAppStopsPollingAfterFirstMatchingPass() async throws {
   var scans = 0
-  let outcome = try await Open.WebApp.poll(initialWindowCount: 2, wait: {}) {
+  let outcome = try await Operation.WebApp.poll(initialWindowCount: 2, wait: {}) {
     scans += 1
     return scans == 2
   }
@@ -25,7 +25,7 @@ func webAppPollsAtMostTenTimesAndSkipsSingleWindow(_ count: Int) async throws {
 
 @Test func webAppCancellationDuringWaitSkipsScan() async {
   await #expect(throws: CancellationError.self) {
-    try await Open.WebApp.poll(initialWindowCount: 2, wait: { throw CancellationError() }) {
+    try await Operation.WebApp.poll(initialWindowCount: 2, wait: { throw CancellationError() }) {
       Issue.record("Unexpected scan after cancellation")
       return false
     }
@@ -35,7 +35,7 @@ func webAppPollsAtMostTenTimesAndSkipsSingleWindow(_ count: Int) async throws {
 @Test func webAppSetsMainBeforeRaisingEachMatch() throws {
   let url = try #require(URL(string: "https://example.com/match"))
   var actions: [String] = []
-  let matched = try Open.WebApp.activateMatchingWindows(
+  let matched = try Operation.WebApp.activateMatchingWindows(
     path: "/match",
     windows: [2, 1, 0],
     firstWebAreaURL: { $0 == 1 ? nil : url },
@@ -50,7 +50,7 @@ func webAppPollsAtMostTenTimesAndSkipsSingleWindow(_ count: Int) async throws {
   enum Failure: Error { case write }
   let url = try #require(URL(string: "https://example.com/match"))
   #expect(throws: Failure.write) {
-    try Open.WebApp.activateMatchingWindows(
+    try Operation.WebApp.activateMatchingWindows(
       path: "/match", windows: [0], firstWebAreaURL: { _ in url },
       setMain: { _ in throw Failure.write },
       raise: { _ in Issue.record("Unexpected raise after failed write") },

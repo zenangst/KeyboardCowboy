@@ -13,7 +13,7 @@ private enum WindowFailure: Error {
   var searched: [Int] = []
   var raised: [Int] = []
 
-  let matched = try Open.Browser.raiseMatchingWindow(path: "/match", windows: { [3, 2, 1, 0] }, firstWebAreaURL: {
+  let matched = try Operation.Browser.raiseMatchingWindow(path: "/match", windows: { [3, 2, 1, 0] }, firstWebAreaURL: {
     searched.append($0)
     return urls[$0]
   }, raise: { raised.append($0) })
@@ -27,7 +27,7 @@ private enum WindowFailure: Error {
   let first = try #require(URL(string: "https://example.com/other"))
   let later = try #require(URL(string: "https://example.com/match"))
   let windows = [[first, later], []]
-  let matched = try Open.Browser.raiseMatchingWindow(
+  let matched = try Operation.Browser.raiseMatchingWindow(
     path: "/match",
     windows: { windows },
     firstWebAreaURL: { $0.first },
@@ -40,7 +40,7 @@ private enum WindowFailure: Error {
 private func browserWindowMatchingPropagatesFailures(_ failure: WindowFailure) throws {
   let url = try #require(URL(string: "https://example.com/match"))
   #expect(throws: failure) {
-    try Open.Browser.raiseMatchingWindow(
+    try Operation.Browser.raiseMatchingWindow(
       path: "/match",
       windows: {
         if failure == .enumeration { throw failure }
