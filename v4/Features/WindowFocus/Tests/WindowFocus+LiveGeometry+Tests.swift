@@ -4,7 +4,8 @@ import CoreGraphics
 import Testing
 
 @MainActor
-@Test(.enabled(if: ProcessInfo.processInfo.environment["KC_WINDOW_GEOMETRY_SMOKE"] == "1"))
+@Test(.enabled(if: ProcessInfo.processInfo.environment["KC_WINDOW_GEOMETRY_SMOKE"] == "1" ||
+  ProcessInfo.processInfo.environment["KC_LEGACY_WINDOW_ID_SMOKE"] == "1"))
 func comparesLiveAXAndCGGeometryAgainstOwnedWindowNumbers() async throws {
   let app = NSApplication.shared
   app.setActivationPolicy(.accessory)
@@ -24,6 +25,7 @@ func comparesLiveAXAndCGGeometryAgainstOwnedWindowNumbers() async throws {
 
   let pid = getpid()
   let client = AccessibilitySystem.Client()
+  let checkLegacyID = ProcessInfo.processInfo.environment["KC_LEGACY_WINDOW_ID_SMOKE"] == "1"
   func axFrames() async throws -> [CGRect] {
     try await client.withApplication(processIdentifier: pid) { session in
       let windows = try session.windows()
@@ -53,6 +55,9 @@ func comparesLiveAXAndCGGeometryAgainstOwnedWindowNumbers() async throws {
   let distinctAX = try await axFrames()
   #expect(try GeometryEvidence.assess(axFrames: distinctAX, pid: pid, cgWindows: cgWindows())
     == ids.map(GeometryEvidence.candidate))
+  if checkLegacyID {
+    #expect(try await LegacyWindowIDProbe.read(pid: pid, fixtureTitles: names).map(\.id) == ids.map(Optional.some))
+  }
 
   let first = windows[0].frame
   windows[0].setFrame(windows[1].frame, display: false)
@@ -66,6 +71,9 @@ func comparesLiveAXAndCGGeometryAgainstOwnedWindowNumbers() async throws {
   let swappedAX = try await axFrames()
   #expect(GeometryEvidence.assess(axFrames: swappedAX, pid: pid, cgWindows: swappedCG)
     == ids.map(GeometryEvidence.candidate))
+  if checkLegacyID {
+    #expect(try await LegacyWindowIDProbe.read(pid: pid, fixtureTitles: names).map(\.id) == ids.map(Optional.some))
+  }
 
   windows[1].setFrame(windows[0].frame, display: false)
   try await Task.sleep(for: .milliseconds(200))
@@ -73,4 +81,29 @@ func comparesLiveAXAndCGGeometryAgainstOwnedWindowNumbers() async throws {
   #expect(overlappingAX[0] == overlappingAX[1])
   #expect(try GeometryEvidence.assess(axFrames: overlappingAX, pid: pid, cgWindows: cgWindows())
     == [.ambiguous, .ambiguous])
+  if checkLegacyID {
+    #expect(try await LegacyWindowIDProbe.read(pid: pid, fixtureTitles: names).map(\.id) == ids.map(Optional.some))
+    windows[0].close()
+    let remaining = try await LegacyWindowIDProbe.read(pid: pid).compactMap(\.id)
+    #expect(remaining.contains(ids[1]))
+    #expect(!remaining.contains(ids[0]))
+  }
+}
+
+@Test(.enabled(if: ProcessInfo.processInfo.environment["KC_LEGACY_WINDOW_ID_EXTERNAL_PID"] != nil))
+func legacyBridgeIDsBelongToTheExternalAppInCoreGraphics() async throws {
+  let input = try #require(ProcessInfo.processInfo.environment["KC_LEGACY_WINDOW_ID_EXTERNAL_PID"])
+  let pid = try #require(pid_t(input))
+  try #require(pid > 0 && pid != getpid())
+  let readings = try await LegacyWindowIDProbe.read(pid: pid)
+  try #require(!readings.isEmpty, "The selected app exposed no AX windows.")
+  let ids = readings.compactMap(\.id)
+  try #require(!ids.isEmpty, "The legacy API returned no usable ID (AX statuses: \(readings.map(\.status))).")
+  let rows = try #require(CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]])
+  let ownedIDs = Set(rows.compactMap { row -> CGWindowID? in
+    guard (row[kCGWindowOwnerPID as String] as? pid_t) == pid else { return nil }
+    return row[kCGWindowNumber as String] as? CGWindowID
+  })
+  #expect(Set(ids).count == ids.count)
+  #expect(Set(ids).isSubset(of: ownedIDs))
 }
