@@ -39,16 +39,20 @@ public enum Mouse {
     try await accessibility.withFocusedElement { element in
       let role = try element.read(.roleDescription)
       if role == "group", let child = try element.firstChild(where: { child in
-        isGroupTarget(focused: { try child.read(.focused) }, selected: { try child.read(.selected) })
+        isGroupTarget(focused: { try child.read(.focused) },
+                      selected: { try child.read(.selected) })
       }) {
-        return try anchor.point(in: CGRect(origin: child.read(.position), size: child.read(.size)))
+        return try anchor.point(in: CGRect(origin: child.read(.position),
+                                           size: child.read(.size)))
       }
-      return try target(roleDescription: role, at: anchor, selectedFrame: {
-        let child = try element.firstChild { (try? $0.read(.selected)) == true }
-        return try child.map { try CGRect(origin: $0.read(.position), size: $0.read(.size)) }
-      }) {
-        try CGRect(origin: element.read(.position), size: element.read(.size))
-      }
+      return try target(
+        roleDescription: role,
+        at: anchor, selectedFrame: {
+          let child = try element.firstChild { (try? $0.read(.selected)) == true }
+          return try child.map { try CGRect(origin: $0.read(.position), size: $0.read(.size)) }
+        }, frame: {
+          try CGRect(origin: element.read(.position), size: element.read(.size))
+        })
     }
   }
 
@@ -61,6 +65,7 @@ public enum Mouse {
       return try anchor.point(in: frame())
     case "table", "outline":
       guard let frame = try selectedFrame() else { throw TargetError.noSelectedChild }
+
       return anchor.point(in: frame)
     default:
       return nil
