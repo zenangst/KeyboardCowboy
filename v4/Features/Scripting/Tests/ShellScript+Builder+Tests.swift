@@ -1,5 +1,5 @@
-@testable import ProcessSystem
 import Foundation
+@testable import ProcessSystem
 @testable import ScriptingFeature
 import Testing
 

@@ -1,5 +1,5 @@
-import ProcessSystem
 import Foundation
+import ProcessSystem
 import RuntimeEnvironment
 
 public enum Shortcuts {
@@ -32,7 +32,8 @@ public enum Shortcuts {
           #else
           return try runProcess(identifier: identifier, environment: environment)
           #endif
-        }.value
+        }
+        .value
       }
     }
 

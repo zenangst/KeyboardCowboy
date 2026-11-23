@@ -1,7 +1,7 @@
-@testable import ApplicationSystem
-import UserSpace
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
+import UserSpace
 
 @Test func testUnhideFrontmostIsNoOp() async {
   let identifier = ApplicationSystem.BundleIdentifier("frontmost.app")
@@ -15,7 +15,7 @@ import Testing
         return []
       },
       onUnhide: { _ in Issue.record("Frontmost app must not be unhidden"); return true },
-      onActivate: { _, _ in Issue.record("Frontmost app must not be activated"); return true }
+      onActivate: { _, _ in Issue.record("Frontmost app must not be activated"); return true },
     )) {
       #expect(await Operation.Unhide(.testing)(identifier, snapshot: snapshot) == false)
     }
@@ -36,7 +36,7 @@ import Testing
           return [target]
         },
         onUnhide: { _ in continuation.yield("unhide"); return true },
-        onActivate: { _, _ in continuation.yield("activate"); return true }
+        onActivate: { _, _ in continuation.yield("activate"); return true },
       )) {
         await Operation.Unhide(.testing)(identifier, snapshot: snapshot)
       }
@@ -64,7 +64,7 @@ import Testing
           #expect(application === target)
           unhidden()
           return true
-        }
+        },
       )) {
         #expect(await Operation.Unhide(.testing)(identifier, snapshot: snapshot))
       }
@@ -79,7 +79,7 @@ import Testing
   let unhide = Operation.Unhide(.testing)
 
   await Application.Workspace.Testing.$mock.withValue(.init(
-    frontmostApplication: ApplicationSystem.RunningApplication(.testing(ApplicationSystem.BundleIdentifier("other.app")))
+    frontmostApplication: ApplicationSystem.RunningApplication(.testing(ApplicationSystem.BundleIdentifier("other.app"))),
   )) {
     await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplications: [application],

@@ -24,7 +24,7 @@ package struct HostOpen: Sendable {
     openHost: @escaping @Sendable () async -> Void,
     openWebApp: @escaping @Sendable (String, Open.TargetApplication, Bool) async throws -> Void = { [webApp = Open.WebApp()]
       path, application, _ in
-      try await webApp.open(path, application: application)
+        try await webApp.open(path, application: application)
     },
     record: @escaping @Sendable (Event) -> Void = { _ in },
   ) {
@@ -33,7 +33,7 @@ package struct HostOpen: Sendable {
       do {
         return try await Self.executeScript(source, checkCancellation: checkCancellation)
       } catch AppleScriptRuntime.NSAppleScript.Error.unableToExecute(let error)
-                where (error as NSError).code == -1743 {
+        where (error as NSError).code == -1743 {
         record(.tabSearchAutomationDenied)
         throw AppleScriptRuntime.NSAppleScript.Error.unableToExecute(error)
       } catch {

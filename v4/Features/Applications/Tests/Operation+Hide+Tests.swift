@@ -1,7 +1,7 @@
-@testable import ApplicationSystem
-import UserSpace
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
+import UserSpace
 
 @Test func testHideUsesLiveFrontmostInsteadOfSnapshot() async {
   let targetID = ApplicationSystem.BundleIdentifier("target.app")
@@ -25,7 +25,7 @@ import Testing
       onActivate: { application, options in
         continuation.yield(application === live && options == [] ? "activate live" : "activate unexpected")
         return true
-      }
+      },
     )) {
       #expect(await Operation.Hide(.testing)(targetID, snapshot: snapshot))
     }
@@ -46,7 +46,7 @@ import Testing
     isHidden: true,
     runningApplicationsLookup: { _ in Issue.record("Previous wildcard must not use lookup"); return [] },
     onHide: { _ in Issue.record("Already hidden previous app must not be hidden again"); return false },
-    onActivate: { _, _ in Issue.record("Already hidden previous app must not activate"); return false }
+    onActivate: { _, _ in Issue.record("Already hidden previous app must not activate"); return false },
   )) {
     #expect(await Operation.Hide(.testing)(ApplicationSystem.BundleIdentifier.WildCard.previous.bundleIdentifier, snapshot: snapshot) == false)
   }
@@ -67,7 +67,7 @@ import Testing
           continuation.yield("activate")
           withUnsafeCurrentTask { $0?.cancel() }
           return true
-        }
+        },
       )) {
         await Operation.Hide(.testing)(identifier, snapshot: snapshot)
       }
@@ -93,7 +93,7 @@ import Testing
         #expect(application === previous)
         hidden()
         return true
-      }
+      },
     )) {
       _ = await Operation.Hide(.testing)(ApplicationSystem.BundleIdentifier.WildCard.previous.bundleIdentifier, snapshot: snapshot)
     }
@@ -232,7 +232,7 @@ import Testing
   let hide = Operation.Hide(.testing)
 
   await Application.Workspace.Testing.$mock.withValue(.init(
-    frontmostApplication: ApplicationSystem.RunningApplication(.testing(ApplicationSystem.BundleIdentifier("other.app")))
+    frontmostApplication: ApplicationSystem.RunningApplication(.testing(ApplicationSystem.BundleIdentifier("other.app"))),
   )) {
     await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       hide: true,

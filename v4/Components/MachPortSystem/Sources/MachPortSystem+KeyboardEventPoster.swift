@@ -22,11 +22,10 @@ public extension MachPortSystem {
       isRepeat: Bool = false,
     ) throws -> CGEvent {
       #if DEBUG
-      let event: CGEvent?
-      if let testingOperations {
-        event = testingOperations.create(eventSource, keyCode, action == .down)
+      let event: CGEvent? = if let testingOperations {
+        testingOperations.create(eventSource, keyCode, action == .down)
       } else {
-        event = CGEvent(keyboardEventSource: eventSource, virtualKey: keyCode, keyDown: action == .down)
+        CGEvent(keyboardEventSource: eventSource, virtualKey: keyCode, keyDown: action == .down)
       }
       #else
       let event = CGEvent(keyboardEventSource: eventSource, virtualKey: keyCode, keyDown: action == .down)
@@ -34,6 +33,7 @@ public extension MachPortSystem {
       guard let event else {
         throw Error.eventCreationFailed
       }
+
       event.flags = flags
       event.setIntegerValueField(.keyboardEventAutorepeat, value: isRepeat ? 1 : 0)
       try tag(event)
@@ -63,16 +63,16 @@ public extension MachPortSystem {
       tapLocation: CGEventTapLocation = .cghidEventTap,
     ) throws -> CGEvent {
       #if DEBUG
-      let event: CGEvent?
-      if let testingOperations {
-        event = testingOperations.createFlags(eventSource)
+      let event: CGEvent? = if let testingOperations {
+        testingOperations.createFlags(eventSource)
       } else {
-        event = CGEvent(source: eventSource)
+        CGEvent(source: eventSource)
       }
       #else
       let event = CGEvent(source: eventSource)
       #endif
       guard let event else { throw Error.eventCreationFailed }
+
       event.type = .flagsChanged
       event.flags = flags
       try tag(event)

@@ -6,6 +6,7 @@ import TextFeature
   let json = #"{"textCommand":{"kind":{"insertText":{"_0":{"input":"Hello $name","mode":"Typing","actions":["insertEnter"],"meta":{"delay":0.5,"id":"abc","name":"Example","enabled":false,"notification":"commandPanel","variableName":"result"}}}}}}"#
   let decoded = try JSONDecoder().decode(TextCommandEnvelope.self, from: Data(json.utf8))
   guard case let .insertText(command) = decoded.textCommand.kind else { Issue.record("Unexpected command"); return }
+
   #expect(command.input == "Hello $name")
   #expect(command.mode == .typing)
   #expect(command.actions == [.insertEnter])
@@ -22,6 +23,7 @@ import TextFeature
   let json = #"{"textCommand":{"kind":{"insertText":{"_0":{"input":"x","meta":{"id":"id","name":"","enabled":true,"notification":"unknown"}}}}}}"#
   let decoded = try JSONDecoder().decode(TextCommandEnvelope.self, from: Data(json.utf8))
   guard case let .insertText(command) = decoded.textCommand.kind else { Issue.record("Unexpected command"); return }
+
   #expect(command.mode == .instant)
   #expect(command.actions.isEmpty)
   #expect(command.meta.notification == nil)

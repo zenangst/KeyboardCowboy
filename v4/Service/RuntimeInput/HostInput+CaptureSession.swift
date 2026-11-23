@@ -33,9 +33,11 @@ public extension HostInput {
       onCancel: @escaping @MainActor () -> Void = {},
     ) throws {
       guard sessionID == nil else { return }
+
       let id = UUID()
       try taps.startCapture(handler: { [weak self] event in
         guard let self, sessionID == id else { return .passThrough }
+
         if event.type == .keyDown, event.keyCode == Int64(kVK_Escape) {
           stop()
           onCancel()
@@ -49,6 +51,7 @@ public extension HostInput {
           return capturingClick ? .suppress : .passThrough
         case .leftMouseUp:
           guard capturingClick else { return .passThrough }
+
           capturingClick = false
           capture(at: event.event.location, sessionID: id, onResult: onResult)
           return .suppress
@@ -57,6 +60,7 @@ public extension HostInput {
         }
       }, onDisruption: { [weak self] reason in
         guard let self, sessionID == id else { return }
+
         stop()
         onDisruption(reason)
       })
@@ -65,6 +69,7 @@ public extension HostInput {
 
     public func stop() {
       guard sessionID != nil else { return }
+
       sessionID = nil
       capturingClick = false
       pending?.cancel()
@@ -78,11 +83,13 @@ public extension HostInput {
         let result: Result<CapturedElement, any Error>
         do {
           guard !Task.isCancelled else { return }
+
           result = .success(try await capture(point))
         } catch {
           result = .failure(error)
         }
         guard !Task.isCancelled, let self, sessionID == id else { return }
+
         pending = nil
         onResult(result)
       }

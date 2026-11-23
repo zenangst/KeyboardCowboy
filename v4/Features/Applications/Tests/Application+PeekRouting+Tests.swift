@@ -1,9 +1,9 @@
-@testable import ApplicationSystem
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 @Test @MainActor func hostSessionRoutesOnlyLongPeekReleases() async throws {
   let peekFixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"peek","meta":{"id":"peek","name":"Peek","enabled":true}}"#
@@ -12,7 +12,7 @@ import Testing
   let previous = try JSONDecoder().decode(Command.Application.self, from: Data(previousFixture.utf8))
 
   // A host chooses normal hiding, previous-app restoration, or no-op from its settings/history.
-  for mode in 0...3 {
+  for mode in 0 ... 3 {
     let session = Application.PeekSession()
     let sessionID = UUID()
     let target = ApplicationSystem.RunningApplication(.testing(.init("example.target")))
@@ -37,7 +37,7 @@ import Testing
           #expect(application === target)
           continuation.yield("hide")
           return true
-        }
+        },
       )) {
         do {
           _ = try await executor.execute(command, cgEventType: .keyDown, snapshot: snapshot)

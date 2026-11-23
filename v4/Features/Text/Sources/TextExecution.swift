@@ -36,6 +36,7 @@ public struct TextExecutor {
 
   public func run(_ execution: TextExecution) async throws {
     guard !execution.input.isEmpty else { return }
+
     switch execution.mode {
     case .typing: try await typing(execution)
     case .instant: try await instant(execution)

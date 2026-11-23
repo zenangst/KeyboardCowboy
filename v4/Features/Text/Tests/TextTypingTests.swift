@@ -1,6 +1,6 @@
+import Carbon
 import Testing
 import TextFeature
-import Carbon
 
 @Test @MainActor func typingResolvesInOrderAndPostsGraphemes() async throws {
   var log: [String] = []
@@ -14,7 +14,7 @@ import Carbon
     post: { code, event, flags in log.append("post:\(code):\(event):\(flags.rawValue)") },
     observeText: { log.append("text:\($0)") },
     observeReturn: { log.append("return") },
-    sleep: { log.append("sleep:\($0)") }
+    sleep: { log.append("sleep:\($0)") },
   )
   try await typing.run(TextExecution(input: "éx\r\n🙂", mode: .typing, actions: [.insertEnter]))
   #expect(log == [
@@ -47,7 +47,7 @@ import Carbon
   #expect(!called)
 }
 
-@Test(arguments: 0..<5) @MainActor func typingStopsAtFirstMatchingLookup(matchIndex: Int) async throws {
+@Test(arguments: 0 ..< 5) @MainActor func typingStopsAtFirstMatchingLookup(matchIndex: Int) async throws {
   let attempts: [(TextTyping.Modifiers, Bool)] = [
     ([], true), (.shift, true), (.option, true), ([.option, .shift], true), ([], false),
   ]

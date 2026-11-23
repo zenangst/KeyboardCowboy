@@ -13,5 +13,5 @@ let package = Package(
   targets: [
     .target(name: "OpenFeature", dependencies: ["AccessibilitySystem", "Commands"], path: "Sources"),
     .testTarget(name: "OpenFeatureTests", dependencies: ["OpenFeature", "Commands"], path: "Tests"),
-  ]
+  ],
 )

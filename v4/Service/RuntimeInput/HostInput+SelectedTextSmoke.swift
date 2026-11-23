@@ -15,16 +15,19 @@ package extension HostInput {
       log.notice("Expected --smoke-selected-text [--caret | --bounds | --xcode-anchors]")
       return
     }
+
     let bundleIdentifier = xcode ? "com.apple.dt.Xcode" : "com.apple.TextEdit"
     guard NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleIdentifier else {
       log.notice("Focus \(xcode ? "Xcode" : "TextEdit", privacy: .public) first; nothing was changed")
       return
     }
+
     do {
       if xcode {
         let client = AccessibilitySystem.Client()
         for anchor in [Mouse.Anchor.leading, .center, .trailing] {
           guard NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleIdentifier else { return }
+
           let point = try await Mouse.focusedTarget(at: anchor, applicationBundleIdentifier: bundleIdentifier, using: client)
           log.notice("Xcode anchor \(String(describing: anchor), privacy: .public): \(point.map { String(describing: $0) } ?? "unavailable", privacy: .public)")
         }
@@ -42,10 +45,12 @@ package extension HostInput {
         if caret {
           guard try focused.read(.textValue) == "before [AX replaced] after",
                 try focused.read(.selectedText).isEmpty else { return false }
+
           try focused.write(.selectedText, value: " [AX caret]")
           return true
         }
         guard try focused.read(.selectedText) == "replace me" else { return false }
+
         try focused.write(.selectedText, value: "AX replaced")
         return true
       }

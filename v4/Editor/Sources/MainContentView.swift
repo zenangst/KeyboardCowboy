@@ -2,7 +2,6 @@ import SwiftUI
 
 @Injectable
 struct MainContentView: View {
-
   var content: some View {
     NavigationSplitView(sidebar: {
       SidebarSplit.ContentView()

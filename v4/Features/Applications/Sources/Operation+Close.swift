@@ -22,6 +22,7 @@ extension Operation {
         try Task.checkCancellation()
         throw Application.Executor.ExecutionError.failedToTerminate(bundleIdentifier)
       }
+
       try Task.checkCancellation()
       return true
     }

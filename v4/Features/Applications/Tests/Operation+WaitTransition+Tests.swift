@@ -1,5 +1,5 @@
-@testable import ApplicationSystem
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
 
 @Test func waitTransitionsFromAbsentToUnfinishedToFinished() async throws {
@@ -10,8 +10,8 @@ import Testing
   let (events, trace) = AsyncStream<String>.makeStream()
   let wait = Operation.Wait(.testing, retries: 3, finalSleepDuration: .milliseconds(37),
                             pollingInterval: .milliseconds(11), sleep: { duration in
-    trace.yield("sleep \(duration)")
-  })
+                              trace.yield("sleep \(duration)")
+                            })
 
   let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isFinishedLaunching: {
@@ -30,7 +30,7 @@ import Testing
       case .terminated: Issue.record("Lookup responses terminated unexpectedly"); return []
       @unknown default: Issue.record("Unexpected lookup response"); return []
       }
-    }
+    },
   )) {
     try await wait(for: identifier)
   }

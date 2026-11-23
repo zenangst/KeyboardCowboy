@@ -38,6 +38,7 @@ private final class Fixture: AX.Transport {
     guard point == hitPoint else {
       throw AX.Failure(.noValue, operation: "elementAtPosition", rawAXStatus: AXError.noValue.rawValue)
     }
+
     return first
   }
 
@@ -330,6 +331,7 @@ func focusedElementRequestsBoundsForCaretOrSelection(_ length: Int) async throws
     Issue.record("Expected typed bounds")
     return
   }
+
   #expect(bounds == rect)
 
   rect = CGRect(x: -1, y: -1, width: -1, height: -1)

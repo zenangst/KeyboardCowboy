@@ -1,11 +1,11 @@
 import AppKit
+import SwiftUI
 #if DEBUG || WINDOW_FOCUS_VALIDATION
 import HostInput
 #endif
 #if DEBUG
 import HostOpen
 #endif
-import SwiftUI
 
 @main
 struct ServiceApp: App {
@@ -38,12 +38,13 @@ private final class SmokeDelegate: NSObject, NSApplicationDelegate {
     let arguments = CommandLine.arguments.dropFirst()
     #if DEBUG
     let commands = ["--smoke-open-browser", "--smoke-selected-text", "--smoke-hit-test",
-           "--smoke-capture", "--smoke-ui-element", "--smoke-static-text",
-           "--smoke-window-id", "--smoke-next-window", "--smoke-previous-window"]
+                    "--smoke-capture", "--smoke-ui-element", "--smoke-static-text",
+                    "--smoke-window-id", "--smoke-next-window", "--smoke-previous-window"]
     #else
     let commands = ["--smoke-next-window", "--smoke-previous-window"]
     #endif
     guard let command = arguments.first, commands.contains(command) else { return }
+
     Task {
       let options = Array(arguments.dropFirst())
       switch command {

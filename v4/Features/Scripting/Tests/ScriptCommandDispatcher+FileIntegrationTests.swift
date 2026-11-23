@@ -4,7 +4,8 @@ import ScriptingFeature
 import Testing
 
 @Test @MainActor func publicDispatcherExecutesInterpolatedShellFile() async throws {
-  let directory = Foundation.FileManager.default.temporaryDirectory
+  let directory = Foundation.FileManager.default
+    .temporaryDirectory
     .appendingPathComponent("script dispatch \(UUID().uuidString)", isDirectory: true)
   try Foundation.FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
   defer { try? Foundation.FileManager.default.removeItem(at: directory) }

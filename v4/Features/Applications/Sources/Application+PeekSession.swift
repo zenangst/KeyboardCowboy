@@ -19,6 +19,7 @@ public extension Application {
     @discardableResult
     public func begin(id: UUID, at timestamp: Duration, isRepeat: Bool = false) -> Bool {
       guard !isRepeat, active == nil else { return false }
+
       active = (id, timestamp)
       return true
     }
@@ -26,8 +27,10 @@ public extension Application {
     /// The host routes only `.hold` to release execution. A matching release always clears the session.
     public func release(id: UUID, at timestamp: Duration) -> Release {
       guard let active, active.id == id else { return .unrelated }
+
       self.active = nil
       guard timestamp >= active.started else { return .invalidTimestamp }
+
       return timestamp - active.started > .milliseconds(500) ? .hold : .tap
     }
 
@@ -35,6 +38,7 @@ public extension Application {
     @discardableResult
     public func cancel(id: UUID) -> Bool {
       guard active?.id == id else { return false }
+
       active = nil
       return true
     }

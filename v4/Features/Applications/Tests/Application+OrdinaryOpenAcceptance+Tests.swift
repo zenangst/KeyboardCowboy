@@ -1,10 +1,10 @@
-@testable import ApplicationSystem
 @testable import AppleScriptRuntime
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 private func ordinaryAcceptanceCommand() throws -> Command.Application {
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","meta":{"id":"ordinary-acceptance","name":"Open","enabled":true}}"#
@@ -29,7 +29,7 @@ private func ordinaryAcceptanceCommand() throws -> Command.Application {
   })) {
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in continuation.yield("activate"); return true },
-      runningApplications: [target]
+      runningApplications: [target],
     )) {
       try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         continuation.yield("fallback")
@@ -65,7 +65,8 @@ private func ordinaryAcceptanceCommand() throws -> Command.Application {
             _ = try await Application.Executor(.testing, windowOwnerNames: {
               withUnsafeCurrentTask { $0?.cancel() }
               return []
-            }).execute(command, cgEventType: nil, snapshot: .init(apps: .init()))
+            })
+            .execute(command, cgEventType: nil, snapshot: .init(apps: .init()))
             return false
           } catch is CancellationError {
             return true

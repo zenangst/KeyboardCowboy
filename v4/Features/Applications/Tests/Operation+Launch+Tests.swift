@@ -1,5 +1,5 @@
-@testable import ApplicationSystem
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
 
 private actor LaunchRecorder {

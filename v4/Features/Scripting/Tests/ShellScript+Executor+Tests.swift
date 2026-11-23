@@ -1,7 +1,7 @@
-@testable import FileSystem
-@testable import ProcessSystem
-import Foundation
 import Darwin
+@testable import FileSystem
+import Foundation
+@testable import ProcessSystem
 @testable import ScriptingFeature
 import Testing
 
@@ -70,17 +70,20 @@ private func executePerl(_ source: String) throws -> String? {
 
 @Test func shellDrainsLargeStderrAndPrefersEmptyStdout() throws {
   guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+
   #expect(try executePerl("print STDERR 'e' x 3000000") == "")
 }
 
 @Test func shellPreservesLargeStderrFallback() throws {
   guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+
   let output = try executePerl("print STDOUT chr(255); print STDERR 'e' x 1500000")
-  #expect(output == String(repeating: "e", count: 1500000))
+  #expect(output == String(repeating: "e", count: 1_500_000))
 }
 
 @Test func shellDoesNotWaitForDescendantPipeEOF() throws {
   guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+
   let start = DispatchTime.now().uptimeNanoseconds
   let output = try executePerl("if (fork() == 0) { sleep 3; exit 0 } print 'direct'")
   let elapsed = DispatchTime.now().uptimeNanoseconds - start
@@ -90,12 +93,14 @@ private func executePerl(_ source: String) throws -> String? {
 
 @Test func shellCapturesDirectChildBufferedOutput() throws {
   guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+
   let output = try executePerl("if (fork() == 0) { sleep 3; exit 0 } print 'x' x 1000000")
-  #expect(output == String(repeating: "x", count: 1000000))
+  #expect(output == String(repeating: "x", count: 1_000_000))
 }
 
 @Test func shellRejectsOversizedStderrAndReapsChild() throws {
   guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+
   let pidFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
   defer { try? FileManager.default.removeItem(at: pidFile) }
   let source = "open(my $f, '>', $ARGV[0]) or die $!; print $f $$; close $f; print STDOUT 'valid'; while (1) { print STDERR 'e' x 65536 or die $! }"
@@ -111,6 +116,7 @@ private func executePerl(_ source: String) throws -> String? {
 
 @Test func shellCapturesStdoutAtLimit() throws {
   guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+
   let output = try executePerl("alarm 30; binmode STDOUT; print 'x' x (64 * 1024 * 1024) or die $!")
   let value = try #require(output)
   #expect(value.utf8.count == ProcessSystem.Process.standardOutputCaptureLimit)
@@ -119,6 +125,7 @@ private func executePerl(_ source: String) throws -> String? {
 
 @Test func shellRejectsOversizedStdoutAndReapsChild() throws {
   guard ProcessInfo.processInfo.environment["RUN_PIPE_DEADLOCK_REGRESSION"] == "1" else { return }
+
   let pidFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
   defer { try? FileManager.default.removeItem(at: pidFile) }
   let source = "alarm 30; open(my $f, '>', $ARGV[0]) or die $!; print $f $$; close $f; binmode STDOUT; while (1) { print STDOUT 'x' x 65536 or die $! }"
@@ -199,7 +206,8 @@ private func executePerl(_ source: String) throws -> String? {
 
 @Test func inlineShellInheritsWorkingDirectory() throws {
   let expected = URL(fileURLWithPath: Foundation.FileManager.default.currentDirectoryPath)
-    .resolvingSymlinksInPath().path
+    .resolvingSymlinksInPath()
+    .path
   let processes = try ShellScript.Builder(.production).build("/bin/pwd -P")
   let output = try ShellScript.Executor(.production).execute(processes)
   #expect(output?.trimmingCharacters(in: .newlines) == expected)

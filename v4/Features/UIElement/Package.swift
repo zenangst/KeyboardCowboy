@@ -10,5 +10,5 @@ let package = Package(
   targets: [
     .target(name: "UIElementFeature", dependencies: ["AccessibilitySystem"], path: "Sources"),
     .testTarget(name: "UIElementFeatureTests", dependencies: ["UIElementFeature"], path: "Tests"),
-  ]
+  ],
 )

@@ -7,6 +7,7 @@ public enum HostInput {
   @MainActor
   public static func textPosting(using poster: MachPortSystem.KeyboardEventPoster?) -> TextTyping.Post {
     guard let poster else { return { _, _, _ in } }
+
     return textPosting { code, action, flags in
       try poster.post(keyCode: code, action: action, flags: flags)
     }
@@ -18,6 +19,7 @@ public enum HostInput {
   ) -> TextTyping.Post {
     { keyCode, event, modifiers in
       guard let code = CGKeyCode(exactly: keyCode) else { throw PostingError.invalidKeyCode(keyCode) }
+
       var flags: CGEventFlags = []
       if modifiers.contains(.shift) { flags.insert(.maskShift) }
       if modifiers.contains(.option) { flags.insert(.maskAlternate) }

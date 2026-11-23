@@ -3,7 +3,6 @@ import SwiftUI
 extension SidebarSplit {
   @Injectable
   struct UserModes: View {
-
     var content: some View {
       VStack {
         HStack {

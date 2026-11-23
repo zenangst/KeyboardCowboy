@@ -4,6 +4,7 @@ import CoreGraphics
 extension MachPortSystem.EventTap {
   static func callbackResult(_ result: CGEvent?, original: CGEvent) -> Unmanaged<CGEvent>? {
     guard let result else { return nil }
+
     return result === original ? .passUnretained(result) : .passRetained(result)
   }
 
@@ -70,14 +71,16 @@ extension MachPortSystem.EventTap {
           options: configuration.options, eventsOfInterest: configuration.eventMask,
           callback: { _, type, event, info in
             guard let info else { return Unmanaged.passUnretained(event) }
+
             let context = Unmanaged<Context>.fromOpaque(info).takeUnretainedValue()
             return callbackResult(context.deliver(type: type, event: event), original: event)
-          }, userInfo: pointer
+          }, userInfo: pointer,
         ) else { return nil }
         guard let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, port, 0) else {
           CFMachPortInvalidate(port)
           return nil
         }
+
         let handle = LiveHandle(port: port, source: source, context: context)
         CFRunLoopAddSource(loop, source, configuration.runLoopMode)
         CGEvent.tapEnable(tap: port, enable: true)

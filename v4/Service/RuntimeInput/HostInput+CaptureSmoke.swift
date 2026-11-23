@@ -23,7 +23,7 @@ package extension HostInput {
       return
     }
 
-    let session = CaptureSession(signature: 0x4B435634)
+    let session = CaptureSession(signature: 0x4B43_5634)
     let (finished, completion) = AsyncStream<Void>.makeStream()
     var captured: CapturedElement?
     defer { session.stop() }

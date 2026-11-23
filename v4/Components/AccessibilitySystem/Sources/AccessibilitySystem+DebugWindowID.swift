@@ -9,6 +9,7 @@ extension AccessibilitySystem {
     // Keep the function pointer scoped to the open handle and this call.
     static func withLookup<Result>(_ operation: ((AXUIElement) -> CGWindowID?) throws -> Result) rethrows -> Result? {
       guard let process = dlopen(nil, RTLD_LAZY) else { return nil }
+
       defer { dlclose(process) }
       guard let address = dlsym(process, "_AXUIElementGetWindow") else { return nil }
 

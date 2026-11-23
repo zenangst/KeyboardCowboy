@@ -3,7 +3,6 @@ import SwiftUI
 extension SidebarSplit {
   @Injectable
   struct Groups: View {
-
     var content: some View {
       VStack {
         Label("Groups")

@@ -66,7 +66,7 @@ private final class RunLoopFakeHandle {
       #expect(calls == ["start", "stop", "start"])
 
       guard let event = CGEvent(keyboardEventSource: nil, virtualKey: 1, keyDown: true),
-        let context = currentHandle?.context
+            let context = currentHandle?.context
       else {
         Issue.record("Could not create event or retrieve fake context")
         tap?.stop()
@@ -87,6 +87,7 @@ private final class RunLoopFakeHandle {
         tap?.stop()
         return
       }
+
       CFRunLoopAddSource(owner, source, mode)
       CFRunLoopRunInMode(mode, 2, false)
       CFRunLoopRemoveSource(owner, source, mode)

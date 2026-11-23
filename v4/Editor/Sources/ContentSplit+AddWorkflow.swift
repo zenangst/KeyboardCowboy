@@ -3,7 +3,6 @@ import SwiftUI
 extension ContentSplit {
   @Injectable
   struct AddWorkflow: View {
-
     let action: () -> Void
 
     var content: some View {

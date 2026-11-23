@@ -10,5 +10,5 @@ let package = Package(
   targets: [
     .target(name: "MenuBarFeature", dependencies: ["AccessibilitySystem"], path: "Sources"),
     .testTarget(name: "MenuBarFeatureTests", dependencies: ["MenuBarFeature"], path: "Tests"),
-  ]
+  ],
 )

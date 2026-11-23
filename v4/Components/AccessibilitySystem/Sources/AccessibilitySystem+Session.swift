@@ -115,6 +115,7 @@ public extension AccessibilitySystem {
       guard case .element(let related) = value else {
         throw Failure(.malformedValue, operation: name)
       }
+
       return try element(related)
     }
 
@@ -163,6 +164,7 @@ public extension AccessibilitySystem {
         let nodeRole = try toleratingMissing(missingValue) { try read(.role, of: node) }
         try checkpoint()
         guard nodeRole == role else { return .descend }
+
         if let value = try toleratingMissing(missingValue, { try read(attribute, of: node) }) {
           return .match(value)
         }
@@ -244,6 +246,7 @@ public extension AccessibilitySystem {
         try checkBudget()
         var remaining = siblings
         guard let handle = remaining.popFirst() else { continue }
+
         if !remaining.isEmpty { stack.append((remaining, depth)) }
         guard visited.insert(handle).inserted else { continue }
 
@@ -259,7 +262,7 @@ public extension AccessibilitySystem {
             prefetched = try elementHandles(kAXChildrenAttribute, of: node)
           } catch let failure as Failure
             where readChildrenBeforeVisit == .skipUnreadable
-              && failure.kind != .traversalLimitReached && failure.kind != .expiredScope {
+            && failure.kind != .traversalLimitReached && failure.kind != .expiredScope {
             try checkBudget()
             continue
           }

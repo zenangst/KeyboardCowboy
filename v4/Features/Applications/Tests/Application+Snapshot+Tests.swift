@@ -1,9 +1,9 @@
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+import Commands
 import CoreGraphics
 import Foundation
 import Testing
+import UserSpace
 
 private actor SnapshotLaunchRecorder {
   private(set) var count = 0

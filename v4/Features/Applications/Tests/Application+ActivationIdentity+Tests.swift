@@ -1,5 +1,5 @@
-@testable import ApplicationSystem
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
 
 @Test func activationMatchesFrontmostIdentifierIgnoringCase() async {
@@ -16,7 +16,7 @@ import Testing
           activated()
           return true
         },
-        runningApplications: [target]
+        runningApplications: [target],
       )) {
         #expect(Operation.Activate(.testing)(targetID) == .activated)
       }

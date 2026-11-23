@@ -1,6 +1,6 @@
 import Foundation
-import Testing
 import ShortcutsFeature
+import Testing
 
 // This file deliberately uses an ordinary import, as a downstream client would.
 @Test func publicExecutorRejectsPrecancelledWork() async throws {

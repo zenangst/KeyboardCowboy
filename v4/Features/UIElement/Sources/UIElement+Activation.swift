@@ -13,11 +13,13 @@ public extension UIElement {
   ) async throws -> Bool {
     guard !predicates.isEmpty,
           let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier else { return false }
+
     let pointer = CGEvent(source: nil)?.location
     let activation = try await accessibility.withApplication(processIdentifier: pid) { session -> Activation in
       guard let target = try firstMatch(inFrontmostApplication: session, predicates: predicates, budget: budget) else {
         return .noMatch
       }
+
       let role = try session.read(.role, of: target)
       if usesPointerClick(role: role, pointer: pointer) {
         return .click(try session.read(.position, of: target))
@@ -30,6 +32,7 @@ public extension UIElement {
     case .pressed: return true
     case .click(let point):
       guard let pointer else { return false }
+
       try await clickAndRestore(at: point, original: pointer,
                                 click: click, restore: restorePointer,
                                 wait: { try await Task.sleep(for: .milliseconds(10)) })
@@ -67,6 +70,7 @@ public extension UIElement {
           let up = mouseEvent(.leftMouseUp, at: point) else {
       throw ActivationError.eventCreationFailed
     }
+
     down.setIntegerValueField(.mouseEventClickState, value: 1)
     up.setIntegerValueField(.mouseEventClickState, value: 1)
     down.post(tap: .cghidEventTap)

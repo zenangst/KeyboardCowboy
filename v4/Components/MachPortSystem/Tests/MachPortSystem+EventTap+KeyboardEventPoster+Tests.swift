@@ -1,10 +1,10 @@
 import CoreGraphics
+import Testing
 #if DEBUG
 @testable import MachPortSystem
 #else
 import MachPortSystem
 #endif
-import Testing
 
 @Test func tapCreatesPosterWithMatchingSourceAndSignature() throws {
   let tap = MachPortSystem.EventTap(syntheticSignature: 42, handler: { _ in .passThrough })

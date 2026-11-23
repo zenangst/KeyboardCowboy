@@ -1,9 +1,9 @@
-@testable import ApplicationSystem
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 @Test @MainActor func closingFrontmostDoesNotHideNewFrontmostAsPrevious() async throws {
   let closed = ApplicationSystem.RunningApplication(.testing(.init("example.closed")))
@@ -27,7 +27,7 @@ import Testing
         continuation.yield("terminate")
         return true
       },
-      onIsTerminated: { $0 === closed }
+      onIsTerminated: { $0 === closed },
     )) {
       let updated = try await executor.execute(close, cgEventType: nil, snapshot: snapshot)
       #expect(updated.apps.frontMost?.runningApplication === current)

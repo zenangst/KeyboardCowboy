@@ -24,7 +24,7 @@ import Testing
     if case .success(let captured) = $0 { result.yield(captured) }
     result.finish()
   }, onDisruption: { _ in Issue.record("Unexpected disruption") },
-     onCancel: { cancellations += 1 })
+  onCancel: { cancellations += 1 })
 
   let handler = try #require(route)
   let router = MachPortSystem.EventRouter(syntheticSignature: 42)

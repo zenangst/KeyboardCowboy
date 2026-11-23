@@ -1,8 +1,8 @@
-import UserSpace
-import Commands
 import ApplicationsFeature
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 private actor ReleaseRecorder {
   private(set) var identifiers: [String] = []

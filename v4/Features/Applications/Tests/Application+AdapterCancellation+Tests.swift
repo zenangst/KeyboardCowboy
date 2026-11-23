@@ -1,11 +1,11 @@
-@testable import ApplicationSystem
 @testable import AppleScriptRuntime
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import CoreGraphics
 import Foundation
 import Testing
+import UserSpace
 
 private func adapterCancellationCommand(_ action: String, modifiers: String = "") throws -> Command.Application {
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"\#(action)","modifiers":[\#(modifiers)],"meta":{"id":"saved-command","name":"Target","enabled":true}}"#
@@ -63,7 +63,7 @@ private func cancelWhileSuspended(_ gate: AdapterGate, operation: @escaping @Sen
   let executor = Application.Executor(.testing, willExecute: { _ in await gate.suspend() })
 
   await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-    runningApplicationsLookup: { _ in Issue.record("Cancelled hook must prevent lookup"); return [] }
+    runningApplicationsLookup: { _ in Issue.record("Cancelled hook must prevent lookup"); return [] },
   )) {
     await cancelWhileSuspended(gate) {
       _ = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
@@ -90,7 +90,7 @@ private func cancelWhileSuspended(_ gate: AdapterGate, operation: @escaping @Sen
   })) {
     await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { _ in Issue.record("Cancelled release must not look up applications"); return [] },
-      onHide: { _ in Issue.record("Cancelled release must not hide"); return true }
+      onHide: { _ in Issue.record("Cancelled release must not hide"); return true },
     )) {
       await cancelWhileSuspended(gate) {
         _ = try await executor.execute(command, cgEventType: .keyUp, snapshot: snapshot)
@@ -115,7 +115,7 @@ private func cancelWhileSuspended(_ gate: AdapterGate, operation: @escaping @Sen
   })) {
     await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in Issue.record("Cancelled owner lookup must not activate"); return true },
-      runningApplicationsLookup: { _ in Issue.record("Cancelled owner lookup must not look up applications"); return [target] }
+      runningApplicationsLookup: { _ in Issue.record("Cancelled owner lookup must not look up applications"); return [target] },
     )) {
       await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         Issue.record("Cancelled owner lookup must not invoke fallback")

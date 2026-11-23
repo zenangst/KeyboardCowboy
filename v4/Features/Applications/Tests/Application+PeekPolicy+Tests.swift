@@ -1,5 +1,5 @@
-import Commands
 import ApplicationsFeature
+import Commands
 import Foundation
 import Testing
 
@@ -23,6 +23,7 @@ import Testing
     Issue.record("Enabled Stage Manager must open the supplied previous application")
     return
   }
+
   #expect(command.application.bundleIdentifier == "example.previous")
   #expect(command.application.path == "/Applications/Previous.app")
   #expect(command.action == .open)

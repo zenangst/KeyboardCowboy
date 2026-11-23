@@ -1,6 +1,6 @@
 import FileSystem
-import ProcessSystem
 import Foundation
+import ProcessSystem
 import RuntimeEnvironment
 
 /// A script subprocess that exited unsuccessfully. Output is captured as raw

@@ -5,7 +5,7 @@ import Testing
 
 @MainActor
 @Test(.enabled(if: ProcessInfo.processInfo.environment["KC_WINDOW_GEOMETRY_SMOKE"] == "1" ||
-  ProcessInfo.processInfo.environment["KC_LEGACY_WINDOW_ID_SMOKE"] == "1"))
+    ProcessInfo.processInfo.environment["KC_LEGACY_WINDOW_ID_SMOKE"] == "1"))
 func comparesLiveAXAndCGGeometryAgainstOwnedWindowNumbers() async throws {
   let app = NSApplication.shared
   app.setActivationPolicy(.accessory)
@@ -45,6 +45,7 @@ func comparesLiveAXAndCGGeometryAgainstOwnedWindowNumbers() async throws {
             let id = row[kCGWindowNumber as String] as? CGWindowID,
             let bounds = row[kCGWindowBounds as String] as? [String: Any],
             let frame = CGRect(dictionaryRepresentation: bounds as CFDictionary) else { return nil }
+
       return .init(id: id, pid: owner, frame: frame)
     }
   }
@@ -102,6 +103,7 @@ func legacyBridgeIDsBelongToTheExternalAppInCoreGraphics() async throws {
   let rows = try #require(CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]])
   let ownedIDs = Set(rows.compactMap { row -> CGWindowID? in
     guard (row[kCGWindowOwnerPID as String] as? pid_t) == pid else { return nil }
+
     return row[kCGWindowNumber as String] as? CGWindowID
   })
   #expect(Set(ids).count == ids.count)

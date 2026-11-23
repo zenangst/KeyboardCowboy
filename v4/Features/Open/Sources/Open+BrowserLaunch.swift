@@ -16,6 +16,7 @@ public extension Open {
 
     public func open(_ path: String, application: TargetApplication? = nil) async throws {
       guard let url = URL(string: path) else { return }
+
       if let application {
         try await system.open(url, applicationURL: URL(fileURLWithPath: application.path))
       } else {

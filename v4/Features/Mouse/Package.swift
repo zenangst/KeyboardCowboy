@@ -13,5 +13,5 @@ let package = Package(
   targets: [
     .target(name: "MouseFeature", dependencies: ["AccessibilitySystem", "Commands"], path: "Sources"),
     .testTarget(name: "MouseFeatureTests", dependencies: ["MouseFeature", "Commands"], path: "Tests"),
-  ]
+  ],
 )

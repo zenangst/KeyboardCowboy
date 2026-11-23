@@ -19,9 +19,11 @@ enum GeometryEvidence: Equatable {
       guard !frame.isEmpty, [frame.minX, frame.minY, frame.maxX, frame.maxY].allSatisfy(\.isFinite) else {
         return .unmatched
       }
+
       let matches = ownedWindows.filter { $0.frame == frame }
       guard let first = matches.first else { return .unmatched }
       guard axFrames.filter({ $0 == frame }).count == 1, matches.count == 1 else { return .ambiguous }
+
       return .candidate(first.id)
     }
   }

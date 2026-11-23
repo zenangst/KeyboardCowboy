@@ -14,7 +14,7 @@ public extension Open {
       openBrowser: @escaping @Sendable (String, TargetApplication?, Bool) async throws -> Void,
       openWebApp: @escaping @Sendable (String, TargetApplication, Bool) async throws -> Void,
       openGeneric: @escaping @Sendable (String, TargetApplication?) async throws -> Void,
-      isDirectory: @escaping @Sendable (String) async throws -> Bool
+      isDirectory: @escaping @Sendable (String) async throws -> Bool,
     ) {
       self.openHost = openHost
       self.openFinder = openFinder
@@ -31,7 +31,7 @@ public extension Open {
       generic: Generic = Generic(),
       openHost: @escaping @Sendable () async -> Void,
       openBrowser: @escaping @Sendable (String, TargetApplication?, Bool) async throws -> Void,
-      openWebApp: @escaping @Sendable (String, TargetApplication, Bool) async throws -> Void
+      openWebApp: @escaping @Sendable (String, TargetApplication, Bool) async throws -> Void,
     ) {
       self.init(
         openHost: openHost,
@@ -39,7 +39,7 @@ public extension Open {
         openBrowser: openBrowser,
         openWebApp: openWebApp,
         openGeneric: { try await generic.open($0, application: $1) },
-        isDirectory: { try generic.isDirectory($0) }
+        isDirectory: { try generic.isDirectory($0) },
       )
     }
   }

@@ -1,7 +1,7 @@
-import FileSystem
-import ProcessSystem
 import Cocoa
+import FileSystem
 import Foundation
+import ProcessSystem
 import RuntimeEnvironment
 
 public extension ShellScript {
@@ -31,7 +31,8 @@ public extension ShellScript {
     /// Builds a process for an existing script without copying or rewriting it.
     func buildFile(at path: String) -> ProcessSystem.Process {
       let expandedPath = (path as NSString).expandingTildeInPath
-      let contents = FileManager(env).contents(atPath: expandedPath)
+      let contents = FileManager(env)
+        .contents(atPath: expandedPath)
         .flatMap { String(data: $0, encoding: .utf8) } ?? ""
       let process = Process(env, launchStyle: .headless(contents))
       setEnvironment(on: process)
@@ -68,7 +69,6 @@ public extension ShellScript {
 
       process.executableURL = executableURL
       process.arguments = arguments
-
     }
 
     private func setEnvironment(on process: Process) {

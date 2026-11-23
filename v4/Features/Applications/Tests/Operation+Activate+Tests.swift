@@ -1,5 +1,5 @@
-@testable import ApplicationSystem
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
 
 let frontmostBundleIdentifier = ApplicationSystem.BundleIdentifier("frontmost.me.please")
@@ -68,7 +68,7 @@ let activateBundleIdentifier = ApplicationSystem.BundleIdentifier("activate.me.p
           activated()
           return true
         },
-        runningApplications: [target]
+        runningApplications: [target],
       )) {
         #expect(Operation.Activate(.testing)(requested) == .activated)
       }
@@ -97,11 +97,11 @@ let activateBundleIdentifier = ApplicationSystem.BundleIdentifier("activate.me.p
     #expect(activate(activateBundleIdentifier) == .missingFrontmost)
   }
   Application.Workspace.Testing.$mock.withValue(.init(
-    frontmostApplication: ApplicationSystem.RunningApplication(.testing(frontmostBundleIdentifier))
+    frontmostApplication: ApplicationSystem.RunningApplication(.testing(frontmostBundleIdentifier)),
   )) {
     ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { _, _ in false },
-      runningApplications: [.init(.testing(activateBundleIdentifier))]
+      runningApplications: [.init(.testing(activateBundleIdentifier))],
     )) {
       #expect(activate(activateBundleIdentifier) == .rejected)
     }
@@ -113,14 +113,14 @@ let activateBundleIdentifier = ApplicationSystem.BundleIdentifier("activate.me.p
   let result = await withTaskGroup(of: Operation.Activate.Result.self, returning: Operation.Activate.Result.self) { group in
     group.addTask {
       Application.Workspace.Testing.$mock.withValue(.init(
-        frontmostApplication: ApplicationSystem.RunningApplication(.testing(frontmostBundleIdentifier))
+        frontmostApplication: ApplicationSystem.RunningApplication(.testing(frontmostBundleIdentifier)),
       )) {
         ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
           activateFrom: { _, _ in Issue.record("Cancelled lookup must not activate"); return false },
           runningApplicationsLookup: { _ in
             withUnsafeCurrentTask { $0?.cancel() }
             return [target]
-          }
+          },
         )) {
           Operation.Activate(.testing)(activateBundleIdentifier)
         }

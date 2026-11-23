@@ -32,6 +32,7 @@ extension Operation {
       }
 
       guard !Task.isCancelled else { return .cancelled }
+
       return runningApplication.activate(from: frontmostApplication, options: options) ? .activated : .rejected
     }
   }

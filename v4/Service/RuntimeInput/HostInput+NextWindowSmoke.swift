@@ -13,12 +13,14 @@ package extension HostInput {
       log.notice("Expected --smoke-next-window <pid> or --smoke-previous-window <pid> [<current-id> <previous-id>]")
       return
     }
+
     var history: WindowFocus.History?
     if arguments.count == 3 {
       guard let current = CGWindowID(arguments[1]), let prior = CGWindowID(arguments[2]), current != 0, prior != 0 else {
         log.notice("Expected nonzero current and previous window IDs")
         return
       }
+
       history = .init(processIdentifier: pid, current: current, previous: prior)
     }
     guard AXIsProcessTrusted() else {

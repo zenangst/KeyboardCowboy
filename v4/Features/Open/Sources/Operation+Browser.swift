@@ -48,6 +48,7 @@ extension Operation {
       // the first web-area URL per window, not any matching descendant.
       for window in try windows() {
         guard let url = try firstWebAreaURL(window), url.absoluteString.contains(path) else { continue }
+
         try raise(window)
         return true
       }

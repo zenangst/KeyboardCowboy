@@ -23,6 +23,7 @@ public enum Keyboard {
     using poster: MachPortSystem.KeyboardEventPoster?, lookup: KeyLookup,
   ) throws -> [CGEvent] {
     guard let poster else { throw ExecutionError.posterUnavailable }
+
     return try execute(shortcuts, iterations: iterations, lookup: lookup, canPost: CGPreflightPostEventAccess) {
       try poster.post(keyCode: $0, action: $1, flags: $2)
     }
@@ -37,7 +38,7 @@ public enum Keyboard {
     guard canPost() else { throw ExecutionError.postingNotPermitted }
 
     var events: [CGEvent] = []
-    for _ in 0..<max(1, iterations) {
+    for _ in 0 ..< max(1, iterations) {
       for shortcut in shortcuts {
         let key = shortcut.key
         guard let resolved = lookup(key.uppercased()) ?? lookup(key) else {
@@ -46,6 +47,7 @@ public enum Keyboard {
         guard let code = CGKeyCode(exactly: resolved) else {
           throw ExecutionError.invalidKeyCode(resolved)
         }
+
         let flags = shortcut.eventFlags(for: code)
         events.append(try post(code, .down, flags))
         events.append(try post(code, .up, flags))

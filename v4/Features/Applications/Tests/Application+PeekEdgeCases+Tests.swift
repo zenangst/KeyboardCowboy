@@ -1,10 +1,10 @@
-@testable import ApplicationSystem
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import CoreGraphics
 import Foundation
 import Testing
+import UserSpace
 
 private enum PeekEdgeFailure: Error {
   case launch
@@ -34,7 +34,7 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       runningApplicationsLookup: { _ in continuation.yield("lookup"); return [] },
       onHide: { _ in continuation.yield("hide"); return true },
-      onActivate: { _, _ in continuation.yield("activate"); return true }
+      onActivate: { _, _ in continuation.yield("activate"); return true },
     )) {
       let result = try await executor.execute(command, cgEventType: event, snapshot: snapshot)
       #expect(result === snapshot)
@@ -68,7 +68,7 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
       }, onHide: { application in
         #expect(application === target)
         continuation.yield("hide"); return true
-      }
+      },
     )) {
       if await session.begin(id: id, at: .seconds(1)) {
         let result = try await executor.execute(command, cgEventType: .keyDown, snapshot: snapshot)
@@ -118,14 +118,16 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
       })) {
         await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
           runningApplicationsLookup: { _ in continuation.yield("lookup"); return [] },
-          onHide: { _ in continuation.yield("hide"); return true }
+          onHide: { _ in continuation.yield("hide"); return true },
         )) {
           guard await session.begin(id: id, at: .zero) else { return "begin rejected" }
+
           do {
             _ = try await executor.execute(command, cgEventType: .keyDown, snapshot: snapshot)
             return "unexpected success"
           } catch {
             guard await session.cancel(id: id) else { return "cleanup failed" }
+
             if error is CancellationError { return "cancelled" }
             if error is PeekEdgeFailure { return "launch error" }
             return "unexpected error"
@@ -170,12 +172,14 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
       })) {
         await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
           runningApplicationsLookup: { _ in continuation.yield("lookup"); return [] },
-          onHide: { _ in continuation.yield("hide"); return true }
+          onHide: { _ in continuation.yield("hide"); return true },
         )) {
           guard await session.begin(id: id, at: .zero) else { return "begin rejected" }
+
           do {
             _ = try await executor.execute(command, cgEventType: .keyDown, snapshot: snapshot)
             guard await session.release(id: id, at: .milliseconds(501)) == .hold else { return "not a hold" }
+
             _ = try await executor.execute(command, cgEventType: .keyUp, snapshot: snapshot)
             return "unexpected success"
           } catch is CancellationError {

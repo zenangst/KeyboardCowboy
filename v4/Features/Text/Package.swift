@@ -9,5 +9,5 @@ let package = Package(
   targets: [
     .target(name: "TextFeature", path: "Sources"),
     .testTarget(name: "TextFeatureTests", dependencies: ["TextFeature"], path: "Tests"),
-  ]
+  ],
 )

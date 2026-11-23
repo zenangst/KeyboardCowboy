@@ -1,9 +1,9 @@
-@testable import ApplicationSystem
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 private func hideUnhideCommand(_ action: String, identifier: String = "example.target") throws -> Command.Application {
   let fixture = #"{"application":{"bundleIdentifier":"\#(identifier)","bundleName":"Target","path":"/Applications/Target.app"},"action":"\#(action)","meta":{"id":"saved-command","name":"Target","enabled":true}}"#
@@ -30,7 +30,7 @@ func executorHideOrdersLiveActivationBeforeTargetHide(hideSucceeds: Bool) async 
       onActivate: { app, options in
         trace.yield(app === live && options == [] ? "activate live" : "activate unexpected")
         return false
-      }
+      },
     )) {
       let result = try await executor.execute(hideUnhideCommand("hide"), cgEventType: nil, snapshot: snapshot)
       #expect(result === snapshot)
@@ -59,7 +59,7 @@ func executorUnhideOrdersLookupAndUnhideWithoutActivation(unhideSucceeds: Bool) 
       },
       onHide: { _ in trace.yield("hide unexpected"); return true },
       onUnhide: { app in trace.yield(app === target ? "unhide target" : "unhide unexpected"); return unhideSucceeds },
-      onActivate: { _, _ in trace.yield("activate unexpected"); return true }
+      onActivate: { _, _ in trace.yield("activate unexpected"); return true },
     )) {
       let result = try await executor.execute(hideUnhideCommand("unhide"), cgEventType: nil, snapshot: snapshot)
       #expect(result === snapshot)
@@ -85,7 +85,7 @@ func executorMissingHideUnhideTargetStopsAfterLookup(action: String) async throw
       },
       onHide: { _ in trace.yield("hide unexpected"); return true },
       onUnhide: { _ in trace.yield("unhide unexpected"); return true },
-      onActivate: { _, _ in trace.yield("activate unexpected"); return true }
+      onActivate: { _, _ in trace.yield("activate unexpected"); return true },
     )) {
       let result = try await executor.execute(hideUnhideCommand(action), cgEventType: nil, snapshot: snapshot)
       #expect(result === snapshot)
@@ -109,7 +109,7 @@ func executorHidePreviousUsesSnapshotWithoutLookup(hidden: Bool) async throws {
     isHidden: hidden,
     runningApplicationsLookup: { _ in trace.yield("lookup unexpected"); return [] },
     onHide: { app in trace.yield(app === previous ? "hide previous" : "hide unexpected"); return true },
-    onActivate: { _, _ in trace.yield("activate unexpected"); return true }
+    onActivate: { _, _ in trace.yield("activate unexpected"); return true },
   )) {
     let command = try hideUnhideCommand("hide", identifier: ApplicationSystem.BundleIdentifier.WildCard.previous.rawValue)
     let result = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)

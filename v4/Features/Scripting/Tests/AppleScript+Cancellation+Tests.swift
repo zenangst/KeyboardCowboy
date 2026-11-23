@@ -80,7 +80,7 @@ func appleScriptCancellationTakesPrecedenceOverCompileError(file: Bool) async {
       compileError: {
         withUnsafeCurrentTask { $0?.cancel() }
         return NSError(domain: "test", code: -1)
-      }
+      },
     )) {
       do {
         if file { _ = try executor.execute(FilePath("/tmp/test.scpt"), key: "key") }

@@ -9,6 +9,7 @@ extension Mouse {
 
     mutating func matchesLeaf(text: () -> String?, isFocusedOrSelected: () -> Bool) -> Bool {
       guard !selection.isEmpty else { return isFocusedOrSelected() }
+
       if let text = text() { textSoFar += text }
       return textSoFar.lowercased().contains(selection)
     }

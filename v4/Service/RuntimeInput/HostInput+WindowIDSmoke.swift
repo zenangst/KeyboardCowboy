@@ -24,6 +24,7 @@ extension HostInput {
   ) -> WindowIDReport {
     guard let candidates else { return .bridgeUnavailable }
     guard let snapshot = owners() else { return .snapshotUnavailable }
+
     var result = WindowIDCheck()
     for candidate in candidates {
       guard let id = candidate, id != kCGNullWindowID else {
@@ -34,6 +35,7 @@ extension HostInput {
         result.absent += 1
         continue
       }
+
       if actual == [expectedPID] {
         result.matched += 1
       } else {
@@ -67,6 +69,7 @@ package extension HostInput {
         guard let rows = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] else {
           return nil
         }
+
         return rows.reduce(into: [:]) { owners, row in
           guard let id = row[kCGWindowNumber as String] as? CGWindowID,
                 let owner = row[kCGWindowOwnerPID as String] as? pid_t else { return }

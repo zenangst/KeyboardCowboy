@@ -1,9 +1,9 @@
-@testable import ApplicationSystem
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 @Test @MainActor func legacyAddToStageFallsBackToOrdinaryOpen() async throws {
   let fixture = #"{"application":{"bundleIdentifier":"example.target","bundleName":"Target","path":"/Applications/Target.app"},"action":"open","modifiers":["addToStage","waitForAppToLaunch","hidden"],"meta":{"id":"saved-command","name":"Open","enabled":true}}"#

@@ -109,15 +109,18 @@ extension AccessibilitySystem {
         throw Failure(.invalidConfiguration, operation: name)
       }
       guard let native = handle.native else { throw Failure(.invalidElement, operation: name) }
+
       var parameter = CFRange(location: range.location, length: range.length)
       guard let argument = AXValueCreate(.cfRange, &parameter) else {
         throw Failure(.malformedValue, operation: name)
       }
+
       var value: CFTypeRef?
       try check(AXUIElementCopyParameterizedAttributeValue(native, name as CFString, argument, &value), operation: name)
       guard case .rect(let rect) = try Self.decode(value, operation: name) else {
         throw Failure(.malformedValue, operation: name)
       }
+
       return rect
     }
 

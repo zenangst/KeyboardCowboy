@@ -19,6 +19,7 @@ public extension AccessibilitySystem.Attribute where Value == CGPoint {
       guard case .point(let point) = value else {
         throw AccessibilitySystem.Failure(.malformedValue, operation: kAXPositionAttribute)
       }
+
       return point
     }
   }
@@ -30,6 +31,7 @@ public extension AccessibilitySystem.Attribute where Value == CGSize {
       guard case .size(let size) = value else {
         throw AccessibilitySystem.Failure(.malformedValue, operation: kAXSizeAttribute)
       }
+
       return size
     }
   }
@@ -41,6 +43,7 @@ public extension AccessibilitySystem.Attribute where Value == NSRange {
       guard case .range(let range) = value else {
         throw AccessibilitySystem.Failure(.malformedValue, operation: kAXSelectedTextRangeAttribute)
       }
+
       return range
     }
   }
@@ -60,6 +63,7 @@ public extension AccessibilitySystem.Attribute where Value == Bool {
       guard case .bool(let flag) = value else {
         throw AccessibilitySystem.Failure(.malformedValue, operation: name)
       }
+
       return flag
     }
   }
@@ -83,6 +87,7 @@ public extension AccessibilitySystem.Attribute where Value == String {
       guard case .string(let text) = value else {
         throw AccessibilitySystem.Failure(.malformedValue, operation: name)
       }
+
       return text
     }
   }

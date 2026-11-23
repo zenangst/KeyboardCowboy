@@ -1,8 +1,8 @@
 // swift-tools-version: 6.3
 
+import CompilerPluginSupport
 import Foundation
 import PackageDescription
-import CompilerPluginSupport
 
 let swiftSettings: [SwiftSetting] = [
   .unsafeFlags(["-strict-concurrency=complete"]),
@@ -47,7 +47,7 @@ let package = Package(
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
       ],
-      path: "Macros"
+      path: "Macros",
     ),
     .testTarget(
       name: "InjectionMacrosTests",
@@ -55,7 +55,7 @@ let package = Package(
         "InjectionMacros",
         .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
       ],
-      path: "MacroTests"
+      path: "MacroTests",
     ),
     .executableTarget(
       name: "AppTarget",

@@ -1,5 +1,5 @@
-@testable import ApplicationSystem
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
 
 private actor SleepRecorder {
@@ -20,7 +20,7 @@ private actor SleepRecorder {
   let wait = Operation.Wait(.testing, sleep: { await recorder.recordSleep($0) })
   let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isFinishedLaunching: { true },
-    runningApplications: [.init(.testing(identifier))]
+    runningApplications: [.init(.testing(identifier))],
   )) {
     try await wait(for: identifier)
   }
@@ -35,7 +35,7 @@ private actor SleepRecorder {
                             sleep: { await recorder.recordSleep($0) })
   let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     isFinishedLaunching: { false },
-    runningApplications: [.init(.testing(identifier))]
+    runningApplications: [.init(.testing(identifier))],
   )) {
     try await wait(for: identifier)
   }
@@ -47,7 +47,7 @@ private actor SleepRecorder {
   let recorder = SleepRecorder()
   let wait = Operation.Wait(.testing, sleep: { await recorder.recordSleep($0) })
   let result = try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-    runningApplicationsLookup: { _ in Issue.record("Skipped wait must not look up an application"); return [] }
+    runningApplicationsLookup: { _ in Issue.record("Skipped wait must not look up an application"); return [] },
   )) {
     try await wait(for: ApplicationSystem.BundleIdentifier("com.apple.Music"))
   }
@@ -63,7 +63,7 @@ private actor SleepRecorder {
     runningApplicationsLookup: { _ in
       Issue.record("Non-positive retries must not look up an application")
       return []
-    }
+    },
   )) {
     try await wait(for: ApplicationSystem.BundleIdentifier("missing.app"))
   }
@@ -81,7 +81,7 @@ private actor SleepRecorder {
     runningApplicationsLookup: { requested in
       continuation.yield(requested == identifier ? "lookup target" : "lookup unexpected")
       return []
-    }
+    },
   )) {
     await #expect(throws: CancellationError.self) { try await wait(for: identifier) }
   }
@@ -106,7 +106,7 @@ private actor SleepRecorder {
       @unknown default: false
       }
     },
-    runningApplications: [.init(.testing(identifier))]
+    runningApplications: [.init(.testing(identifier))],
   )) {
     try await wait(for: identifier)
   }
@@ -122,7 +122,7 @@ private actor SleepRecorder {
   let identifier = ApplicationSystem.BundleIdentifier("current.app")
   let wait = Operation.Wait(.testing, sleep: { _ in throw CancellationError() })
   await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-    runningApplications: [.init(.testing(identifier))]
+    runningApplications: [.init(.testing(identifier))],
   )) {
     await #expect(throws: CancellationError.self) { try await wait(for: identifier) }
   }
@@ -157,7 +157,7 @@ private actor SleepRecorder {
       case .terminated: return []
       @unknown default: return []
       }
-    }
+    },
   )) {
     try await wait(for: identifier)
   }
@@ -180,7 +180,7 @@ private actor SleepRecorder {
         runningApplicationsLookup: { _ in
           Issue.record("A cancelled wait must not look up an application")
           return []
-        }
+        },
       )) {
         do {
           _ = try await Operation.Wait(.testing)(for: .init("missing.app"))
@@ -225,7 +225,7 @@ private actor SleepRecorder {
       })
       return await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         isFinishedLaunching: { finished },
-        runningApplications: [.init(.testing(identifier))]
+        runningApplications: [.init(.testing(identifier))],
       )) {
         do {
           _ = try await wait(for: identifier)

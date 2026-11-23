@@ -1,10 +1,10 @@
-import ApplicationSystem
-import UserSpace
-import Commands
 import AppKit
 import ApplicationsFeature
+import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 @Test @MainActor func applicationExecutorPublicAPI() async throws {
   let identifier = ApplicationSystem.BundleIdentifier("com.example.editor")

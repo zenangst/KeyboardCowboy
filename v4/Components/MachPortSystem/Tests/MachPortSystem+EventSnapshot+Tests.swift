@@ -6,7 +6,7 @@ import Testing
   let router = MachPortSystem.EventRouter(syntheticSignature: 12345)
   let event = try #require(CGEvent(keyboardEventSource: nil, virtualKey: 12, keyDown: true))
   event.flags = .maskShift
-  event.timestamp = 123456
+  event.timestamp = 123_456
   event.setIntegerValueField(.keyboardEventAutorepeat, value: 1)
   var captured: MachPortSystem.EventSnapshot?
   _ = router.route(event, type: .keyDown) {
@@ -23,6 +23,6 @@ import Testing
   #expect(fromTask.typeRawValue == CGEventType.keyDown.rawValue)
   #expect(fromTask.keyCode == 12)
   #expect(fromTask.flagsRawValue == CGEventFlags.maskShift.rawValue)
-  #expect(fromTask.timestamp == 123456)
+  #expect(fromTask.timestamp == 123_456)
   #expect(fromTask.isRepeat)
 }

@@ -53,6 +53,7 @@ func mouseEventCreationFailureDoesNotPostPartialClick(_ failedType: CGEventType)
   await #expect(throws: Mouse.PostingError.eventCreationFailed) {
     try await Mouse.post(.click, at: .zero, pointer: { .zero }, canPost: { true }, makeEvent: {
       guard $0 != failedType else { return nil }
+
       return CGEvent(mouseEventSource: nil, mouseType: $0, mouseCursorPosition: $1, mouseButton: $2)
     }, send: { _, _ in Issue.record("Unexpected post") }, wait: { _ in Issue.record("Unexpected wait") })
   }

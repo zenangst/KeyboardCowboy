@@ -10,5 +10,5 @@ let package = Package(
   targets: [
     .target(name: "WindowFocusFeature", dependencies: ["AccessibilitySystem"], path: "Sources"),
     .testTarget(name: "WindowFocusFeatureTests", dependencies: ["AccessibilitySystem", "WindowFocusFeature"], path: "Tests"),
-  ]
+  ],
 )

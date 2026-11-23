@@ -1,7 +1,7 @@
-import ProcessSystem
 import Foundation
-import Testing
+import ProcessSystem
 @testable import ShortcutsFeature
+import Testing
 
 private final class Calls: @unchecked Sendable {
   private let lock = NSLock()
@@ -10,6 +10,7 @@ private final class Calls: @unchecked Sendable {
     lock.lock(); defer { lock.unlock() }
     storage.append(value)
   }
+
   var values: [ProcessSystem.Process.LaunchConfiguration] {
     lock.lock(); defer { lock.unlock() }
     return storage
@@ -30,7 +31,7 @@ func subprocessReceivesExactArguments(identifier: String) async throws {
   #expect(calls.values.first?.currentDirectoryURL == nil)
 }
 
-@Test(arguments: [(Data("hello".utf8) as Data?, "hello" as String?), (Data("hello\n\n".utf8), "hello\n\n"), (Data(), ""), (nil, nil), (Data([0xff]), nil)])
+@Test(arguments: [(Data("hello".utf8) as Data?, "hello" as String?), (Data("hello\n\n".utf8), "hello\n\n"), (Data(), ""), (nil, nil), (Data([0xFF]), nil)])
 func successfulOutput(stdout: Data?, expected: String?) async throws {
   let mock = ProcessSystem.Process.Mock(readStandardOutput: { stdout }, readStandardError: { Data("ignored".utf8) })
   try await ProcessSystem.Process.Testing.$mock.withValue(mock) { () async throws in
@@ -38,7 +39,7 @@ func successfulOutput(stdout: Data?, expected: String?) async throws {
   }
 }
 
-@Test(arguments: [(Data("error\n".utf8) as Data?, "error\n"), (Data(), ""), (nil, ""), (Data([0xff]), "")])
+@Test(arguments: [(Data("error\n".utf8) as Data?, "error\n"), (Data(), ""), (nil, ""), (Data([0xFF]), "")])
 func failedOutput(stderr: Data?, expected: String) async {
   let mock = ProcessSystem.Process.Mock(terminationStatus: 42, readStandardOutput: { Data("ignored".utf8) }, readStandardError: { stderr })
   await ProcessSystem.Process.Testing.$mock.withValue(mock) {

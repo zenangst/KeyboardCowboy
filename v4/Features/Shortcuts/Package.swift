@@ -10,5 +10,5 @@ let package = Package(
   targets: [
     .target(name: "ShortcutsFeature", dependencies: ["RuntimeEnvironment", "ProcessSystem"], path: "Sources"),
     .testTarget(name: "ShortcutsFeatureTests", dependencies: ["ProcessSystem", "ShortcutsFeature"], path: "Tests"),
-  ]
+  ],
 )

@@ -1,10 +1,10 @@
-@testable import ApplicationSystem
 @testable import AppleScriptRuntime
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 private struct WaitPathTrace: Sendable {
   let stream: AsyncStream<String>
@@ -65,7 +65,7 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
         #expect(requested == identifier)
         trace.record("lookup")
         return [target]
-      }
+      },
     )) {
       try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         trace.record("fallback")
@@ -111,7 +111,7 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
         #expect(requested == identifier)
         trace.record("lookup")
         return [target]
-      }
+      },
     )) {
       let initial = UserSpace.Snapshot(apps: .init())
       let result = try await executor.execute(command, cgEventType: nil, snapshot: initial)
@@ -148,20 +148,19 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
         #expect(requested == identifier)
         trace.record("lookup")
         return route == "missing" || route == "unavailable" ? [] : [target]
-      }
+      },
     )) {
       let result = try await executor.execute(command, cgEventType: nil, snapshot: initial)
       #expect((result === initial) == (["running-guard", "self", "peek-no-event"].contains(route)))
     }
   }
-  let expected: [String]
-  switch route {
-  case "running-guard": expected = ["hook", "lookup"]
-  case "self": expected = ["hook", "self"]
-  case "peek-no-event": expected = ["hook"]
-  case "missing": expected = ["hook", "owners", "launch", "lookup"]
-  case "finished": expected = ["hook", "owners", "launch", "lookup", "finished true"]
-  default: expected = ["hook", "owners", "launch", "lookup", "lookup", "poll sleep", "lookup", "poll sleep"]
+  let expected: [String] = switch route {
+  case "running-guard": ["hook", "lookup"]
+  case "self": ["hook", "self"]
+  case "peek-no-event": ["hook"]
+  case "missing": ["hook", "owners", "launch", "lookup"]
+  case "finished": ["hook", "owners", "launch", "lookup", "finished true"]
+  default: ["hook", "owners", "launch", "lookup", "lookup", "poll sleep", "lookup", "poll sleep"]
   }
   let actual = await trace.finish()
   #expect(actual == expected)

@@ -1,6 +1,6 @@
 @testable import FileSystem
-@testable import ProcessSystem
 import Foundation
+@testable import ProcessSystem
 @testable import ScriptingFeature
 import Testing
 
@@ -12,7 +12,7 @@ import Testing
       try FileSystem.FileManager.Testing.$mock.withValue(.init(
         contentsAtPath: Data(contents.utf8),
         createDirectoryAtUrl: { Issue.record("File execution must not create a temporary directory"); return URL(filePath: "/tmp") },
-        removeItem: { Issue.record("File execution must not remove the original file") }
+        removeItem: { Issue.record("File execution must not remove the original file") },
       )) {
         let process = ShellScript.Builder(.testing).buildFile(at: path)
         #expect(process.executableURL == URL(filePath: shebang ? "/bin/bash" : "/bin/zsh"))
@@ -34,7 +34,8 @@ import Testing
 }
 
 @Test func shellFileExecutesOriginalInItsOwnDirectory() throws {
-  let directory = Foundation.FileManager.default.temporaryDirectory
+  let directory = Foundation.FileManager.default
+    .temporaryDirectory
     .appendingPathComponent("scripting file test \(UUID().uuidString)", isDirectory: true)
   try Foundation.FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
   defer { try? Foundation.FileManager.default.removeItem(at: directory) }

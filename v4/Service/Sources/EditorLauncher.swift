@@ -10,7 +10,9 @@ enum EditorLauncher {
     } else {
       #if DEBUG
       editor = URL(filePath: #filePath)
-        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
         .appending(path: "Editor/.build/app/debug/Keyboard Cowboy.app")
       #else
       throw missingEditor("Run the assembled Keyboard Cowboy.app to open its bundled Editor.")
@@ -20,6 +22,7 @@ enum EditorLauncher {
     guard FileManager.default.fileExists(atPath: editor.path) else {
       throw missingEditor("Editor not found at \(editor.path). For development, run v4/Editor/Scripts/build-app.sh first.")
     }
+
     let configuration = NSWorkspace.OpenConfiguration()
     configuration.activates = true
     configuration.arguments = arguments

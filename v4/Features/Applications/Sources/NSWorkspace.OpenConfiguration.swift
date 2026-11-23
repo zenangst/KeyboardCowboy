@@ -1,5 +1,5 @@
-import Commands
 import Cocoa
+import Commands
 
 extension NSWorkspace.OpenConfiguration {
   convenience init(_ modifiers: Set<Command.Application.Modifier>) {

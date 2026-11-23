@@ -8,6 +8,6 @@ let package = Package(
   products: [.library(name: "AccessibilitySystem", targets: ["AccessibilitySystem"])],
   targets: [
     .target(name: "AccessibilitySystem", path: "Sources"),
-    .testTarget(name: "AccessibilitySystemTests", dependencies: ["AccessibilitySystem"], path: "Tests")
-  ]
+    .testTarget(name: "AccessibilitySystemTests", dependencies: ["AccessibilitySystem"], path: "Tests"),
+  ],
 )

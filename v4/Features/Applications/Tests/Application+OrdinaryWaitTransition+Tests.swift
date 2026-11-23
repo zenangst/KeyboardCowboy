@@ -1,10 +1,10 @@
-@testable import ApplicationSystem
 @testable import AppleScriptRuntime
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 private struct OrdinaryWaitTrace: Sendable {
   let stream: AsyncStream<String>
@@ -44,10 +44,10 @@ private func ordinaryWaitCommand() throws -> Command.Application {
   let (unfinishedReads, readContinuation) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(2))
   let wait = Operation.Wait(.testing, retries: 3, finalSleepDuration: .milliseconds(37),
                             pollingInterval: .milliseconds(11), sleep: { duration in
-    if duration == .milliseconds(11) { trace.record("poll sleep") }
-    else if duration == .milliseconds(37) { trace.record("settle sleep") }
-    else { trace.record("unexpected sleep \(duration)") }
-  })
+                              if duration == .milliseconds(11) { trace.record("poll sleep") }
+                              else if duration == .milliseconds(37) { trace.record("settle sleep") }
+                              else { trace.record("unexpected sleep \(duration)") }
+                            })
   let executor = Application.Executor(.testing, wait: wait, windowOwnerNames: {
     trace.record("owners")
     return route == "fallback" ? [] : ["Target"]
@@ -85,7 +85,7 @@ private func ordinaryWaitCommand() throws -> Command.Application {
         #expect(requested == identifier)
         trace.record("lookup")
         return [target]
-      }
+      },
     )) {
       try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         trace.record("fallback")
@@ -103,11 +103,10 @@ private func ordinaryWaitCommand() throws -> Command.Application {
   for await _ in unfinishedReads { readCount += 1 }
   #expect(readCount == 2)
 
-  let opening: [String]
-  switch route {
-  case "reopen": opening = ["owners", "lookup", "activate", "reopen"]
-  case "fallback": opening = ["owners", "lookup", "activate", "fallback"]
-  default: opening = ["owners", "launch", "lookup", "activate"]
+  let opening: [String] = switch route {
+  case "reopen": ["owners", "lookup", "activate", "reopen"]
+  case "fallback": ["owners", "lookup", "activate", "fallback"]
+  default: ["owners", "launch", "lookup", "activate"]
   }
   #expect(await trace.finish() == opening + [
     "lookup", "unfinished", // Tail-wait eligibility check.
@@ -138,7 +137,7 @@ private func ordinaryWaitCommand() throws -> Command.Application {
         #expect(requested == identifier)
         trace.record("lookup")
         return route == "missing-fallback" ? [] : [target]
-      }
+      },
     )) {
       await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         trace.record("fallback")
@@ -159,11 +158,10 @@ private func ordinaryWaitCommand() throws -> Command.Application {
       }
     }
   }
-  let expected: [String]
-  switch route {
-  case "launch": expected = ["owners", "launch"]
-  case "reopen-fallback": expected = ["owners", "lookup", "activate", "reopen", "fallback"]
-  default: expected = ["owners", "lookup", "fallback"]
+  let expected: [String] = switch route {
+  case "launch": ["owners", "launch"]
+  case "reopen-fallback": ["owners", "lookup", "activate", "reopen", "fallback"]
+  default: ["owners", "lookup", "fallback"]
   }
   #expect(await trace.finish() == expected)
 }

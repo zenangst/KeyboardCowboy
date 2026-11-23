@@ -24,12 +24,15 @@ private actor Operations {
   func openBrowser(_ path: String, application: Open.TargetApplication?, checkCancellation: Bool) throws {
     try record("browser:\(path):\(application?.bundleIdentifier ?? "default"):\(checkCancellation)")
   }
+
   func openWebApp(_ path: String, application: Open.TargetApplication, checkCancellation: Bool) throws {
     try record("web:\(path):\(application.bundleIdentifier):\(checkCancellation)")
   }
+
   func openGeneric(_ path: String, application: Open.TargetApplication?) throws {
     try record("generic:\(path):\(application?.bundleIdentifier ?? "default")")
   }
+
   func isDirectory(_ path: String) throws -> Bool {
     try record("metadata:\(path)")
     return directory
@@ -43,7 +46,7 @@ private func executor(_ operations: Operations) -> Open.Executor {
     openBrowser: { try await operations.openBrowser($0, application: $1, checkCancellation: $2) },
     openWebApp: { try await operations.openWebApp($0, application: $1, checkCancellation: $2) },
     openGeneric: { try await operations.openGeneric($0, application: $1) },
-    isDirectory: { try await operations.isDirectory($0) }
+    isDirectory: { try await operations.isDirectory($0) },
   )
   return Open.Executor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: routes)
 }
@@ -116,7 +119,7 @@ func finderDispatchIgnoresBundleIDCaseButRetryRequiresExactName(name: String, ex
     openBrowser: { _, _, _ in },
     openWebApp: { _, _, _ in },
     openGeneric: { try await operations.openGeneric($0, application: $1) },
-    isDirectory: { try await operations.isDirectory($0) }
+    isDirectory: { try await operations.isDirectory($0) },
   )
   let runner = Open.Executor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: routes)
   try await runner.run("/folder", application: target("com.apple.finder", name: "Finder"), checkCancellation: true)

@@ -34,7 +34,7 @@ final class InputSourceRequestTests: XCTestCase {
     let data = Data(#"{"inputSource":{"command":{"id":"nested-id","inputSourceId":"com.example.layout:en-US"}}}"#.utf8)
     let kind = try JSONDecoder().decode(KeyboardKindFixture.self, from: data)
     XCTAssertEqual(kind, .inputSource(command: InputSource.Request(
-      id: "nested-id", inputSourceId: "com.example.layout:en-US", name: "com.example.layout:en-US"
+      id: "nested-id", inputSourceId: "com.example.layout:en-US", name: "com.example.layout:en-US",
     )))
     let encoded = try JSONEncoder().encode(kind)
     XCTAssertEqual(try JSONDecoder().decode(KeyboardKindFixture.self, from: encoded), kind)

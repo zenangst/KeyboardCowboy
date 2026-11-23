@@ -21,7 +21,7 @@ private actor AdapterRecorder {
   let operations = Open.Operations(
     openHost: {}, openFinder: { _, _ in },
     openBrowser: { await recorder.record($0, $1, $2) },
-    openWebApp: { _, _, _ in }, openGeneric: { _, _ in }, isDirectory: { _ in false }
+    openWebApp: { _, _, _ in }, openGeneric: { _, _ in }, isDirectory: { _ in false },
   )
   let executor = Open.Executor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: operations)
   try await executor.run(command, resolvedPath: "https://example.com", checkCancellation: true)
@@ -35,7 +35,7 @@ private actor AdapterRecorder {
   let recorder = AdapterRecorder()
   let operations = Open.Operations(
     openHost: {}, openFinder: { _, _ in }, openBrowser: { _, _, _ in }, openWebApp: { _, _, _ in },
-    openGeneric: { await recorder.record($0, $1, false) }, isDirectory: { _ in false }
+    openGeneric: { await recorder.record($0, $1, false) }, isDirectory: { _ in false },
   )
   let executor = Open.Executor(hostBundleIdentifier: "host", hostBundleURL: URL(fileURLWithPath: "/host.app"), operations: operations)
   try await executor.run(Command.Open(path: "original"), resolvedPath: "/resolved path", checkCancellation: false)

@@ -46,6 +46,7 @@ public extension Mouse {
           let restore = makeEvent(.mouseMoved, original, .left) else {
       throw PostingError.eventCreationFailed
     }
+
     let count: Int64 = kind == .doubleClick ? 2 : 1
     for event in [down, up] {
       event.flags = []

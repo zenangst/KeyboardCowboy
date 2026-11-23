@@ -1,6 +1,6 @@
 import FileSystem
-import ProcessSystem
 import Foundation
+import ProcessSystem
 @testable import ScriptingFeature
 import Testing
 
@@ -26,7 +26,7 @@ private final class LaunchRecorder: @unchecked Sendable {
   let processes = try ShellScript.Builder(.testing).build("echo hello")
   try FileSystem.FileManager.Testing.$mock.withValue(.init(
     createDirectoryAtUrl: { URL(filePath: "/tmp/launch path") },
-    createFile: true
+    createFile: true,
   )) {
     try ProcessSystem.Process.Testing.$mock.withValue(.init(observeLaunch: { recorder.record($0) })) {
       _ = try ShellScript.Executor(.testing).execute(processes)

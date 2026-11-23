@@ -75,7 +75,7 @@ import TextFeature
   #expect(!called)
 }
 
-@Test(arguments: 0..<4) @MainActor func instantPostFailuresStopSubsequentEffects(failureIndex: Int) async {
+@Test(arguments: 0 ..< 4) @MainActor func instantPostFailuresStopSubsequentEffects(failureIndex: Int) async {
   enum Failure: Error { case post }
   var log: [String] = []
   var postCount = 0

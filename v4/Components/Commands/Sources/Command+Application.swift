@@ -48,6 +48,7 @@ public extension Command {
           throw DecodingError.dataCorruptedError(forKey: .modifiers, in: container,
                                                  debugDescription: "Unknown application modifier: \(rawValue)")
         }
+
         modifiers.insert(modifier)
       }
       meta = try container.decode(Metadata.self, forKey: .meta)

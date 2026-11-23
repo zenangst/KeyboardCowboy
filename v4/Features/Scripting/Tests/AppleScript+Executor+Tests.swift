@@ -1,6 +1,6 @@
 @testable import AppleScriptRuntime
-@testable import ScriptingFeature
 import Foundation
+@testable import ScriptingFeature
 import System
 import Testing
 
@@ -37,22 +37,20 @@ import Testing
   let executor = AppleScript.Executor(.testing)
   try AppleScriptRuntime.NSAppleEventDescriptor.Testing.$mock.withValue(.init(stringValue: "hello, world!")) {
     try AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true)) {
-      let output: String?
-      if file {
-        output = try executor.execute(FilePath("/tmp/applescript"), key: "shared")
+      let output: String? = if file {
+        try executor.execute(FilePath("/tmp/applescript"), key: "shared")
       } else {
-        output = try executor.execute("first source", key: "shared")
+        try executor.execute("first source", key: "shared")
       }
       #expect(output == "hello, world!")
     }
 
     // Compilation now fails, so successful execution proves the cached script was reused.
     try AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: false)) {
-      let output: String?
-      if file {
-        output = try executor.execute("different source", key: "shared")
+      let output: String? = if file {
+        try executor.execute("different source", key: "shared")
       } else {
-        output = try executor.execute(FilePath("/tmp/another-script"), key: "shared")
+        try executor.execute(FilePath("/tmp/another-script"), key: "shared")
       }
       #expect(output == "hello, world!")
       do {
@@ -78,7 +76,7 @@ import Testing
   let executor = AppleScript.Executor(.testing)
   try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true)) {
     try await withThrowingTaskGroup(of: Void.self) { group in
-      for _ in 0..<20 {
+      for _ in 0 ..< 20 {
         group.addTask {
           _ = try await executor.execute("source", key: "shared")
         }

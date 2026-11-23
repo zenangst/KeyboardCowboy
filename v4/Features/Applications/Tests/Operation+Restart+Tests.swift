@@ -1,5 +1,5 @@
-@testable import ApplicationSystem
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
 
 @Test func restartCancellationAfterTerminationStopsPolling() async {
@@ -17,7 +17,7 @@ import Testing
           continuation.yield("terminate")
           withUnsafeCurrentTask { $0?.cancel() }
           return true
-        }
+        },
       )) {
         do {
           _ = try await Operation.Restart(.testing, retries: 2, pollingInterval: .zero)(identifier)

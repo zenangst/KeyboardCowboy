@@ -1,8 +1,8 @@
 import FileSystem
-import ProcessSystem
 import Foundation
-import System
+import ProcessSystem
 import RuntimeEnvironment
+import System
 
 extension JXA {
   final class Executor {
@@ -37,6 +37,7 @@ extension JXA {
         guard fileManager.createFile(atPath: tmpPath, contents: data) else {
           throw JXA.Error.createFileFailed
         }
+
         result = try runScript(at: tmpPath)
       } catch {
         try? fileManager.removeItem(atPath: directory.path)

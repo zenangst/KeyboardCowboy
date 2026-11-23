@@ -1,5 +1,5 @@
-@testable import ApplicationSystem
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
 import Testing
 
 let bundleIdentifier = ApplicationSystem.BundleIdentifier("close.me.please")
@@ -33,7 +33,7 @@ let bundleIdentifier = ApplicationSystem.BundleIdentifier("close.me.please")
 @Test func testCloseReportsTerminationFailure() async {
   await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplications: [ApplicationSystem.RunningApplication(.testing(bundleIdentifier))],
-    terminate: false
+    terminate: false,
   )) {
     await #expect(throws: Application.Executor.ExecutionError.failedToTerminate(bundleIdentifier)) {
       try await Operation.Close(.testing)(bundleIdentifier)
@@ -53,7 +53,7 @@ let bundleIdentifier = ApplicationSystem.BundleIdentifier("close.me.please")
     onTerminate: { application in
       continuation.yield(application === first ? "terminate first" : "terminate unexpected")
       return true
-    }
+    },
   )) {
     let result = try await Operation.Close(.testing)(bundleIdentifier)
     #expect(result)
@@ -74,7 +74,7 @@ let bundleIdentifier = ApplicationSystem.BundleIdentifier("close.me.please")
         withUnsafeCurrentTask { $0?.cancel() }
         return [target]
       },
-      onTerminate: { _ in continuation.yield("terminate"); return true }
+      onTerminate: { _ in continuation.yield("terminate"); return true },
     )) {
       do {
         _ = try await Operation.Close(.testing)(bundleIdentifier)

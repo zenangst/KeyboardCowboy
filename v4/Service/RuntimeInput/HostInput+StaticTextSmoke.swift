@@ -40,6 +40,7 @@ package extension HostInput {
             fixture.window.close()
             return
           }
+
           activated = try await Mouse.post(kind, at: point)
         } else {
           activated = try await UIElement.activate(predicates: [
@@ -95,6 +96,7 @@ private final class StaticTextFixture: NSObject, NSWindowDelegate {
     content.target = target
     content.onClick = { [weak self] event in
       guard let self else { return }
+
       clickCount += 1
       lastClickType = event.type
       lastClickState = event.clickCount
@@ -114,8 +116,10 @@ private final class StaticTextFixture: NSObject, NSWindowDelegate {
 
   func targetPoint() -> CGPoint? {
     guard let primaryScreen = NSScreen.screens.first else { return nil }
+
     let frame = target.accessibilityFrame()
     guard !frame.isEmpty else { return nil }
+
     return CGPoint(x: frame.midX, y: primaryScreen.frame.maxY - frame.midY)
   }
 
@@ -137,6 +141,7 @@ private final class StaticTextFixture: NSObject, NSWindowDelegate {
     private func recordClick(_ event: NSEvent) {
       guard let target,
             target.frame.insetBy(dx: -4, dy: -4).contains(convert(event.locationInWindow, from: nil)) else { return }
+
       onClick?(event)
     }
   }

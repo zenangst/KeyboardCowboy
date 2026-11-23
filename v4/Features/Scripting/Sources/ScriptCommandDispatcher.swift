@@ -1,7 +1,7 @@
 import FileSystem
 import Foundation
-import System
 import RuntimeEnvironment
+import System
 
 /// The feature-level execution request. Persistence and command metadata belong to the host.
 public struct ScriptRequest: Sendable {
@@ -76,7 +76,7 @@ public actor ScriptCommandDispatcher {
       jxaInline: @escaping @Sendable (String) throws -> String?,
       shellInline: @escaping @Sendable (String) throws -> String?,
       shellFile: @escaping @Sendable (String) throws -> String?,
-      clearAppleScriptCache: @escaping @Sendable () async -> Void
+      clearAppleScriptCache: @escaping @Sendable () async -> Void,
     ) {
       self.appleScriptInline = appleScriptInline
       self.appleScriptFile = appleScriptFile
@@ -106,7 +106,7 @@ public actor ScriptCommandDispatcher {
         try ShellScript.Executor(environment).execute(ShellScript.Builder(environment).build(source))
       },
       shellFile: { path in try ShellScript.Executor(environment).executeFile(at: path) },
-      clearAppleScriptCache: { await appleScript.clearCache() }
+      clearAppleScriptCache: { await appleScript.clearCache() },
     )
   }
 

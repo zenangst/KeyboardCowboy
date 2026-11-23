@@ -8,6 +8,6 @@ let package = Package(
   products: [.library(name: "MachPortSystem", targets: ["MachPortSystem"])],
   targets: [
     .target(name: "MachPortSystem", path: "Sources"),
-    .testTarget(name: "MachPortSystemTests", dependencies: ["MachPortSystem"], path: "Tests")
-  ]
+    .testTarget(name: "MachPortSystemTests", dependencies: ["MachPortSystem"], path: "Tests"),
+  ],
 )

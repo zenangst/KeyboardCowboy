@@ -9,6 +9,7 @@ public extension UIElement {
     budget: AccessibilitySystem.TraversalBudget = .init(),
   ) throws -> AccessibilitySystem.Element? {
     guard let window = try focusedWindow(inFrontmostApplication: session) else { return nil }
+
     return try firstMatch(in: session, under: window, predicates: predicates, budget: budget)
   }
 
@@ -21,6 +22,7 @@ public extension UIElement {
         var visited: Set<AccessibilitySystem.Element> = []
         while let element = current, visited.insert(element).inserted {
           guard visited.count <= 64 else { throw FocusError.ancestorLimitReached }
+
           if try optional({ try session.read(.role, of: element) }) == .window { return element }
           current = try session.parent(of: element)
         }

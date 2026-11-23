@@ -12,8 +12,8 @@ func legacyMousePayloadPreservesExecutionTarget(
   _ kindJSON: String, _ expectedKind: Mouse.ClickKind, _ expectedAnchor: Mouse.Anchor,
 ) throws {
   let data = Data("""
-    {"kind":\(kindJSON),"meta":{"id":"mouse-fixture","name":"Test","enabled":false}}
-    """.utf8)
+  {"kind":\(kindJSON),"meta":{"id":"mouse-fixture","name":"Test","enabled":false}}
+  """.utf8)
   let decoder = JSONDecoder()
   let command = try decoder.decode(Command.Mouse.self, from: data)
   let (kind, anchor) = Mouse.executionTarget(for: command.kind)

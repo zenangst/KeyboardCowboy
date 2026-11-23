@@ -1,7 +1,7 @@
+@testable import InjectionMacros
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
-@testable import InjectionMacros
 
 final class InjectableMacroTests: XCTestCase {
   private let macros: [String: Macro.Type] = ["Injectable": InjectableMacro.self]
@@ -33,7 +33,7 @@ final class InjectableMacroTests: XCTestCase {
       }
       """,
       macros: macros,
-      indentationWidth: .spaces(2)
+      indentationWidth: .spaces(2),
     )
   }
 
@@ -60,7 +60,7 @@ final class InjectableMacroTests: XCTestCase {
         }
         """,
         macros: macros,
-        indentationWidth: .spaces(2)
+        indentationWidth: .spaces(2),
       )
     }
   }
@@ -82,10 +82,10 @@ final class InjectableMacroTests: XCTestCase {
         DiagnosticSpec(
           message: "@Injectable requires a content property instead of body",
           line: 1,
-          column: 1
+          column: 1,
         ),
       ],
-      macros: macros
+      macros: macros,
     )
   }
 }

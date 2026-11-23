@@ -5,7 +5,7 @@ extension Open {
   enum Environment: Sendable {
     case production
     #if DEBUG
-      case testing
+    case testing
     #endif
   }
 
@@ -17,8 +17,8 @@ extension Open {
       case .production:
         return NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first?.processIdentifier
       #if DEBUG
-        case .testing:
-          return Testing.mock.firstRunningProcess(bundleIdentifier)
+      case .testing:
+        return Testing.mock.firstRunningProcess(bundleIdentifier)
       #endif
       }
     }
@@ -29,8 +29,8 @@ extension Open {
       case .production:
         return NSRunningApplication(processIdentifier: processIdentifier)?.activate(options: .activateIgnoringOtherApps) ?? false
       #if DEBUG
-        case .testing:
-          return Testing.mock.activate(processIdentifier)
+      case .testing:
+        return Testing.mock.activate(processIdentifier)
       #endif
       }
     }
@@ -40,8 +40,8 @@ extension Open {
       case .production:
         return NSWorkspace.shared.open(url)
       #if DEBUG
-        case .testing:
-          return Testing.mock.openDefault(url)
+      case .testing:
+        return Testing.mock.openDefault(url)
       #endif
       }
     }
@@ -56,8 +56,8 @@ extension Open {
           _ = try await NSWorkspace.shared.open(url, configuration: configuration)
         }
       #if DEBUG
-        case .testing:
-          try await Testing.mock.open(url, applicationURL)
+      case .testing:
+        try await Testing.mock.open(url, applicationURL)
       #endif
       }
     }
@@ -67,8 +67,8 @@ extension Open {
       case .production:
         return try URL(fileURLWithPath: path).resourceValues(forKeys: [.isDirectoryKey]).isDirectory ?? false
       #if DEBUG
-        case .testing:
-          return try Testing.mock.isDirectory(path)
+      case .testing:
+        return try Testing.mock.isDirectory(path)
       #endif
       }
     }

@@ -1,7 +1,7 @@
-@testable import FileSystem
-@testable import ProcessSystem
 import Darwin
+@testable import FileSystem
 import Foundation
+@testable import ProcessSystem
 @testable import ScriptingFeature
 import Testing
 
@@ -52,7 +52,7 @@ func cancellationAfterTemporaryDirectoryCreationCleansUp(jxa: Bool) async {
         return URL(fileURLWithPath: "/tmp/cancelled-script-test")
       },
       createFile: false,
-      removeItem: { continuation.yield("cleanup") }
+      removeItem: { continuation.yield("cleanup") },
     )) {
       do {
         if jxa {
@@ -79,7 +79,7 @@ func cancellationAfterTemporaryDirectoryCreationCleansUp(jxa: Bool) async {
     ProcessSystem.Process.Testing.$mock.withValue(.init(
       run: {},
       waitUntilExit: { withUnsafeCurrentTask { $0?.cancel() } },
-      terminationStatus: 1
+      terminationStatus: 1,
     )) {
       #expect(throws: CancellationError.self) {
         try ShellScript.Executor(.testing).execute([process, process])
@@ -93,6 +93,7 @@ func cancellationAfterTemporaryDirectoryCreationCleansUp(jxa: Bool) async {
 func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
   // Run under an external watchdog: a regression can block task completion.
   guard ProcessInfo.processInfo.environment["RUN_SCRIPT_CANCELLATION_REGRESSION"] == "1" else { return }
+
   let pidFile = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
   defer { try? FileManager.default.removeItem(at: pidFile) }
   let task = Task {
@@ -104,7 +105,7 @@ func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
     return try ShellScript.Executor(.production).execute(process)
   }
   var pid: Int32?
-  for _ in 0..<500 {
+  for _ in 0 ..< 500 {
     if let text = try? String(contentsOf: pidFile, encoding: .utf8), let value = Int32(text) {
       pid = value
       break
@@ -117,6 +118,7 @@ func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
     Issue.record("Child did not publish its PID")
     return
   }
+
   let start = ContinuousClock.now
   task.cancel()
   do {
@@ -145,13 +147,13 @@ func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
       return try ShellScript.Executor(.testing).execute(ShellScript.Builder(.testing).build(source))
     },
     shellFile: { try ShellScript.Executor(.testing).executeFile(at: $0) },
-    clearAppleScriptCache: {}
+    clearAppleScriptCache: {},
   )
   let dispatcher = ScriptCommandDispatcher(routes: routes)
   let first = Task { try await dispatcher.execute(.init(id: "1", kind: .shellScript, source: .inline("block"))) }
   func didStart() -> Bool { started.wait(timeout: .now()) == .success }
   var ready = false
-  for _ in 0..<500 {
+  for _ in 0 ..< 500 {
     if didStart() { ready = true; break }
     try await Task.sleep(for: .milliseconds(10))
   }
@@ -161,6 +163,7 @@ func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
     Issue.record("Dispatcher did not start")
     return
   }
+
   let second = Task { try await dispatcher.execute(.init(id: "2", kind: .shellScript, source: .inline("echo queued"))) }
   second.cancel()
   release.signal()

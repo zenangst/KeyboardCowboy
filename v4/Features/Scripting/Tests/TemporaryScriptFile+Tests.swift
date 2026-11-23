@@ -1,6 +1,6 @@
 @testable import FileSystem
-@testable import ProcessSystem
 import Foundation
+@testable import ProcessSystem
 @testable import ScriptingFeature
 import Testing
 
@@ -27,7 +27,7 @@ func temporaryScriptFileLifecycle(jxa: Bool, creationSucceeds: Bool) async throw
       continuation.yield(.create(path, data))
       return creationSucceeds
     },
-    removeItemAtPath: { path in continuation.yield(.remove(path)) }
+    removeItemAtPath: { path in continuation.yield(.remove(path)) },
   )) {
     try ProcessSystem.Process.Testing.$mock.withValue(.init(run: { continuation.yield(.run) })) {
       func execute() throws {

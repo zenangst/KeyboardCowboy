@@ -38,6 +38,7 @@ package extension HostInput {
           log.notice("Inspection skipped: focus Safari and hover over Show Sidebar")
           return
         }
+
         let client = AccessibilitySystem.Client()
         let (role, labelMatches) = try await client.withElement(at: point) { hit in
           let role = try hit.read(.role)
@@ -48,6 +49,7 @@ package extension HostInput {
         let pid = safari.processIdentifier
         let (hasWindow, hasMatch) = try await client.withApplication(processIdentifier: pid) { session in
           guard let window = try UIElement.focusedWindow(inFrontmostApplication: session) else { return (false, false) }
+
           return (true, try UIElement.firstMatch(in: session, under: window, predicates: predicates) != nil)
         }
         log.notice("Focused window resolved: \(hasWindow, privacy: .public); predicate found in window: \(hasMatch, privacy: .public)")

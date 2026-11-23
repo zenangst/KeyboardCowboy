@@ -1,11 +1,11 @@
-@testable import ApplicationSystem
 @testable import AppleScriptRuntime
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
+import Foundation
 import System
 import Testing
-import Foundation
+import UserSpace
 
 private enum ExecutorLaunchError: Error {
   case failed
@@ -38,7 +38,7 @@ private actor OpenTrace {
     return .init(.testing(nil))
   })) {
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      runningApplicationsLookup: { _ in Issue.record("Self-app handling must intercept the command"); return [] }
+      runningApplicationsLookup: { _ in Issue.record("Self-app handling must intercept the command"); return [] },
     )) {
       let result = try await executor.execute(command, cgEventType: .keyDown, snapshot: snapshot)
       #expect(result === snapshot)
@@ -64,7 +64,7 @@ private actor OpenTrace {
   }))
 
   try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-    runningApplicationsLookup: { _ in continuation.yield("lookup"); return [target] }
+    runningApplicationsLookup: { _ in continuation.yield("lookup"); return [target] },
   )) {
     let result = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
     #expect(result === snapshot)
@@ -96,7 +96,7 @@ private actor OpenTrace {
         #expect(requested == identifier)
         continuation.yield("lookup")
         return [target]
-      }
+      },
     )) {
       let result = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
       #expect(result === snapshot)
@@ -115,12 +115,13 @@ private actor OpenTrace {
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
       await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-        runningApplicationsLookup: { _ in Issue.record("Cancelled hook must prevent lookup"); return [] }
+        runningApplicationsLookup: { _ in Issue.record("Cancelled hook must prevent lookup"); return [] },
       )) {
         do {
           _ = try await Application.Executor(.testing, willExecute: { _ in
             withUnsafeCurrentTask { $0?.cancel() }
-          }).execute(command, cgEventType: nil, snapshot: snapshot)
+          })
+          .execute(command, cgEventType: nil, snapshot: snapshot)
           return false
         } catch is CancellationError {
           return true
@@ -146,7 +147,7 @@ private actor OpenTrace {
         runningApplicationsLookup: { _ in
           withUnsafeCurrentTask { $0?.cancel() }
           return [target]
-        }
+        },
       )) {
         do {
           _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
@@ -181,7 +182,7 @@ private actor OpenTrace {
     return target
   })) {
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      activateFrom: { _, _ in true }, runningApplications: [target]
+      activateFrom: { _, _ in true }, runningApplications: [target],
     )) {
       try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         Issue.record("Unexpected fallback for successful reopen")
@@ -211,7 +212,7 @@ private actor OpenTrace {
     throw ExecutorLaunchError.failed
   })) {
     await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      activateFrom: { _, _ in true }, runningApplications: [target]
+      activateFrom: { _, _ in true }, runningApplications: [target],
     )) {
       await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         NSError(domain: "test", code: 77)
@@ -241,7 +242,7 @@ private actor OpenTrace {
     throw CancellationError()
   })) {
     await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      activateFrom: { _, _ in true }, runningApplications: [target]
+      activateFrom: { _, _ in true }, runningApplications: [target],
     )) {
       await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         Issue.record("Cancelled reopen must not trigger fallback")
@@ -271,7 +272,7 @@ private actor OpenTrace {
   try await confirmation("Expected one activation") { confirmed in
     try await Application.Workspace.Testing.$mock.withValue(.init(
       frontmostApplication: hasFrontmost ? frontmost : nil,
-      openApplication: { _, _ in await trace.record("launch"); return target }
+      openApplication: { _, _ in await trace.record("launch"); return target },
     )) {
       try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
         activate: { options in
@@ -286,7 +287,7 @@ private actor OpenTrace {
           confirmed()
           return false
         },
-        runningApplications: [target]
+        runningApplications: [target],
       )) {
         _ = try await executor.execute(command, cgEventType: nil, snapshot: snapshot)
       }
@@ -373,7 +374,7 @@ private actor OpenTrace {
     return target
   })) {
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      isFinishedLaunching: { true }, runningApplications: [target]
+      isFinishedLaunching: { true }, runningApplications: [target],
     )) {
       _ = try await Application.Executor(.testing, wait: wait).execute(command, cgEventType: nil, snapshot: snapshot)
     }
@@ -400,7 +401,7 @@ private actor OpenTrace {
         return activationSucceeds
       },
       isFinishedLaunching: { false },
-      runningApplications: [target]
+      runningApplications: [target],
     )) {
       await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         continuation.yield("fallback")
@@ -461,7 +462,7 @@ private actor LaunchEvents {
               return [target]
             },
             onHide: { _ in Issue.record("Hide ran after cancellation"); return true },
-            onUnhide: { _ in Issue.record("Unhide ran after cancellation"); return true }
+            onUnhide: { _ in Issue.record("Unhide ran after cancellation"); return true },
           )) {
             do {
               _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
@@ -491,7 +492,7 @@ private actor LaunchEvents {
         runningApplicationsLookup: { _ in
           Issue.record("A cancelled command must not look up an application")
           return []
-        }
+        },
       )) {
         do {
           _ = try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
@@ -519,7 +520,7 @@ private actor LaunchEvents {
         runningApplicationsLookup: { _ in
           Issue.record("A cancelled launch must not start polling")
           return []
-        }
+        },
       )) {
         await Application.Workspace.Testing.$mock.withValue(.init(openApplication: { _, _ in
           await events.record()
@@ -551,7 +552,7 @@ private actor LaunchEvents {
 
   await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
     runningApplications: [ApplicationSystem.RunningApplication(.testing(identifier))],
-    terminate: false
+    terminate: false,
   )) {
     await #expect(throws: Application.Executor.ExecutionError.failedToTerminate(identifier)) {
       try await Application.Executor(.testing).execute(command, cgEventType: nil, snapshot: snapshot)
@@ -609,7 +610,7 @@ private actor LaunchEvents {
 
   try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: second)) {
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      activateFrom: { _, _ in true }, runningApplications: [second]
+      activateFrom: { _, _ in true }, runningApplications: [second],
     )) {
       let updated = try await executor.execute(command, cgEventType: nil, snapshot: initial)
       #expect(updated.apps.frontMost?.runningApplication === second)
@@ -631,7 +632,7 @@ private actor LaunchEvents {
 
   try await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      activateFrom: { _, _ in continuation.yield("activate"); return false }, runningApplications: [target]
+      activateFrom: { _, _ in continuation.yield("activate"); return false }, runningApplications: [target],
     )) {
       try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         continuation.yield("fallback")
@@ -656,7 +657,7 @@ private actor LaunchEvents {
 
   await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
     await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      activateFrom: { _, _ in false }, runningApplications: [target]
+      activateFrom: { _, _ in false }, runningApplications: [target],
     )) {
       await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         NSError(domain: "test", code: 42)
@@ -684,7 +685,7 @@ private actor LaunchEvents {
       await Application.Workspace.Testing.$mock.withValue(.init(frontmostApplication: target)) {
         await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
           activateFrom: { _, _ in withUnsafeCurrentTask { $0?.cancel() }; return false },
-          runningApplications: [target]
+          runningApplications: [target],
         )) {
           await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
             Issue.record("Cancellation must not trigger activation fallback")

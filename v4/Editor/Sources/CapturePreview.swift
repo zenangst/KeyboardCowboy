@@ -11,6 +11,7 @@ struct CapturePreview: View {
           let width = Double(arguments[4]), let height = Double(arguments[5]),
           x.isFinite, y.isFinite, width.isFinite, height.isFinite,
           width >= 0, height >= 0 else { return nil }
+
     role = arguments[1]
     frame = CGRect(x: x, y: y, width: width, height: height)
   }

@@ -50,6 +50,7 @@ public extension MachPortSystem {
     public var isEnabled: Bool {
       checkOwner()
       guard let handle else { return false }
+
       return operations.isEnabled(handle)
     }
 
@@ -65,6 +66,7 @@ public extension MachPortSystem {
     public func makeKeyboardEventPoster() throws -> KeyboardEventPoster {
       checkOwner()
       guard let source = context.eventSource else { throw Failure.eventSourceCreationFailed }
+
       return KeyboardEventPoster(eventSource: source, syntheticSignature: context.syntheticSignature)
     }
 

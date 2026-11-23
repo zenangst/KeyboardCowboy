@@ -10,7 +10,7 @@ private func routes() -> ScriptCommandDispatcher.Routes {
     jxaInline: { "jxa:\($0)" },
     shellInline: { "shell-inline:\($0)" },
     shellFile: { "shell-file:\($0)" },
-    clearAppleScriptCache: {}
+    clearAppleScriptCache: {},
   )
 }
 

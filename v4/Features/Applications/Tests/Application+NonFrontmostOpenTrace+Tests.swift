@@ -1,10 +1,10 @@
-@testable import ApplicationSystem
 @testable import AppleScriptRuntime
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import Foundation
 import Testing
+import UserSpace
 
 @Test(arguments: ["unavailable", "matching", "other", "missing", "no-frontmost"])
 @MainActor func nonFrontmostOrdinaryOpenOrdersLaunchLookupAndBestEffortActivation(route: String) async throws {
@@ -29,7 +29,7 @@ import Testing
       #expect(configuration.activates)
       continuation.yield("launch")
       return launched
-    }
+    },
   )) {
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
       activateFrom: { from, options in
@@ -48,7 +48,7 @@ import Testing
         #expect(options == [.activateAllWindows])
         continuation.yield("activate")
         return false
-      }
+      },
     )) {
       try await AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(execute: {
         Issue.record("Non-frontmost activation rejection must not invoke fallback")
@@ -63,12 +63,11 @@ import Testing
   continuation.finish()
   var recorded: [String] = []
   for await event in events { recorded.append(event) }
-  let expected: [String]
-  switch route {
-  case "unavailable": expected = ["launch"]
-  case "missing": expected = ["owners", "launch", "lookup"]
-  case "no-frontmost": expected = ["owners", "launch", "lookup", "activate"]
-  default: expected = ["owners", "launch", "lookup", "activate-from"]
+  let expected: [String] = switch route {
+  case "unavailable": ["launch"]
+  case "missing": ["owners", "launch", "lookup"]
+  case "no-frontmost": ["owners", "launch", "lookup", "activate"]
+  default: ["owners", "launch", "lookup", "activate-from"]
   }
   #expect(recorded == expected)
 }

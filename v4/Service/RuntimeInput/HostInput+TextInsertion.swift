@@ -23,6 +23,7 @@ public extension HostInput {
       do {
         return try await accessibility.withFocusedElement { focused in
           guard (try? focused.read(.selectedText)) != nil else { return false }
+
           try? focused.write(.selectedText, value: text)
           return true
         }

@@ -1,6 +1,6 @@
 import ApplicationSystem
-import UserSpace
 import RuntimeEnvironment
+import UserSpace
 
 extension Operation {
   final class Unhide: Sendable {
@@ -19,8 +19,8 @@ extension Operation {
       guard let application = ApplicationSystem.RunningApplication.application(with: bundleIdentifier, env: env) else {
         return false
       }
-
       guard !Task.isCancelled else { return false }
+
       return application.unhide()
     }
   }

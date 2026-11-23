@@ -1,5 +1,5 @@
-@testable import ProcessSystem
 import Foundation
+@testable import ProcessSystem
 @testable import ScriptingFeature
 import Testing
 
@@ -17,7 +17,7 @@ func scriptedProcessStreamsAreIndependent(route: String) async throws {
       continuation.yield("stdout")
       switch route {
       case "empty": return Data()
-      case "invalid": return Data([0xff])
+      case "invalid": return Data([0xFF])
       case "nil": return nil
       default: throw MockReadError.failed
       }

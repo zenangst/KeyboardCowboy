@@ -41,6 +41,7 @@ public enum Mouse {
     try await accessibility.withFocusedElement { element -> CGPoint? in
       guard let kind = try targetKind(role: element.read(.role), legacyDescription: { try element.read(.roleDescription) })
       else { return nil }
+
       if kind == .group, let child = try element.firstChild(where: { child in
         isGroupTarget(focused: { try child.read(.focused) },
                       selected: { try child.read(.selected) })
@@ -77,6 +78,7 @@ public enum Mouse {
         }, textBounds: {
           let bounds = try element.bounds(for: element.read(.selectedTextRange))
           guard kind == .textRange else { return bounds }
+
           return try textTargetFrame(bounds, at: anchor, applicationBundleIdentifier: applicationBundleIdentifier) {
             try CGRect(origin: element.read(.position), size: element.read(.size))
           }
@@ -139,6 +141,7 @@ public enum Mouse {
     _ bounds: CGRect, at anchor: Anchor, applicationBundleIdentifier: String?, controlFrame: () throws -> CGRect,
   ) rethrows -> CGRect {
     guard applicationBundleIdentifier == "com.apple.dt.Xcode", anchor != .center else { return bounds }
+
     let control = try controlFrame()
     let x = anchor == .trailing ? control.maxX - 16 : control.minX + 8
     return CGRect(origin: CGPoint(x: x, y: bounds.minY), size: bounds.size)

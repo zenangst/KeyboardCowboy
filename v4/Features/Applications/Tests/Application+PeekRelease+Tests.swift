@@ -1,10 +1,10 @@
-@testable import ApplicationSystem
-import UserSpace
-import Commands
 @testable import ApplicationsFeature
+@testable import ApplicationSystem
+import Commands
 import CoreGraphics
 import Foundation
 import Testing
+import UserSpace
 
 private func peekCommand(_ identifier: String = "example.target", action: String = "peek") throws -> Command.Application {
   let fixture = #"{"application":{"bundleIdentifier":"\#(identifier)","bundleName":"Target","path":"/Applications/Target.app"},"action":"\#(action)","meta":{"id":"saved-command","name":"Peek","enabled":true}}"#
@@ -44,7 +44,7 @@ private func peekCommand(_ identifier: String = "example.target", action: String
         #expect(application === target)
         hidden()
         return true
-      }
+      },
     )) {
       let result = try await Application.Executor(.testing).execute(command, cgEventType: .keyUp, snapshot: snapshot)
       #expect(result === snapshot)
@@ -71,7 +71,7 @@ private func peekCommand(_ identifier: String = "example.target", action: String
     return .init(.testing(nil))
   })) {
     try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-      onHide: { _ in Issue.record("Previous-app release must not hide the peeked app"); return false }
+      onHide: { _ in Issue.record("Previous-app release must not hide the peeked app"); return false },
     )) {
       let result = try await executor.execute(command, cgEventType: .keyUp, snapshot: snapshot)
       #expect(result === snapshot)
@@ -88,7 +88,7 @@ private func peekCommand(_ identifier: String = "example.target", action: String
   let snapshot = UserSpace.Snapshot(apps: .init())
   let executor = Application.Executor(.testing, peekRelease: { _ in .none })
   try await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-    runningApplicationsLookup: { _ in Issue.record("No-op release must not perform lookup"); return [] }
+    runningApplicationsLookup: { _ in Issue.record("No-op release must not perform lookup"); return [] },
   )) {
     let result = try await executor.execute(command, cgEventType: .keyUp, snapshot: snapshot)
     #expect(result === snapshot)
@@ -126,13 +126,14 @@ private func peekCommand(_ identifier: String = "example.target", action: String
   let cancelled = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
     group.addTask {
       await ApplicationSystem.RunningApplication.Testing.$mock.withValue(.init(
-        runningApplicationsLookup: { _ in Issue.record("Cancelled release must not perform lookup"); return [] }
+        runningApplicationsLookup: { _ in Issue.record("Cancelled release must not perform lookup"); return [] },
       )) {
         do {
           _ = try await Application.Executor(.testing, peekRelease: { _ in
             withUnsafeCurrentTask { $0?.cancel() }
             return .hide
-          }).execute(command, cgEventType: .keyUp, snapshot: snapshot)
+          })
+          .execute(command, cgEventType: .keyUp, snapshot: snapshot)
           return false
         } catch is CancellationError {
           return true

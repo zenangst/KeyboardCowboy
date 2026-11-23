@@ -10,5 +10,5 @@ let package = Package(
   targets: [
     .target(name: "InputSourceFeature", dependencies: ["InputSourceSystem"], path: "Sources"),
     .testTarget(name: "InputSourceFeatureTests", dependencies: ["InputSourceFeature", "InputSourceSystem"], path: "Tests"),
-  ]
+  ],
 )
