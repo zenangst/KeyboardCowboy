@@ -59,7 +59,6 @@ Automation when macOS prompts for tab search.
 | Accessibility is denied, browser is running | `browser route failed`, then `generic open started`, with no `tab search started`. |
 
 The smoke instance quits after one command. Logs omit URLs and window titles.
-Release builds do not recognize this launch option.
 
 To test a running Safari or Orion web app, pass its bundle identifier and a
 URL within the app's site to the same script. With one AX window, expect
@@ -67,6 +66,26 @@ URL within the app's site to the same script. With one AX window, expect
 the target page in a background window and check for
 `Web-app AX main and raise succeeded`, then confirm that window came forward.
 The log distinguishes a polling miss from a route failure and generic fallback.
+
+### Debug window-ID smoke test
+
+Run this read-only check from the repository root. Set `pid` to the PID of a
+running app with an open window. Grant Accessibility to the exact Debug bundle
+if the log says `Accessibility trusted: false`; the check does not prompt.
+
+```sh
+app="$(v4/Scripts/build-app.sh)"
+open -g -n -W "$app" --args --smoke-window-id "$pid"
+log show --last 1m --style compact \
+  --predicate 'subsystem == "com.zenangst.keyboardcowboy.v4" AND category == "WindowIDSmoke"'
+```
+
+The result reports AX windows, matching CG owners, lookup misses, IDs absent
+from the fresh CG snapshot, and wrong owners. It does not log individual IDs
+or titles, raise a window, or post input. Repeat after closing a window or
+changing Spaces. A match verifies ownership in the current snapshot, not that
+the window is on the active Space or that the association remains valid later.
+Release builds do not recognize this launch option.
 
 ### Debug hit-test smoke check
 

@@ -62,6 +62,21 @@ public extension AccessibilitySystem {
       return try elements(kAXWindowsAttribute, of: application)
     }
 
+    #if DEBUG
+    /// Diagnostic candidates only, not verified CG associations. A nil array
+    /// means the bridge is unavailable; nil entries mean individual lookups failed.
+    public func debugWindowIDCandidates() throws -> [CGWindowID?]? {
+      try checkpoint()
+      return try DebugWindowID.withLookup { lookup in
+        try windows().map { window in
+          let id = try handle(for: window).native.flatMap(lookup)
+          try checkpoint()
+          return id
+        }
+      }
+    }
+    #endif
+
     public func children(of element: Element) throws -> [Element] {
       try elements(kAXChildrenAttribute, of: element)
     }
