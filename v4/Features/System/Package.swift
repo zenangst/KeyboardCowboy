@@ -6,8 +6,25 @@ let package = Package(
   name: "SystemFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "SystemFeature", targets: ["SystemFeature"])],
+  dependencies: [
+    .package(path: "../Applications"),
+    .package(path: "../../Components/Commands"),
+    .package(path: "../../Components/UserSpace"),
+  ],
   targets: [
-    .target(name: "SystemFeature", path: "Sources"),
-    .testTarget(name: "SystemFeatureTests", dependencies: ["SystemFeature"], path: "Tests"),
+    .target(
+      name: "SystemFeature",
+      dependencies: [
+        .product(name: "ApplicationsFeature", package: "Applications"),
+        "Commands",
+        "UserSpace",
+      ],
+      path: "Sources",
+    ),
+    .testTarget(
+      name: "SystemFeatureTests",
+      dependencies: ["SystemFeature", "Commands", "UserSpace"],
+      path: "Tests",
+    ),
   ],
 )
