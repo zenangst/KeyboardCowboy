@@ -15,6 +15,7 @@ let package = Package(
   dependencies: [
     .package(path: "../Components/AccessibilitySystem"),
     .package(path: "../Components/AppleScriptRuntime"),
+    .package(path: "../Components/KeyCodeSystem"),
     .package(path: "../Components/MachPortSystem"),
     .package(path: "../Components/Commands"),
     .package(path: "../Features/Open"),
@@ -39,6 +40,7 @@ let package = Package(
       name: "HostInput",
       dependencies: [
         "AccessibilitySystem",
+        "KeyCodeSystem",
         "MachPortSystem",
         .product(name: "MouseFeature", package: "Mouse"),
         .product(name: "TextFeature", package: "Text"),
@@ -56,7 +58,7 @@ let package = Package(
       ],
       path: "RuntimeOpen",
     ),
-    .testTarget(name: "HostInputTests", dependencies: ["HostInput"]),
+    .testTarget(name: "HostInputTests", dependencies: ["HostInput", "KeyCodeSystem"]),
     .testTarget(name: "HostOpenTests", dependencies: ["HostOpen", "Commands"]),
   ],
 )
