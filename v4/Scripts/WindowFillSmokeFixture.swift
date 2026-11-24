@@ -17,6 +17,7 @@ struct WindowFillSmokeFixture {
                           styleMask: [.titled, .resizable], backing: .buffered, defer: false, screen: screen)
     window.setFrameOrigin(CGPoint(x: area.minX + 200, y: area.minY + 100))
     window.title = "Window Management Fill Fixture"
+    window.minSize = CGSize(width: 200, height: 150)
     if CommandLine.arguments[1] == "constrained" {
       window.maxSize = CGSize(width: 800, height: 600)
     }

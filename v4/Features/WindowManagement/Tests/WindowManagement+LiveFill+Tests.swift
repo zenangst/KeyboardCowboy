@@ -79,6 +79,9 @@ private func probe(
   if delay == nil, !constrained, !switchFocus {
     try await verifyResizeRoundTrip(pid: pid, windowID: windowID, original: before, client: client)
     try await verifyDisplayRoundTrip(pid: pid, windowID: windowID, start: displayBounds, size: before.size, client: client)
+    let afterTransfer = try await step("read")
+    try await verifyEdgeShrink(pid: pid, windowID: windowID, area: target.insetBy(dx: -28, dy: -28),
+                               size: afterTransfer.size, client: client)
   }
   let expected = constrained ? CGRect(origin: target.origin, size: CGSize(width: 800, height: 600)) : target
   guard let delay else {
@@ -153,6 +156,44 @@ private func verifyResizeRoundTrip(
     try #require(matchesFrame(settled, expected))
     print("Directional Resize \(change): CG-settled=\(settled) expected=\(expected)")
   }
+}
+
+@MainActor
+private func verifyEdgeShrink(
+  pid: pid_t, windowID: CGWindowID, area: CGRect, size: CGSize, client: AccessibilitySystem.Client,
+) async throws {
+  let start = CGRect(x: area.maxX - size.width, y: area.maxY - size.height, width: size.width, height: size.height)
+  try #require(NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, "Keep the fixture frontmost.")
+  try await client.withApplication(processIdentifier: pid) { session in
+    let window = try #require(try session.focusedWindow())
+    let focusedID = try session.windowIDCandidate(for: window)
+    try #require(focusedID == windowID)
+    try session.write(.position, value: start.origin, to: window)
+  }
+  try await Task.sleep(for: .milliseconds(500))
+  try #require(compositorFrame(windowID: windowID, pid: pid).map { matchesFrame($0, start) } == true)
+
+  let edge = try #require(try await WindowManagement.resizeFocusedWindow(
+    in: pid, change: .shrink, direction: .topLeading, distance: 40, using: client,
+  ))
+  let smaller = CGRect(x: start.minX + 40, y: start.minY + 40, width: size.width - 40, height: size.height - 40)
+  try await Task.sleep(for: .milliseconds(500))
+  let settledEdge = try #require(compositorFrame(windowID: windowID, pid: pid))
+  #expect(matchesFrame(edge.requested, smaller))
+  print("Edge Shrink: CG-settled=\(settledEdge) expected=\(smaller)")
+  try #require(matchesFrame(settledEdge, smaller))
+
+  let clamped = try #require(try await WindowManagement.resizeFocusedWindow(
+    in: pid, change: .shrink, direction: .bottomTrailing, distance: 200, using: client,
+  ))
+  let requested = CGRect(origin: settledEdge.origin, size: CGSize(width: settledEdge.width - 200, height: settledEdge.height - 200))
+  let minimum = CGRect(origin: settledEdge.origin, size: CGSize(width: 200, height: 150))
+  try await Task.sleep(for: .milliseconds(500))
+  let settledMinimum = try #require(compositorFrame(windowID: windowID, pid: pid))
+  print("Minimum Shrink: requested=\(clamped.requested) AX=\(clamped.observed) CG-settled=\(settledMinimum)")
+  #expect(matchesFrame(clamped.requested, requested))
+  #expect(matchesFrame(clamped.observed, minimum))
+  #expect(matchesFrame(settledMinimum, minimum))
 }
 
 @MainActor
