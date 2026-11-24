@@ -83,7 +83,7 @@ private func probe(
     let afterTransfer = try await step("read")
     try await verifyEdgeShrink(pid: pid, windowID: windowID, area: target.insetBy(dx: -28, dy: -28),
                                size: afterTransfer.size, client: client)
-    try await verifyFillRestore(pid: pid, windowID: windowID, target: target, bounds: displayBounds, client: client)
+    try await verifyFillRestore(pid: pid, windowID: windowID, target: target, bounds: displayBounds, client: client, toggle: true)
   }
   let expected = constrained ? CGRect(origin: target.origin, size: CGSize(width: 800, height: 600)) : target
   guard let delay else {
@@ -163,19 +163,43 @@ private func verifyResizeRoundTrip(
 @MainActor
 private func verifyFillRestore(
   pid: pid_t, windowID: CGWindowID, target: CGRect, bounds: CGRect, client: AccessibilitySystem.Client,
+  toggle: Bool = false,
 ) async throws {
   let displays = [WindowManagement.Display(bounds: bounds, visibleBounds: target)]
-  let filled = try #require(try await WindowManagement.fillFocusedWindowRecordingRestore(in: pid, displays: displays, using: client))
-  let point = try #require(filled.restorePoint)
+  let filled: WindowManagement.FrameResult
+  let point: WindowManagement.FillRestorePoint
+  if toggle {
+    let result = try await WindowManagement.toggleFocusedWindowFill(in: pid, displays: displays, using: client)
+    guard case .filled(let frame, let restorePoint)? = result else {
+      Issue.record("First Fill toggle did not fill")
+      return
+    }
+    filled = frame
+    point = try #require(restorePoint)
+  } else {
+    let result = try #require(try await WindowManagement.fillFocusedWindowRecordingRestore(in: pid, displays: displays, using: client))
+    filled = result.frame
+    point = try #require(result.restorePoint)
+  }
   try await Task.sleep(for: .milliseconds(500))
   let settledFill = try #require(compositorFrame(windowID: windowID, pid: pid))
   try #require(matchesFrame(settledFill, target))
-  let restored = try #require(try await WindowManagement.restoreFocusedWindow(from: point, displays: displays, using: client))
+  let restored: WindowManagement.FrameResult
+  if toggle {
+    let result = try await WindowManagement.toggleFocusedWindowFill(in: pid, displays: displays, restoringFrom: point, using: client)
+    guard case .restored(let frame)? = result else {
+      Issue.record("Second Fill toggle did not restore")
+      return
+    }
+    restored = frame
+  } else {
+    restored = try #require(try await WindowManagement.restoreFocusedWindow(from: point, displays: displays, using: client))
+  }
   try await Task.sleep(for: .milliseconds(500))
   let settledRestore = try #require(compositorFrame(windowID: windowID, pid: pid))
   print("Fill Restore: filled=\(settledFill) requested=\(restored.requested) AX=\(restored.observed) CG=\(settledRestore)")
-  #expect(restored.requested == filled.frame.original)
-  try #require(matchesFrame(settledRestore, filled.frame.original))
+  #expect(restored.requested == filled.original)
+  try #require(matchesFrame(settledRestore, filled.original))
   let reused = try await WindowManagement.restoreFocusedWindow(from: point, displays: displays, using: client)
   #expect(reused == nil)
 }

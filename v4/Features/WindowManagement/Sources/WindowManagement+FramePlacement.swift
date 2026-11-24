@@ -8,20 +8,30 @@ extension WindowManagement {
     case settlingTimedOut
   }
 
+  enum PlacementRequest: Equatable, Sendable {
+    case place(CGRect)
+    case restore(CGRect)
+
+    var frame: CGRect {
+      switch self {
+      case .place(let frame), .restore(let frame): frame
+      }
+    }
+  }
+
   static func placeFocusedWindow(
     in pid: pid_t, using accessibility: AccessibilitySystem.Client,
     requestedFrame: @escaping @Sendable (CGRect) -> CGRect?,
   ) async throws -> FrameResult? {
     try await placeIdentifiedFocusedWindow(in: pid, using: accessibility) { _, original, _ in
-      requestedFrame(original)
+      requestedFrame(original).map(PlacementRequest.place)
     }?.frame
   }
 
   static func placeIdentifiedFocusedWindow(
     in pid: pid_t, using accessibility: AccessibilitySystem.Client,
-    shrinkBeforeMoving: Bool = false,
-    requestedFrame: @escaping @Sendable (CGWindowID, CGRect, CGRect) -> CGRect?,
-  ) async throws -> (id: CGWindowID, frame: FrameResult)? {
+    request: @escaping @Sendable (CGWindowID, CGRect, CGRect) -> PlacementRequest?,
+  ) async throws -> (id: CGWindowID, request: PlacementRequest, frame: FrameResult)? {
     let isAppActive: @Sendable () -> Bool = {
       NSWorkspace.shared.frontmostApplication?.processIdentifier == pid
     }
@@ -32,22 +42,23 @@ extension WindowManagement {
             let id = try session.windowIDCandidate(for: window) else { return nil }
       let original = try session.frame(of: window)
       guard let onScreen = compositorFrame(id: id, owner: pid),
-            let requested = requestedFrame(id, original, onScreen),
+            let request = request(id, original, onScreen),
             try session.focusedWindow() == window, isAppActive() else { return nil }
+      let requested = request.frame
       // AX may already report a pending destination.
       let needsMove = !Operation.FrameSettling.matchesOrigin(onScreen, requested.origin)
-      if shrinkBeforeMoving, needsMove, requested.size != original.size,
+      if case .restore = request, needsMove, requested.size != original.size,
          requested.width <= original.width, requested.height <= original.height {
         // Moving the still-large filled window can span displays and affect
         // the size the window server allows at the restore position.
         try session.write(.size, value: requested.size, to: window)
         let resized = try session.frame(of: window)
-        return Placement(id: id, original: original, requested: requested, resized: resized)
+        return Placement(id: id, original: original, request: request, resized: resized)
       }
       if needsMove {
         try session.write(.position, value: requested.origin, to: window)
       }
-      return Placement(id: id, original: original, requested: requested, resized: nil)
+      return Placement(id: id, original: original, request: request, resized: nil)
     }
     guard let placement else { return nil }
 
@@ -71,7 +82,7 @@ extension WindowManagement {
             try session.write(.size, value: placement.requested.size, to: window)
           }
           let frame = try FrameResult(original: placement.original, requested: placement.requested, observed: session.frame(of: window))
-          return (id: placement.id, frame: frame)
+          return (id: placement.id, request: placement.request, frame: frame)
         }
       },
     )
@@ -81,8 +92,10 @@ extension WindowManagement {
 private struct Placement: Sendable {
   let id: CGWindowID
   let original: CGRect
-  let requested: CGRect
+  let request: WindowManagement.PlacementRequest
   let resized: CGRect?
+
+  var requested: CGRect { request.frame }
 }
 
 private func compositorFrame(id: CGWindowID, owner: pid_t) -> CGRect? {

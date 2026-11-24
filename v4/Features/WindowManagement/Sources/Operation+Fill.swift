@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 
 extension Operation {
   struct Fill: Sendable {
@@ -16,6 +17,17 @@ extension Operation {
             padding < visible.width / 2, padding < visible.height / 2 else { return nil }
       let requested = visible.insetBy(dx: padding, dy: padding)
       return WindowManagement.isUsable(requested) ? requested : nil
+    }
+
+    func placement(
+      in pid: pid_t, launchDate: Date?, id: CGWindowID, current: CGRect, onScreen: CGRect,
+      point: WindowManagement.FillRestorePoint?,
+    ) -> WindowManagement.PlacementRequest? {
+      if let point, point.pid == pid, point.launchDate == launchDate,
+         let target = point.target(id: id, current: current, onScreen: onScreen, displays: displays) {
+        return .restore(target)
+      }
+      return requestedFrame(for: current).map(WindowManagement.PlacementRequest.place)
     }
   }
 }

@@ -1,4 +1,5 @@
 import AccessibilitySystem
+import AppKit
 import CoreGraphics
 
 public extension WindowManagement {
@@ -16,12 +17,14 @@ public extension WindowManagement {
 
   internal static func fillIdentifiedFocusedWindow(
     in processIdentifier: pid_t, displays: [Display], padding: CGFloat, using accessibility: AccessibilitySystem.Client,
-  ) async throws -> (id: CGWindowID, frame: FrameResult)? {
+    restoringFrom point: FillRestorePoint? = nil,
+  ) async throws -> (id: CGWindowID, request: PlacementRequest, frame: FrameResult)? {
     let fill = try Operation.Fill(displays: displays, padding: padding)
     guard !displays.isEmpty else { return nil }
     do {
-      return try await placeIdentifiedFocusedWindow(in: processIdentifier, using: accessibility) { _, original, _ in
-        fill.requestedFrame(for: original)
+      return try await placeIdentifiedFocusedWindow(in: processIdentifier, using: accessibility) { id, original, onScreen in
+        let launchDate = point == nil ? nil : NSRunningApplication(processIdentifier: processIdentifier)?.launchDate
+        return fill.placement(in: processIdentifier, launchDate: launchDate, id: id, current: original, onScreen: onScreen, point: point)
       }
     } catch FramePlacementError.settlingTimedOut {
       throw FillError.settlingTimedOut
