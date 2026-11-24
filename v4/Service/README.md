@@ -23,6 +23,57 @@ use the repository-local identity below when configured. Other builds, and
 Debug builds without a configured identity, default to ad hoc signing (`-`).
 The service does not install event taps or execute workflows yet.
 
+### Live keyboard layout refresh smoke test
+
+No manual layout setup is needed. From the repository root, run:
+
+```sh
+KC_LAYOUT_SMOKE=1 swift test --package-path v4/Service -c release \
+  --filter liveKeyboardLayoutRefresh
+```
+
+The test temporarily switches to built-in French or US and checks that the
+running Service layout session refreshes its cache. It restores the original
+selection and disables the test source only if it was enabled for the test.
+No event tap or keystrokes are used. Avoid changing input sources while it runs.
+
+### Live shortcut recording smoke test
+
+Grant the runner Accessibility and Input Monitoring, then run from the
+repository root:
+
+```sh
+KC_SHORTCUT_RECORDING_SMOKE=1 swift test --package-path v4/Service -c release \
+  --filter liveShortcutRecording
+```
+
+Use a disposable text field and press **Left Shift+A** after the recorder
+reports it is ready. The test accepts one shortcut and checks it against
+the expected chord without logging or saving the captured input. The
+keystroke passes through to the foreground app. Escape cancels, and the
+recorder stops after 20 seconds if no shortcut is captured.
+
+### Live TextEdit typing smoke test
+
+Grant event posting and Accessibility access to the runner, then focus the
+text area of a blank, disposable TextEdit document. No layout setup is needed.
+Run from the repository root without switching foreground apps:
+
+```sh
+KC_TEXTEDIT_TYPING_SMOKE=1 swift test --package-path v4/Service -c release \
+  --filter liveTextEditTyping
+```
+
+The smoke test switches through **US, Norwegian, and Swedish Pro** and
+uses the Text command's **Typing** mode to append one line per layout to
+the same document. The US line includes all ten Nordic letters
+(`åæøäö ÅÆØÄÖ`). Each step checks the cumulative text without logging it,
+and the last step checks the complete document. The test restores the
+original input source and disables only sources it temporarily enabled.
+It does not save the document or change the clipboard.
+Turn off **Capitalize words automatically** in macOS Text Input settings
+for an exact lowercase check; Typing does not disable editor substitutions.
+
 To keep the Debug app's signing requirement stable across rebuilds, choose a
 named identity from `security find-identity -v -p codesigning` and store its
 exact name for this checkout:

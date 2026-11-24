@@ -64,6 +64,7 @@ let package = Package(
       name: "HostInputTests",
       dependencies: [
         "HostInput",
+        "AccessibilitySystem",
         "KeyCodeSystem",
         "MachPortSystem",
         .product(name: "KeyboardFeature", package: "Keyboard"),

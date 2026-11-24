@@ -3,6 +3,31 @@ import CoreGraphics
 import Testing
 
 #if DEBUG
+@Test func unicodePostingSendsATaggedPairWithItsUTF16Payload() throws {
+  var posted: [(CGEvent, CGEventTapLocation)] = []
+  let poster = MachPortSystem.KeyboardEventPoster(
+    eventSource: nil,
+    syntheticSignature: 12345,
+    testingOperations: .init(
+      create: { CGEvent(keyboardEventSource: $0, virtualKey: $1, keyDown: $2) },
+      post: { posted.append(($0, $1)) },
+    ),
+  )
+  try poster.postUnicode("")
+  #expect(posted.isEmpty)
+  let text = "Ä🙂"
+  try poster.postUnicode(text)
+  #expect(posted.map { $0.0.type } == [.keyDown, .keyUp])
+  for (event, location) in posted {
+    var units = [UInt16](repeating: 0, count: 8)
+    var length = 0
+    event.keyboardGetUnicodeString(maxStringLength: units.count, actualStringLength: &length, unicodeString: &units)
+    #expect(String(decoding: units.prefix(length), as: UTF16.self) == text)
+    #expect(event.getIntegerValueField(.eventSourceUserData) == 12345)
+    #expect(location == .cghidEventTap)
+  }
+}
+
 @Test func postingPreservesSequenceAndDestination() throws {
   var posted: [(CGEvent, CGEventTapLocation)] = []
   let poster = MachPortSystem.KeyboardEventPoster(

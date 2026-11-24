@@ -40,6 +40,22 @@ public extension MachPortSystem {
       return event
     }
 
+    /// Posts a Unicode key pair without changing the selected keyboard layout.
+    /// Intended for text insertion, not shortcut execution.
+    public func postUnicode(_ text: String) throws {
+      guard !text.isEmpty else { return }
+
+      let units = Array(text.utf16)
+      let down = try createEvent(keyCode: 0, action: .down)
+      let up = try createEvent(keyCode: 0, action: .up)
+      for event in [down, up] {
+        units.withUnsafeBufferPointer {
+          event.keyboardSetUnicodeString(stringLength: $0.count, unicodeString: $0.baseAddress!)
+        }
+        postEvent(event, tapLocation: .cghidEventTap)
+      }
+    }
+
     /// Core Graphics does not report whether the posted event was delivered.
     @discardableResult
     public func post(

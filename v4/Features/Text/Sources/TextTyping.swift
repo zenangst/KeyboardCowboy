@@ -32,6 +32,7 @@ public struct TextTyping {
 
   private let lookup: Lookup
   private let post: Post
+  private let postUnmapped: @MainActor (String) throws -> Void
   private let observeText: @MainActor (String) -> Void
   private let observeReturn: @MainActor () -> Void
   private let sleep: @MainActor (Duration) async throws -> Void
@@ -39,12 +40,14 @@ public struct TextTyping {
   public init(
     lookup: @escaping Lookup,
     post: @escaping Post,
+    postUnmapped: @escaping @MainActor (String) throws -> Void = { _ in },
     observeText: @escaping @MainActor (String) -> Void = { _ in },
     observeReturn: @escaping @MainActor () -> Void = {},
     sleep: @escaping @MainActor (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
   ) {
     self.lookup = lookup
     self.post = post
+    self.postUnmapped = postUnmapped
     self.observeText = observeText
     self.observeReturn = observeReturn
     self.sleep = sleep
@@ -71,6 +74,8 @@ public struct TextTyping {
       if let (code, modifiers) = resolved {
         try post(code, .down, modifiers)
         try post(code, .up, modifiers)
+      } else {
+        try postUnmapped(text)
       }
     }
 
