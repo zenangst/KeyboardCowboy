@@ -147,6 +147,7 @@ The unrestricted fixture also checks a bottom-trailing Anchor snap and
 cycles through all three size bands. A top-edge cycle in a smaller snap
 area checks that Anchor honors the fixture's known minimum height and
 can continue cycling when the app clamps a band without a supplied minimum.
+The standalone repeat session also checks that resetting starts a fresh snap.
 With exactly two displays it checks both centered and proportional
 display-transfer round trips. The test does not run the Service or a saved
 workflow.

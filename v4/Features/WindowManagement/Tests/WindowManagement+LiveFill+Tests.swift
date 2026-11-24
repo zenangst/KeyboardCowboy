@@ -194,17 +194,19 @@ private func verifyAnchorMinimum(
     #expect(matchesFrame(result.observed, expected))
     try #require(matchesFrame(settled, expected))
   }
-  var point: WindowManagement.AnchorCyclePoint?
-  for (requested, observed) in [(200, 200), (267, 267), (133, 150), (200, 200)] {
-    let result = try #require(try await WindowManagement.anchorFocusedWindowCycling(
-      in: pid, direction: .top, displays: [display], continuingFrom: point, using: client,
+  var repeats = WindowManagement.AnchorRepeatSession()
+  let command = UUID()
+  for (index, size) in [(200, 200), (267, 267), (133, 150), (200, 200), (200, 200)].enumerated() {
+    let (requested, observed) = size
+    if index == 4 { repeats.reset() }
+    let result = try #require(try await repeats.anchor(
+      commandID: command, isRepeat: index != 0, in: pid, direction: .top, displays: [display], using: client,
     ))
-    point = try #require(result.cyclePoint)
     try await Task.sleep(for: .milliseconds(350))
     let settled = try #require(compositorFrame(windowID: windowID, pid: pid))
     let expected = CGRect(origin: origin, size: CGSize(width: 900, height: observed))
-    print("Anchor unknown minimum: requested=\(result.frame.requested) AX=\(result.frame.observed) CG-settled=\(settled)")
-    #expect(result.frame.requested.height == CGFloat(requested))
+    print("Anchor repeat session: requested=\(result.requested) AX=\(result.observed) CG-settled=\(settled)")
+    #expect(result.requested.height == CGFloat(requested))
     try #require(matchesFrame(settled, expected))
   }
 }
