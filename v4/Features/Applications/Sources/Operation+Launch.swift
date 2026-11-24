@@ -1,4 +1,3 @@
-import Apps
 import Cocoa
 import Commands
 import Foundation

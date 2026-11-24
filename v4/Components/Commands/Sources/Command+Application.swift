@@ -1,9 +1,9 @@
-import Apps
+import ApplicationCatalog
 import Foundation
 
 public extension Command {
   struct Application: MetaDataProviding {
-    public var application: Apps::Application
+    public var application: ApplicationCatalog.Application
     public var action: Action
     public var modifiers: Set<Modifier>
     public var meta: Metadata
@@ -11,7 +11,7 @@ public extension Command {
     public init(id: String = UUID().uuidString,
                 name: String = "",
                 action: Action = .open,
-                application: Apps::Application,
+                application: ApplicationCatalog.Application,
                 modifiers: [Modifier] = [],
                 notification: Command.Notification? = nil) {
       meta = Metadata(id: id, name: name, isEnabled: true, notification: notification)
@@ -27,7 +27,7 @@ public extension Command {
       case meta
     }
 
-    init(action: Action, application: Apps::Application,
+    init(action: Action, application: ApplicationCatalog.Application,
          meta: Metadata, modifiers: [Modifier]) {
       self.application = application
       self.modifiers = Set(modifiers)
@@ -37,7 +37,7 @@ public extension Command {
 
     public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
-      application = try container.decode(Apps::Application.self, forKey: .application)
+      application = try container.decode(ApplicationCatalog.Application.self, forKey: .application)
       action = try container.decode(Command.Application.Action.self, forKey: .action)
       let rawModifiers = try container.decodeIfPresent([String].self, forKey: .modifiers) ?? []
       modifiers = []

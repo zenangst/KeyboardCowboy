@@ -11,9 +11,9 @@ let package = Package(
   name: "Commands",
   platforms: [.macOS(.v14)],
   products: [.library(name: "Commands", targets: ["Commands"])],
-  dependencies: [.package(url: "https://github.com/zenangst/Apps.git", branch: "main")],
+  dependencies: [.package(path: "../ApplicationCatalog")],
   targets: [
-    .target(name: "Commands", dependencies: [.product(name: "Apps", package: "Apps")],
+    .target(name: "Commands", dependencies: ["ApplicationCatalog"],
             path: "Sources", linkerSettings: linkerSettings),
     .testTarget(name: "CommandsTests", dependencies: ["Commands"], path: "Tests"),
   ],

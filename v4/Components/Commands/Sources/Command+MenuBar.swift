@@ -1,4 +1,4 @@
-import Apps
+import ApplicationCatalog
 
 public extension Command {
   /// Persisted menu-bar payload. An absent application means the frontmost app.
@@ -9,10 +9,10 @@ public extension Command {
     }
 
     public let tokens: [Token]
-    public var application: Apps.Application?
+    public var application: ApplicationCatalog.Application?
     public var meta: Metadata
 
-    public init(application: Apps.Application? = nil, tokens: [Token], meta: Metadata = .init()) {
+    public init(application: ApplicationCatalog.Application? = nil, tokens: [Token], meta: Metadata = .init()) {
       self.application = application
       self.tokens = tokens
       self.meta = meta
