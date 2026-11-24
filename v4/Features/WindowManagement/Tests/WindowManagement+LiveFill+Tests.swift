@@ -76,6 +76,9 @@ private func probe(
   let before = try await step("read")
   try #require(abs(before.width - 420) <= 1, "Fixture has an unexpected starting width. Check tiling rules.")
   try #require(displayBounds.contains(before), "Fixture did not start on the selected display.")
+  if delay == nil, !constrained, !switchFocus {
+    try await verifyDisplayRoundTrip(pid: pid, windowID: windowID, start: displayBounds, size: before.size, client: client)
+  }
   let expected = constrained ? CGRect(origin: target.origin, size: CGSize(width: 800, height: 600)) : target
   guard let delay else {
     let replacement = switchFocus ? try #require(ids.dropFirst().first) : nil
@@ -131,6 +134,31 @@ private func probe(
   let matched = matchesFrame(settled, expected)
   print("Fill \(delay) ms\(constrained ? " constrained" : ""): before=\(before) moved=\(moved) CG-before-resize=\(String(describing: compositor)) resized=\(resized) settled=\(settled) expected=\(expected) matched=\(matched)")
   if delay == 500 { #expect(matched, "The paced control should reach the expected frame.") }
+}
+
+@MainActor
+private func verifyDisplayRoundTrip(
+  pid: pid_t, windowID: CGWindowID, start: CGRect, size: CGSize, client: AccessibilitySystem.Client,
+) async throws {
+  let screens = NSScreen.screens
+  guard screens.count == 2, let primary = screens.first else { return }
+  func ax(_ rect: CGRect) -> CGRect {
+    CGRect(x: rect.minX, y: primary.frame.maxY - rect.maxY, width: rect.width, height: rect.height)
+  }
+  let displays = screens.map { WindowManagement.Display(bounds: ax($0.frame), visibleBounds: ax($0.visibleFrame)) }
+  let source = try #require(displays.firstIndex { $0.bounds == start })
+  for destination in [displays[1 - source], displays[source]] {
+    try #require(NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, "Keep the fixture frontmost.")
+    let visible = destination.visibleBounds.intersection(destination.bounds)
+    let expected = CGRect(x: visible.midX - size.width / 2, y: visible.midY - size.height / 2,
+                          width: size.width, height: size.height)
+    let result = try #require(try await WindowManagement.moveFocusedWindowToNextDisplay(in: pid, displays: displays, using: client))
+    try await Task.sleep(for: .milliseconds(500))
+    let settled = try #require(compositorFrame(windowID: windowID, pid: pid))
+    #expect(matchesFrame(result.requested, expected))
+    try #require(matchesFrame(settled, expected))
+    print("Next Display: CG-settled=\(settled) expected=\(expected)")
+  }
 }
 
 private func matchesFrame(_ actual: CGRect, _ expected: CGRect) -> Bool {

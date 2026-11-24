@@ -15,11 +15,7 @@ enum Operation {
     func requestedFrame(for window: CGRect) -> CGRect? {
       guard let visible = WindowManagement.visibleBounds(for: window, on: displays) else { return nil }
 
-      // Keep the title bar reachable when the existing window is too tall.
-      let x = visible.midX - window.width / 2
-      let y = max(visible.minY, visible.midY - window.height / 2)
-      let result = CGRect(origin: CGPoint(x: x, y: y), size: window.size)
-      return WindowManagement.isUsable(result) ? result : nil
+      return WindowManagement.centeredFrame(window, in: visible)
     }
   }
 }
