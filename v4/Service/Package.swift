@@ -58,7 +58,14 @@ let package = Package(
       ],
       path: "RuntimeOpen",
     ),
-    .testTarget(name: "HostInputTests", dependencies: ["HostInput", "KeyCodeSystem"]),
+    .testTarget(
+      name: "HostInputTests",
+      dependencies: [
+        "HostInput",
+        "KeyCodeSystem",
+        .product(name: "TextFeature", package: "Text"),
+      ],
+    ),
     .testTarget(name: "HostOpenTests", dependencies: ["HostOpen", "Commands"]),
   ],
 )

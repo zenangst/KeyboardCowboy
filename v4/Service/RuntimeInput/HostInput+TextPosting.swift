@@ -20,11 +20,15 @@ public enum HostInput {
     { keyCode, event, modifiers in
       guard let code = CGKeyCode(exactly: keyCode) else { throw PostingError.invalidKeyCode(keyCode) }
 
-      var flags: CGEventFlags = []
-      if modifiers.contains(.shift) { flags.insert(.maskShift) }
-      if modifiers.contains(.option) { flags.insert(.maskAlternate) }
-      if modifiers.contains(.command) { flags.insert(.maskCommand) }
-      try post(code, event == .down ? .down : .up, flags)
+      try post(code, event == .down ? .down : .up, textFlags(modifiers))
     }
+  }
+
+  static func textFlags(_ modifiers: TextTyping.Modifiers) -> CGEventFlags {
+    var flags: CGEventFlags = []
+    if modifiers.contains(.shift) { flags.insert(.maskShift) }
+    if modifiers.contains(.option) { flags.insert(.maskAlternate) }
+    if modifiers.contains(.command) { flags.insert(.maskCommand) }
+    return flags
   }
 }
