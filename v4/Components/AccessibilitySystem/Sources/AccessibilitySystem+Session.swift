@@ -62,6 +62,16 @@ public extension AccessibilitySystem {
       return try elements(kAXWindowsAttribute, of: application)
     }
 
+    /// An unverified candidate from the optional macOS compatibility bridge.
+    /// A nil result means the element or OS did not provide an ID. Check
+    /// the owner and any visibility requirements against fresh CG data.
+    public func windowIDCandidate(for window: Element) throws -> CGWindowID? {
+      let handle = try handle(for: window)
+      let candidate = WindowID.withLookup { lookup in handle.native.flatMap(lookup) }
+      try checkpoint()
+      return candidate ?? nil
+    }
+
     #if DEBUG || WINDOW_FOCUS_VALIDATION
     /// Diagnostic candidates only, not verified CG associations. A nil array
     /// means the bridge is unavailable; nil entries mean individual lookups failed.
@@ -76,7 +86,7 @@ public extension AccessibilitySystem {
 
     private func debugWindowIDCandidates(resolving windows: () throws -> [Element]) throws -> [CGWindowID?]? {
       try checkpoint()
-      return try DebugWindowID.withLookup { lookup in
+      return try WindowID.withLookup { lookup in
         try windows().map { window in
           let id = try handle(for: window).native.flatMap(lookup)
           try checkpoint()

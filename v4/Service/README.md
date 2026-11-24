@@ -125,6 +125,21 @@ This rule lasts until yabai restarts. To remove it sooner, run
 `yabai -m rule --remove kc-smoke-fixtures`. It isolates the fixtures from
 tiling; it does not guarantee that the smoke test passes.
 
+The same rule covers the standalone Fill timing probe. Run
+`v4/Scripts/smoke-window-fill.sh` from an Accessibility-trusted terminal and
+leave the disposable fixture frontmost until the probe finishes. It compares
+AX readback and Core Graphics bounds across several delays. The shorter
+samples are diagnostic; the 500 ms controls and the bounded CG-settling
+checks must reach the expected frames.
+The settling checks exercise the Window Management Fill API and verify the
+result against the fixture's own window ID in Core Graphics. They also
+switch focus to a second fixture window after the move and verify that
+neither window is resized. Pass `secondary` to run just those checks on
+the first extended display after the primary. The probe prints that display's
+AX bounds. Set `CONFIGURATION=release` to exercise the optimized feature
+build. The fixture also checks that directional Move preserves the window's
+size. The test does not run the Service or a saved workflow.
+
 To smoke-test another app manually:
 
 Build the Debug app as above and grant it Accessibility. Put at least two

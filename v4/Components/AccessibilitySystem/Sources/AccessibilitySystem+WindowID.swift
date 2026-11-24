@@ -1,9 +1,8 @@
-#if DEBUG || WINDOW_FOCUS_VALIDATION
 import ApplicationServices
 import Darwin
 
 extension AccessibilitySystem {
-  enum DebugWindowID {
+  enum WindowID {
     private typealias GetWindow = @convention(c) (AXUIElement, UnsafeMutablePointer<CGWindowID>) -> Int32
 
     // Keep the function pointer scoped to the open handle and this call.
@@ -22,4 +21,3 @@ extension AccessibilitySystem {
     }
   }
 }
-#endif

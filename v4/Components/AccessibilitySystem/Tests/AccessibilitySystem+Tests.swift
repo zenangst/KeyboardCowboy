@@ -218,6 +218,13 @@ private func withGeometryFixture(_ test: (Fixture, AX.Session, AX.Element) throw
   }
 }
 
+@Test func windowIDCandidateIsAbsentWithoutANativeHandle() throws {
+  try withGeometryFixture { _, session, window in
+    let id = try session.windowIDCandidate(for: window)
+    #expect(id == nil)
+  }
+}
+
 @Test func applicationMenuBarSupportsTypedEnabledReadsAndPick() async throws {
   let client = AX.Client(makeTransport: { Fixture() })
   try await client.withApplication(processIdentifier: 42) { session in

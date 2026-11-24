@@ -9,6 +9,6 @@ let package = Package(
   dependencies: [.package(path: "../../Components/AccessibilitySystem")],
   targets: [
     .target(name: "WindowManagementFeature", dependencies: ["AccessibilitySystem"], path: "Sources"),
-    .testTarget(name: "WindowManagementFeatureTests", dependencies: ["WindowManagementFeature"], path: "Tests"),
+    .testTarget(name: "WindowManagementFeatureTests", dependencies: ["WindowManagementFeature", "AccessibilitySystem"], path: "Tests"),
   ],
 )

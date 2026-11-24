@@ -9,16 +9,7 @@ enum Operation {
       frame: (Window) throws -> CGRect,
       move: (CGPoint, Window) throws -> Void,
     ) throws -> WindowManagement.CenterResult? {
-      guard let window = try focusedWindow() else { return nil }
-      let original = try frame(window)
-      guard let requested = requestedFrame(for: original) else { return nil }
-      if original.origin == requested.origin {
-        return .init(original: original, requested: requested, observed: original)
-      }
-
-      guard try focusedWindow() == window else { return nil }
-      try move(requested.origin, window)
-      return try .init(original: original, requested: requested, observed: frame(window))
+      try moveFocusedWindow(focusedWindow: focusedWindow, frame: frame, requested: requestedFrame, move: move)
     }
 
     func requestedFrame(for window: CGRect) -> CGRect? {
