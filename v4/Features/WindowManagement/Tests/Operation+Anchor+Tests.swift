@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 import Testing
 @testable import WindowManagementFeature
 
@@ -83,4 +84,24 @@ func anchorUsesPaddedVisibleAreaForAllDirections(
   let tooWide = try Operation.Anchor(direction: .top, displays: [display], padding: 20,
                                      minimumSize: CGSize(width: 900.25, height: 200))
   #expect(tooWide.requestedFrame(for: original) == nil)
+}
+
+@Test func anchorContinuesFromAClampedBandOnlyForTheMatchingWindow() throws {
+  let anchor = try Operation.Anchor(direction: .top, displays: [display], padding: 20, mode: .cycle)
+  let small = CGRect(x: -920, y: -150, width: 900, height: 200)
+  let clamped = CGRect(x: -920, y: -150, width: 900, height: 230)
+  let middle = CGRect(x: -920, y: -150, width: 900, height: 300)
+  let launch = Date(timeIntervalSince1970: 100)
+  let point = WindowManagement.AnchorCyclePoint(pid: 42, launchDate: launch, id: 12, direction: .top,
+                                                requested: small, observed: clamped)
+  func band(id: CGWindowID = 12, direction: WindowManagement.Direction = .top,
+            date: Date = launch, cg: CGRect = clamped) -> CGRect? {
+    point.band(in: 42, launchDate: date, id: id, direction: direction, current: clamped, onScreen: cg)
+  }
+  #expect(anchor.requestedFrame(for: clamped, continuingFrom: band()) == middle)
+  #expect(anchor.requestedFrame(for: clamped, continuingFrom: band(id: 13)) == small)
+  #expect(band(direction: .bottom) == nil)
+  #expect(band(date: launch + 1) == nil)
+  #expect(band(cg: clamped.offsetBy(dx: 2, dy: 0)) == nil)
+  #expect(anchor.requestedFrame(for: clamped, continuingFrom: small.offsetBy(dx: 1, dy: 0)) == small)
 }

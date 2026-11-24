@@ -23,6 +23,10 @@ extension Operation {
     }
 
     func requestedFrame(for original: CGRect) -> CGRect? {
+      requestedFrame(for: original, continuingFrom: nil)
+    }
+
+    func requestedFrame(for original: CGRect, continuingFrom previousBand: CGRect?) -> CGRect? {
       guard let visible = WindowManagement.visibleBounds(for: original, on: displays),
             padding < visible.width / 2, padding < visible.height / 2 else { return nil }
       let padded = visible.insetBy(dx: padding, dy: padding)
@@ -47,7 +51,8 @@ extension Operation {
       }.filter(WindowManagement.isUsable)
 
       if case .cycle = mode,
-         let current = bands.firstIndex(where: { FrameSettling(origin: $0.origin, size: $0.size).matches(original) }) {
+         let current = previousBand.flatMap({ bands.firstIndex(of: $0) })
+           ?? bands.firstIndex(where: { FrameSettling(origin: $0.origin, size: $0.size).matches(original) }) {
         for step in 1 ..< bands.count {
           let next = bands[(current + step) % bands.count]
           if next != bands[current] { return next }

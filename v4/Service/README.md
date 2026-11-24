@@ -145,7 +145,8 @@ explicit Fill restore from a centered frame, and a Fill toggle round trip
 from a frame near a display edge.
 The unrestricted fixture also checks a bottom-trailing Anchor snap and
 cycles through all three size bands. A top-edge cycle in a smaller snap
-area also checks that Anchor honors the fixture's known minimum height.
+area checks that Anchor honors the fixture's known minimum height and
+can continue cycling when the app clamps a band without a supplied minimum.
 With exactly two displays it checks both centered and proportional
 display-transfer round trips. The test does not run the Service or a saved
 workflow.
