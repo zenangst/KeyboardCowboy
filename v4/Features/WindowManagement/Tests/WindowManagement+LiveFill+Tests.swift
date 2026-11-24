@@ -79,6 +79,7 @@ private func probe(
   if delay == nil, !constrained, !switchFocus {
     try await verifyResizeRoundTrip(pid: pid, windowID: windowID, original: before, client: client)
     try await verifyDisplayRoundTrip(pid: pid, windowID: windowID, start: displayBounds, size: before.size, client: client)
+    try await verifyFillRestore(pid: pid, windowID: windowID, target: target, bounds: displayBounds, client: client)
     let afterTransfer = try await step("read")
     try await verifyEdgeShrink(pid: pid, windowID: windowID, area: target.insetBy(dx: -28, dy: -28),
                                size: afterTransfer.size, client: client)
@@ -156,6 +157,26 @@ private func verifyResizeRoundTrip(
     try #require(matchesFrame(settled, expected))
     print("Directional Resize \(change): CG-settled=\(settled) expected=\(expected)")
   }
+}
+
+@MainActor
+private func verifyFillRestore(
+  pid: pid_t, windowID: CGWindowID, target: CGRect, bounds: CGRect, client: AccessibilitySystem.Client,
+) async throws {
+  let displays = [WindowManagement.Display(bounds: bounds, visibleBounds: target)]
+  let filled = try #require(try await WindowManagement.fillFocusedWindowRecordingRestore(in: pid, displays: displays, using: client))
+  let point = try #require(filled.restorePoint)
+  try await Task.sleep(for: .milliseconds(500))
+  let settledFill = try #require(compositorFrame(windowID: windowID, pid: pid))
+  try #require(matchesFrame(settledFill, target))
+  let restored = try #require(try await WindowManagement.restoreFocusedWindow(from: point, displays: displays, using: client))
+  try await Task.sleep(for: .milliseconds(500))
+  let settledRestore = try #require(compositorFrame(windowID: windowID, pid: pid))
+  print("Fill Restore: filled=\(settledFill) requested=\(restored.requested) AX=\(restored.observed) CG=\(settledRestore)")
+  #expect(restored.requested == filled.frame.original)
+  try #require(matchesFrame(settledRestore, filled.frame.original))
+  let reused = try await WindowManagement.restoreFocusedWindow(from: point, displays: displays, using: client)
+  #expect(reused == nil)
 }
 
 @MainActor

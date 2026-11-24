@@ -12,6 +12,15 @@ extension WindowManagement {
     in pid: pid_t, using accessibility: AccessibilitySystem.Client,
     requestedFrame: @escaping @Sendable (CGRect) -> CGRect?,
   ) async throws -> FrameResult? {
+    try await placeIdentifiedFocusedWindow(in: pid, using: accessibility) { _, original, _ in
+      requestedFrame(original)
+    }?.frame
+  }
+
+  static func placeIdentifiedFocusedWindow(
+    in pid: pid_t, using accessibility: AccessibilitySystem.Client,
+    requestedFrame: @escaping @Sendable (CGWindowID, CGRect, CGRect) -> CGRect?,
+  ) async throws -> (id: CGWindowID, frame: FrameResult)? {
     let isAppActive: @Sendable () -> Bool = {
       NSWorkspace.shared.frontmostApplication?.processIdentifier == pid
     }
@@ -21,9 +30,9 @@ extension WindowManagement {
       guard let window = try session.focusedWindow(),
             let id = try session.windowIDCandidate(for: window) else { return nil }
       let original = try session.frame(of: window)
-      guard let requested = requestedFrame(original),
-            try session.focusedWindow() == window, isAppActive(),
-            let onScreen = compositorFrame(id: id, owner: pid) else { return nil }
+      guard let onScreen = compositorFrame(id: id, owner: pid),
+            let requested = requestedFrame(id, original, onScreen),
+            try session.focusedWindow() == window, isAppActive() else { return nil }
       // AX may already report a pending destination.
       if !Operation.FrameSettling.matchesOrigin(onScreen, requested.origin) {
         try session.write(.position, value: requested.origin, to: window)
@@ -45,7 +54,8 @@ extension WindowManagement {
           if current.size != move.requested.size {
             try session.write(.size, value: move.requested.size, to: window)
           }
-          return try .init(original: move.original, requested: move.requested, observed: session.frame(of: window))
+          let frame = try FrameResult(original: move.original, requested: move.requested, observed: session.frame(of: window))
+          return (id: move.id, frame: frame)
         }
       },
     )
