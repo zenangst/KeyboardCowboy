@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 import Testing
 @testable import WindowManagementFeature
 
@@ -63,4 +64,27 @@ private let secondary = WindowManagement.Display(
     return CGRect(x: 300, y: 100, width: 400, height: 200)
   }, move: { _, _ in Issue.record("Focus changed") })
   #expect(changed == nil)
+}
+
+@Test func centerToggleRestoresOnlyTheMatchingUnchangedWindow() throws {
+  let operation = Operation.Center(displays: [secondary])
+  let launch = Date(timeIntervalSince1970: 100)
+  let original = CGRect(x: -800, y: -50, width: 400, height: 200)
+  let centered = try #require(operation.requestedFrame(for: original))
+  let point = WindowManagement.CenterRestorePoint(pid: 42, launchDate: launch, id: 12, original: original, centered: centered)
+  func target(
+    pid: pid_t = 42, launched: Date? = launch, id: CGWindowID = 12, frame: CGRect = centered, cg: CGRect? = nil,
+  ) -> WindowManagement.PlacementRequest? {
+    operation.togglePlacement(in: pid, launchDate: launched, id: id, current: frame, onScreen: cg ?? frame, point: point)
+  }
+  #expect(target() == .restore(original))
+  #expect(target(frame: centered.offsetBy(dx: 0, dy: 0.5)) == .restore(original))
+  #expect(target(pid: 43) == .place(centered))
+  #expect(target(launched: nil) == .place(centered))
+  #expect(target(launched: launch + 1) == .place(centered))
+  #expect(target(id: 13) == .place(centered))
+  #expect(target(frame: original) == .place(centered))
+  #expect(target(cg: centered.offsetBy(dx: 4, dy: 0)) == nil)
+  let resized = centered.insetBy(dx: 20, dy: 0)
+  #expect(target(frame: resized) == .place(resized))
 }

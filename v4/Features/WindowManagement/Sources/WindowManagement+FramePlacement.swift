@@ -98,7 +98,7 @@ private struct Placement: Sendable {
   var requested: CGRect { request.frame }
 }
 
-private func compositorFrame(id: CGWindowID, owner: pid_t) -> CGRect? {
+func compositorFrame(id: CGWindowID, owner: pid_t) -> CGRect? {
   guard let rows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
     as? [[String: Any]] else { return nil }
   let matches = rows.filter { ($0[kCGWindowNumber as String] as? CGWindowID) == id }

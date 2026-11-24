@@ -77,7 +77,10 @@ private func probe(
   try #require(abs(before.width - 420) <= 1, "Fixture has an unexpected starting width. Check tiling rules.")
   try #require(displayBounds.contains(before), "Fixture did not start on the selected display.")
   if delay == nil, !constrained, !switchFocus {
-    try await verifyResizeRoundTrip(pid: pid, windowID: windowID, original: before, client: client)
+    try await verifyCenterToggle(pid: pid, windowID: windowID, original: before,
+                                 display: .init(bounds: displayBounds, visibleBounds: target.insetBy(dx: -28, dy: -28)),
+                                 client: client)
+    try await verifyResizeRoundTrip(pid: pid, windowID: windowID, original: try await step("read"), client: client)
     try await verifyDisplayRoundTrip(pid: pid, windowID: windowID, start: displayBounds, size: before.size, client: client)
     try await verifyFillRestore(pid: pid, windowID: windowID, target: target, bounds: displayBounds, client: client)
     let afterTransfer = try await step("read")
@@ -140,6 +143,36 @@ private func probe(
   let matched = matchesFrame(settled, expected)
   print("Fill \(delay) ms\(constrained ? " constrained" : ""): before=\(before) moved=\(moved) CG-before-resize=\(String(describing: compositor)) resized=\(resized) settled=\(settled) expected=\(expected) matched=\(matched)")
   if delay == 500 { #expect(matched, "The paced control should reach the expected frame.") }
+}
+
+@MainActor
+private func verifyCenterToggle(
+  pid: pid_t, windowID: CGWindowID, original: CGRect, display: WindowManagement.Display, client: AccessibilitySystem.Client,
+) async throws {
+  let first = try await WindowManagement.toggleFocusedWindowCenter(in: pid, displays: [display], using: client)
+  guard case .centered(let frame, let restorePoint)? = first else {
+    Issue.record("First Center toggle did not center")
+    return
+  }
+  let point = try #require(restorePoint)
+  try await Task.sleep(for: .milliseconds(500))
+  let centered = try #require(compositorFrame(windowID: windowID, pid: pid))
+  let expected = CGRect(x: display.visibleBounds.midX - original.width / 2, y: display.visibleBounds.midY - original.height / 2,
+                        width: original.width, height: original.height)
+  #expect(matchesFrame(frame.requested, expected))
+  try #require(matchesFrame(centered, expected))
+  let second = try await WindowManagement.toggleFocusedWindowCenter(
+    in: pid, displays: [display], restoringFrom: point, using: client,
+  )
+  guard case .restored(let restored)? = second else {
+    try #require(Bool(false), "Second Center toggle did not restore: first=\(frame) CG=\(centered) second=\(String(describing: second))")
+    return
+  }
+  try await Task.sleep(for: .milliseconds(500))
+  let settled = try #require(compositorFrame(windowID: windowID, pid: pid))
+  #expect(restored.requested == original)
+  try #require(matchesFrame(settled, original))
+  print("Center Toggle: centered=\(centered) restored=\(settled)")
 }
 
 @MainActor
