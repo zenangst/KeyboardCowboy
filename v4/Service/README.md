@@ -114,6 +114,17 @@ The fixture briefly takes focus; leave it frontmost until the script finishes.
 Pass the bundle path as the only argument to test a different signed Debug
 artifact. The script prints the macOS version and exits nonzero on failure.
 
+If you use yabai, add a fixture-only rule before launching the smoke test so
+yabai does not tile the test windows:
+
+```sh
+yabai -m rule --add label=kc-smoke-fixtures app='^(Center Fixture|Next Window Fixture)$' manage=off
+```
+
+This rule lasts until yabai restarts. To remove it sooner, run
+`yabai -m rule --remove kc-smoke-fixtures`. It isolates the fixtures from
+tiling; it does not guarantee that the smoke test passes.
+
 To smoke-test another app manually:
 
 Build the Debug app as above and grant it Accessibility. Put at least two

@@ -18,6 +18,7 @@ mkdir -p "$fixture/Contents/MacOS"
 plist="$fixture/Contents/Info.plist"
 plutil -create xml1 "$plist"
 plutil -insert CFBundleIdentifier -string com.zenangst.kc-next-window-fixture "$plist"
+plutil -insert CFBundleName -string 'Next Window Fixture' "$plist"
 plutil -insert CFBundleExecutable -string Fixture "$plist"
 plutil -insert CFBundlePackageType -string APPL "$plist"
 
