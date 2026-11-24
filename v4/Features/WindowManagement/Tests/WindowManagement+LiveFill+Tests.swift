@@ -77,6 +77,7 @@ private func probe(
   try #require(abs(before.width - 420) <= 1, "Fixture has an unexpected starting width. Check tiling rules.")
   try #require(displayBounds.contains(before), "Fixture did not start on the selected display.")
   if delay == nil, !constrained, !switchFocus {
+    try await verifyResizeRoundTrip(pid: pid, windowID: windowID, original: before, client: client)
     try await verifyDisplayRoundTrip(pid: pid, windowID: windowID, start: displayBounds, size: before.size, client: client)
   }
   let expected = constrained ? CGRect(origin: target.origin, size: CGSize(width: 800, height: 600)) : target
@@ -134,6 +135,24 @@ private func probe(
   let matched = matchesFrame(settled, expected)
   print("Fill \(delay) ms\(constrained ? " constrained" : ""): before=\(before) moved=\(moved) CG-before-resize=\(String(describing: compositor)) resized=\(resized) settled=\(settled) expected=\(expected) matched=\(matched)")
   if delay == 500 { #expect(matched, "The paced control should reach the expected frame.") }
+}
+
+@MainActor
+private func verifyResizeRoundTrip(
+  pid: pid_t, windowID: CGWindowID, original: CGRect, client: AccessibilitySystem.Client,
+) async throws {
+  let grow = CGRect(x: original.minX - 40, y: original.minY - 40,
+                    width: original.width + 40, height: original.height + 40)
+  for (change, expected) in [(WindowManagement.ResizeChange.grow, grow), (.shrink, original)] {
+    let result = try #require(try await WindowManagement.resizeFocusedWindow(
+      in: pid, change: change, direction: .topLeading, distance: 40, using: client,
+    ))
+    try await Task.sleep(for: .milliseconds(500))
+    let settled = try #require(compositorFrame(windowID: windowID, pid: pid))
+    #expect(matchesFrame(result.requested, expected))
+    try #require(matchesFrame(settled, expected))
+    print("Directional Resize \(change): CG-settled=\(settled) expected=\(expected)")
+  }
 }
 
 @MainActor
