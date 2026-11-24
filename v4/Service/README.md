@@ -152,6 +152,20 @@ With exactly two displays it checks both centered and proportional
 display-transfer round trips. The test does not run the Service or a saved
 workflow.
 
+To smoke-test native Dynamic Quarters, put exactly four disposable,
+unmanaged Finder windows on the second display in the current Space, with
+no other windows on that display. Leave one focused and run from the
+repository root without switching foreground apps:
+
+```sh
+KC_TILING_DYNAMIC_SMOKE=1 swift test --package-path v4/Features/WindowTiling \
+  -c release --filter liveDynamicQuarters
+```
+
+The runner needs Accessibility permission. It rearranges the windows, seeds
+native Quarters, then switches focus between tiles and checks both Dynamic
+Quarters directions. It leaves the resulting layout in place.
+
 To smoke-test another app manually:
 
 Build the Debug app as above and grant it Accessibility. Put at least two

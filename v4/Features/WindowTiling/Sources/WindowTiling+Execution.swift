@@ -12,21 +12,28 @@ public extension WindowTiling {
   ) async throws -> Bool {
     guard processIdentifier > 0, processIdentifier != getpid() else { return false }
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
-      guard let root = try session.menuBar() else { return false }
-      return try execute(
-        action, root: root,
-        children: { node in try optional { try session.children(of: node) } ?? [] },
-        identifier: { node in try optional { try session.read(.identifier, of: node) } },
-        enabled: { node in try optional { try session.read(.enabled, of: node) } ?? false },
-        pick: { try session.perform(.pick, on: $0) },
-      )
+      try execute(action, in: session)
     }
+  }
+
+  internal static func execute(
+    _ action: Action, in session: AccessibilitySystem.Session, canPick: () throws -> Bool = { true },
+  ) throws -> Bool {
+    guard let root = try session.menuBar() else { return false }
+    return try execute(
+      action, root: root,
+      children: { node in try optional { try session.children(of: node) } ?? [] },
+      identifier: { node in try optional { try session.read(.identifier, of: node) } },
+      enabled: { node in try optional { try session.read(.enabled, of: node) } ?? false },
+      canPick: canPick,
+      pick: { try session.perform(.pick, on: $0) },
+    )
   }
 
   static func execute<Node>(
     _ action: Action, root: Node, children: (Node) throws -> [Node],
     identifier: (Node) throws -> String?, enabled: (Node) throws -> Bool,
-    pick: (Node) throws -> Void,
+    canPick: () throws -> Bool = { true }, pick: (Node) throws -> Void,
   ) throws -> Bool {
     func matching(_ action: Action, in items: [Node]) throws -> Node? {
       try items.first { try identifier($0) == action.menuIdentifier && enabled($0) }
@@ -54,7 +61,7 @@ public extension WindowTiling {
         }
         target = try matching(action, in: resizeItems)
       }
-      guard let target else { return false }
+      guard let target, try canPick() else { return false }
       try Task.checkCancellation()
       try pick(target)
       return true

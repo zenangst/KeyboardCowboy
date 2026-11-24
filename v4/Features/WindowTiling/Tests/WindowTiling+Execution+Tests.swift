@@ -83,3 +83,13 @@ private struct MenuFixture {
   }
   #expect(attempts == 1)
 }
+
+@Test func failedRevalidationSkipsAnEnabledPick() throws {
+  let menu = MenuFixture()
+  let accepted = try WindowTiling.execute(
+    .fill, root: "bar", children: { menu.children[$0, default: []] },
+    identifier: { menu.identifiers[$0] }, enabled: { !menu.disabled.contains($0) },
+    canPick: { false }, pick: { _ in Issue.record("Unexpected menu pick") },
+  )
+  #expect(!accepted)
+}
