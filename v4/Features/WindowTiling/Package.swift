@@ -6,5 +6,9 @@ let package = Package(
   name: "WindowTilingFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "WindowTilingFeature", targets: ["WindowTilingFeature"])],
-  targets: [.target(name: "WindowTilingFeature", path: "Sources")],
+  dependencies: [.package(path: "../../Components/AccessibilitySystem")],
+  targets: [
+    .target(name: "WindowTilingFeature", dependencies: ["AccessibilitySystem"], path: "Sources"),
+    .testTarget(name: "WindowTilingFeatureTests", dependencies: ["WindowTilingFeature"], path: "Tests"),
+  ],
 )
