@@ -133,9 +133,9 @@ private func probe(
     #expect(matchesFrame(settledMove, expectedMove))
     print("Directional Move: CG-settled=\(settledMove) expected=\(expectedMove)")
     if !constrained {
+      let display = WindowManagement.Display(bounds: displayBounds, visibleBounds: target.insetBy(dx: -28, dy: -28))
       let anchor = try #require(try await WindowManagement.anchorFocusedWindow(
-        in: pid, direction: .bottomTrailing,
-        displays: [.init(bounds: displayBounds, visibleBounds: target.insetBy(dx: -28, dy: -28))],
+        in: pid, direction: .bottomTrailing, displays: [display],
         padding: 28, using: client,
       ))
       let width = (target.width * 2 / 3).rounded()
@@ -145,7 +145,21 @@ private func probe(
       let settledAnchor = try #require(compositorFrame(windowID: windowID, pid: pid))
       print("Anchor: requested=\(anchor.requested) AX=\(anchor.observed) CG-settled=\(settledAnchor) expected=\(expectedAnchor)")
       #expect(matchesFrame(anchor.requested, expectedAnchor))
-      #expect(matchesFrame(settledAnchor, expectedAnchor))
+      try #require(matchesFrame(settledAnchor, expectedAnchor))
+      for scale in [CGFloat(1) / 3, 0.5, CGFloat(2) / 3] {
+        let next = try #require(try await WindowManagement.anchorFocusedWindow(
+          in: pid, direction: .bottomTrailing, displays: [display],
+          padding: 28, mode: .cycle, using: client,
+        ))
+        let width = (target.width * scale).rounded()
+        let height = (target.height * scale).rounded()
+        let expectedNext = CGRect(x: target.maxX - width, y: target.maxY - height, width: width, height: height)
+        try await Task.sleep(for: .milliseconds(500))
+        let settledNext = try #require(compositorFrame(windowID: windowID, pid: pid))
+        print("Anchor cycle: requested=\(next.requested) CG-settled=\(settledNext)")
+        #expect(matchesFrame(next.requested, expectedNext))
+        try #require(matchesFrame(settledNext, expectedNext))
+      }
     }
     return
   }

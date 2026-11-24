@@ -43,3 +43,24 @@ func anchorUsesPaddedVisibleAreaForAllDirections(
   #expect(result.maxY == 449)
   #expect(display.visibleBounds.insetBy(dx: 20.25, dy: 20.25).contains(result))
 }
+
+@Test func anchorCyclesOnlyFromAMatchingFrameAndWraps() throws {
+  let anchor = try Operation.Anchor(direction: .bottomTrailing, displays: [display], padding: 20, mode: .cycle)
+  let small = CGRect(x: -320, y: 250, width: 300, height: 200)
+  let middle = CGRect(x: -470, y: 150, width: 450, height: 300)
+  let large = CGRect(x: -620, y: 50, width: 600, height: 400)
+  #expect(anchor.requestedFrame(for: small) == middle)
+  #expect(anchor.requestedFrame(for: middle) == large)
+  #expect(anchor.requestedFrame(for: large) == small)
+  #expect(anchor.requestedFrame(for: middle.offsetBy(dx: -2, dy: 0)) == middle)
+  #expect(anchor.requestedFrame(for: middle.insetBy(dx: 0, dy: 5)) == middle)
+}
+
+@Test func cardinalCycleUsesItsAnchoredAxisAndSkipsIdenticalBands() throws {
+  let top = try Operation.Anchor(direction: .top, displays: [display], padding: 20, mode: .cycle)
+  let small = CGRect(x: -920, y: -150, width: 900, height: 200)
+  #expect(top.requestedFrame(for: small) == CGRect(x: -920, y: -150, width: 900, height: 300))
+  let tiny = CGRect(x: 0, y: 0, width: 4, height: 3)
+  let leading = try Operation.Anchor(direction: .leading, displays: [.init(bounds: tiny, visibleBounds: tiny)], padding: 0, mode: .cycle)
+  #expect(leading.requestedFrame(for: CGRect(x: 0, y: 0, width: 2, height: 3)) == CGRect(x: 0, y: 0, width: 3, height: 3))
+}

@@ -5,12 +5,15 @@ extension Operation {
     let direction: WindowManagement.Direction
     let displays: [WindowManagement.Display]
     let padding: CGFloat
+    let mode: WindowManagement.AnchorMode
 
-    init(direction: WindowManagement.Direction, displays: [WindowManagement.Display], padding: CGFloat) throws {
+    init(direction: WindowManagement.Direction, displays: [WindowManagement.Display], padding: CGFloat,
+         mode: WindowManagement.AnchorMode = .nearest) throws {
       guard padding.isFinite, padding >= 0 else { throw WindowManagement.AnchorError.invalidPadding }
       self.direction = direction
       self.displays = displays
       self.padding = padding
+      self.mode = mode
     }
 
     func requestedFrame(for original: CGRect) -> CGRect? {
@@ -28,20 +31,23 @@ extension Operation {
       guard availableWidth >= 1, availableHeight >= 1 else { return nil }
 
       let offset = direction.offset
-      let scale = offset.x == 0
-        ? nearestScale(to: original.height, within: availableHeight)
-        : nearestScale(to: original.width, within: availableWidth)
-      let width = offset.x == 0 ? availableWidth : max(1, (availableWidth * scale).rounded())
-      let height = offset.y == 0 ? availableHeight : max(1, (availableHeight * scale).rounded())
-      let result = CGRect(x: offset.x > 0 ? right - width : left, y: offset.y > 0 ? bottom - height : top,
-                          width: width, height: height)
-      return WindowManagement.isUsable(result) ? result : nil
-    }
+      let bands = [CGFloat(1) / 3, 0.5, CGFloat(2) / 3].map { scale in
+        let width = offset.x == 0 ? availableWidth : max(1, (availableWidth * scale).rounded())
+        let height = offset.y == 0 ? availableHeight : max(1, (availableHeight * scale).rounded())
+        return CGRect(x: offset.x > 0 ? right - width : left, y: offset.y > 0 ? bottom - height : top,
+                      width: width, height: height)
+      }.filter(WindowManagement.isUsable)
 
-    private func nearestScale(to length: CGFloat, within available: CGFloat) -> CGFloat {
-      [CGFloat(1) / 3, 0.5, CGFloat(2) / 3].min {
-        abs((available * $0).rounded() - length) < abs((available * $1).rounded() - length)
-      } ?? 0.5
+      if case .cycle = mode,
+         let current = bands.firstIndex(where: { FrameSettling(origin: $0.origin, size: $0.size).matches(original) }) {
+        for step in 1 ..< bands.count {
+          let next = bands[(current + step) % bands.count]
+          if next != bands[current] { return next }
+        }
+      }
+
+      func length(_ frame: CGRect) -> CGFloat { offset.x == 0 ? frame.height : frame.width }
+      return bands.min { abs(length($0) - length(original)) < abs(length($1) - length(original)) }
     }
   }
 }
