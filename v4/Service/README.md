@@ -143,6 +143,7 @@ at a display edge preserves the opposite edges and reports any fixture
 minimum-size clamp. It also verifies a position-only Center toggle,
 explicit Fill restore from a centered frame, and a Fill toggle round trip
 from a frame near a display edge.
+The unrestricted fixture also checks a bottom-trailing Anchor snap.
 With exactly two displays it checks both centered and proportional
 display-transfer round trips. The test does not run the Service or a saved
 workflow.

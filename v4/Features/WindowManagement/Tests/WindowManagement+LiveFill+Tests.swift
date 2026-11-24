@@ -132,6 +132,21 @@ private func probe(
     let settledMove = try #require(compositorFrame(windowID: windowID, pid: pid))
     #expect(matchesFrame(settledMove, expectedMove))
     print("Directional Move: CG-settled=\(settledMove) expected=\(expectedMove)")
+    if !constrained {
+      let anchor = try #require(try await WindowManagement.anchorFocusedWindow(
+        in: pid, direction: .bottomTrailing,
+        displays: [.init(bounds: displayBounds, visibleBounds: target.insetBy(dx: -28, dy: -28))],
+        padding: 28, using: client,
+      ))
+      let width = (target.width * 2 / 3).rounded()
+      let height = (target.height * 2 / 3).rounded()
+      let expectedAnchor = CGRect(x: target.maxX - width, y: target.maxY - height, width: width, height: height)
+      try await Task.sleep(for: .milliseconds(500))
+      let settledAnchor = try #require(compositorFrame(windowID: windowID, pid: pid))
+      print("Anchor: requested=\(anchor.requested) AX=\(anchor.observed) CG-settled=\(settledAnchor) expected=\(expectedAnchor)")
+      #expect(matchesFrame(anchor.requested, expectedAnchor))
+      #expect(matchesFrame(settledAnchor, expectedAnchor))
+    }
     return
   }
   let moved = try await step("position")
