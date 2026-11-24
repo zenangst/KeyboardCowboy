@@ -1,17 +1,8 @@
 import AccessibilitySystem
+import Commands
 
 public enum MenuBar {
-  public enum Token: Codable, Equatable, Sendable {
-    case menuItem(name: String)
-    case menuItems(name: String, fallbackName: String)
-
-    fileprivate func matches(_ title: String) -> Bool {
-      switch self {
-      case .menuItem(let name): title.hasPrefix(name)
-      case .menuItems(let name, let fallbackName): title.hasPrefix(name) || title.hasPrefix(fallbackName)
-      }
-    }
-  }
+  public typealias Token = Command.MenuBar.Token
 
   public enum ExecutionError: Error, Equatable {
     case emptyTokens, menuBarUnavailable, invalidTraversalBudget, traversalLimitReached
@@ -120,6 +111,15 @@ public enum MenuBar {
     } catch let failure as AccessibilitySystem.Failure
       where failure.kind == .noValue || failure.kind == .attributeUnsupported {
       return nil
+    }
+  }
+}
+
+private extension MenuBar.Token {
+  func matches(_ title: String) -> Bool {
+    switch self {
+    case .menuItem(let name): title.hasPrefix(name)
+    case .menuItems(let name, let fallbackName): title.hasPrefix(name) || title.hasPrefix(fallbackName)
     }
   }
 }
