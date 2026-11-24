@@ -2,17 +2,29 @@ import AccessibilitySystem
 import Darwin
 
 public extension WindowManagement {
-  /// Moves the application's focused window to the center of the next
-  /// display's usable area without resizing or moving the pointer. Display
-  /// order is supplied by the caller and wraps. With no alternate usable
-  /// display, returns nil and does not move the window.
+  enum DisplayTransferMode: Sendable {
+    /// Centers in the destination's usable area without resizing.
+    case center
+    /// Scales position and size relative to both displays' usable areas,
+    /// then fits the requested frame inside the destination.
+    case relative
+  }
+
+  /// Cycles through the supplied display order without moving the pointer.
+  /// Relative mode requires a verified, on-screen window in the active app
+  /// and waits for its move to settle before resizing. Returns nil if there
+  /// is no usable destination or the target cannot be verified. A completed
+  /// move is not rolled back if verification fails before resizing.
   @discardableResult
   static func moveFocusedWindowToNextDisplay(
-    in processIdentifier: pid_t, displays: [Display],
+    in processIdentifier: pid_t, displays: [Display], mode: DisplayTransferMode = .center,
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> FrameResult? {
     guard processIdentifier > 0, processIdentifier != getpid(), displays.count > 1 else { return nil }
-    let operation = Operation.NextDisplay(displays: displays)
+    let operation = Operation.NextDisplay(displays: displays, mode: mode)
+    if case .relative = mode {
+      return try await placeFocusedWindow(in: processIdentifier, using: accessibility, requestedFrame: operation.requestedFrame)
+    }
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
       try Operation.moveFocusedWindow(
         focusedWindow: session.focusedWindow,

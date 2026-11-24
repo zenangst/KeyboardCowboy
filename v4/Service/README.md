@@ -138,8 +138,9 @@ neither window is resized. Pass `secondary` to run just those checks on
 the first extended display after the primary. The probe prints that display's
 AX bounds. Set `CONFIGURATION=release` to exercise the optimized feature
 build. The fixture also checks that directional Move preserves the window's
-size. With exactly two displays it checks a centered display-transfer round
-trip. The test does not run the Service or a saved workflow.
+size. With exactly two displays it checks both centered and proportional
+display-transfer round trips. The test does not run the Service or a saved
+workflow.
 
 To smoke-test another app manually:
 

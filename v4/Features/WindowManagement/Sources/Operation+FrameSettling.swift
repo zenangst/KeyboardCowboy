@@ -1,7 +1,7 @@
 import CoreGraphics
 
 extension Operation {
-  struct SettledFill {
+  struct FrameSettling {
     let origin: CGPoint
 
     func resizeWhenSettled<Result>(
@@ -24,7 +24,7 @@ extension Operation {
         try await clock.sleep(until: min(now + .milliseconds(20), deadline))
       }
       try Task.checkCancellation()
-      throw WindowManagement.FillError.settlingTimedOut
+      throw WindowManagement.FramePlacementError.settlingTimedOut
     }
 
     static func matchesOrigin(_ frame: CGRect, _ origin: CGPoint) -> Bool {

@@ -159,6 +159,30 @@ private func verifyDisplayRoundTrip(
     try #require(matchesFrame(settled, expected))
     print("Next Display: CG-settled=\(settled) expected=\(expected)")
   }
+  for (from, to) in [(source, 1 - source), (1 - source, source)] {
+    try #require(NSWorkspace.shared.frontmostApplication?.processIdentifier == pid, "Keep the fixture frontmost.")
+    let sourceArea = displays[from].visibleBounds.intersection(displays[from].bounds)
+    let destination = displays[to].visibleBounds.intersection(displays[to].bounds)
+    let result: WindowManagement.FrameResult
+    do {
+      result = try #require(try await WindowManagement.moveFocusedWindowToNextDisplay(
+        in: pid, displays: displays, mode: .relative, using: client,
+      ))
+    } catch {
+      print("Next Display relative failed: from=\(sourceArea) to=\(destination) CG=\(String(describing: compositorFrame(windowID: windowID, pid: pid)))")
+      throw error
+    }
+    let xScale = destination.width / sourceArea.width
+    let yScale = destination.height / sourceArea.height
+    let expected = CGRect(x: destination.minX + (result.original.minX - sourceArea.minX) * xScale,
+                          y: destination.minY + (result.original.minY - sourceArea.minY) * yScale,
+                          width: result.original.width * xScale, height: result.original.height * yScale)
+    try await Task.sleep(for: .milliseconds(500))
+    let settled = try #require(compositorFrame(windowID: windowID, pid: pid))
+    #expect(matchesFrame(result.requested, expected))
+    try #require(matchesFrame(settled, expected))
+    print("Next Display relative: CG-settled=\(settled) expected=\(expected)")
+  }
 }
 
 private func matchesFrame(_ actual: CGRect, _ expected: CGRect) -> Bool {
