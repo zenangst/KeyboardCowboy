@@ -83,6 +83,7 @@ private func probe(
     let afterTransfer = try await step("read")
     try await verifyEdgeShrink(pid: pid, windowID: windowID, area: target.insetBy(dx: -28, dy: -28),
                                size: afterTransfer.size, client: client)
+    try await verifyFillRestore(pid: pid, windowID: windowID, target: target, bounds: displayBounds, client: client)
   }
   let expected = constrained ? CGRect(origin: target.origin, size: CGSize(width: 800, height: 600)) : target
   guard let delay else {

@@ -141,7 +141,8 @@ build. The fixture also checks that directional Move preserves the window's
 size, that top-leading Grow and Shrink reverse each other, and that shrinking
 at a display edge preserves the opposite edges and reports any fixture
 minimum-size clamp. It also verifies explicit Fill restore on the same
-window. With exactly two displays it checks both centered and proportional
+window, both from a centered starting frame and from one near a display edge.
+With exactly two displays it checks both centered and proportional
 display-transfer round trips. The test does not run the Service or a saved
 workflow.
 

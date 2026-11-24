@@ -41,13 +41,13 @@ public extension WindowManagement {
   /// Restores only the same active, focused window while it still matches the
   /// recorded Fill result and its saved frame overlaps a usable display.
   /// The observed frame may differ if the app or window server clamps the
-  /// request. An already completed move is not rolled back.
+  /// request. An already completed move or shrink is not rolled back.
   @discardableResult
   static func restoreFocusedWindow(
     from point: FillRestorePoint, displays: [Display],
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> FrameResult? {
-    try await placeIdentifiedFocusedWindow(in: point.pid, using: accessibility) { id, original, onScreen in
+    try await placeIdentifiedFocusedWindow(in: point.pid, using: accessibility, shrinkBeforeMoving: true) { id, original, onScreen in
       guard NSRunningApplication(processIdentifier: point.pid)?.launchDate == point.launchDate else { return nil }
       return point.target(id: id, current: original, onScreen: onScreen, displays: displays)
     }?.frame
