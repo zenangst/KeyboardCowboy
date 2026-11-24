@@ -84,13 +84,19 @@ public extension HostInput {
       handler: @escaping Handler,
       onDisruption: @escaping DisruptionHandler,
     ) throws {
-      guard capture == nil else { return }
-
       let mask = MachPortSystem.TapConfiguration.keyboardEventMask
         | (1 << CGEventType.leftMouseDown.rawValue)
         | (1 << CGEventType.leftMouseUp.rawValue)
         | (1 << CGEventType.leftMouseDragged.rawValue)
-      let tap = makeTap(.init(eventMask: mask), signature, handler, onDisruption)
+      try startCapture(eventMask: mask, handler: handler, onDisruption: onDisruption)
+    }
+
+    func startCapture(
+      eventMask: CGEventMask, handler: @escaping Handler, onDisruption: @escaping DisruptionHandler,
+    ) throws {
+      guard capture == nil else { return }
+
+      let tap = makeTap(.init(eventMask: eventMask), signature, handler, onDisruption)
       try tap.start()
       capture = tap
     }
