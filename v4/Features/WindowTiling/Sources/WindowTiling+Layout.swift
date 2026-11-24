@@ -9,6 +9,7 @@ public extension WindowTiling {
   ) -> Action? {
     guard usable(frame), validLayout(visibleBounds, margin: margin),
           tolerance.isFinite, tolerance >= 0 else { return nil }
+
     let inset = visibleBounds.insetBy(dx: margin, dy: margin)
     let left = inset.minX, right = inset.maxX
     let top = inset.minY, bottom = inset.maxY
