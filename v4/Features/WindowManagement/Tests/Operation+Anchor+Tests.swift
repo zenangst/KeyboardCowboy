@@ -64,3 +64,23 @@ func anchorUsesPaddedVisibleAreaForAllDirections(
   let leading = try Operation.Anchor(direction: .leading, displays: [.init(bounds: tiny, visibleBounds: tiny)], padding: 0, mode: .cycle)
   #expect(leading.requestedFrame(for: CGRect(x: 0, y: 0, width: 2, height: 3)) == CGRect(x: 0, y: 0, width: 3, height: 3))
 }
+
+@Test func anchorFitsKnownMinimumBeforePositioningAndCyclesDistinctFrames() throws {
+  let anchor = try Operation.Anchor(direction: .bottomTrailing, displays: [display], padding: 20,
+                                    mode: .cycle, minimumSize: CGSize(width: 450, height: 299.5))
+  let minimum = CGRect(x: -470, y: 150, width: 450, height: 300)
+  let large = CGRect(x: -620, y: 50, width: 600, height: 400)
+  #expect(anchor.requestedFrame(for: original) == minimum)
+  #expect(anchor.requestedFrame(for: minimum) == large)
+  #expect(anchor.requestedFrame(for: large) == minimum)
+}
+
+@Test func anchorRejectsInvalidMinimumOrOneThatCannotFit() throws {
+  #expect(throws: WindowManagement.AnchorError.invalidMinimumSize) {
+    try Operation.Anchor(direction: .top, displays: [display], padding: 20,
+                         minimumSize: CGSize(width: -1, height: 200))
+  }
+  let tooWide = try Operation.Anchor(direction: .top, displays: [display], padding: 20,
+                                     minimumSize: CGSize(width: 900.25, height: 200))
+  #expect(tooWide.requestedFrame(for: original) == nil)
+}

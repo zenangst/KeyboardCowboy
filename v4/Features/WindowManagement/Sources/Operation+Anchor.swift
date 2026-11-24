@@ -6,14 +6,20 @@ extension Operation {
     let displays: [WindowManagement.Display]
     let padding: CGFloat
     let mode: WindowManagement.AnchorMode
+    let minimumSize: CGSize?
 
     init(direction: WindowManagement.Direction, displays: [WindowManagement.Display], padding: CGFloat,
-         mode: WindowManagement.AnchorMode = .nearest) throws {
+         mode: WindowManagement.AnchorMode = .nearest, minimumSize: CGSize? = nil) throws {
       guard padding.isFinite, padding >= 0 else { throw WindowManagement.AnchorError.invalidPadding }
+      if let minimumSize {
+        guard minimumSize.width.isFinite, minimumSize.height.isFinite,
+              minimumSize.width >= 0, minimumSize.height >= 0 else { throw WindowManagement.AnchorError.invalidMinimumSize }
+      }
       self.direction = direction
       self.displays = displays
       self.padding = padding
       self.mode = mode
+      self.minimumSize = minimumSize
     }
 
     func requestedFrame(for original: CGRect) -> CGRect? {
@@ -28,12 +34,14 @@ extension Operation {
       let bottom = padded.maxY.rounded(.down)
       let availableWidth = right - left
       let availableHeight = bottom - top
-      guard availableWidth >= 1, availableHeight >= 1 else { return nil }
+      let minimumWidth = max(1, (minimumSize?.width ?? 0).rounded(.up))
+      let minimumHeight = max(1, (minimumSize?.height ?? 0).rounded(.up))
+      guard availableWidth >= minimumWidth, availableHeight >= minimumHeight else { return nil }
 
       let offset = direction.offset
       let bands = [CGFloat(1) / 3, 0.5, CGFloat(2) / 3].map { scale in
-        let width = offset.x == 0 ? availableWidth : max(1, (availableWidth * scale).rounded())
-        let height = offset.y == 0 ? availableHeight : max(1, (availableHeight * scale).rounded())
+        let width = offset.x == 0 ? availableWidth : max(minimumWidth, (availableWidth * scale).rounded())
+        let height = offset.y == 0 ? availableHeight : max(minimumHeight, (availableHeight * scale).rounded())
         return CGRect(x: offset.x > 0 ? right - width : left, y: offset.y > 0 ? bottom - height : top,
                       width: width, height: height)
       }.filter(WindowManagement.isUsable)

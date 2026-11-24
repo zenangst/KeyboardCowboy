@@ -4,6 +4,7 @@ import CoreGraphics
 public extension WindowManagement {
   enum AnchorError: Error, Equatable {
     case invalidPadding
+    case invalidMinimumSize
   }
 
   enum AnchorMode: Sendable {
@@ -19,12 +20,16 @@ public extension WindowManagement {
   /// Cardinal anchors span the other axis. The app may clamp the requested
   /// frame; the observed frame reports the result. Pass `.cycle` on repeats
   /// to advance only when the full frame still matches an anchor band.
+  /// Supply a known `minimumSize` to fit each band to that minimum before
+  /// positioning it. If the minimum cannot fit inside the padded area,
+  /// returns nil without writing. No minimum-size probe is performed.
   @discardableResult
   static func anchorFocusedWindow(
     in processIdentifier: pid_t, direction: Direction, displays: [Display], padding: CGFloat = 0, mode: AnchorMode = .nearest,
+    minimumSize: CGSize? = nil,
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> FrameResult? {
-    let anchor = try Operation.Anchor(direction: direction, displays: displays, padding: padding, mode: mode)
+    let anchor = try Operation.Anchor(direction: direction, displays: displays, padding: padding, mode: mode, minimumSize: minimumSize)
     return try await placeFocusedWindow(in: processIdentifier, using: accessibility, requestedFrame: anchor.requestedFrame)
   }
 }

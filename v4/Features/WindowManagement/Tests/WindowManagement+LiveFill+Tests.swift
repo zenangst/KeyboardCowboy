@@ -160,6 +160,7 @@ private func probe(
         #expect(matchesFrame(next.requested, expectedNext))
         try #require(matchesFrame(settledNext, expectedNext))
       }
+      try await verifyAnchorMinimum(pid: pid, windowID: windowID, bounds: displayBounds, origin: target.origin, client: client)
     }
     return
   }
@@ -172,6 +173,27 @@ private func probe(
   let matched = matchesFrame(settled, expected)
   print("Fill \(delay) ms\(constrained ? " constrained" : ""): before=\(before) moved=\(moved) CG-before-resize=\(String(describing: compositor)) resized=\(resized) settled=\(settled) expected=\(expected) matched=\(matched)")
   if delay == 500 { #expect(matched, "The paced control should reach the expected frame.") }
+}
+
+@MainActor
+private func verifyAnchorMinimum(
+  pid: pid_t, windowID: CGWindowID, bounds: CGRect, origin: CGPoint, client: AccessibilitySystem.Client,
+) async throws {
+  let area = CGRect(origin: origin, size: CGSize(width: 900, height: 400))
+  let display = WindowManagement.Display(bounds: bounds, visibleBounds: area)
+  // The one-third height (133) would otherwise be clamped by AppKit.
+  for (mode, height) in [(WindowManagement.AnchorMode.nearest, 267), (.cycle, 150), (.cycle, 200)] {
+    let result = try #require(try await WindowManagement.anchorFocusedWindow(
+      in: pid, direction: .top, displays: [display], mode: mode, minimumSize: CGSize(width: 200, height: 150), using: client,
+    ))
+    let expected = CGRect(origin: origin, size: CGSize(width: 900, height: height))
+    try await Task.sleep(for: .milliseconds(500))
+    let settled = try #require(compositorFrame(windowID: windowID, pid: pid))
+    print("Anchor known minimum: requested=\(result.requested) AX=\(result.observed) CG-settled=\(settled)")
+    #expect(matchesFrame(result.requested, expected))
+    #expect(matchesFrame(result.observed, expected))
+    try #require(matchesFrame(settled, expected))
+  }
 }
 
 @MainActor
