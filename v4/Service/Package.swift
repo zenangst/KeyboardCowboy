@@ -19,6 +19,7 @@ let package = Package(
     .package(path: "../Components/MachPortSystem"),
     .package(path: "../Components/Commands"),
     .package(path: "../Features/Open"),
+    .package(path: "../Features/Keyboard"),
     .package(path: "../Features/Mouse"),
     .package(path: "../Features/Text"),
     .package(path: "../Features/UIElement"),
@@ -42,6 +43,7 @@ let package = Package(
         "AccessibilitySystem",
         "KeyCodeSystem",
         "MachPortSystem",
+        .product(name: "KeyboardFeature", package: "Keyboard"),
         .product(name: "MouseFeature", package: "Mouse"),
         .product(name: "TextFeature", package: "Text"),
         .product(name: "UIElementFeature", package: "UIElement"),
@@ -63,6 +65,7 @@ let package = Package(
       dependencies: [
         "HostInput",
         "KeyCodeSystem",
+        .product(name: "KeyboardFeature", package: "Keyboard"),
         .product(name: "TextFeature", package: "Text"),
       ],
     ),
