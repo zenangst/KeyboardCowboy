@@ -1,4 +1,5 @@
 import CoreGraphics
+import KeyCodeSystem
 import MachPortSystem
 
 public enum Keyboard {
@@ -22,9 +23,37 @@ public enum Keyboard {
     _ shortcuts: [Shortcut], iterations: Int = 1,
     using poster: MachPortSystem.KeyboardEventPoster?, lookup: KeyLookup,
   ) throws -> [CGEvent] {
+    try execute(shortcuts, iterations: iterations, using: poster, resolve: { lookup($0.uppercased()) ?? lookup($0) })
+  }
+
+  /// Executes against a reusable layout snapshot, without querying the input
+  /// source during posting. Shortcut modifiers are applied after key lookup.
+  @MainActor
+  @discardableResult
+  public static func execute(
+    _ shortcuts: [Shortcut], iterations: Int = 1,
+    using poster: MachPortSystem.KeyboardEventPoster?, layout: KeyCodeSystem.Layout,
+  ) throws -> [CGEvent] {
+    try execute(shortcuts, iterations: iterations, using: poster, resolve: { keyCode(for: $0, in: layout) })
+  }
+
+  static func keyCode(for key: String, in layout: KeyCodeSystem.Layout) -> Int? {
+    let upper = key.uppercased()
+    if let code = layout.keyCode(for: upper) { return code }
+    if key != upper, let code = layout.keyCode(for: key) { return code }
+    let lower = key.lowercased()
+    guard lower != key, lower != upper else { return nil }
+    return layout.keyCode(for: lower)
+  }
+
+  @MainActor
+  private static func execute(
+    _ shortcuts: [Shortcut], iterations: Int,
+    using poster: MachPortSystem.KeyboardEventPoster?, resolve: KeyLookup,
+  ) throws -> [CGEvent] {
     guard let poster else { throw ExecutionError.posterUnavailable }
 
-    return try execute(shortcuts, iterations: iterations, lookup: lookup, canPost: CGPreflightPostEventAccess) {
+    return try execute(shortcuts, iterations: iterations, resolve: resolve, canPost: CGPreflightPostEventAccess) {
       try poster.post(keyCode: $0, action: $1, flags: $2)
     }
   }
@@ -34,6 +63,14 @@ public enum Keyboard {
     _ shortcuts: [Shortcut], iterations: Int, lookup: KeyLookup, canPost: () -> Bool,
     post: (CGKeyCode, MachPortSystem.KeyboardEventPoster.KeyAction, CGEventFlags) throws -> CGEvent,
   ) throws -> [CGEvent] {
+    try execute(shortcuts, iterations: iterations, resolve: { lookup($0.uppercased()) ?? lookup($0) }, canPost: canPost, post: post)
+  }
+
+  @MainActor
+  static func execute(
+    _ shortcuts: [Shortcut], iterations: Int, resolve: KeyLookup, canPost: () -> Bool,
+    post: (CGKeyCode, MachPortSystem.KeyboardEventPoster.KeyAction, CGEventFlags) throws -> CGEvent,
+  ) throws -> [CGEvent] {
     guard !shortcuts.isEmpty else { return [] }
     guard canPost() else { throw ExecutionError.postingNotPermitted }
 
@@ -41,7 +78,7 @@ public enum Keyboard {
     for _ in 0 ..< max(1, iterations) {
       for shortcut in shortcuts {
         let key = shortcut.key
-        guard let resolved = lookup(key.uppercased()) ?? lookup(key) else {
+        guard let resolved = resolve(key) else {
           throw ExecutionError.unresolvedKey(key)
         }
         guard let code = CGKeyCode(exactly: resolved) else {

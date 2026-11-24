@@ -1,9 +1,29 @@
 import Carbon
 import CoreGraphics
 import IOKit.hidsystem
+import KeyCodeSystem
 @testable import KeyboardFeature
 import MachPortSystem
 import Testing
+
+@MainActor
+@Test func executesSavedShortcutLabelsAgainstAReusableLayout() throws {
+  let french = try KeyCodeSystem.Layout(inputSourceID: "com.apple.keylayout.French")
+  let us = try KeyCodeSystem.Layout(inputSourceID: "com.apple.keylayout.US")
+  let recorder = Recorder()
+  let events = try Keyboard.execute([
+    .init(key: "A", modifiers: [.leftShift]), .init(key: "É"), .init(key: "F1"), .init(key: "#1"),
+  ], iterations: 1, resolve: { Keyboard.keyCode(for: $0, in: french) }, canPost: { true }, post: recorder.post)
+
+  let codes = [kVK_ANSI_Q, kVK_ANSI_2, kVK_F1, kVK_ANSI_Keypad1].flatMap { [Int64($0), Int64($0)] }
+  #expect(events.map { $0.getIntegerValueField(.keyboardEventKeycode) } == codes)
+  #expect(events.first?.flags.contains(.maskShift) == true)
+  #expect(Keyboard.keyCode(for: "A", in: us) == kVK_ANSI_A)
+  #expect(Keyboard.keyCode(for: "not a key", in: french) == nil)
+  #expect(throws: Keyboard.ExecutionError.posterUnavailable) {
+    try Keyboard.execute([.init(key: "A")], using: nil, layout: french)
+  }
+}
 
 @MainActor
 @Test func postsTaggedDownUpPairsInShortcutAndIterationOrder() throws {
