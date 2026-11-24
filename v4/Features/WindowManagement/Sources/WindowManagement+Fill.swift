@@ -21,6 +21,7 @@ public extension WindowManagement {
   ) async throws -> (id: CGWindowID, request: PlacementRequest, frame: FrameResult)? {
     let fill = try Operation.Fill(displays: displays, padding: padding)
     guard !displays.isEmpty else { return nil }
+
     do {
       return try await placeIdentifiedFocusedWindow(in: processIdentifier, using: accessibility) { id, original, onScreen in
         let launchDate = point == nil ? nil : NSRunningApplication(processIdentifier: processIdentifier)?.launchDate

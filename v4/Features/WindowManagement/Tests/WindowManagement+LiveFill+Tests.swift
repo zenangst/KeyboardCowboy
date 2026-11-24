@@ -102,6 +102,7 @@ private func probe(
     if let replacement {
       let focused = try await client.withApplication(processIdentifier: pid) { session -> CGWindowID? in
         guard let window = try session.focusedWindow() else { return nil }
+
         return try session.windowIDCandidate(for: window)
       }
       #expect(NSWorkspace.shared.frontmostApplication?.processIdentifier == pid)
@@ -164,6 +165,7 @@ private func probe(
     }
     return
   }
+
   let moved = try await step("position")
   if delay > 0 { try await Task.sleep(for: .milliseconds(delay)) }
   let compositor = compositorFrame(windowID: windowID, pid: pid)
@@ -220,6 +222,7 @@ private func verifyCenterToggle(
     Issue.record("First Center toggle did not center")
     return
   }
+
   let point = try #require(restorePoint)
   try await Task.sleep(for: .milliseconds(500))
   let centered = try #require(compositorFrame(windowID: windowID, pid: pid))
@@ -234,6 +237,7 @@ private func verifyCenterToggle(
     try #require(Bool(false), "Second Center toggle did not restore: first=\(frame) CG=\(centered) second=\(String(describing: second))")
     return
   }
+
   try await Task.sleep(for: .milliseconds(500))
   let settled = try #require(compositorFrame(windowID: windowID, pid: pid))
   #expect(restored.requested == original)
@@ -273,6 +277,7 @@ private func verifyFillRestore(
       Issue.record("First Fill toggle did not fill")
       return
     }
+
     filled = frame
     point = try #require(restorePoint)
   } else {
@@ -290,6 +295,7 @@ private func verifyFillRestore(
       Issue.record("Second Fill toggle did not restore")
       return
     }
+
     restored = frame
   } else {
     restored = try #require(try await WindowManagement.restoreFocusedWindow(from: point, displays: displays, using: client))
@@ -347,6 +353,7 @@ private func verifyDisplayRoundTrip(
 ) async throws {
   let screens = NSScreen.screens
   guard screens.count == 2, let primary = screens.first else { return }
+
   func ax(_ rect: CGRect) -> CGRect {
     CGRect(x: rect.minX, y: primary.frame.maxY - rect.maxY, width: rect.width, height: rect.height)
   }
@@ -398,9 +405,11 @@ private func matchesFrame(_ actual: CGRect, _ expected: CGRect) -> Bool {
 // The fixture supplies its actual window number; geometry is not used to identify it.
 private func compositorFrame(windowID: CGWindowID, pid: pid_t) -> CGRect? {
   guard let rows = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) as? [[String: Any]] else { return nil }
+
   let windows = rows.filter {
     ($0[kCGWindowNumber as String] as? CGWindowID) == windowID && ($0[kCGWindowOwnerPID as String] as? pid_t) == pid
   }
   guard windows.count == 1, let bounds = windows[0][kCGWindowBounds as String] as? [String: Any] else { return nil }
+
   return CGRect(dictionaryRepresentation: bounds as CFDictionary)
 }

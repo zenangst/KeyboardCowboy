@@ -13,12 +13,14 @@ public extension WindowTiling {
     _ action: Action, eligibleWindowCount count: Int, dynamicSide: ArrangementSide? = nil,
   ) -> Action? {
     guard count > 0 else { return nil }
+
     switch action {
     case .arrangeLeftRight, .arrangeRightLeft, .arrangeTopBottom, .arrangeBottomTop:
       return count == 1 ? .fill : action
     case .arrangeLeftQuarters, .arrangeRightQuarters, .arrangeTopQuarters, .arrangeBottomQuarters:
       if count == 1 { return .fill }
       guard count == 2 else { return action }
+
       switch action {
       case .arrangeLeftQuarters: return .arrangeLeftRight
       case .arrangeRightQuarters: return .arrangeRightLeft
@@ -35,6 +37,7 @@ public extension WindowTiling {
     case .arrangeDynamicQuarters:
       if count == 1 { return .fill }
       guard let dynamicSide else { return nil }
+
       switch dynamicSide {
       case .left: return count == 2 ? .arrangeLeftRight : .arrangeLeftQuarters
       case .right: return count == 2 ? .arrangeRightLeft : .arrangeRightQuarters
@@ -54,6 +57,7 @@ public extension WindowTiling {
     guard let resolved = resolvedAction(action, eligibleWindowCount: eligibleWindowCount, dynamicSide: dynamicSide) else {
       return false
     }
+
     return try await execute(resolved, in: processIdentifier, using: accessibility)
   }
 }

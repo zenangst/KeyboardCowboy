@@ -24,6 +24,7 @@ public extension AccessibilitySystem.Session {
     guard value.x.isFinite, value.y.isFinite else {
       throw AccessibilitySystem.Failure(.invalidConfiguration, operation: attribute.name)
     }
+
     try transportWrite(attribute.name, position: value, to: element)
   }
 
@@ -32,6 +33,7 @@ public extension AccessibilitySystem.Session {
     guard value.width.isFinite, value.height.isFinite, value.width >= 0, value.height >= 0 else {
       throw AccessibilitySystem.Failure(.invalidConfiguration, operation: attribute.name)
     }
+
     try transportWrite(attribute.name, size: value, to: element)
   }
 

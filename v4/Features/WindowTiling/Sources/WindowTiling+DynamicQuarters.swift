@@ -16,14 +16,17 @@ public extension WindowTiling {
   ) async throws -> Action? {
     guard pid > 0, pid != getpid(), eligibleWindowCount > 0, validLayout(visibleBounds, margin: margin),
           let app = NSWorkspace.shared.frontmostApplication, app.processIdentifier == pid else { return nil }
+
     return try await accessibility.withApplication(processIdentifier: pid) { session in
       guard let window = try session.focusedWindow(), let id = try session.windowIDCandidate(for: window),
             let frame = onScreenFrame(id: id, pid: pid), frame.intersects(visibleBounds),
             let action = dynamicAction(count: eligibleWindowCount, layout: classify(frame, in: visibleBounds, margin: margin))
       else { return nil }
+
       let accepted = try execute(action, in: session) {
         guard NSWorkspace.shared.frontmostApplication?.isEqual(app) == true,
               try session.focusedWindow() == window else { return false }
+
         return onScreenFrame(id: id, pid: pid) == frame
       }
       return accepted ? action : nil

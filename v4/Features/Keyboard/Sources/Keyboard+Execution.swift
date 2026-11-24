@@ -43,6 +43,7 @@ public enum Keyboard {
     if key != upper, let code = layout.keyCode(for: key) { return code }
     let lower = key.lowercased()
     guard lower != key, lower != upper else { return nil }
+
     return layout.keyCode(for: lower)
   }
 

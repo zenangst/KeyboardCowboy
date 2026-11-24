@@ -152,6 +152,7 @@ extension AccessibilitySystem {
       guard let geometry = AXValueCreate(.cgPoint, &point) else {
         throw Failure(.malformedValue, operation: name)
       }
+
       try setAttribute(name, value: geometry, on: handle)
     }
 
@@ -160,6 +161,7 @@ extension AccessibilitySystem {
       guard let geometry = AXValueCreate(.cgSize, &size) else {
         throw Failure(.malformedValue, operation: name)
       }
+
       try setAttribute(name, value: geometry, on: handle)
     }
 

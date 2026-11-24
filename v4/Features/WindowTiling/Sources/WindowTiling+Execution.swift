@@ -11,6 +11,7 @@ public extension WindowTiling {
     _ action: Action, in processIdentifier: pid_t, using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> Bool {
     guard processIdentifier > 0, processIdentifier != getpid() else { return false }
+
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
       try execute(action, in: session)
     }
@@ -20,6 +21,7 @@ public extension WindowTiling {
     _ action: Action, in session: AccessibilitySystem.Session, canPick: () throws -> Bool = { true },
   ) throws -> Bool {
     guard let root = try session.menuBar() else { return false }
+
     return try execute(
       action, root: root,
       children: { node in try optional { try session.children(of: node) } ?? [] },
@@ -41,12 +43,14 @@ public extension WindowTiling {
 
     func menuItems(in item: Node) throws -> [Node] {
       guard let menu = try children(item).first else { return [] }
+
       return try children(menu)
     }
 
     for item in try children(root).reversed() {
       let windowItems = try menuItems(in: item)
       guard try matching(.center, in: windowItems) != nil else { continue }
+
       let target: Node?
       if action.isDirectWindowMenuAction {
         target = try matching(action, in: windowItems)
@@ -62,6 +66,7 @@ public extension WindowTiling {
         target = try matching(action, in: resizeItems)
       }
       guard let target, try canPick() else { return false }
+
       try Task.checkCancellation()
       try pick(target)
       return true

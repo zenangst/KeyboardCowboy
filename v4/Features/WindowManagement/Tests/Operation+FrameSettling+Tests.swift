@@ -10,6 +10,7 @@ import Testing
   var count = 0
   let result = try await operation.whenSettled(sample: {
     guard count < samples.count else { return nil }
+
     defer { count += 1 }
     return samples[count]
   }, apply: { count })

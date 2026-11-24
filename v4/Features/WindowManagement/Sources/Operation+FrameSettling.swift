@@ -16,6 +16,7 @@ extension Operation {
       while clock.now < deadline {
         try Task.checkCancellation()
         guard let frame = sample() else { return nil }
+
         consecutive = matches(frame) ? consecutive + 1 : 0
         let now = clock.now
         if consecutive == 2, now < deadline {
@@ -35,6 +36,7 @@ extension Operation {
     func matches(_ frame: CGRect) -> Bool {
       guard Self.matchesOrigin(frame, origin) else { return false }
       guard let size else { return true }
+
       return abs(frame.width - size.width) <= 0.5 && abs(frame.height - size.height) <= 0.5
     }
   }

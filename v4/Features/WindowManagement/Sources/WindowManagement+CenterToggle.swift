@@ -30,10 +30,12 @@ public extension WindowManagement {
     let pid = processIdentifier
     guard pid > 0, pid != getpid(), !displays.isEmpty,
           NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { return nil }
+
     let center = Operation.Center(displays: displays)
     return try await accessibility.withApplication(processIdentifier: pid) { session in
       guard let window = try session.focusedWindow(),
             let id = try session.windowIDCandidate(for: window) else { return nil }
+
       let launchDate = NSRunningApplication(processIdentifier: pid)?.launchDate
       let original = try session.frame(of: window)
       guard let onScreen = compositorFrame(id: id, owner: pid),
@@ -42,6 +44,7 @@ public extension WindowManagement {
             ),
             try session.focusedWindow() == window,
             NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { return nil }
+
       let requested = placement.frame
       var observed = original
       if !Operation.FrameSettling.matchesOrigin(original, requested.origin) {
@@ -55,6 +58,7 @@ public extension WindowManagement {
             NSRunningApplication(processIdentifier: pid)?.launchDate == launchDate else {
         return .centered(frame: result, restorePoint: nil)
       }
+
       return .centered(frame: result, restorePoint: .init(
         pid: pid, launchDate: launchDate, id: id, original: original, centered: observed,
       ))

@@ -5,6 +5,7 @@ import AppKit
 struct WindowFillSmokeFixture {
   static func main() {
     guard CommandLine.arguments.count == 4, let displayID = UInt32(CommandLine.arguments[3]) else { exit(2) }
+
     let app = NSApplication.shared
     app.setActivationPolicy(.regular)
     app.finishLaunching()
@@ -12,6 +13,7 @@ struct WindowFillSmokeFixture {
     guard let screen = NSScreen.screens.first(where: {
       ($0.deviceDescription[key] as? NSNumber)?.uint32Value == displayID
     }) else { exit(2) }
+
     let area = screen.visibleFrame
     let window = NSWindow(contentRect: CGRect(x: 0, y: 0, width: 420, height: 250),
                           styleMask: [.titled, .resizable], backing: .buffered, defer: false, screen: screen)

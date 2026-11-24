@@ -21,6 +21,7 @@ public extension WindowManagement {
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> FrameResult? {
     guard processIdentifier > 0, processIdentifier != getpid(), displays.count > 1 else { return nil }
+
     let operation = Operation.NextDisplay(displays: displays, mode: mode)
     if case .relative = mode {
       return try await placeFocusedWindow(in: processIdentifier, using: accessibility, requestedFrame: operation.requestedFrame)

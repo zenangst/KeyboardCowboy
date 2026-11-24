@@ -1,8 +1,8 @@
 import Carbon
 import CoreGraphics
 import IOKit.hidsystem
-import KeyCodeSystem
 @testable import KeyboardFeature
+import KeyCodeSystem
 import MachPortSystem
 import Testing
 

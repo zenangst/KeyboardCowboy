@@ -41,17 +41,21 @@ public extension WindowTiling {
     return try await accessibility.withApplication(processIdentifier: pid) { session in
       guard let window = try session.focusedWindow(), let id = try session.windowIDCandidate(for: window),
             let frame = onScreenFrame(id: id, pid: pid), frame.intersects(visibleBounds) else { return nil }
+
       let current = classify(frame, in: visibleBounds, margin: margin)
       let prior = point.flatMap {
         $0.matches(application: application, id: id, visibleBounds: visibleBounds, margin: margin) ? $0.tile : nil
       }
       guard let action = fillToggleAction(current: current, prior: prior) else { return nil }
+
       let accepted = try execute(action, in: session) {
         guard let active = NSWorkspace.shared.frontmostApplication, active.isEqual(application),
               try session.focusedWindow() == window else { return false }
+
         return onScreenFrame(id: id, pid: pid) == frame
       }
       guard accepted else { return nil }
+
       if action != .fill { return .restored(action) }
       return .filled(restorePoint: current.map {
         FillRestorePoint(application: application, id: id, visibleBounds: visibleBounds, margin: margin, tile: $0)
@@ -68,6 +72,7 @@ public extension WindowTiling {
     guard let row = rows?.first(where: {
       $0[kCGWindowNumber as String] as? CGWindowID == id && $0[kCGWindowOwnerPID as String] as? pid_t == pid
     }), let bounds = row[kCGWindowBounds as String] as? [String: Any] else { return nil }
+
     return CGRect(dictionaryRepresentation: bounds as CFDictionary)
   }
 }

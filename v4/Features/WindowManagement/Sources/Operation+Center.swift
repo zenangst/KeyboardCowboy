@@ -25,6 +25,7 @@ enum Operation {
     ) -> WindowManagement.PlacementRequest? {
       guard FrameSettling.matchesOrigin(onScreen, current.origin),
             abs(onScreen.width - current.width) <= 1, abs(onScreen.height - current.height) <= 1 else { return nil }
+
       if let point, point.pid == pid, point.launchDate == launchDate, point.id == id,
          FrameSettling.matchesOrigin(current, point.centered.origin),
          point.centered.size == current.size, point.original.size == current.size,

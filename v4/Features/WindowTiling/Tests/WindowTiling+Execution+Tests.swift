@@ -4,16 +4,16 @@ import Testing
 
 @Test func nativeActionsPreserveAllV3RawValuesAndIdentifiers() throws {
   let rawValues = """
-    left right top bottom topLeft topRight bottomLeft bottomRight center fill zoom \
-    arrangeLeftRight arrangeRightLeft arrangeTopBottom arrangeBottomTop arrangeLeftQuarters \
-    arrangeRightQuarters arrangeTopQuarters arrangeBottomQuarters arrangeDynamicQuarters arrangeQuarters previousSize
-    """.split(separator: " ").map(String.init)
+  left right top bottom topLeft topRight bottomLeft bottomRight center fill zoom \
+  arrangeLeftRight arrangeRightLeft arrangeTopBottom arrangeBottomTop arrangeLeftQuarters \
+  arrangeRightQuarters arrangeTopQuarters arrangeBottomQuarters arrangeDynamicQuarters arrangeQuarters previousSize
+  """.split(separator: " ").map(String.init)
   let selectors = """
-    _zoomLeft: _zoomRight: _zoomTop: _zoomBottom: _zoomTopLeft: _zoomTopRight: \
-    _zoomBottomLeft: _zoomBottomRight: _zoomCenter: _zoomFill: performZoom: _zoomLeftAndRight: \
-    _zoomRightAndLeft: _zoomTopAndBottom: _zoomBottomAndTop: _zoomLeftThreeUp: _zoomRightThreeUp: \
-    _zoomTopThreeUp: _zoomBottomThreeUp: _arrangeDynamicQuarters: _zoomQuarters: _zoomUntile:
-    """.split(separator: " ").map(String.init)
+  _zoomLeft: _zoomRight: _zoomTop: _zoomBottom: _zoomTopLeft: _zoomTopRight: \
+  _zoomBottomLeft: _zoomBottomRight: _zoomCenter: _zoomFill: performZoom: _zoomLeftAndRight: \
+  _zoomRightAndLeft: _zoomTopAndBottom: _zoomBottomAndTop: _zoomLeftThreeUp: _zoomRightThreeUp: \
+  _zoomTopThreeUp: _zoomBottomThreeUp: _arrangeDynamicQuarters: _zoomQuarters: _zoomUntile:
+  """.split(separator: " ").map(String.init)
   let actions = WindowTiling.Action.allCases
   #expect(actions.map(\.rawValue) == rawValues)
   #expect(actions.map(\.menuIdentifier) == selectors)

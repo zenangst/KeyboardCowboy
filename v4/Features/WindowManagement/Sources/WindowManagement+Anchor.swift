@@ -30,6 +30,7 @@ public extension WindowManagement {
       let settling = Operation.FrameSettling(origin: observed.origin, size: observed.size)
       guard self.pid == pid, self.launchDate == launchDate, self.id == id, self.direction == direction,
             settling.matches(current), settling.matches(onScreen) else { return nil }
+
       return requested
     }
   }
@@ -74,7 +75,8 @@ public extension WindowManagement {
     guard let launchDate, NSRunningApplication(processIdentifier: pid)?.launchDate == launchDate else {
       return (result.frame, nil)
     }
+
     return (result.frame, AnchorCyclePoint(pid: pid, launchDate: launchDate, id: result.id, direction: direction,
-                                         requested: result.frame.requested, observed: result.frame.observed))
+                                           requested: result.frame.requested, observed: result.frame.observed))
   }
 }

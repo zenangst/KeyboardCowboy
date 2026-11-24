@@ -40,6 +40,7 @@ public extension WindowManagement {
   ) async throws -> FrameResult? {
     let operation = try Operation.Move(direction: direction, distance: distance, constraint: constraint)
     guard processIdentifier > 0, processIdentifier != getpid() else { return nil }
+
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
       try Operation.moveFocusedWindow(
         focusedWindow: session.focusedWindow,

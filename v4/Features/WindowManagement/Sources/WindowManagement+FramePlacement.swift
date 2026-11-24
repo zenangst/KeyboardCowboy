@@ -40,10 +40,12 @@ extension WindowManagement {
     let placement = try await accessibility.withApplication(processIdentifier: pid) { session -> Placement? in
       guard let window = try session.focusedWindow(),
             let id = try session.windowIDCandidate(for: window) else { return nil }
+
       let original = try session.frame(of: window)
       guard let onScreen = compositorFrame(id: id, owner: pid),
             let request = request(id, original, onScreen),
             try session.focusedWindow() == window, isAppActive() else { return nil }
+
       let requested = request.frame
       // AX may already report a pending destination.
       let needsMove = !Operation.FrameSettling.matchesOrigin(onScreen, requested.origin)
@@ -70,11 +72,14 @@ extension WindowManagement {
         try await accessibility.withApplication(processIdentifier: pid) { session in
           guard let window = try session.focusedWindow(),
                 try session.windowIDCandidate(for: window) == placement.id else { return nil }
+
           let current = try session.frame(of: window)
           guard try session.focusedWindow() == window, isAppActive(),
                 let onScreen = compositorFrame(id: placement.id, owner: pid), settling.matches(onScreen) else { return nil }
+
           if let resized = placement.resized {
             guard current == resized else { return nil }
+
             if !Operation.FrameSettling.matchesOrigin(onScreen, placement.requested.origin) {
               try session.write(.position, value: placement.requested.origin, to: window)
             }
@@ -101,8 +106,10 @@ private struct Placement: Sendable {
 func compositorFrame(id: CGWindowID, owner: pid_t) -> CGRect? {
   guard let rows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
     as? [[String: Any]] else { return nil }
+
   let matches = rows.filter { ($0[kCGWindowNumber as String] as? CGWindowID) == id }
   guard matches.count == 1, (matches[0][kCGWindowOwnerPID as String] as? pid_t) == owner,
         let bounds = matches[0][kCGWindowBounds as String] as? [String: Any] else { return nil }
+
   return CGRect(dictionaryRepresentation: bounds as CFDictionary)
 }

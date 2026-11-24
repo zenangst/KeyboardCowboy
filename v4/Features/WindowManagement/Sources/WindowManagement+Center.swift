@@ -31,6 +31,7 @@ public enum WindowManagement {
   ) async throws -> CenterResult? {
     // AX can call an in-process AppKit setter inline on the off-main worker.
     guard processIdentifier > 0, processIdentifier != getpid(), !displays.isEmpty else { return nil }
+
     let center = Operation.Center(displays: displays)
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
       try center(

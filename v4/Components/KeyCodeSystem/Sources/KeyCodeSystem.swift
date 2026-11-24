@@ -22,7 +22,7 @@ public enum KeyCodeSystem {
       let states: [CGEventFlags] = [[], .maskShift, .maskAlternate, [.maskShift, .maskAlternate]]
       indexes = Dictionary(uniqueKeysWithValues: states.map { flags in
         let state = Self.carbonState(flags)
-        return (state, Index(values: (0..<128).map { Self.translate($0, state: state, data: data, keyboardType: keyboardType) }))
+        return (state, Index(values: (0 ..< 128).map { Self.translate($0, state: state, data: data, keyboardType: keyboardType) }))
       })
     }
 
@@ -34,6 +34,7 @@ public enum KeyCodeSystem {
       let data = source.flatMap(layoutData)
         ?? TISCopyCurrentKeyboardLayoutInputSource().map { $0.takeRetainedValue() }.flatMap(layoutData)
       guard let data else { throw LookupError.layoutUnavailable }
+
       return Self(data: data, keyboardType: UInt32(LMGetKbdType()))
     }
 
@@ -44,12 +45,14 @@ public enum KeyCodeSystem {
       guard let sources = TISCreateInputSourceList(filter, true)?.takeRetainedValue() as? [TISInputSource],
             let source = sources.first else { throw LookupError.inputSourceUnavailable(inputSourceID) }
       guard let data = Self.layoutData(source) else { throw LookupError.layoutUnavailable }
+
       self.init(data: data, keyboardType: UInt32(LMGetKbdType()))
     }
 
     /// The literal display translation before substituting shortcut labels.
     public func rawValue(for keyCode: Int, modifiers: CGEventFlags = []) -> String? {
-      guard (0..<128).contains(keyCode) else { return nil }
+      guard (0 ..< 128).contains(keyCode) else { return nil }
+
       let state = Self.carbonState(modifiers)
       if let index = indexes[state] { return index.values[keyCode] }
       return Self.translate(keyCode, state: state, data: data, keyboardType: keyboardType)
@@ -64,6 +67,7 @@ public enum KeyCodeSystem {
     /// (for example `#1` from `1`). Raw collisions prefer the main keyboard.
     public func keyCode(for value: String, modifiers: CGEventFlags = [], matchDisplayValue: Bool = true) -> Int? {
       guard !value.isEmpty else { return nil }
+
       let state = Self.carbonState(modifiers)
       if let index = indexes[state] { return (matchDisplayValue ? index.display : index.raw)[value] }
       if matchDisplayValue, let special = KeyCodeSystem.specialCodes[value] { return special }
@@ -94,6 +98,7 @@ public enum KeyCodeSystem {
     private static func display(_ code: Int, raw: String?) -> String? {
       if let special = KeyCodeSystem.specialKeys[code] { return special }
       guard let value = raw?.trimmingCharacters(in: .controlCharacters), !value.isEmpty else { return nil }
+
       return value
     }
 
@@ -109,6 +114,7 @@ public enum KeyCodeSystem {
           )
         }
         guard status == noErr, length > 0 else { return nil }
+
         return String(decoding: characters.prefix(length), as: UTF16.self)
       }
     }
@@ -117,6 +123,7 @@ public enum KeyCodeSystem {
       guard let pointer = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData),
             CFGetTypeID(Unmanaged<CFTypeRef>.fromOpaque(pointer).takeUnretainedValue()) == CFDataGetTypeID()
       else { return nil }
+
       let data = Unmanaged<CFData>.fromOpaque(pointer).takeUnretainedValue() as Data
       return data.count >= MemoryLayout<UCKeyboardLayout>.size ? data : nil
     }

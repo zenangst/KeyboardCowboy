@@ -31,5 +31,5 @@ public extension KeyCodeSystem {
     kVK_JIS_KeypadComma,
   ])
 
-  internal static let lookupOrder = (0..<128).filter { !keypad.contains($0) } + (0..<128).filter { keypad.contains($0) }
+  internal static let lookupOrder = (0 ..< 128).filter { !keypad.contains($0) } + (0 ..< 128).filter { keypad.contains($0) }
 }

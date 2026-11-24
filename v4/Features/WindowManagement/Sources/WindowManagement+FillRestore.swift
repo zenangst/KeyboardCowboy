@@ -17,6 +17,7 @@ public extension WindowManagement {
             Operation.FrameSettling.matchesOrigin(onScreen, filled.origin),
             abs(onScreen.width - filled.width) <= 1, abs(onScreen.height - filled.height) <= 1,
             WindowManagement.displayIndex(for: original, on: displays) != nil else { return nil }
+
       return original
     }
   }
@@ -40,6 +41,7 @@ public extension WindowManagement {
     guard let result = try await fillIdentifiedFocusedWindow(
       in: processIdentifier, displays: displays, padding: padding, using: accessibility, restoringFrom: point,
     ) else { return nil }
+
     if case .restore = result.request { return .restored(result.frame) }
     return .filled(frame: result.frame, restorePoint: makeFillRestorePoint(
       pid: processIdentifier, launchDate: launchDate, id: result.id, frame: result.frame,
@@ -56,6 +58,7 @@ public extension WindowManagement {
     guard let result = try await fillIdentifiedFocusedWindow(
       in: processIdentifier, displays: displays, padding: padding, using: accessibility,
     ) else { return nil }
+
     return (result.frame, makeFillRestorePoint(pid: processIdentifier, launchDate: launchDate, id: result.id, frame: result.frame))
   }
 
@@ -70,6 +73,7 @@ public extension WindowManagement {
   ) async throws -> FrameResult? {
     try await placeIdentifiedFocusedWindow(in: point.pid, using: accessibility) { id, original, onScreen in
       guard NSRunningApplication(processIdentifier: point.pid)?.launchDate == point.launchDate else { return nil }
+
       return point.target(id: id, current: original, onScreen: onScreen, displays: displays).map(PlacementRequest.restore)
     }?.frame
   }
@@ -79,6 +83,7 @@ public extension WindowManagement {
   ) -> FillRestorePoint? {
     guard let launchDate, frame.original != frame.observed,
           NSRunningApplication(processIdentifier: pid)?.launchDate == launchDate else { return nil }
+
     return FillRestorePoint(pid: pid, launchDate: launchDate, id: id, original: frame.original, filled: frame.observed)
   }
 }

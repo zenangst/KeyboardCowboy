@@ -38,6 +38,7 @@ public extension WindowManagement {
         in: processIdentifier, direction: direction, displays: displays, padding: padding,
         minimumSize: minimumSize, continuingFrom: point, using: accessibility,
       ) else { return nil }
+
       try Task.checkCancellation()
       record(result.cyclePoint, for: invocation)
       return result.frame
@@ -46,6 +47,7 @@ public extension WindowManagement {
     mutating func takePoint(for invocation: Invocation, isRepeat: Bool) -> AnchorCyclePoint? {
       defer { reset() }
       guard isRepeat, let last, last.invocation == invocation else { return nil }
+
       return last.point
     }
 

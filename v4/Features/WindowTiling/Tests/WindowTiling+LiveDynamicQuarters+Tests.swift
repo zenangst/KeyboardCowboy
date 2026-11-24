@@ -28,6 +28,7 @@ func liveDynamicQuarters() async throws {
       guard let bounds = row[kCGWindowBounds as String] as? [String: Any],
             let frame = CGRect(dictionaryRepresentation: bounds as CFDictionary),
             frame.intersects(display) else { continue }
+
       try #require(display.contains(frame) && row[kCGWindowOwnerPID as String] as? pid_t == pid,
                    "Keep only the four disposable Finder windows on the second display.")
       let id = try #require(row[kCGWindowNumber as String] as? CGWindowID)
@@ -38,6 +39,7 @@ func liveDynamicQuarters() async throws {
   func focusedID() async throws -> CGWindowID? {
     try await client.withApplication(processIdentifier: pid) { session in
       guard let window = try session.focusedWindow() else { return nil }
+
       return try session.windowIDCandidate(for: window)
     }
   }
@@ -54,7 +56,7 @@ func liveDynamicQuarters() async throws {
   }
   func waitForLayout(_ matches: ([CGWindowID: CGRect]) -> Bool) async throws -> [CGWindowID: CGRect] {
     var previous: [CGWindowID: CGRect]?
-    for _ in 0..<20 {
+    for _ in 0 ..< 20 {
       let current = try checkWindows()
       if current == previous, matches(current) { return current }
       previous = current
