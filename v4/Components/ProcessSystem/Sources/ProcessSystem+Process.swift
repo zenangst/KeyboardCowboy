@@ -204,6 +204,12 @@ public extension ProcessSystem {
     /// Captures both streams concurrently in memory, without limits or cancellation
     /// checks. Waits for EOF (including inherited pipe handles) and reaps the child.
     public func runAndCaptureOutputUnbounded() throws -> (stdout: Data?, stderr: Data?) {
+      try runAndCaptureOutputUnbounded { handle, _ in try handle.readToEnd() }
+    }
+
+    func runAndCaptureOutputUnbounded(
+      read: @escaping @Sendable (Foundation.FileHandle, Int) throws -> Data?,
+    ) throws -> (stdout: Data?, stderr: Data?) {
       #if DEBUG
       if case .testing = mode {
         try run()
@@ -237,7 +243,7 @@ public extension ProcessSystem {
       for (index, handle) in [stdout.fileHandleForReading, stderr.fileHandleForReading].enumerated() {
         group.enter()
         DispatchQueue.global().async {
-          reads.read(handle, at: index)
+          reads.capture(at: index) { try read(handle, index) }
           group.leave()
         }
       }
@@ -424,9 +430,9 @@ private final class UnboundedStreamReads: @unchecked Sendable {
 
   init(process: Foundation.Process) { self.process = process }
 
-  func read(_ handle: FileHandle, at index: Int) {
+  func capture(at index: Int, read: () throws -> Data?) {
     do {
-      let value = try handle.readToEnd()
+      let value = try read()
       lock.lock()
       data[index] = value
       lock.unlock()

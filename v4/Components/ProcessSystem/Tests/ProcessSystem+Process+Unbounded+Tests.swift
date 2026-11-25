@@ -1,5 +1,6 @@
+import Darwin
 import Foundation
-import ProcessSystem
+@testable import ProcessSystem
 import Testing
 
 @Test func unboundedCaptureDrainsBothStreamsAndReportsStatus() throws {
@@ -55,6 +56,35 @@ func unboundedCapturePassesLiteralArgumentsToLiveChild(argument: String) throws 
 
 private enum CaptureFailure: Error, Equatable { case launch, stdout, stderr }
 
+@Test(arguments: [CaptureFailure.stdout, .stderr])
+private func unboundedCaptureReapsLiveChildAndClosesPipesAfterReadFailure(failure: CaptureFailure) throws {
+  let process = ProcessSystem.Process(.production, launchStyle: .headless("test"))
+  let stdout = ProcessSystem.Pipe(.production)
+  let stderr = ProcessSystem.Pipe(.production)
+  process.executableURL = URL(filePath: "/bin/sleep")
+  process.arguments = ["2"] // No descendants; bounded even if termination regresses.
+  process.standardOutput = stdout
+  process.standardError = stderr
+  guard case .production(let child) = process.mode else {
+    Issue.record("Expected a live process")
+    return
+  }
+
+  #expect(throws: failure) {
+    try process.runAndCaptureOutputUnbounded { handle, index in
+      if index == (failure == .stdout ? 0 : 1) { throw failure }
+      return try handle.readToEnd()
+    }
+  }
+
+  #expect(!child.isRunning)
+  #expect(child.terminationReason == .uncaughtSignal)
+  #expect(child.terminationStatus == SIGKILL)
+  #expect(throws: (any Error).self) { try stdout.fileHandleForReading.readToEnd() }
+  #expect(throws: (any Error).self) { try stderr.fileHandleForReading.readToEnd() }
+}
+
+#if DEBUG
 private final class Events: @unchecked Sendable {
   private let lock = NSLock()
   private var storage: [String] = []
@@ -87,3 +117,4 @@ private func unboundedCapturePreservesFailureAndWaitsOnlyAfterLaunch(failure: Ca
   case .stderr: #expect(events.values == ["launch", "stdout", "stderr", "wait"])
   }
 }
+#endif
