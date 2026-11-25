@@ -22,7 +22,7 @@ public extension MenuBar {
       now: { clock.now },
       sleep: { try await clock.sleep(until: $0) },
       pick: { tokens, pid in
-        try await execute(tokens, processIdentifier: pid, using: accessibility, budget: budget)
+        try await executeAttempt(tokens, processIdentifier: pid, using: accessibility, budget: budget)
       },
     )
   }
@@ -65,6 +65,7 @@ extension MenuBar {
     guard !command.tokens.isEmpty else { throw ExecutionError.emptyTokens }
 
     let pid: Int32
+    var launched = false
     if let application = command.application {
       if let running = workspace.firstRunning(application.bundleIdentifier) {
         pid = running
@@ -72,6 +73,7 @@ extension MenuBar {
         try Task.checkCancellation()
         do {
           try await workspace.launch(URL(filePath: application.path))
+          launched = true
         } catch {
           try Task.checkCancellation()
           throw error
@@ -100,7 +102,19 @@ extension MenuBar {
       pid = frontmost
     }
 
-    try Task.checkCancellation()
-    return try await pick(command.tokens, pid)
+    let deadline = now() + .seconds(1)
+    while true {
+      try Task.checkCancellation()
+      do {
+        return try await pick(command.tokens, pid)
+      } catch let failure as StartupReadFailure {
+        try Task.checkCancellation()
+        let instant = now()
+        guard launched, instant < deadline else { throw failure.underlying }
+        try await sleep(min(instant + .milliseconds(50), deadline))
+        try Task.checkCancellation()
+        guard now() < deadline else { throw failure.underlying }
+      }
+    }
   }
 }

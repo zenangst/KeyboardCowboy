@@ -83,6 +83,32 @@ import Testing
   ])
 }
 
+@Test(arguments: [0, 1, 2, 3, 4])
+func onlyMenuReadFailuresAreMarkedForRetry(stage: Int) {
+  func failAt(_ step: Int) throws {
+    if stage == step { throw Fixture.Failure.read }
+  }
+
+  func execute() throws -> Bool {
+    try MenuBar.execute(
+      [.menuItem(name: "File")],
+      root: { try failAt(0); return 0 },
+      children: { _ in try failAt(1); return [1] },
+      enabled: { _ in try failAt(2); return true },
+      title: { _ in try failAt(3); return "File" },
+      checkpoint: {},
+      pick: { _ in try failAt(4) },
+      mapReadError: { MenuBar.StartupReadFailure(underlying: $0) },
+    )
+  }
+
+  if stage == 4 {
+    #expect(throws: Fixture.Failure.read) { try execute() }
+  } else {
+    #expect(throws: MenuBar.StartupReadFailure.self) { try execute() }
+  }
+}
+
 private final class Fixture {
   enum Failure: Error { case read, pick }
 

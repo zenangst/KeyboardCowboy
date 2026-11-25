@@ -17,6 +17,23 @@ public enum MenuBar {
     using accessibility: AccessibilitySystem.Client = .init(),
     budget: AccessibilitySystem.TraversalBudget = .init(),
   ) async throws -> Bool {
+    do {
+      return try await executeAttempt(tokens, processIdentifier: processIdentifier, using: accessibility, budget: budget)
+    } catch let failure as StartupReadFailure {
+      throw failure.underlying
+    }
+  }
+
+  /// Only emitted by menu reads, never by the action or by session teardown.
+  struct StartupReadFailure: Error {
+    let underlying: any Error
+  }
+
+  static func executeAttempt(
+    _ tokens: [Token], processIdentifier: Int32,
+    using accessibility: AccessibilitySystem.Client,
+    budget: AccessibilitySystem.TraversalBudget,
+  ) async throws -> Bool {
     guard !tokens.isEmpty else { throw ExecutionError.emptyTokens }
 
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
@@ -27,6 +44,12 @@ public enum MenuBar {
         title: { element in try optional { try session.read(.title, of: element) } },
         checkpoint: session.checkpoint,
         pick: { try session.perform(.pick, on: $0) },
+        mapReadError: { error in
+          guard let failure = error as? AccessibilitySystem.Failure, failure.kind == .cannotComplete else {
+            return error
+          }
+          return StartupReadFailure(underlying: failure)
+        },
       )
     }
   }
@@ -39,6 +62,7 @@ public enum MenuBar {
     enabled: (Node) throws -> Bool,
     title: (Node) throws -> String?,
     checkpoint: () throws -> Void, pick: (Node) throws -> Void,
+    mapReadError: (any Error) -> any Error = { $0 },
   ) throws -> Bool {
     guard !tokens.isEmpty else { throw ExecutionError.emptyTokens }
     guard budget.maximumNodes > 0, budget.maximumDepth >= 0, budget.elapsedLimit > .zero else {
@@ -50,9 +74,16 @@ public enum MenuBar {
       try checkpoint()
       guard ContinuousClock.now < deadline else { throw ExecutionError.traversalLimitReached }
     }
+    func read<Value>(_ operation: () throws -> Value) throws -> Value {
+      do {
+        return try operation()
+      } catch {
+        throw mapReadError(error)
+      }
+    }
 
     try check()
-    guard var current = try root() else { throw ExecutionError.menuBarUnavailable }
+    guard var current = try read(root) else { throw ExecutionError.menuBarUnavailable }
 
     var path: Set<Node> = []
     var examined = 1
@@ -67,7 +98,7 @@ public enum MenuBar {
         if !remaining.isEmpty { stack.append((remaining, ancestors)) }
 
         try check()
-        let items = try children(parent)
+        let items = try read { try children(parent) }
         try check()
         var fallback: [Node] = []
         // Scan siblings before descending, so a direct match beats any fallback.
@@ -78,10 +109,10 @@ public enum MenuBar {
           }
 
           examined += 1
-          let isEnabled = try enabled(item)
+          let isEnabled = try read { try enabled(item) }
           try check()
           if isEnabled {
-            let value = try title(item)
+            let value = try read { try title(item) }
             try check()
             if let value, token.matches(value) {
               return (item, ancestors.union([parent]))
