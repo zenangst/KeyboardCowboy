@@ -12,7 +12,7 @@ public enum KeyCodeSystem {
   /// an input-source change. Lookup never selects a source or posts events.
   public struct Layout: Sendable {
     private let data: Data
-    private let keyboardType: UInt32
+    let keyboardType: UInt32
     private let indexes: [UInt32: Index]
 
     private init(data: Data, keyboardType: UInt32) {

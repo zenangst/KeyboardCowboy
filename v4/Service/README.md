@@ -37,6 +37,52 @@ running Service layout session refreshes its cache. It restores the original
 selection and disables the test source only if it was enabled for the test.
 No event tap or keystrokes are used. Avoid changing input sources while it runs.
 
+### Live input method fallback smoke test
+
+Select an input method without Unicode layout data, such as **Japanese —
+Romaji** in **Hiragana** mode. Keep it selected while the test runs from the
+repository root:
+
+```sh
+KC_IME_FALLBACK_SMOKE=1 swift test --package-path v4/Service -c release \
+  --filter liveKeyboardIMEFallback
+```
+
+The test compares unmodified key translations against the underlying macOS
+keyboard layout. It does not change the input source, install a tap, or post
+input. Switch back to your usual input source afterward.
+
+### Live keyboard hardware refresh smoke test
+
+Start with one keyboard in use and have a second keyboard that macOS reports
+as a different hardware type (for example, ANSI versus ISO) ready to connect.
+Keep the same input source selected. From the repository root:
+
+```sh
+KC_KEYBOARD_HARDWARE_SMOKE=1 swift test --package-path v4/Service -c release \
+  --filter liveKeyboardHardwareRefresh
+```
+
+At the spoken cue, connect the other keyboard and tap and release Shift on it.
+The test checks that an explicit refresh uses the new macOS keyboard type.
+It does not install an event tap, post keys, or test automatic hardware-change
+notifications. If macOS reports no type change, the result is inconclusive.
+
+### Live shortcut posting smoke test
+
+Focus a blank, disposable TextEdit document with the caret in its body. With
+Accessibility and event posting access granted to the runner, run from the
+repository root without switching focus:
+
+```sh
+KC_SHORTCUT_POSTING_SMOKE=1 swift test --package-path v4/Service -c release \
+  --filter liveShortcutPosting
+```
+
+The test posts one **Left Shift+A** through the cached-layout shortcut
+executor and checks that exactly `A` appears in the same document. Discard
+the document afterward.
+
 ### Live shortcut recording smoke test
 
 Grant the runner Accessibility and Input Monitoring, then run from the
@@ -47,9 +93,9 @@ KC_SHORTCUT_RECORDING_SMOKE=1 swift test --package-path v4/Service -c release \
   --filter liveShortcutRecording
 ```
 
-Use a disposable text field and press **Left Shift+A** after the recorder
-reports it is ready. The test accepts one shortcut and checks it against
-the expected chord without logging or saving the captured input. The
+Use a disposable text field and press **Left Shift+A** once at each spoken
+cue: **Capture ready** checks key delivery and **Recorder ready** checks
+shortcut decoding. The test does not log or save the captured input. The
 keystroke passes through to the foreground app. Escape cancels, and the
 recorder stops after 20 seconds if no shortcut is captured.
 

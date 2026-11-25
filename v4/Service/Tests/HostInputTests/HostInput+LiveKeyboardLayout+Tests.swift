@@ -1,7 +1,7 @@
 import Carbon
 import Foundation
 import HostInput
-import KeyCodeSystem
+@testable import KeyCodeSystem
 import Testing
 
 @MainActor
@@ -30,6 +30,59 @@ func liveKeyboardLayoutRefresh() async throws {
     try await Task.sleep(for: .milliseconds(100))
   }
   Issue.record("Cached layout did not refresh to \(targetID); macOS reports \(currentSourceID() ?? "no selected source").")
+}
+
+@MainActor
+@Test(.enabled(if: ProcessInfo.processInfo.environment["KC_IME_FALLBACK_SMOKE"] == "1"))
+func liveKeyboardIMEFallback() throws {
+  let selected = try #require(TISCopyCurrentKeyboardInputSource()?.takeRetainedValue())
+  let imeID = try #require(sourceID(selected))
+  try #require(TISGetInputSourceProperty(selected, kTISPropertyUnicodeKeyLayoutData) == nil,
+               "Select an input method without its own layout data, such as Japanese Hiragana.")
+  let underlying = try #require(TISCopyCurrentKeyboardLayoutInputSource()?.takeRetainedValue())
+  let underlyingID = try #require(sourceID(underlying))
+  let expected = try KeyCodeSystem.Layout(inputSourceID: underlyingID)
+  let actual = try KeyCodeSystem.Layout.current()
+
+  let expectedValues = (0 ..< 128).map { expected.rawValue(for: $0) }
+  try #require(expectedValues.contains { $0?.isEmpty == false })
+  #expect((0 ..< 128).map { actual.rawValue(for: $0) } == expectedValues)
+  #expect(currentSourceID() == imeID, "Layout lookup must not change the selected input method.")
+}
+
+@MainActor
+@Test(.enabled(if: ProcessInfo.processInfo.environment["KC_KEYBOARD_HARDWARE_SMOKE"] == "1"))
+func liveKeyboardHardwareRefresh() async throws {
+  let session = HostInput.KeyboardLayoutSession()
+  let original = try #require(session.layout)
+  let source = try #require(currentSourceID())
+  let originalType = original.keyboardType
+  #expect(originalType == UInt32(LMGetKbdType()))
+
+  sayHardwareCue("Hardware probe ready. Connect a keyboard of a different physical type, and tap and release Shift on it. Do not change the input source.")
+  let deadline = ContinuousClock.now + .seconds(35)
+  while ContinuousClock.now < deadline {
+    try #require(currentSourceID() == source, "The selected input source changed; hardware refresh was not isolated.")
+    let observedType = UInt32(LMGetKbdType())
+    if observedType != originalType {
+      session.refresh()
+      let refreshed = try #require(session.layout)
+      try #require(refreshed.keyboardType == observedType, "The refreshed layout did not use the newly observed hardware type.")
+      #expect(original.keyboardType == originalType)
+      return
+    }
+    try await Task.sleep(for: .milliseconds(100))
+  }
+  Issue.record("Inconclusive: macOS did not report a different keyboard type. Use two keyboards with different reported types.")
+}
+
+@MainActor
+private func sayHardwareCue(_ message: String) {
+  FileHandle.standardError.write(Data("\(message)\n".utf8))
+  let speech = Process()
+  speech.executableURL = URL(filePath: "/usr/bin/say")
+  speech.arguments = [message]
+  if (try? speech.run()) != nil { speech.waitUntilExit() }
 }
 
 @MainActor
