@@ -1,5 +1,4 @@
 import Foundation
-import ProcessSystem
 import RuntimeEnvironment
 
 public enum Shortcuts {
@@ -21,19 +20,11 @@ public enum Shortcuts {
 
     private init(environment: RuntimeEnvironment.Mode) {
       self.execute = { identifier in
-        #if DEBUG
-        let mock = ProcessSystem.Process.Testing.mock
-        #endif
-        return try await Task.detached {
-          #if DEBUG
-          return try ProcessSystem.Process.Testing.$mock.withValue(mock) {
-            try runProcess(identifier: identifier, environment: environment)
-          }
-          #else
-          return try runProcess(identifier: identifier, environment: environment)
-          #endif
+        let output = try await launchShortcuts(["run", identifier], environment: environment)
+        if output.status != 0 {
+          throw ExecutionError.executionFailed(output.stderr.flatMap { String(data: $0, encoding: .utf8) } ?? "")
         }
-        .value
+        return output.stdout.flatMap { String(data: $0, encoding: .utf8) }
       }
     }
 
@@ -50,17 +41,4 @@ public enum Shortcuts {
       return try await execute(identifier)
     }
   }
-}
-
-private func runProcess(identifier: String, environment: RuntimeEnvironment.Mode) throws -> String? {
-  let process = ProcessSystem.Process(environment, launchStyle: .headless(identifier))
-  process.executableURL = URL(filePath: "/usr/bin/shortcuts")
-  process.arguments = ["run", identifier]
-  process.standardOutput = ProcessSystem.Pipe(environment)
-  process.standardError = ProcessSystem.Pipe(environment)
-  let output = try process.runAndCaptureOutputUnbounded()
-  if process.terminationStatus != 0 {
-    throw Shortcuts.ExecutionError.executionFailed(output.stderr.flatMap { String(data: $0, encoding: .utf8) } ?? "")
-  }
-  return output.stdout.flatMap { String(data: $0, encoding: .utf8) }
 }

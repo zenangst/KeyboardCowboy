@@ -14,6 +14,45 @@ import Testing
   #expect(process.terminationStatus == 7)
 }
 
+@Test(arguments: ["My Shortcut", "日本語 ✨", "  padded  ", "", "A7E8-1234", "--x; '$(echo hi)'\nnext"])
+func unboundedCapturePassesLiteralArgumentsToLiveChild(argument: String) throws {
+  let process = ProcessSystem.Process(.production, launchStyle: .headless("test"))
+  process.executableURL = URL(filePath: "/usr/bin/printf")
+  process.arguments = ["%s", argument]
+  process.standardOutput = ProcessSystem.Pipe(.production)
+  process.standardError = ProcessSystem.Pipe(.production)
+
+  let output = try process.runAndCaptureOutputUnbounded()
+  #expect(output.stdout == (argument.isEmpty ? nil : Data(argument.utf8)))
+  #expect(output.stderr == nil)
+  #expect(process.terminationStatus == 0)
+}
+
+@Test func unboundedCaptureInheritsLiveEnvironment() throws {
+  let key = "HOME"
+  let expected = try #require(ProcessInfo.processInfo.environment[key])
+  let process = ProcessSystem.Process(.production, launchStyle: .headless("test"))
+  process.executableURL = URL(filePath: "/usr/bin/printenv")
+  process.arguments = [key]
+  process.standardOutput = ProcessSystem.Pipe(.production)
+  process.standardError = ProcessSystem.Pipe(.production)
+
+  #expect(process.environment == nil)
+  let output = try process.runAndCaptureOutputUnbounded()
+  #expect(output.stdout == Data((expected + "\n").utf8))
+  #expect(output.stderr == nil)
+  #expect(process.terminationStatus == 0)
+}
+
+@Test func unboundedCapturePropagatesLiveLaunchFailure() {
+  let process = ProcessSystem.Process(.production, launchStyle: .headless("test"))
+  process.executableURL = URL(filePath: "/nonexistent-keyboard-cowboy-test-\(UUID().uuidString)")
+  process.standardOutput = ProcessSystem.Pipe(.production)
+  process.standardError = ProcessSystem.Pipe(.production)
+
+  #expect(throws: (any Error).self) { try process.runAndCaptureOutputUnbounded() }
+}
+
 private enum CaptureFailure: Error, Equatable { case launch, stdout, stderr }
 
 private final class Events: @unchecked Sendable {

@@ -1,3 +1,4 @@
+import Commands
 import Foundation
 import ProcessSystem
 @testable import ShortcutsFeature
@@ -17,12 +18,31 @@ private final class Calls: @unchecked Sendable {
   }
 }
 
+private struct ShortcutFixture: Codable {
+  let runShortcut: Command.Shortcut
+}
+
 @Test(arguments: ["My Shortcut", "日本語 ✨", "  shortcut with spaces  ", "", "A7E8-1234", "--x; '$(echo hi)'\nnext"])
-func subprocessReceivesExactArguments(identifier: String) async throws {
+func savedCommandReachesSubprocessUnchanged(identifier: String) async throws {
+  let fixture: [String: Any] = ["runShortcut": [
+    "shortcutIdentifier": identifier,
+    "meta": ["id": "saved-id", "name": "Display Name", "enabled": true,
+             "delay": 1.5, "notification": "bezel", "variableName": "result"],
+  ]]
+  let data = try JSONSerialization.data(withJSONObject: fixture)
+  let decoded = try JSONDecoder().decode(ShortcutFixture.self, from: data)
+  let encoded = try JSONEncoder().encode(decoded)
+  let actual = try #require(JSONSerialization.jsonObject(with: encoded) as? NSDictionary)
+  #expect(actual == fixture as NSDictionary)
+
   let calls = Calls()
-  let mock = ProcessSystem.Process.Mock(observeLaunch: { calls.record($0) }, readStandardOutput: { Data("output".utf8) }, readStandardError: { nil })
+  let mock = ProcessSystem.Process.Mock(
+    observeLaunch: { calls.record($0) },
+    readStandardOutput: { Data("output".utf8) }, readStandardError: { nil })
   try await ProcessSystem.Process.Testing.$mock.withValue(mock) { () async throws in
-    #expect(try await Shortcuts.Executor.testing().run(identifier, cancellation: .checkBeforeLaunch) == "output")
+    #expect(try await Shortcuts.Executor.testing().run(
+      decoded.runShortcut,
+      cancellation: .checkBeforeLaunch) == "output")
   }
   #expect(calls.values.count == 1)
   #expect(calls.values.first?.executableURL?.path == "/usr/bin/shortcuts")
@@ -112,4 +132,39 @@ func statusIsReadAfterWait(status: Int32) async {
   }
   #expect(calls.values.count == 1)
   #expect(calls.values.first?.arguments == ["run", "allowed"])
+}
+
+private actor SuspendedExecution {
+  private var started: CheckedContinuation<Void, Never>?
+  private var release: CheckedContinuation<Void, Never>?
+  private var didStart = false
+
+  func run() async -> String {
+    didStart = true
+    started?.resume()
+    started = nil
+    await withCheckedContinuation { release = $0 }
+    return "finished"
+  }
+
+  func waitUntilStarted() async {
+    if didStart { return }
+    await withCheckedContinuation { started = $0 }
+  }
+
+  func finish() {
+    release?.resume()
+    release = nil
+  }
+}
+
+@Test(arguments: [Shortcuts.CancellationPolicy.checkBeforeLaunch, .ignore])
+func cancellationAfterLaunchDoesNotReplaceResult(policy: Shortcuts.CancellationPolicy) async throws {
+  let execution = SuspendedExecution()
+  let executor = Shortcuts.Executor(execute: { _ in await execution.run() })
+  let task = Task { try await executor.run("name", cancellation: policy) }
+  await execution.waitUntilStarted()
+  task.cancel()
+  await execution.finish()
+  #expect(try await task.value == "finished")
 }
