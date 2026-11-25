@@ -3,7 +3,7 @@ public extension AccessibilitySystem {
     public enum Kind: Sendable {
       case noValue, attributeUnsupported, actionUnsupported, invalidElement, apiDisabled
       case cannotComplete, malformedValue, traversalLimitReached, expiredScope
-      case invalidConfiguration, other
+      case invalidConfiguration, notificationUnsupported, other
     }
 
     public let kind: Kind
