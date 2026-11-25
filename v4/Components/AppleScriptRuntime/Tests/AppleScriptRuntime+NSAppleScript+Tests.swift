@@ -2,6 +2,13 @@
 import Cocoa
 import Testing
 
+@Test @MainActor func productionScriptReturnsLiteralWithoutSendingAppleEvents() throws {
+  let script = try AppleScriptRuntime.NSAppleScript(.production, source: "return \"ready\"")
+  try script.compileAndReturnError(nil)
+  #expect(try script.executeAndReturnError(nil).stringValue == "ready")
+}
+
+#if DEBUG
 @Test(arguments: [false, true]) func compilationFailurePreservesDetails(provideErrorPointer: Bool) throws {
   try AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileError: {
     NSError(domain: "test", code: -2741, userInfo: [
@@ -63,3 +70,4 @@ import Testing
     }
   }
 }
+#endif

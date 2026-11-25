@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationSystem
 import Testing
 
@@ -57,3 +58,4 @@ import Testing
   for await event in events { recorded.append(event) }
   #expect(recorded == ["hide:example.first", "terminate:example.second", "unhide:example.second"])
 }
+#endif

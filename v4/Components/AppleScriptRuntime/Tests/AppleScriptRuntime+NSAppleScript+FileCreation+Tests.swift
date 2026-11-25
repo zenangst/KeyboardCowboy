@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import AppleScriptRuntime
 import Cocoa
 import Testing
@@ -48,3 +49,4 @@ import Testing
     }
   }
 }
+#endif

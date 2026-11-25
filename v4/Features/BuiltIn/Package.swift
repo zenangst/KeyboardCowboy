@@ -6,5 +6,8 @@ let package = Package(
   name: "BuiltInFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "BuiltInFeature", targets: ["BuiltInFeature"])],
-  targets: [.target(name: "BuiltInFeature", path: "Sources")],
+  targets: [
+    .target(name: "BuiltInFeature", path: "Sources"),
+    .testTarget(name: "BuiltInFeatureTests", dependencies: ["BuiltInFeature"], path: "Tests"),
+  ],
 )

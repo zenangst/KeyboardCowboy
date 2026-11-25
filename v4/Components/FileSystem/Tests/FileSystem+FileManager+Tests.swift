@@ -1,3 +1,4 @@
+#if DEBUG
 import FileSystem
 import Foundation
 import Testing
@@ -32,3 +33,4 @@ import Testing
     }
   }
 }
+#endif

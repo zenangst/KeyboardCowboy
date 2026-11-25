@@ -1,3 +1,4 @@
+#if DEBUG
 import AppKit
 @testable import ApplicationSystem
 import Testing
@@ -181,3 +182,4 @@ import Testing
     }
   }
 }
+#endif
