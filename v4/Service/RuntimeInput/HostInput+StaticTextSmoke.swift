@@ -3,7 +3,7 @@ import AppKit
 import ApplicationServices
 import MouseFeature
 import OSLog
-import UIElementFeature
+import UIAutomationFeature
 
 package extension HostInput {
   @MainActor
@@ -43,7 +43,7 @@ package extension HostInput {
 
           activated = try await Mouse.post(kind, at: point)
         } else {
-          activated = try await UIElement.activate(predicates: [
+          activated = try await UIAutomation.activate(predicates: [
             .init(role: .staticText, properties: [.identifier], comparison: .equals, value: fixture.identifier),
           ])
         }

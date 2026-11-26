@@ -22,7 +22,7 @@ let package = Package(
     .package(path: "../Features/Keyboard"),
     .package(path: "../Features/Mouse"),
     .package(path: "../Features/Text"),
-    .package(path: "../Features/UIElement"),
+    .package(path: "../Features/UIAutomation"),
     .package(path: "../Features/WindowFocus"),
   ],
   targets: [
@@ -46,7 +46,7 @@ let package = Package(
         .product(name: "KeyboardFeature", package: "Keyboard"),
         .product(name: "MouseFeature", package: "Mouse"),
         .product(name: "TextFeature", package: "Text"),
-        .product(name: "UIElementFeature", package: "UIElement"),
+        .product(name: "UIAutomationFeature", package: "UIAutomation"),
         .product(name: "WindowFocusFeature", package: "WindowFocus"),
       ],
       path: "RuntimeInput",

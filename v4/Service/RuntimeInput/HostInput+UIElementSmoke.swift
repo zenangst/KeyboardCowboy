@@ -3,7 +3,7 @@ import AccessibilitySystem
 import AppKit
 import ApplicationServices
 import OSLog
-import UIElementFeature
+import UIAutomationFeature
 
 package extension HostInput {
   @MainActor
@@ -27,7 +27,7 @@ package extension HostInput {
 
     let labels = miss ? ["Keyboard Cowboy smoke: \(UUID().uuidString)"] : ["Sidebar", "sidebar"]
     let predicates = labels.map {
-      UIElement.Predicate(role: .button, properties: [.description, .title], comparison: .contains, value: $0)
+      UIAutomation.Predicate(role: .button, properties: [.description, .title], comparison: .contains, value: $0)
     }
     do {
       if inspect {
@@ -48,14 +48,14 @@ package extension HostInput {
         log.notice("Hovered role: \(role.rawValue, privacy: .public); label matches sidebar predicate: \(labelMatches, privacy: .public)")
         let pid = safari.processIdentifier
         let (hasWindow, hasMatch) = try await client.withApplication(processIdentifier: pid) { session in
-          guard let window = try UIElement.focusedWindow(inFrontmostApplication: session) else { return (false, false) }
+          guard let window = try UIAutomation.focusedWindow(inFrontmostApplication: session) else { return (false, false) }
 
-          return (true, try UIElement.firstMatch(in: session, under: window, predicates: predicates) != nil)
+          return (true, try UIAutomation.firstMatch(in: session, under: window, predicates: predicates) != nil)
         }
         log.notice("Focused window resolved: \(hasWindow, privacy: .public); predicate found in window: \(hasMatch, privacy: .public)")
         return
       }
-      let activated = try await UIElement.activate(predicates: predicates)
+      let activated = try await UIAutomation.activate(predicates: predicates)
       log.notice("UIElement activated: \(activated, privacy: .public); intentional miss: \(miss, privacy: .public)")
     } catch let failure as AccessibilitySystem.Failure {
       log.error("UIElement activation failed: \(failure.operation, privacy: .public) \(String(describing: failure.kind), privacy: .public)")
