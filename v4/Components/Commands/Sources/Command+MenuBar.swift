@@ -3,11 +3,6 @@ import ApplicationCatalog
 public extension Command {
   /// Persisted menu-bar payload. An absent application means the frontmost app.
   struct MenuBar: MetaDataProviding {
-    public enum Token: Codable, Hashable, Sendable {
-      case menuItem(name: String)
-      case menuItems(name: String, fallbackName: String)
-    }
-
     public let tokens: [Token]
     public var application: ApplicationCatalog.Application?
     public var meta: Metadata

@@ -4,33 +4,9 @@ import CoreGraphics
 import ScriptingFeature
 import UserSpace
 
-public enum SystemCommand {
-  public enum Action: String, Codable, CaseIterable, Sendable {
-    case activateLastApplication
-    case missionControl
-    case applicationWindows
-    case showDesktop
-    case hideAllApps
-    case minimizeAllOpenWindows
-    case showNotificationCenter
-    case fillAllOpenWindows
-  }
-
-  public enum Completion: Equatable, Sendable {
-    /// The system operation returned; this does not confirm every visible effect.
-    case invoked
-    /// The Applications executor finished its ordinary open request; focus is not verified.
-    case applicationOpenCompleted
-    case noPreviousApplication
-  }
-
-  public enum ExecutionError: Error, Equatable {
-    case dockUnavailable
-    case missingPreviousApplicationBundleURL(String)
-  }
-
+public extension SystemCommand {
   @MainActor
-  public struct Executor {
+  struct Executor {
     typealias PreviousApplication = Operation.ActivateLastApplication.PreviousApplication
 
     private let dock: Operation.Dock

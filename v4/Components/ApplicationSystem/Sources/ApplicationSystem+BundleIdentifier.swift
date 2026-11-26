@@ -17,23 +17,5 @@ public extension ApplicationSystem {
       var container = encoder.singleValueContainer()
       try container.encode(value)
     }
-
-    public enum WildCard: String, Codable, Sendable, CaseIterable {
-      case any = "*.*.*"
-      case current = "*.*.current"
-      case previous = "*.*.previous"
-
-      public var bundleIdentifier: BundleIdentifier {
-        BundleIdentifier(rawValue)
-      }
-
-      public static func == (lhs: WildCard, rhs: BundleIdentifier) -> Bool {
-        lhs.bundleIdentifier == rhs
-      }
-
-      public static func == (lhs: BundleIdentifier, rhs: WildCard) -> Bool {
-        lhs == rhs.bundleIdentifier
-      }
-    }
   }
 }

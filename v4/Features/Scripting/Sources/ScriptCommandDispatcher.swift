@@ -3,56 +3,6 @@ import Foundation
 import RuntimeEnvironment
 import System
 
-/// The feature-level execution request. Persistence and command metadata belong to the host.
-public struct ScriptRequest: Sendable {
-  public enum Kind: Sendable {
-    case appleScript(Variant)
-    case shellScript
-  }
-
-  public enum Variant: Sendable {
-    case regular, jxa
-  }
-
-  public enum Source: Sendable {
-    case inline(String), path(String)
-  }
-
-  public let id: String
-  public let kind: Kind
-  public let source: Source
-
-  public init(id: String, kind: Kind, source: Source) {
-    self.id = id
-    self.kind = kind
-    self.source = source
-  }
-}
-
-/// Ordered literal replacements supplied by the host, not process environment variables.
-/// Tokens are replaced in order, including occurrences introduced by earlier replacements.
-public struct ScriptInterpolation: Sendable {
-  public struct Replacement: Sendable {
-    public let token: String
-    public let value: String
-
-    public init(token: String, value: String) {
-      self.token = token
-      self.value = value
-    }
-  }
-
-  public let replacements: [Replacement]
-
-  public init(_ replacements: [Replacement] = []) {
-    self.replacements = replacements
-  }
-
-  public func apply(to input: String) -> String {
-    replacements.reduce(input) { $0.replacingOccurrences(of: $1.token, with: $1.value) }
-  }
-}
-
 /// Dispatches requests without defining host cancellation or subprocess parity policies.
 /// Shell and JXA calls run synchronously on this actor: a long-running command
 /// delays later requests and cache invalidation. Cancellation terminates and reaps
@@ -61,32 +11,6 @@ public struct ScriptInterpolation: Sendable {
 /// Nonzero subprocess exits throw `ScriptProcessError` with status and raw output.
 /// Hosts must explicitly clear the AppleScript cache when lifecycle policy requires it.
 public actor ScriptCommandDispatcher {
-  /// Execution boundaries can be substituted without invoking scripts or the filesystem.
-  public struct Routes: Sendable {
-    public var appleScriptInline: @Sendable (String, String) async throws -> String?
-    public var appleScriptFile: @Sendable (String, String) async throws -> String?
-    public var jxaInline: @Sendable (String) throws -> String?
-    public var shellInline: @Sendable (String) throws -> String?
-    public var shellFile: @Sendable (String) throws -> String?
-    public var clearAppleScriptCache: @Sendable () async -> Void
-
-    public init(
-      appleScriptInline: @escaping @Sendable (String, String) async throws -> String?,
-      appleScriptFile: @escaping @Sendable (String, String) async throws -> String?,
-      jxaInline: @escaping @Sendable (String) throws -> String?,
-      shellInline: @escaping @Sendable (String) throws -> String?,
-      shellFile: @escaping @Sendable (String) throws -> String?,
-      clearAppleScriptCache: @escaping @Sendable () async -> Void,
-    ) {
-      self.appleScriptInline = appleScriptInline
-      self.appleScriptFile = appleScriptFile
-      self.jxaInline = jxaInline
-      self.shellInline = shellInline
-      self.shellFile = shellFile
-      self.clearAppleScriptCache = clearAppleScriptCache
-    }
-  }
-
   private let routes: Routes
 
   public init(routes: Routes) {

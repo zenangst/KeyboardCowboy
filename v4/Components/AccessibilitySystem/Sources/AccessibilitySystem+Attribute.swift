@@ -6,10 +6,6 @@ public extension AccessibilitySystem {
     let name: String
     let decode: (ReadValue) throws -> Value
   }
-
-  struct WritableAttribute<Value> {
-    let name: String
-  }
 }
 
 public extension AccessibilitySystem.Attribute where Value == CGPoint {
@@ -49,18 +45,6 @@ public extension AccessibilitySystem.Attribute where Value == NSRange {
   }
 }
 
-public extension AccessibilitySystem.WritableAttribute where Value == Bool {
-  static var main: Self { Self(name: kAXMainAttribute) }
-}
-
-public extension AccessibilitySystem.WritableAttribute where Value == CGPoint {
-  static var position: Self { Self(name: kAXPositionAttribute) }
-}
-
-public extension AccessibilitySystem.WritableAttribute where Value == CGSize {
-  static var size: Self { Self(name: kAXSizeAttribute) }
-}
-
 public extension AccessibilitySystem.Attribute where Value == Bool {
   static var enabled: Self { boolean(named: kAXEnabledAttribute) }
   static var focused: Self { boolean(named: kAXFocusedAttribute) }
@@ -75,10 +59,6 @@ public extension AccessibilitySystem.Attribute where Value == Bool {
       return flag
     }
   }
-}
-
-public extension AccessibilitySystem.WritableAttribute where Value == String {
-  static var selectedText: Self { Self(name: kAXSelectedTextAttribute) }
 }
 
 public extension AccessibilitySystem.Attribute where Value == String {

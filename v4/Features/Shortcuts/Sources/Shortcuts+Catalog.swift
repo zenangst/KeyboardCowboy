@@ -2,11 +2,6 @@ import Foundation
 import RuntimeEnvironment
 
 public extension Shortcuts {
-  struct Entry: Identifiable, Equatable, Sendable {
-    public let id: UUID
-    public let name: String
-  }
-
   enum CatalogError: Error, Equatable {
     case listingFailed(String)
     case invalidListing

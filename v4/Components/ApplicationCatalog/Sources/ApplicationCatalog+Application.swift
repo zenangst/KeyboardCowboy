@@ -2,12 +2,6 @@ import Foundation
 
 public extension ApplicationCatalog {
   struct Application: Identifiable, Codable, Hashable, Sendable {
-    public struct Metadata: Codable, Hashable, Sendable {
-      public var isAgent = false
-      public var isElectron = false
-      public var isSafariWebApp = false
-    }
-
     public var id: String { path }
     public let bundleIdentifier: String
     public let bundleName: String

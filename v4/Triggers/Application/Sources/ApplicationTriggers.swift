@@ -1,48 +1,6 @@
 public enum ApplicationTriggers {
   public static let anyApplication = "*.*.*"
 
-  public enum Context: String, Codable, CaseIterable, Sendable {
-    case closed, launched, frontMost, resignFrontMost
-  }
-
-  public struct Rule: Sendable {
-    public let workflowID: String
-    public let bundleIdentifier: String
-    public let contexts: Set<Context>
-    public let requiredModeIDs: Set<String>
-    public let isGroupEnabled: Bool
-    public let isWorkflowEnabled: Bool
-
-    public init(
-      workflowID: String,
-      bundleIdentifier: String,
-      contexts: Set<Context>,
-      requiredModeIDs: Set<String> = [],
-      isGroupEnabled: Bool = true,
-      isWorkflowEnabled: Bool = true,
-    ) {
-      self.workflowID = workflowID
-      self.bundleIdentifier = bundleIdentifier
-      self.contexts = contexts
-      self.requiredModeIDs = requiredModeIDs
-      self.isGroupEnabled = isGroupEnabled
-      self.isWorkflowEnabled = isWorkflowEnabled
-    }
-  }
-
-  public enum Transition: Sendable {
-    /// Lists can contain multiple processes for a bundle. Seed the initial list without matching it.
-    case runningApplications(previous: [String], current: [String])
-    /// Pass nil when no application is frontmost. Repeated bundle IDs are not transitions.
-    case frontmostApplication(previous: String?, current: String?)
-  }
-
-  public struct Match: Equatable, Sendable {
-    public let workflowID: String
-    public let bundleIdentifier: String
-    public let context: Context
-  }
-
   /// Matches observed changes only. Rule order is preserved within each event and target,
   /// including repeated workflow IDs from separate matching rules.
   public static func match(

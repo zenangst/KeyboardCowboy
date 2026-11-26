@@ -1,31 +1,13 @@
 import AccessibilitySystem
-import CoreGraphics
 import Darwin
 
-public enum WindowManagement {
-  /// Bounds and usable area in AX global coordinates (top-left origin).
-  public struct Display: Sendable {
-    public let bounds: CGRect
-    public let visibleBounds: CGRect
-
-    public init(bounds: CGRect, visibleBounds: CGRect) {
-      self.bounds = bounds
-      self.visibleBounds = visibleBounds
-    }
-  }
-
-  public typealias CenterResult = FrameResult
-
-  public struct FrameResult: Equatable, Sendable {
-    public let original: CGRect
-    public let requested: CGRect
-    public let observed: CGRect
-  }
+public extension WindowManagement {
+  typealias CenterResult = FrameResult
 
   /// Centers the specified application's focused window without resizing it.
   /// Returns nil if no display intersects the window or the target is unavailable.
   @discardableResult
-  public static func centerFocusedWindow(
+  static func centerFocusedWindow(
     in processIdentifier: pid_t, displays: [Display],
     using accessibility: AccessibilitySystem.Client = .init(),
   ) async throws -> CenterResult? {

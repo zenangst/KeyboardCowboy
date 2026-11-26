@@ -6,16 +6,6 @@ import OpenFeature
 /// Service-side Open composition. The caller resolves the command path and
 /// supplies host interception.
 package struct HostOpen: Sendable {
-  package enum Event: String, Sendable {
-    case tabSearchStarted = "tab search started"
-    case tabSearchNoMatch = "tab search found no matching tab"
-    case tabSearchAutomationDenied = "tab search was denied Automation permission"
-    case tabSearchFailed = "tab search script failed"
-    case browserSucceeded = "browser route succeeded"
-    case browserFailed = "browser route failed"
-    case genericOpenStarted = "generic open started"
-  }
-
   private let executor: Open.Executor
 
   package init(

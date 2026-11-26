@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
 
-enum Operation {
+extension Operation {
   struct Center: Sendable {
     let displays: [WindowManagement.Display]
 

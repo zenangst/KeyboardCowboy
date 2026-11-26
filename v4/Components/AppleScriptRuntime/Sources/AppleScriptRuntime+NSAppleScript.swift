@@ -3,15 +3,6 @@ import RuntimeEnvironment
 
 public extension AppleScriptRuntime {
   final class NSAppleScript: Sendable {
-    public enum Error: Swift.Error {
-      case unableToCreateAppleScript(source: String)
-      case unableToResolveAppleScript(path: String)
-      case unableToResolveAppleScriptWithError(path: String, underlyingError: NSError)
-      case unableToCompile
-      case unableToCompileWithError(Swift.Error)
-      case unableToExecute(Swift.Error)
-    }
-
     let mode: Mode
 
     enum Mode: @unchecked Sendable {

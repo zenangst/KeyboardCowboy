@@ -1,5 +1,5 @@
-public enum WindowTiling {
-  public enum Action: String, CaseIterable, Codable, Sendable {
+public extension WindowTiling {
+  enum Action: String, CaseIterable, Codable, Sendable {
     case left, right, top, bottom
     case topLeft, topRight, bottomLeft, bottomRight
     case center, fill, zoom

@@ -1,21 +1,6 @@
 public extension Command {
   /// The persisted payload inside the host's `scriptCommand` envelope.
   struct Script: MetaDataProviding {
-    public enum Kind: Codable, Hashable, Sendable {
-      case appleScript(variant: Variant)
-      case shellScript
-    }
-
-    public enum Variant: Codable, Hashable, Sendable {
-      case regular
-      case jxa
-    }
-
-    public enum Source: Codable, Hashable, Sendable {
-      case inline(String)
-      case path(String)
-    }
-
     public var kind: Kind
     public var source: Source
     public var meta: Metadata

@@ -6,31 +6,6 @@ import UserSpace
 
 public extension Application {
   final class Executor: Sendable {
-    /// A host may restore a previous application instead of hiding on peek release.
-    public enum PeekReleaseAction: Sendable {
-      case hide
-      /// Supply an ordinary open command for the application's previous target.
-      case open(Command.Application)
-      case none
-    }
-
-    public struct SelfApplicationHandler: Sendable {
-      let bundleIdentifier: ApplicationSystem.BundleIdentifier
-      let open: @Sendable () async -> Void
-
-      public init(bundleIdentifier: ApplicationSystem.BundleIdentifier, open: @escaping @Sendable () async -> Void) {
-        self.bundleIdentifier = bundleIdentifier
-        self.open = open
-      }
-    }
-
-    public enum ExecutionError: Error, Equatable, Sendable {
-      case failedToTerminate(ApplicationSystem.BundleIdentifier)
-      case failedToActivate(ApplicationSystem.BundleIdentifier)
-      case applicationNotRunning(ApplicationSystem.BundleIdentifier)
-      case missingFrontmostApplication
-    }
-
     struct Operations: Sendable {
       let activate: Operation.Activate
       let bringToFront: Operation.BringToFront

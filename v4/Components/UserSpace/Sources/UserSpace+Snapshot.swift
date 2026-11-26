@@ -45,15 +45,5 @@ public extension UserSpace {
       return Snapshot(apps: .init(frontMost: current, previous: previous),
                       lastFrontmost: current, lastPrevious: previous)
     }
-
-    public struct Apps: Sendable {
-      public let frontMost: Application?
-      public let previous: Application?
-
-      public init(frontMost: Application? = nil, previous: Application? = nil) {
-        self.frontMost = frontMost
-        self.previous = previous
-      }
-    }
   }
 }

@@ -4,25 +4,8 @@ import RuntimeEnvironment
 
 public extension ProcessSystem {
   final class Process {
-    public enum CaptureError: Swift.Error, Equatable {
-      case standardOutputLimitExceeded(limit: Int)
-      case standardErrorLimitExceeded(limit: Int)
-    }
-
     public static let standardOutputCaptureLimit = 64 * 1024 * 1024
     public static let standardErrorCaptureLimit = 64 * 1024 * 1024
-
-    public enum LaunchStyle: Equatable {
-      case shell(String)
-      case headless(String)
-
-      public var source: String {
-        switch self {
-        case .shell(let string): string
-        case .headless(let string): string
-        }
-      }
-    }
 
     enum Mode {
       case production(Foundation.Process)
