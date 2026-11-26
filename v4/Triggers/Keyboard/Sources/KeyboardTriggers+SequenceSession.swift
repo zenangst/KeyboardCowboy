@@ -9,6 +9,7 @@ public extension KeyboardTriggers {
     private var suppressedKeyCodes: Set<UInt16> = []
     private var repeating: RepeatBinding?
     private var pendingHold: PendingHold?
+    private var pendingRelease: PendingRelease?
 
     private struct RepeatBinding: Sendable {
       let signature: Signature
@@ -24,6 +25,13 @@ public extension KeyboardTriggers {
       let deadline: Duration
       let app: String?
       let modes: [String]
+    }
+
+    private struct PendingRelease: Sendable {
+      let keyCode: UInt16
+      let workflowID: String
+      let startedAt: Duration
+      let minimumHold: Duration
     }
 
     /// The timeout is measured between consecutive keys using caller-supplied monotonic time.
@@ -50,6 +58,7 @@ public extension KeyboardTriggers {
     ) -> Decision {
       repeating = nil
       pendingHold = nil
+      pendingRelease = nil
       if let lastInput,
          time < lastInput || time - lastInput >= timeout || app != frontmostBundleIdentifier || modes != enabledModeIDs {
         clearPrefix()
@@ -84,7 +93,10 @@ public extension KeyboardTriggers {
                               deadline: deadline, app: frontmostBundleIdentifier, modes: enabledModeIDs)
           return Decision(match: .noMatch, disposition: decision.disposition, holdDeadline: deadline)
         }
-        if rule.allowRepeat {
+        if let minimumHold = rule.releaseAfter, minimumHold >= .zero {
+          pendingRelease = .init(keyCode: signature.keyCode, workflowID: workflowID,
+                                 startedAt: time, minimumHold: minimumHold)
+        } else if rule.allowRepeat {
           repeating = .init(signature: signature, workflowID: workflowID, app: frontmostBundleIdentifier, modes: enabledModeIDs)
         }
       }
@@ -130,9 +142,30 @@ public extension KeyboardTriggers {
     /// Pair a release with its key-down even if modifier flags or focus changed.
     /// Releasing a prefix key does not end the pending shortcut sequence.
     public mutating func release(keyCode: UInt16) -> Decision.Disposition {
+      finishRelease(keyCode: keyCode, at: nil).disposition
+    }
+
+    /// Returns the follow-up for the matching key, strictly after the minimum hold.
+    /// Focus may change during the press (for example, when peeking another app).
+    public mutating func releaseDecision(keyCode: UInt16, at time: Duration) -> Decision {
+      finishRelease(keyCode: keyCode, at: time)
+    }
+
+    private mutating func finishRelease(keyCode: UInt16, at time: Duration?) -> Decision {
       if repeating?.signature.keyCode == keyCode { repeating = nil }
       if pendingHold?.keyCode == keyCode { cancelHold() }
-      return suppressedKeyCodes.remove(keyCode) == nil ? .passThrough : .suppress
+      let disposition: Decision.Disposition = suppressedKeyCodes.remove(keyCode) == nil ? .passThrough : .suppress
+      guard let pendingRelease, pendingRelease.keyCode == keyCode else {
+        return Decision(match: .noMatch, disposition: disposition)
+      }
+      self.pendingRelease = nil
+      let match: SequenceMatch
+      if let time, time >= pendingRelease.startedAt, time - pendingRelease.startedAt > pendingRelease.minimumHold {
+        match = .exact(pendingRelease.workflowID)
+      } else {
+        match = .noMatch
+      }
+      return Decision(match: match, disposition: disposition)
     }
 
     /// Clear the sequence and key pairings when the host loses the input stream,
@@ -141,6 +174,7 @@ public extension KeyboardTriggers {
       clearPrefix()
       suppressedKeyCodes.removeAll(keepingCapacity: true)
       repeating = nil
+      pendingRelease = nil
       cancelHold()
     }
 

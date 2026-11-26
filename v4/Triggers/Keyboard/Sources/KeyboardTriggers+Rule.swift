@@ -7,6 +7,8 @@ public extension KeyboardTriggers {
     public let passthrough: Bool
     public let allowRepeat: Bool
     public let holdDuration: Duration?
+    /// Optional follow-up after key-down, instead of autorepeat. A scheduled hold takes precedence.
+    public let releaseAfter: Duration?
     public let allowedBundleIdentifiers: Set<String>
     public let disallowedBundleIdentifiers: Set<String>
     public let modeIDs: Set<String>
@@ -28,6 +30,7 @@ public extension KeyboardTriggers {
       passthrough: Bool = false,
       allowRepeat: Bool = true,
       holdDuration: Duration? = nil,
+      releaseAfter: Duration? = nil,
     ) {
       self.workflowID = workflowID
       self.signature = signature
@@ -36,6 +39,7 @@ public extension KeyboardTriggers {
       self.passthrough = passthrough
       self.allowRepeat = allowRepeat
       self.holdDuration = holdDuration
+      self.releaseAfter = releaseAfter
       self.allowedBundleIdentifiers = allowedBundleIdentifiers
       self.disallowedBundleIdentifiers = disallowedBundleIdentifiers
       self.modeIDs = modeIDs
