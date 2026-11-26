@@ -3,8 +3,8 @@ set -euo pipefail
 
 root="${0:A:h:h}"
 display="${1:-primary}"
-if [[ $# -gt 1 || ( "$display" != primary && "$display" != secondary && "$display" != system && "$display" != minimize ) ]]; then
-  print -u2 "Usage: $0 [primary|secondary|system|minimize]"
+if [[ $# -gt 1 || ( "$display" != primary && "$display" != secondary && "$display" != system && "$display" != minimize && "$display" != hide ) ]]; then
+  print -u2 "Usage: $0 [primary|secondary|system|minimize|hide]"
   exit 2
 fi
 scratch="$(mktemp -d "${TMPDIR:-/tmp}/kc-fill.XXXXXXXX")"
@@ -20,6 +20,11 @@ plutil -insert CFBundlePackageType -string APPL "$plist"
 swiftc -parse-as-library "$root/Scripts/WindowFillSmokeFixture.swift" -o "$fixture/Contents/MacOS/Fixture"
 codesign --force --sign - "$fixture"
 sw_vers
+if [[ "$display" == hide ]]; then
+  KC_SYSTEM_HIDE_FIXTURE="$fixture" swift test --package-path "$root/Features/System" \
+    --configuration "${CONFIGURATION:-release}" --filter liveHideAllApps
+  exit
+fi
 if [[ "$display" == minimize ]]; then
   KC_SYSTEM_MINIMIZE_FIXTURE="$fixture" swift test --package-path "$root/Features/System" \
     --configuration "${CONFIGURATION:-release}" --filter liveMinimizeAllWindows
