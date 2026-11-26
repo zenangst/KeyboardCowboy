@@ -7,6 +7,8 @@ struct WindowFillSmokeFixture {
     guard CommandLine.arguments.count == 4, let displayID = UInt32(CommandLine.arguments[3]) else { exit(2) }
 
     let app = NSApplication.shared
+    let mode = CommandLine.arguments[1]
+    let minimizing = mode == "system-minimize"
     app.setActivationPolicy(.regular)
     app.finishLaunching()
     let key = NSDeviceDescriptionKey("NSScreenNumber")
@@ -15,18 +17,19 @@ struct WindowFillSmokeFixture {
     }) else { exit(2) }
 
     let area = screen.visibleFrame
+    let style: NSWindow.StyleMask = minimizing ? [.titled, .resizable, .miniaturizable] : [.titled, .resizable]
     let window = NSWindow(contentRect: CGRect(x: 0, y: 0, width: 420, height: 250),
-                          styleMask: [.titled, .resizable], backing: .buffered, defer: false, screen: screen)
+                          styleMask: style, backing: .buffered, defer: false, screen: screen)
     window.setFrameOrigin(CGPoint(x: area.minX + 200, y: area.minY + 100))
     window.title = "Window Management Fill Fixture"
     window.minSize = CGSize(width: 200, height: 150)
-    if CommandLine.arguments[1] == "constrained" {
+    if mode == "constrained" {
       window.maxSize = CGSize(width: 800, height: 600)
     }
     let replacement: NSWindow?
-    if CommandLine.arguments[1] == "switch-focus" || CommandLine.arguments[1] == "system-fill" {
+    if mode == "switch-focus" || mode == "system-fill" || minimizing {
       let other = NSWindow(contentRect: CGRect(x: 0, y: 0, width: 420, height: 250),
-                           styleMask: [.titled, .resizable], backing: .buffered, defer: false, screen: screen)
+                           styleMask: style, backing: .buffered, defer: false, screen: screen)
       other.title = "Window Management Fill Replacement"
       other.setFrameOrigin(CGPoint(x: area.minX + 310, y: area.minY + 140))
       other.orderFront(nil)
@@ -35,7 +38,7 @@ struct WindowFillSmokeFixture {
       replacement = nil
     }
     var control: NSWindow?
-    if CommandLine.arguments[1] == "system-fill" {
+    if mode == "system-fill" || minimizing {
       let menu = NSMenu()
       let windowItem = NSMenuItem(title: "Window", action: nil, keyEquivalent: "")
       let windowMenu = NSMenu(title: "Window")
@@ -43,7 +46,11 @@ struct WindowFillSmokeFixture {
       menu.addItem(windowItem)
       app.mainMenu = menu
       app.windowsMenu = windowMenu
-      if let secondary = NSScreen.screens.first(where: { $0 != screen }) {
+      if minimizing {
+        let item = windowMenu.addItem(withTitle: "Minimize All", action: #selector(NSApplication.miniaturizeAll(_:)),
+                                      keyEquivalent: "")
+        item.target = app
+      } else if let secondary = NSScreen.screens.first(where: { $0 != screen }) {
         let frame = secondary.visibleFrame
         let other = NSWindow(contentRect: CGRect(x: frame.minX + 200, y: frame.minY + 100, width: 420, height: 250),
                              styleMask: [.titled, .resizable], backing: .buffered, defer: false, screen: secondary)
@@ -59,7 +66,7 @@ struct WindowFillSmokeFixture {
       forName: NSWindow.didMoveNotification, object: window, queue: .main,
     ) { _ in
       MainActor.assumeIsolated {
-        if CommandLine.arguments[1] == "switch-focus", window.frame.origin != initialOrigin, window.isKeyWindow {
+        if mode == "switch-focus", window.frame.origin != initialOrigin, window.isKeyWindow {
           replacement?.makeKeyAndOrderFront(nil)
         }
       }
