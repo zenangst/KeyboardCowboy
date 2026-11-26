@@ -12,6 +12,7 @@ public enum SystemCommand {
     case applicationWindows
     case showDesktop
     case hideAllApps
+    case minimizeAllOpenWindows
   }
 
   public enum Completion: Equatable, Sendable {
@@ -38,6 +39,7 @@ public enum SystemCommand {
     private let previousApplication: @MainActor () -> (PreviousApplication?, UserSpace.Snapshot)
     private let openApplication: @MainActor (Command.Application, CGEventType?, UserSpace.Snapshot) async throws -> Void
     private let hideAllApps: @MainActor ([Command.Application]) async throws -> Void
+    private let minimizeAllOpenWindows: @MainActor ([String]?) async throws -> Void
 
     /// Keep the executor (or its shared UserSpace) alive to accumulate activation history.
     public init() {
@@ -79,11 +81,15 @@ public enum SystemCommand {
       hideAllApps: @escaping @MainActor ([Command.Application]) async throws -> Void = {
         try await HideAllApps.live().run($0)
       },
+      minimizeAllOpenWindows: @escaping @MainActor ([String]?) async throws -> Void = {
+        try await MinimizeAllWindows.live().run($0)
+      },
     ) {
       self.sendDockNotification = sendDockNotification
       self.previousApplication = previousApplication
       self.openApplication = openApplication
       self.hideAllApps = hideAllApps
+      self.minimizeAllOpenWindows = minimizeAllOpenWindows
     }
 
     /// Checks cancellation before dispatch. An effect that already took place cannot be undone.
@@ -93,6 +99,15 @@ public enum SystemCommand {
 
     /// For Hide All Apps, supply all application commands in workflow order.
     public func run(_ action: Action, workflowApplications: [Command.Application]) async throws -> Completion {
+      try await run(action, workflowApplications: workflowApplications, visibleWindowOwners: nil)
+    }
+
+    /// Supply snapshot window-owner names for Minimize All. Nil uses the live inventory.
+    public func run(
+      _ action: Action,
+      workflowApplications: [Command.Application] = [],
+      visibleWindowOwners: [String]?,
+    ) async throws -> Completion {
       try Task.checkCancellation()
       switch action {
       case .activateLastApplication: return try await activateLastApplication()
@@ -100,6 +115,7 @@ public enum SystemCommand {
       case .applicationWindows: try sendDockNotification("com.apple.expose.front.awake")
       case .showDesktop: try sendDockNotification("com.apple.showdesktop.awake")
       case .hideAllApps: try await hideAllApps(workflowApplications)
+      case .minimizeAllOpenWindows: try await minimizeAllOpenWindows(visibleWindowOwners)
       }
       return .invoked
     }

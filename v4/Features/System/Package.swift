@@ -8,6 +8,8 @@ let package = Package(
   products: [.library(name: "SystemFeature", targets: ["SystemFeature"])],
   dependencies: [
     .package(path: "../Applications"),
+    .package(path: "../../Components/AccessibilitySystem"),
+    .package(path: "../../Components/ApplicationCatalog"),
     .package(path: "../../Components/Commands"),
     .package(path: "../../Components/UserSpace"),
   ],
@@ -16,6 +18,8 @@ let package = Package(
       name: "SystemFeature",
       dependencies: [
         .product(name: "ApplicationsFeature", package: "Applications"),
+        "AccessibilitySystem",
+        "ApplicationCatalog",
         "Commands",
         "UserSpace",
       ],
