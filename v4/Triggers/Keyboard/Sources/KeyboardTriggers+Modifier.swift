@@ -2,7 +2,7 @@ import CoreGraphics
 import IOKit.hidsystem
 
 public extension KeyboardTriggers {
-  enum Modifier: String, Codable, Sendable {
+  enum Modifier: String, Codable, CaseIterable, Sendable {
     case function = "fn", capsLock = "⇪"
     case leftShift = "$", rightShift = "r$"
     case leftControl = "^", rightControl = "r^"

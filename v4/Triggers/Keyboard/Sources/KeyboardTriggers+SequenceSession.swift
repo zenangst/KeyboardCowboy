@@ -2,6 +2,7 @@ public extension KeyboardTriggers {
   struct SequenceSession: Sendable {
     private let matcher: Matcher
     private let timeout: Duration
+    private let useLegacyFunctionKeyFallback: Bool
     private var prefix: [Signature] = []
     private var lastInput: Duration?
     private var app: String?
@@ -49,9 +50,10 @@ public extension KeyboardTriggers {
     }
 
     /// The timeout is measured between consecutive keys using caller-supplied monotonic time.
-    public init(matcher: Matcher, timeout: Duration) {
+    public init(matcher: Matcher, timeout: Duration, useLegacyFunctionKeyFallback: Bool = false) {
       self.matcher = matcher
       self.timeout = timeout
+      self.useLegacyFunctionKeyFallback = useLegacyFunctionKeyFallback
     }
 
     /// Feed eligible non-repeating key-down events only. A mismatch retries the current key as
@@ -84,13 +86,11 @@ public extension KeyboardTriggers {
       }
 
       prefix.append(signature)
-      var result = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
-                                         enabledModeIDs: enabledModeIDs)
+      var result = resolve(signature, app: frontmostBundleIdentifier, modes: enabledModeIDs)
       if result.decision.match == .noMatch, prefix.count > 1 {
         clearPrefix()
         prefix = [signature]
-        result = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
-                                       enabledModeIDs: enabledModeIDs)
+        result = resolve(signature, app: frontmostBundleIdentifier, modes: enabledModeIDs)
       }
 
       let decision = result.decision
@@ -106,7 +106,7 @@ public extension KeyboardTriggers {
         app = frontmostBundleIdentifier
         modes = enabledModeIDs
       } else if case .exact = decision.match, let leader, leader.releasedAt == nil {
-        prefix = [leader.signature]
+        prefix.removeLast(prefix.count - 1)
         lastInput = time
       } else {
         clearPrefix()
@@ -131,6 +131,19 @@ public extension KeyboardTriggers {
         }
       }
       return decision
+    }
+
+    private mutating func resolve(_ signature: Signature, app: String?, modes: [String]) -> (decision: Decision, rule: Rule?) {
+      let exact = matcher.matchSequence(prefix, frontmostBundleIdentifier: app, enabledModeIDs: modes)
+      guard exact.decision.match == .noMatch, useLegacyFunctionKeyFallback else { return exact }
+      let index = prefix.count - 1
+      for candidate in signature.functionKeyFallbacks {
+        prefix[index] = candidate
+        let result = matcher.matchSequence(prefix, frontmostBundleIdentifier: app, enabledModeIDs: modes)
+        if result.decision.match != .noMatch { return result }
+      }
+      prefix[index] = signature
+      return exact
     }
 
     /// Delivers the pending hold at most once. The host owns the timer.

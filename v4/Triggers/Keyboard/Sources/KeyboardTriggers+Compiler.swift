@@ -49,7 +49,7 @@ public extension KeyboardTriggers {
     }
 
     private static let arrows: Set<Int> = [kVK_UpArrow, kVK_DownArrow, kVK_LeftArrow, kVK_RightArrow]
-    private static let functionKeys = arrows.union([
+    static let functionKeys = arrows.union([
       kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6, kVK_F7, kVK_F8, kVK_F9, kVK_F10,
       kVK_F11, kVK_F12, kVK_F13, kVK_F14, kVK_F15, kVK_F16, kVK_F17, kVK_F18, kVK_F19, kVK_F20,
       kVK_Home, kVK_End, kVK_PageUp, kVK_PageDown, kVK_ANSI_KeypadEnter, kVK_JIS_KeypadComma,
