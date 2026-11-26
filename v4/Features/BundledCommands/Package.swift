@@ -6,5 +6,13 @@ let package = Package(
   name: "BundledCommandsFeature",
   platforms: [.macOS(.v14)],
   products: [.library(name: "BundledCommandsFeature", targets: ["BundledCommandsFeature"])],
-  targets: [.target(name: "BundledCommandsFeature", path: "Sources")],
+  dependencies: [
+    .package(path: "../../Components/ApplicationCatalog"),
+    .package(path: "../../Components/Commands"),
+  ],
+  targets: [
+    .target(name: "BundledCommandsFeature", dependencies: ["ApplicationCatalog", "Commands"], path: "Sources"),
+    .testTarget(name: "BundledCommandsFeatureTests", dependencies: ["BundledCommandsFeature", "ApplicationCatalog", "Commands"],
+                path: "Tests"),
+  ],
 )
