@@ -1,70 +1,12 @@
-import Commands
-
 public enum WorkflowRuntime {
-  public enum Origin: Equatable, Sendable {
-    case manual
-    case applicationTrigger(bundleIdentifier: String, context: String)
-  }
-
-  public struct Step<Payload: Sendable>: Sendable {
-    public let metadata: Command.Metadata
-    public let payload: Payload
-
-    public init(metadata: Command.Metadata, payload: Payload) {
-      self.metadata = metadata
-      self.payload = payload
-    }
-  }
-
-  public struct Request<Payload: Sendable>: Sendable {
-    public let workflowID: String
-    public let origin: Origin
-    public let steps: [Step<Payload>]
-
-    public init(workflowID: String, origin: Origin, steps: [Step<Payload>]) {
-      self.workflowID = workflowID
-      self.origin = origin
-      self.steps = steps
-    }
-  }
-
-  public struct Context<Snapshot: Sendable>: Sendable {
-    public var snapshot: Snapshot
-    public var variables: [String: String]
-
-    public init(snapshot: Snapshot, variables: [String: String] = [:]) {
-      self.snapshot = snapshot
-      self.variables = variables
-    }
-  }
-
-  public struct CommandResult<Snapshot: Sendable>: Sendable {
-    public let snapshot: Snapshot
-    public let output: String
-
-    public init(snapshot: Snapshot, output: String) {
-      self.snapshot = snapshot
-      self.output = output
-    }
-  }
-
-  public enum Outcome: Sendable {
-    case succeeded(commandID: String, output: String)
-    case failed(commandID: String, error: any Error)
-  }
-
-  public struct Result<Snapshot: Sendable>: Sendable {
-    public let context: Context<Snapshot>
-    public let outcomes: [Outcome]
-  }
-
-  public enum FailureDecision: Sendable {
-    case proceed, abort
-  }
-
   @MainActor
   public struct Executor<Payload: Sendable, Snapshot: Sendable> {
-    public typealias Dispatch = @MainActor (Step<Payload>, Request<Payload>, Context<Snapshot>) async throws -> CommandResult<Snapshot>
+    public typealias Dispatch = @MainActor (
+      Step<Payload>,
+      Request<Payload>,
+      Context<Snapshot>,
+    ) async throws -> CommandResult<Snapshot>
+
     public typealias FailurePolicy = @MainActor (Step<Payload>, any Error) -> FailureDecision
 
     private let dispatch: Dispatch
@@ -83,7 +25,10 @@ public enum WorkflowRuntime {
 
     /// Runs one ordered list; the caller owns its task. Ordinary failures continue
     /// by default. Cancellation always throws and does not roll back dispatched effects.
-    public func run(_ request: Request<Payload>, from initialContext: Context<Snapshot>) async throws -> Result<Snapshot> {
+    public func run(
+      _ request: Request<Payload>,
+      from initialContext: Context<Snapshot>,
+    ) async throws -> Result<Snapshot> {
       try Task.checkCancellation()
       let enabled = Request(workflowID: request.workflowID, origin: request.origin,
                             steps: request.steps.filter(\.metadata.isEnabled))

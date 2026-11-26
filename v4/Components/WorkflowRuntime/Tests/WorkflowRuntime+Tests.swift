@@ -29,7 +29,7 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
   let executor = Executor(sleep: {
     calls.append("sleep")
     delays.append($0)
-  }) { step, run, context in
+  }, dispatch: { step, run, context in
     calls.append(step.payload)
     #expect(run.workflowID == "capture")
     #expect(run.origin == .applicationTrigger(bundleIdentifier: bundle, context: "launched"))
@@ -43,7 +43,8 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
     #expect(context.snapshot == 11)
     #expect(context.variables["last"] == "first output")
     return .init(snapshot: 12, output: "")
-  }
+  })
+
   let result = try await executor.run(request, from: .init(snapshot: 10, variables: ["seed": "untouched"]))
   #expect(calls == ["first", "sleep", "second", "sleep"])
   #expect(delays == [.milliseconds(40), .microseconds(500)])
@@ -55,6 +56,7 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
     Issue.record("Expected two successful outcomes")
     return
   }
+
   #expect(id == "first" && output == "first output")
   #expect(secondID == "second" && secondOutput.isEmpty)
 }
@@ -64,16 +66,18 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
   let executor = Executor(sleep: {
     #expect($0 == .milliseconds(5))
     calls.append("sleep")
-  }) { step, _, context in
+  }, dispatch: { step, _, context in
     calls.append(step.payload)
     if step.payload == "fails" { throw ProbeError.failed }
     #expect(context.snapshot == 1)
     #expect(context.variables == ["key": "old"])
     return .init(snapshot: 2, output: "new")
-  }
+  })
+
   let request = Request(workflowID: "manual", origin: .manual,
                         steps: [step("fails", delay: 5, variable: "key"), step("next", variable: "key")])
   let result = try await executor.run(request, from: .init(snapshot: 1, variables: ["key": "old"]))
+
   #expect(calls == ["fails", "sleep", "next"])
   #expect(result.context.snapshot == 2 && result.context.variables == ["key": "new"])
   try #require(result.outcomes.count == 2)
@@ -81,6 +85,7 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
     Issue.record("Expected failure outcome")
     return
   }
+
   #expect(id == "fails")
   #expect(error as? ProbeError == .failed)
 }
@@ -91,20 +96,23 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
     #expect(error as? ProbeError == .failed)
     calls.append("policy:\(step.payload)")
     return .abort
-  }, sleep: { _ in Issue.record("Unexpected sleep") }) { step, _, _ in
+  }, sleep: { _ in Issue.record("Unexpected sleep") },
+  dispatch: { step, _, _ in
     calls.append(step.payload)
     throw ProbeError.failed
-  }
+  })
+
   let request = Request(workflowID: "manual", origin: .manual, steps: [step("fail", delay: 5), step("next")])
   await #expect(throws: ProbeError.failed) { try await executor.run(request, from: .init(snapshot: 0)) }
   #expect(calls == ["fail", "policy:fail"])
 }
 
 @Test @MainActor func preCancelledRunDoesNotDispatch() async {
-  let executor = Executor { _, _, context in
+  let executor = Executor(dispatch: { _, _, context in
     Issue.record("Unexpected dispatch")
     return .init(snapshot: context.snapshot, output: "")
-  }
+  })
+
   let request = Request(workflowID: "cancel", origin: .manual, steps: [step("first")])
   let task = Task { @MainActor in
     withUnsafeCurrentTask { $0?.cancel() }
@@ -119,12 +127,13 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
   let executor = Executor(failurePolicy: { _, _ in
     Issue.record("Cancellation must not reach failure policy")
     return .proceed
-  }, sleep: { _ in Issue.record("Unexpected sleep") }) { step, _, context in
+  }, sleep: { _ in Issue.record("Unexpected sleep") }, dispatch: { step, _, context in
     calls.append(step.payload)
     withUnsafeCurrentTask { $0?.cancel() }
     if throwsAfterCancelling { throw ProbeError.failed }
     return .init(snapshot: context.snapshot + 1, output: "output")
-  }
+  })
+
   let request = Request(workflowID: "cancel", origin: .manual, steps: [step("first", delay: 5), step("next")])
   let task = Task { @MainActor in try await executor.run(request, from: .init(snapshot: 0)) }
   await #expect(throws: CancellationError.self) { try await task.value }
@@ -133,23 +142,27 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
 
 @Test @MainActor func cancellationFromTheClockStopsTheRun() async {
   var calls: [String] = []
-  let executor = Executor(sleep: { _ in throw CancellationError() }) { step, _, context in
+  let executor = Executor(sleep: { _ in throw CancellationError() }, dispatch: { step, _, context in
     calls.append(step.payload)
     return .init(snapshot: context.snapshot, output: "")
-  }
+  })
   let request = Request(workflowID: "cancel", origin: .manual, steps: [step("first", delay: 5), step("next")])
   await #expect(throws: CancellationError.self) { try await executor.run(request, from: .init(snapshot: 0)) }
   #expect(calls == ["first"])
 }
 
 @Test @MainActor func invalidDelaysDoNotSleep() async throws {
-  let executor = Executor(sleep: { _ in Issue.record("Unexpected sleep") }) { _, _, context in
-    .init(snapshot: context.snapshot + 1, output: "")
-  }
+  let executor = Executor(
+    sleep: { _ in Issue.record("Unexpected sleep") },
+    dispatch: { _, _, context in
+      .init(snapshot: context.snapshot + 1, output: "")
+    })
+
   let delays = [-1.0, 0, .infinity, .nan, .greatestFiniteMagnitude]
   let request = Request(workflowID: "invalid-delays", origin: .manual, steps: delays.enumerated().map {
     step(String($0.offset), delay: $0.element)
   })
   let result = try await executor.run(request, from: .init(snapshot: 0))
+
   #expect(result.context.snapshot == delays.count)
 }
