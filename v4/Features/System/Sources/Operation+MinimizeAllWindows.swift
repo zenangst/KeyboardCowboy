@@ -3,7 +3,7 @@ import AppKit
 import ApplicationCatalog
 import CoreGraphics
 
-extension SystemCommand {
+extension Operation {
   @MainActor
   struct MinimizeAllWindows {
     struct Application {
@@ -17,7 +17,7 @@ extension SystemCommand {
     let catalogBundleIDs: @MainActor () async -> Set<String>
     let pressMinimizeAll: @MainActor (Int32) async throws -> Void
 
-    func run(_ snapshotOwners: [String]?) async throws {
+    func callAsFunction(_ snapshotOwners: [String]?) async throws {
       try Task.checkCancellation()
       let owners = snapshotOwners ?? windowOwners()
       guard !owners.isEmpty else { return }

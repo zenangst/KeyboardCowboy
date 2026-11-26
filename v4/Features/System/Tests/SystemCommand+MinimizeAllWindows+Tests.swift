@@ -3,9 +3,11 @@ import Foundation
 import Testing
 import UserSpace
 
+private typealias MinimizeAllWindows = SystemFeature.Operation.MinimizeAllWindows
+
 @Test @MainActor func minimizeAllUsesSnapshotOrderAndDeduplicatesCatalogApps() async throws {
   var pressed: [Int32] = []
-  let operation = SystemCommand.MinimizeAllWindows(
+  let operation = MinimizeAllWindows(
     windowOwners: { Issue.record("Unexpected live window query"); return [] },
     applications: {
       [.init(name: "A", bundleID: "a", pid: 1), .init(name: "A", bundleID: "a", pid: 2),
@@ -15,24 +17,24 @@ import UserSpace
     catalogBundleIDs: { ["a", "b"] },
     pressMinimizeAll: { pressed.append($0) },
   )
-  try await operation.run(["B", "Unlisted", "No ID", "Missing", "A", "B", "A"])
+  try await operation(["B", "Unlisted", "No ID", "Missing", "A", "B", "A"])
   #expect(pressed == [3, 1])
 }
 
 @Test @MainActor func minimizeAllUsesLiveOwnersOnlyWhenSnapshotIsAbsent() async throws {
   var reads = 0
   var pressed: [Int32] = []
-  let operation = SystemCommand.MinimizeAllWindows(
+  let operation = MinimizeAllWindows(
     windowOwners: { reads += 1; return ["A"] },
     applications: { [.init(name: "A", bundleID: "a", pid: 1)] },
     catalogBundleIDs: { ["a"] },
     pressMinimizeAll: { pressed.append($0) },
   )
 
-  try await operation.run([])
+  try await operation([])
   #expect(reads == 0)
   #expect(pressed.isEmpty)
-  try await operation.run(nil)
+  try await operation(nil)
   #expect(reads == 1)
   #expect(pressed == [1])
 }
@@ -44,7 +46,7 @@ private enum MinimizeFailure: Error {
 @Test(arguments: [true, false])
 @MainActor func minimizeAllDoesNotPressLaterAppsAfterFailureOrCancellation(cancel: Bool) async {
   var pressed: [Int32] = []
-  let operation = SystemCommand.MinimizeAllWindows(
+  let operation = MinimizeAllWindows(
     windowOwners: { ["A", "B"] },
     applications: { [.init(name: "A", bundleID: "a", pid: 1), .init(name: "B", bundleID: "b", pid: 2)] },
     catalogBundleIDs: { ["a", "b"] },
@@ -57,7 +59,7 @@ private enum MinimizeFailure: Error {
       }
     },
   )
-  let task = Task { @MainActor in try await operation.run(nil) }
+  let task = Task { @MainActor in try await operation(nil) }
   if cancel {
     await #expect(throws: CancellationError.self) { try await task.value }
   } else {

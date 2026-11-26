@@ -1,8 +1,6 @@
 import ApplicationsFeature
 import Commands
 import CoreGraphics
-import Darwin
-import Foundation
 import ScriptingFeature
 import UserSpace
 
@@ -32,17 +30,13 @@ public enum SystemCommand {
 
   @MainActor
   public struct Executor {
-    struct PreviousApplication {
-      let bundleIdentifier: String
-      let bundleURL: URL?
-    }
+    typealias PreviousApplication = Operation.ActivateLastApplication.PreviousApplication
 
-    private let sendDockNotification: @MainActor (String) throws -> Void
-    private let previousApplication: @MainActor () -> (PreviousApplication?, UserSpace.Snapshot)
-    private let openApplication: @MainActor (Command.Application, CGEventType?, UserSpace.Snapshot) async throws -> Void
+    private let dock: Operation.Dock
+    private let activateLastApplication: Operation.ActivateLastApplication
     private let hideAllApps: @MainActor ([Command.Application]) async throws -> Void
     private let minimizeAllOpenWindows: @MainActor ([String]?) async throws -> Void
-    private let executeScript: @MainActor (ScriptRequest) async throws -> String?
+    private let showNotificationCenter: Operation.ShowNotificationCenter
 
     /// Keep the executor (or its shared UserSpace) alive to accumulate activation history.
     public init() {
@@ -54,7 +48,7 @@ public enum SystemCommand {
 
     public init(userSpace: UserSpace, applicationExecutor: Application.Executor) {
       self.init(
-        sendDockNotification: Self.sendToDock,
+        sendDockNotification: Operation.Dock.sendToDock,
         previousApplication: {
           let snapshot = userSpace.takeSnapshot()
           let previous = snapshot.apps.previous.flatMap { app -> PreviousApplication? in
@@ -74,7 +68,7 @@ public enum SystemCommand {
     }
 
     init(
-      sendDockNotification: @escaping @MainActor (String) throws -> Void,
+      sendDockNotification: @escaping @MainActor (Operation.Dock.Action) throws -> Void,
       previousApplication: @escaping @MainActor () -> (PreviousApplication?, UserSpace.Snapshot),
       openApplication: @escaping @MainActor (
         Command.Application,
@@ -82,21 +76,23 @@ public enum SystemCommand {
         UserSpace.Snapshot,
       ) async throws -> Void,
       hideAllApps: @escaping @MainActor ([Command.Application]) async throws -> Void = {
-        try await HideAllApps.live().run($0)
+        try await Operation.HideAllApps.live()($0)
       },
       minimizeAllOpenWindows: @escaping @MainActor ([String]?) async throws -> Void = {
-        try await MinimizeAllWindows.live().run($0)
+        try await Operation.MinimizeAllWindows.live()($0)
       },
       executeScript: @escaping @MainActor (ScriptRequest) async throws -> String? = {
         try await ScriptCommandDispatcher(.production).execute($0)
       },
     ) {
-      self.sendDockNotification = sendDockNotification
-      self.previousApplication = previousApplication
-      self.openApplication = openApplication
+      self.dock = Operation.Dock(sendNotification: sendDockNotification)
+      self.activateLastApplication = Operation.ActivateLastApplication(
+        previousApplication: previousApplication,
+        openApplication: openApplication,
+      )
       self.hideAllApps = hideAllApps
       self.minimizeAllOpenWindows = minimizeAllOpenWindows
-      self.executeScript = executeScript
+      self.showNotificationCenter = Operation.ShowNotificationCenter(executeScript: executeScript)
     }
 
     /// Checks cancellation before dispatch. An effect that already took place cannot be undone.
@@ -118,60 +114,14 @@ public enum SystemCommand {
       try Task.checkCancellation()
       switch action {
       case .activateLastApplication: return try await activateLastApplication()
-      case .missionControl: try sendDockNotification("com.apple.expose.awake")
-      case .applicationWindows: try sendDockNotification("com.apple.expose.front.awake")
-      case .showDesktop: try sendDockNotification("com.apple.showdesktop.awake")
+      case .missionControl: try dock(.missionControl)
+      case .applicationWindows: try dock(.applicationWindows)
+      case .showDesktop: try dock(.showDesktop)
       case .hideAllApps: try await hideAllApps(workflowApplications)
       case .minimizeAllOpenWindows: try await minimizeAllOpenWindows(visibleWindowOwners)
-      case .showNotificationCenter:
-        _ = try await executeScript(.init(
-          id: Action.showNotificationCenter.rawValue,
-          kind: .appleScript(.regular),
-          source: .inline("""
-            tell application "System Events"
-            click menu bar item 2 of menu bar 1 of application process "ControlCenter"
-            end tell
-            """),
-        ))
+      case .showNotificationCenter: try await showNotificationCenter()
       }
       return .invoked
-    }
-
-    private func activateLastApplication() async throws -> Completion {
-      let (previous, snapshot) = previousApplication()
-      try Task.checkCancellation()
-      guard let previous else { return .noPreviousApplication }
-      guard let url = previous.bundleURL else {
-        throw ExecutionError.missingPreviousApplicationBundleURL(previous.bundleIdentifier)
-      }
-
-      let bundle = Bundle(url: url)
-      let name = bundle?.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
-        ?? bundle?.object(forInfoDictionaryKey: "CFBundleName") as? String
-        ?? url.deletingPathExtension().lastPathComponent
-      let command = Command.Application(application: .init(
-        bundleIdentifier: previous.bundleIdentifier, bundleName: name, path: url.path,
-      ))
-      try await openApplication(command, nil, snapshot)
-      return .applicationOpenCompleted
-    }
-
-    private static func sendToDock(_ notification: String) throws {
-      // v3's Dock package calls this private SPI and receives no status.
-      // Resolve it dynamically so an OS change can be reported as a thrown error.
-      let framework = "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices"
-      guard let handle = dlopen(framework, RTLD_LAZY) else {
-        throw ExecutionError.dockUnavailable
-      }
-
-      defer { dlclose(handle) }
-      guard let symbol = dlsym(handle, "CoreDockSendNotification") else {
-        throw ExecutionError.dockUnavailable
-      }
-
-      typealias SendNotification = @convention(c) (CFString, Int) -> Void
-      let send = unsafeBitCast(symbol, to: SendNotification.self)
-      send(notification as CFString, 0)
     }
   }
 }

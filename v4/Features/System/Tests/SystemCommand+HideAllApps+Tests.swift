@@ -11,12 +11,12 @@ private func command(_ id: String, _ action: Command.Application.Action) -> Comm
 
 @MainActor
 private final class Fixture {
-  typealias Operation = SystemCommand.HideAllApps
+  typealias HideAllApps = SystemFeature.Operation.HideAllApps
   static let main = CGRect(x: 0, y: 0, width: 1000, height: 800)
   static let other = main.offsetBy(dx: -1000, dy: 0)
   var frames = [main, other]
-  var apps: [Operation.Application] = []
-  var inventory: [Operation.Window] = []
+  var apps: [HideAllApps.Application] = []
+  var inventory: [HideAllApps.Window] = []
   var hidden: Set<Int32> = []
   var calls: [Int32] = []
   var pauses = 0
@@ -32,13 +32,14 @@ private final class Fixture {
   }
 
   func run(_ commands: [Command.Application] = []) async throws {
-    try await Operation(screens: { self.frames }, applications: { self.apps }, windows: {
+    let operation = HideAllApps(screens: { self.frames }, applications: { self.apps }, windows: {
       self.inventoryReads += 1
       return self.inventory.filter { !self.hidden.contains($0.pid) }
     }, ownBundleID: "self", ownPID: 99, pause: {
       self.pauses += 1
       try self.onPause()
-    }).run(commands)
+    })
+    try await operation(commands)
   }
 }
 

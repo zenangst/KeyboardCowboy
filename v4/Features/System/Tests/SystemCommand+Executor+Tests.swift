@@ -3,8 +3,10 @@ import Foundation
 import Testing
 import UserSpace
 
+private typealias DockAction = SystemFeature.Operation.Dock.Action
+
 @MainActor
-private func dockExecutor(_ send: @escaping @MainActor (String) throws -> Void) -> SystemCommand.Executor {
+private func dockExecutor(_ send: @escaping @MainActor (DockAction) throws -> Void) -> SystemCommand.Executor {
   SystemCommand.Executor(
     sendDockNotification: send,
     previousApplication: {
@@ -24,17 +26,17 @@ private func dockExecutor(_ send: @escaping @MainActor (String) throws -> Void) 
 func dispatchesPersistedAction(rawValue: String, notification: String) async throws {
   let data = Data("\"\(rawValue)\"".utf8)
   let action = try JSONDecoder().decode(SystemCommand.Action.self, from: data)
-  var calls: [String] = []
+  var calls: [DockAction] = []
   let executor = dockExecutor { calls.append($0) }
 
   #expect(try await executor.run(action) == .invoked)
-  #expect(calls == [notification])
+  #expect(calls.map(\.rawValue) == [notification])
   #expect(try JSONEncoder().encode(action) == data)
 }
 
 @Test @MainActor
 func propagatesDockError() async {
-  var calls: [String] = []
+  var calls: [DockAction] = []
   let executor = dockExecutor {
     calls.append($0)
     throw SystemCommand.ExecutionError.dockUnavailable
@@ -43,12 +45,12 @@ func propagatesDockError() async {
   await #expect(throws: SystemCommand.ExecutionError.dockUnavailable) {
     try await executor.run(.showDesktop)
   }
-  #expect(calls == ["com.apple.showdesktop.awake"])
+  #expect(calls == [.showDesktop])
 }
 
 @Test @MainActor
 func cancellationPreventsInvocation() async {
-  var calls: [String] = []
+  var calls: [DockAction] = []
   let executor = dockExecutor { calls.append($0) }
 
   let task = Task { @MainActor in
@@ -62,7 +64,7 @@ func cancellationPreventsInvocation() async {
 
 @Test @MainActor
 func cancellationDuringInvocationDoesNotMaskCompletion() async throws {
-  var calls: [String] = []
+  var calls: [DockAction] = []
   let executor = dockExecutor {
     calls.append($0)
     withUnsafeCurrentTask { $0?.cancel() }
@@ -71,5 +73,5 @@ func cancellationDuringInvocationDoesNotMaskCompletion() async throws {
   let task = Task { @MainActor in try await executor.run(.applicationWindows) }
 
   #expect(try await task.value == .invoked)
-  #expect(calls == ["com.apple.expose.front.awake"])
+  #expect(calls == [.applicationWindows])
 }

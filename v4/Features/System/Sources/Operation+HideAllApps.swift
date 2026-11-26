@@ -2,7 +2,7 @@ import AppKit
 import Commands
 import CoreGraphics
 
-extension SystemCommand {
+extension Operation {
   @MainActor
   struct HideAllApps {
     struct Window {
@@ -29,7 +29,7 @@ extension SystemCommand {
     let ownPID: Int32
     let pause: @MainActor () async throws -> Void
 
-    func run(_ commands: [Command.Application]) async throws {
+    func callAsFunction(_ commands: [Command.Application]) async throws {
       try Task.checkCancellation()
       let frames = screens()
       guard let main = frames.first else { return }
