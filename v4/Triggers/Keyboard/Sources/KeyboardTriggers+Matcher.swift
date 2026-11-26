@@ -17,7 +17,7 @@ public extension KeyboardTriggers {
       enabledModeIDs: [String] = [],
     ) -> String? {
       Self.winner(in: rulesBySignature[signature] ?? [], frontmostBundleIdentifier: frontmostBundleIdentifier,
-                  enabledModeIDs: enabledModeIDs) { $0.continuation.isEmpty }?.workflowID
+                  enabledModeIDs: enabledModeIDs) { $0.continuation.isEmpty && !$0.endsWithAnyKey }?.workflowID
     }
 
     func matchSequence(
@@ -25,27 +25,41 @@ public extension KeyboardTriggers {
     ) -> SequenceMatch {
       guard let first = signatures.first, let rules = rulesBySignature[first] else { return .noMatch }
       let suffix = signatures.dropFirst()
+      func usesWildcard(_ rule: Rule) -> Bool {
+        rule.endsWithAnyKey && suffix.count == rule.continuation.count + 1
+      }
       guard let rule = Self.winner(in: rules, frontmostBundleIdentifier: frontmostBundleIdentifier,
-                                   enabledModeIDs: enabledModeIDs,
-                                   accepting: { $0.continuation.starts(with: suffix) }) else { return .noMatch }
-      return rule.continuation.count == suffix.count ? .exact(rule.workflowID) : .partial
+                                   enabledModeIDs: enabledModeIDs, isFallback: usesWildcard,
+                                   accepting: {
+                                     usesWildcard($0) ? $0.continuation.elementsEqual(suffix.dropLast())
+                                       : $0.continuation.starts(with: suffix)
+                                   }) else { return .noMatch }
+      let length = rule.continuation.count + (rule.endsWithAnyKey ? 1 : 0)
+      return length == suffix.count ? .exact(rule.workflowID) : .partial
     }
 
     private static func winner(
       in rules: [Rule], frontmostBundleIdentifier: String?, enabledModeIDs: [String],
+      isFallback: (Rule) -> Bool = { _ in false },
       accepting: (Rule) -> Bool,
     ) -> Rule? {
       func matchMode(_ modeID: String?) -> Rule? {
         var global: Rule?
+        var scopedFallback: Rule?
         for rule in rules.reversed() {
           guard modeID.map(rule.modeIDs.contains) ?? rule.modeIDs.isEmpty, accepting(rule) else { continue }
           if let app = frontmostBundleIdentifier {
             guard !rule.disallowedBundleIdentifiers.contains(app) else { continue }
-            if rule.allowedBundleIdentifiers.contains(app) { return rule }
+            if rule.allowedBundleIdentifiers.contains(app) {
+              if !isFallback(rule) { return rule }
+              if scopedFallback == nil { scopedFallback = rule }
+              continue
+            }
           }
-          if global == nil, rule.allowedBundleIdentifiers.isEmpty { global = rule }
+          if rule.allowedBundleIdentifiers.isEmpty,
+             global.map({ isFallback($0) && !isFallback(rule) }) ?? true { global = rule }
         }
-        return global
+        return scopedFallback ?? global
       }
 
       for modeID in enabledModeIDs {

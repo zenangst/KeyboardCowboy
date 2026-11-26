@@ -39,6 +39,15 @@ public extension KeyboardTriggers {
       return signatures
     }
 
+    /// A saved `any` is valid only as an unmodified final step after a fixed prefix.
+    public func sequence(for shortcuts: [SavedShortcut]) -> CompiledSequence? {
+      let endsWithAnyKey = shortcuts.last?.key == "any"
+      if endsWithAnyKey, shortcuts.last?.modifiers.isEmpty != true { return nil }
+      let fixed = endsWithAnyKey ? Array(shortcuts.dropLast()) : shortcuts
+      guard let signatures = signatures(for: fixed), let first = signatures.first else { return nil }
+      return CompiledSequence(signature: first, continuation: Array(signatures.dropFirst()), endsWithAnyKey: endsWithAnyKey)
+    }
+
     private static let arrows: Set<Int> = [kVK_UpArrow, kVK_DownArrow, kVK_LeftArrow, kVK_RightArrow]
     private static let functionKeys = arrows.union([
       kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6, kVK_F7, kVK_F8, kVK_F9, kVK_F10,
