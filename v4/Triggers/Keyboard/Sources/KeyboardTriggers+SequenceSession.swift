@@ -11,6 +11,7 @@ public extension KeyboardTriggers {
     private var pendingHold: PendingHold?
     private var pendingRelease: PendingRelease?
     private var heldPrefix: HeldPrefix?
+    private var leader: LeaderPrefix?
 
     private struct RepeatBinding: Sendable {
       let signature: Signature
@@ -38,6 +39,11 @@ public extension KeyboardTriggers {
     private struct HeldPrefix: Sendable {
       let keyCode: UInt16
       let readyAt: Duration
+    }
+
+    private struct LeaderPrefix: Sendable {
+      let signature: Signature
+      var releasedAt: Duration?
     }
 
     /// The timeout is measured between consecutive keys using caller-supplied monotonic time.
@@ -69,6 +75,7 @@ public extension KeyboardTriggers {
         // The hold itself does not use up the time budget for the next key.
         let nextKeyWindow = max(lastInput, heldPrefix?.readyAt ?? lastInput)
         if time < nextKeyWindow || time - nextKeyWindow >= timeout
+          || leaderExpired(at: time)
           || app != frontmostBundleIdentifier || modes != enabledModeIDs {
           clearPrefix()
         }
@@ -89,10 +96,15 @@ public extension KeyboardTriggers {
         if prefix.count == 1, let rule = result.rule, !rule.passthrough,
            let duration = rule.holdDuration, duration > .zero {
           heldPrefix = .init(keyCode: signature.keyCode, readyAt: time + duration)
+        } else if prefix.count == 1, let rule = result.rule, rule.leaderKey, !rule.passthrough {
+          leader = .init(signature: signature)
         }
         lastInput = time
         app = frontmostBundleIdentifier
         modes = enabledModeIDs
+      } else if case .exact = decision.match, let leader, leader.releasedAt == nil {
+        prefix = [leader.signature]
+        lastInput = time
       } else {
         clearPrefix()
       }
@@ -171,6 +183,13 @@ public extension KeyboardTriggers {
       if repeating?.signature.keyCode == keyCode { repeating = nil }
       if pendingHold?.keyCode == keyCode { cancelHold() }
       if heldPrefix?.keyCode == keyCode { clearPrefix() }
+      if leader?.signature.keyCode == keyCode, leader?.releasedAt == nil {
+        if let time, let lastInput, time >= lastInput {
+          leader?.releasedAt = time
+        } else {
+          clearPrefix()
+        }
+      }
       let disposition: Decision.Disposition = suppressedKeyCodes.remove(keyCode) == nil ? .passThrough : .suppress
       guard let pendingRelease, pendingRelease.keyCode == keyCode else {
         return Decision(match: .noMatch, disposition: disposition)
@@ -201,6 +220,12 @@ public extension KeyboardTriggers {
       app = nil
       modes = []
       heldPrefix = nil
+      leader = nil
+    }
+
+    private func leaderExpired(at time: Duration) -> Bool {
+      guard let releasedAt = leader?.releasedAt else { return false }
+      return time < releasedAt || time - releasedAt >= .milliseconds(100)
     }
   }
 }
