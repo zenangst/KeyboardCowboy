@@ -28,14 +28,17 @@ public extension KeyboardTriggers {
       func usesWildcard(_ rule: Rule) -> Bool {
         rule.endsWithAnyKey && suffix.count == rule.continuation.count + 1
       }
+      func isPartial(_ rule: Rule) -> Bool {
+        suffix.count < rule.continuation.count + (rule.endsWithAnyKey ? 1 : 0)
+      }
       guard let rule = Self.winner(in: rules, frontmostBundleIdentifier: frontmostBundleIdentifier,
                                    enabledModeIDs: enabledModeIDs, isFallback: usesWildcard,
+                                   isPartial: isPartial,
                                    accepting: {
                                      usesWildcard($0) ? $0.continuation.elementsEqual(suffix.dropLast())
                                        : $0.continuation.starts(with: suffix)
                                    }) else { return (.noMatch, nil) }
-      let length = rule.continuation.count + (rule.endsWithAnyKey ? 1 : 0)
-      let decision = Decision(match: length == suffix.count ? .exact(rule.workflowID) : .partial,
+      let decision = Decision(match: isPartial(rule) ? .partial : .exact(rule.workflowID),
                               disposition: rule.passthrough ? .passThrough : .suppress)
       return (decision, rule)
     }
@@ -43,25 +46,32 @@ public extension KeyboardTriggers {
     private static func winner(
       in rules: [Rule], frontmostBundleIdentifier: String?, enabledModeIDs: [String],
       isFallback: (Rule) -> Bool = { _ in false },
+      isPartial: (Rule) -> Bool = { _ in false },
       accepting: (Rule) -> Bool,
     ) -> Rule? {
+      func shouldReplace(_ current: Rule?, with candidate: Rule) -> Bool {
+        guard let current else { return true }
+        if isFallback(current) != isFallback(candidate) { return !isFallback(candidate) }
+        // v3's cache keeps an existing leader partial against later partials,
+        // but a later exact binding can still replace it.
+        return !(current.leaderKey && isPartial(current) && isPartial(candidate))
+      }
+
       func matchMode(_ modeID: String?) -> Rule? {
         var global: Rule?
-        var scopedFallback: Rule?
-        for rule in rules.reversed() {
+        var scoped: Rule?
+        for rule in rules {
           guard modeID.map(rule.modeIDs.contains) ?? rule.modeIDs.isEmpty, accepting(rule) else { continue }
           if let app = frontmostBundleIdentifier {
             guard !rule.disallowedBundleIdentifiers.contains(app) else { continue }
             if rule.allowedBundleIdentifiers.contains(app) {
-              if !isFallback(rule) { return rule }
-              if scopedFallback == nil { scopedFallback = rule }
+              if shouldReplace(scoped, with: rule) { scoped = rule }
               continue
             }
           }
-          if rule.allowedBundleIdentifiers.isEmpty,
-             global.map({ isFallback($0) && !isFallback(rule) }) ?? true { global = rule }
+          if rule.allowedBundleIdentifiers.isEmpty, shouldReplace(global, with: rule) { global = rule }
         }
-        return scopedFallback ?? global
+        return scoped ?? global
       }
 
       for modeID in enabledModeIDs {

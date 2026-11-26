@@ -6,6 +6,35 @@ private let leader = Triggers.Signature(keyCode: 0, flags: 0)
 private let b = Triggers.Signature(keyCode: 1, flags: 0)
 private let c = Triggers.Signature(keyCode: 2, flags: 0)
 
+@Test func leaderPrefixSurvivesLaterPartialInTheSameScope() {
+  let matcher = Triggers.Matcher(rules: [
+    .init(workflowID: "leader", signature: leader, continuation: [b], leaderKey: true),
+    .init(workflowID: "ordinary", signature: leader, continuation: [c], passthrough: true),
+  ])
+  var session = Triggers.SequenceSession(matcher: matcher, timeout: .seconds(1))
+  let prefix = session.receiveDecision(leader, at: .zero, frontmostBundleIdentifier: nil)
+  #expect(prefix.match == .partial)
+  #expect(prefix.disposition == .suppress)
+  #expect(session.receive(c, at: .milliseconds(10), frontmostBundleIdentifier: nil) == .exact("ordinary"))
+  #expect(session.receive(b, at: .milliseconds(20), frontmostBundleIdentifier: nil) == .exact("leader"))
+}
+
+@Test func laterExactOrHigherScopeCanReplaceTheLeaderPrefix() {
+  let leaderRule = Triggers.Rule(workflowID: "leader", signature: leader, continuation: [b], leaderKey: true)
+  let exact = Triggers.Rule(workflowID: "exact", signature: leader)
+  let appRule = Triggers.Rule(workflowID: "scoped", signature: leader, allowedBundleIdentifiers: ["app"],
+                             continuation: [c], passthrough: true)
+  let ordinary = Triggers.Rule(workflowID: "ordinary", signature: leader, continuation: [c], passthrough: true)
+  var session = Triggers.SequenceSession(matcher: .init(rules: [leaderRule, exact, appRule]), timeout: .seconds(1))
+  #expect(session.receive(leader, at: .zero, frontmostBundleIdentifier: nil) == .exact("exact"))
+  #expect(session.receiveDecision(leader, at: .zero, frontmostBundleIdentifier: "app").disposition == .passThrough)
+
+  var overwritten = Triggers.SequenceSession(matcher: .init(rules: [leaderRule, exact, ordinary]), timeout: .seconds(1))
+  let prefix = overwritten.receiveDecision(leader, at: .zero, frontmostBundleIdentifier: nil)
+  #expect(prefix.match == .partial)
+  #expect(prefix.disposition == .passThrough)
+}
+
 @Test func heldLeaderCanStartAnotherContinuationAfterACompletedMatch() {
   let matcher = Triggers.Matcher(rules: [
     .init(workflowID: "ab", signature: leader, continuation: [b], leaderKey: true),
