@@ -1,4 +1,6 @@
 import AccessibilitySystem
+import AppKit
+import CoreGraphics
 import Darwin
 
 public extension WindowTiling {
@@ -14,6 +16,30 @@ public extension WindowTiling {
 
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
       try execute(action, in: session)
+    }
+  }
+
+  /// Picks a native action only while the supplied window is focused and on screen.
+  @discardableResult
+  static func execute(
+    _ action: Action, onFocusedWindow id: CGWindowID, of application: NSRunningApplication,
+    using accessibility: AccessibilitySystem.Client = .init(),
+  ) async throws -> Bool {
+    let pid = application.processIdentifier
+    guard pid > 0, pid != getpid(), id != kCGNullWindowID,
+          NSWorkspace.shared.frontmostApplication?.isEqual(application) == true else { return false }
+
+    return try await accessibility.withApplication(processIdentifier: pid) { session in
+      func matchesFocus() throws -> Bool {
+        guard let window = try session.focusedWindow(), try session.windowIDCandidate(for: window) == id,
+              onScreenFrame(id: id, pid: pid) != nil
+        else { return false }
+
+        return NSWorkspace.shared.frontmostApplication?.isEqual(application) == true
+      }
+      guard try matchesFocus() else { return false }
+
+      return try execute(action, in: session, canPick: matchesFocus)
     }
   }
 

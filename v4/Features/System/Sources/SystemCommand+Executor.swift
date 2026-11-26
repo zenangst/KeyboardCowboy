@@ -13,6 +13,7 @@ public enum SystemCommand {
     case hideAllApps
     case minimizeAllOpenWindows
     case showNotificationCenter
+    case fillAllOpenWindows
   }
 
   public enum Completion: Equatable, Sendable {
@@ -37,6 +38,7 @@ public enum SystemCommand {
     private let hideAllApps: @MainActor ([Command.Application]) async throws -> Void
     private let minimizeAllOpenWindows: @MainActor ([String]?) async throws -> Void
     private let showNotificationCenter: Operation.ShowNotificationCenter
+    private let fillAllOpenWindows: @MainActor () async throws -> Void
 
     /// Keep the executor (or its shared UserSpace) alive to accumulate activation history.
     public init() {
@@ -84,6 +86,9 @@ public enum SystemCommand {
       executeScript: @escaping @MainActor (ScriptRequest) async throws -> String? = {
         try await ScriptCommandDispatcher(.production).execute($0)
       },
+      fillAllOpenWindows: @escaping @MainActor () async throws -> Void = {
+        try await Operation.FillAllWindows.live()()
+      },
     ) {
       self.dock = Operation.Dock(sendNotification: sendDockNotification)
       self.activateLastApplication = Operation.ActivateLastApplication(
@@ -93,6 +98,7 @@ public enum SystemCommand {
       self.hideAllApps = hideAllApps
       self.minimizeAllOpenWindows = minimizeAllOpenWindows
       self.showNotificationCenter = Operation.ShowNotificationCenter(executeScript: executeScript)
+      self.fillAllOpenWindows = fillAllOpenWindows
     }
 
     /// Checks cancellation before dispatch. An effect that already took place cannot be undone.
@@ -120,6 +126,7 @@ public enum SystemCommand {
       case .hideAllApps: try await hideAllApps(workflowApplications)
       case .minimizeAllOpenWindows: try await minimizeAllOpenWindows(visibleWindowOwners)
       case .showNotificationCenter: try await showNotificationCenter()
+      case .fillAllOpenWindows: try await fillAllOpenWindows()
       }
       return .invoked
     }

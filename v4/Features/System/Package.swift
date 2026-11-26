@@ -9,6 +9,7 @@ let package = Package(
   dependencies: [
     .package(path: "../Applications"),
     .package(path: "../Scripting"),
+    .package(path: "../WindowTiling"),
     .package(path: "../../Components/AccessibilitySystem"),
     .package(path: "../../Components/ApplicationCatalog"),
     .package(path: "../../Components/Commands"),
@@ -20,6 +21,7 @@ let package = Package(
       dependencies: [
         .product(name: "ApplicationsFeature", package: "Applications"),
         .product(name: "ScriptingFeature", package: "Scripting"),
+        .product(name: "WindowTilingFeature", package: "WindowTiling"),
         "AccessibilitySystem",
         "ApplicationCatalog",
         "Commands",
