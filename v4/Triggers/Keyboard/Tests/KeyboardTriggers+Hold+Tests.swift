@@ -54,7 +54,7 @@ func cancelledHoldCannotFireLater(reason: String) {
   var session = Triggers.SequenceSession(matcher: matcher, timeout: .seconds(1))
   #expect(session.receive(b, at: .zero, frontmostBundleIdentifier: nil) == .exact("immediate"))
   #expect(session.receiveDecision(a, at: .zero, frontmostBundleIdentifier: nil).holdDeadline == nil)
-  let finish = session.receiveDecision(b, at: .zero, frontmostBundleIdentifier: nil)
+  let finish = session.receiveDecision(b, at: .seconds(1), frontmostBundleIdentifier: nil)
   #expect(finish.match == .exact("sequence"))
   #expect(finish.holdDeadline == nil)
 }

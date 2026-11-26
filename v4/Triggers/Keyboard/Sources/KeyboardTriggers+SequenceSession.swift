@@ -10,6 +10,7 @@ public extension KeyboardTriggers {
     private var repeating: RepeatBinding?
     private var pendingHold: PendingHold?
     private var pendingRelease: PendingRelease?
+    private var heldPrefix: HeldPrefix?
 
     private struct RepeatBinding: Sendable {
       let signature: Signature
@@ -32,6 +33,11 @@ public extension KeyboardTriggers {
       let workflowID: String
       let startedAt: Duration
       let minimumHold: Duration
+    }
+
+    private struct HeldPrefix: Sendable {
+      let keyCode: UInt16
+      let readyAt: Duration
     }
 
     /// The timeout is measured between consecutive keys using caller-supplied monotonic time.
@@ -59,15 +65,20 @@ public extension KeyboardTriggers {
       repeating = nil
       pendingHold = nil
       pendingRelease = nil
-      if let lastInput,
-         time < lastInput || time - lastInput >= timeout || app != frontmostBundleIdentifier || modes != enabledModeIDs {
-        clearPrefix()
+      if let lastInput {
+        // The hold itself does not use up the time budget for the next key.
+        let nextKeyWindow = max(lastInput, heldPrefix?.readyAt ?? lastInput)
+        if time < nextKeyWindow || time - nextKeyWindow >= timeout
+          || app != frontmostBundleIdentifier || modes != enabledModeIDs {
+          clearPrefix()
+        }
       }
 
       prefix.append(signature)
       var result = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
                                          enabledModeIDs: enabledModeIDs)
       if result.decision.match == .noMatch, prefix.count > 1 {
+        clearPrefix()
         prefix = [signature]
         result = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
                                        enabledModeIDs: enabledModeIDs)
@@ -75,6 +86,10 @@ public extension KeyboardTriggers {
 
       let decision = result.decision
       if decision.match == .partial {
+        if prefix.count == 1, let rule = result.rule, !rule.passthrough,
+           let duration = rule.holdDuration, duration > .zero {
+          heldPrefix = .init(keyCode: signature.keyCode, readyAt: time + duration)
+        }
         lastInput = time
         app = frontmostBundleIdentifier
         modes = enabledModeIDs
@@ -118,9 +133,10 @@ public extension KeyboardTriggers {
       return pendingHold.workflowID
     }
 
-    /// Cancel a pending hold on modifier changes without forgetting key-up disposition.
+    /// Cancel pending hold behavior on modifier changes without forgetting key-up disposition.
     public mutating func cancelHold() {
       pendingHold = nil
+      if heldPrefix != nil { clearPrefix() }
     }
 
     /// Repeats only the last completed binding, with unchanged flags and scope.
@@ -140,7 +156,7 @@ public extension KeyboardTriggers {
     }
 
     /// Pair a release with its key-down even if modifier flags or focus changed.
-    /// Releasing a prefix key does not end the pending shortcut sequence.
+    /// Releasing an ordinary prefix key does not end the pending sequence.
     public mutating func release(keyCode: UInt16) -> Decision.Disposition {
       finishRelease(keyCode: keyCode, at: nil).disposition
     }
@@ -154,6 +170,7 @@ public extension KeyboardTriggers {
     private mutating func finishRelease(keyCode: UInt16, at time: Duration?) -> Decision {
       if repeating?.signature.keyCode == keyCode { repeating = nil }
       if pendingHold?.keyCode == keyCode { cancelHold() }
+      if heldPrefix?.keyCode == keyCode { clearPrefix() }
       let disposition: Decision.Disposition = suppressedKeyCodes.remove(keyCode) == nil ? .passThrough : .suppress
       guard let pendingRelease, pendingRelease.keyCode == keyCode else {
         return Decision(match: .noMatch, disposition: disposition)
@@ -183,6 +200,7 @@ public extension KeyboardTriggers {
       lastInput = nil
       app = nil
       modes = []
+      heldPrefix = nil
     }
   }
 }
