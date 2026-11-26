@@ -28,6 +28,17 @@ public extension KeyboardTriggers {
       return Signature(keyCode: keyCode, flags: flags.rawValue)
     }
 
+    /// Does not shorten a binding when a step cannot be resolved.
+    public func signatures(for shortcuts: [SavedShortcut]) -> [Signature]? {
+      guard !shortcuts.isEmpty else { return nil }
+      var signatures: [Signature] = []
+      for shortcut in shortcuts {
+        guard let signature = signature(for: shortcut) else { return nil }
+        signatures.append(signature)
+      }
+      return signatures
+    }
+
     private static let arrows: Set<Int> = [kVK_UpArrow, kVK_DownArrow, kVK_LeftArrow, kVK_RightArrow]
     private static let functionKeys = arrows.union([
       kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6, kVK_F7, kVK_F8, kVK_F9, kVK_F10,

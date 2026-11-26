@@ -2,6 +2,7 @@ public extension KeyboardTriggers {
   struct Rule: Sendable {
     public let workflowID: String
     public let signature: Signature
+    public let continuation: [Signature]
     public let allowedBundleIdentifiers: Set<String>
     public let disallowedBundleIdentifiers: Set<String>
     public let modeIDs: Set<String>
@@ -18,9 +19,11 @@ public extension KeyboardTriggers {
       modeIDs: Set<String> = [],
       isGroupEnabled: Bool = true,
       isWorkflowEnabled: Bool = true,
+      continuation: [Signature] = [],
     ) {
       self.workflowID = workflowID
       self.signature = signature
+      self.continuation = continuation
       self.allowedBundleIdentifiers = allowedBundleIdentifiers
       self.disallowedBundleIdentifiers = disallowedBundleIdentifiers
       self.modeIDs = modeIDs
