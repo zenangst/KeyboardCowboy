@@ -2,67 +2,8 @@ import ApplicationCatalog
 import Commands
 import CoreGraphics
 
-public enum Workspaces {
-  public struct Workspace: Sendable {
-    public enum Tiling: String, CaseIterable, Sendable {
-      case arrangeLeftRight, arrangeRightLeft, arrangeTopBottom, arrangeBottomTop
-      case arrangeLeftQuarters, arrangeRightQuarters, arrangeTopQuarters, arrangeBottomQuarters
-      case arrangeDynamicQuarters, arrangeQuarters, fill, center
-    }
-
-    public struct Application: Sendable {
-      public let bundleIdentifier: String
-      public let onlyWhenRunning: Bool
-
-      public init(_ bundleIdentifier: String, onlyWhenRunning: Bool = false) {
-        self.bundleIdentifier = bundleIdentifier
-        self.onlyWhenRunning = onlyWhenRunning
-      }
-    }
-
-    public struct RunningApplication: Sendable {
-      public let pid: Int32
-      public let bundleIdentifier: String?
-      public let isHidden: Bool
-      public let isFinishedLaunching: Bool
-
-      public init(pid: Int32, bundleIdentifier: String?, isHidden: Bool, isFinishedLaunching: Bool) {
-        self.pid = pid
-        self.bundleIdentifier = bundleIdentifier
-        self.isHidden = isHidden
-        self.isFinishedLaunching = isFinishedLaunching
-      }
-    }
-
-    public struct Window: Sendable {
-      public let id: Int
-      public let pid: Int32
-      public let ownerName: String
-      public let size: CGSize
-      public let alpha: Double
-
-      public init(id: Int, pid: Int32, ownerName: String, size: CGSize, alpha: Double) {
-        self.id = id
-        self.pid = pid
-        self.ownerName = ownerName
-        self.size = size
-        self.alpha = alpha
-      }
-    }
-
-    public struct ApplicationStep: Equatable, Sendable {
-      public let application: ApplicationCatalog.Application
-      public let name: String
-      public let action: Command.Application.Action
-      public let modifiers: Set<Command.Application.Modifier>
-    }
-
-    public enum Step: Equatable, Sendable {
-      case application(ApplicationStep)
-      case tiling(Tiling)
-      case hideAllApps(name: String, delayMilliseconds: Int?)
-    }
-
+public extension Workspaces {
+  struct Workspace: Sendable {
     public let applications: [Application]
     public let tiling: Tiling?
     public let hideOtherApps: Bool
@@ -92,6 +33,7 @@ public enum Workspaces {
       let ids = stageManagerEnabled
         ? applications.map(\.bundleIdentifier) + dynamic
         : dynamic + eligibleStatic.map(\.bundleIdentifier)
+
       if ids.isEmpty {
         return stageManagerEnabled ? [] : [.hideAllApps(name: "Clean Workspace", delayMilliseconds: nil)]
       }
@@ -101,7 +43,9 @@ public enum Workspaces {
       let windowPIDs = windows.filter {
         $0.id > 0 && $0.alpha == 1 && $0.size.width > 300 && $0.size.height > 200
           && !["borders", "WindowManager", "Window Server"].contains($0.ownerName)
-      }.map(\.pid)
+      }
+      .map(\.pid)
+
       let knownPIDs = Set(runningApplications.map(\.pid))
       let runningWindowCount = windowPIDs.count(where: knownPIDs.contains)
       let windowPIDSet = Set(windowPIDs)
@@ -109,13 +53,16 @@ public enum Workspaces {
 
       var steps: [Step] = ids.enumerated().compactMap { offset, id in
         guard let app = catalog.first(where: { $0.bundleIdentifier == id }) else { return nil }
+
         let isLast = offset == ids.count - 1
         let displayName = app.displayName
         let action: Command.Application.Action
         let name: String
         let modifiers: Set<Command.Application.Modifier>
+
         if stageManagerEnabled {
           guard isLast || !runningIDs.contains(id) else { return nil }
+
           (action, name, modifiers) = (.open, "", isLast ? wait : [.background])
         } else if isLast {
           (action, name, modifiers) = (.open, "Activate \(displayName)", wait)
@@ -124,13 +71,22 @@ public enum Workspaces {
         } else if let running = runningApplications.first(where: { $0.bundleIdentifier == id }) {
           // Preserve the legacy ordered-window test, including its count of windows with running owners.
           let hasMatchingSlot = offset < runningWindowCount - 1 && windowPIDs[offset] == running.pid
-          let unhide = running.isHidden || (windowPIDSet.contains(running.pid) && (hasMatchingSlot || running.isFinishedLaunching))
+          let unhide = running
+            .isHidden ||
+            (windowPIDSet.contains(running.pid) &&
+              (hasMatchingSlot || running.isFinishedLaunching))
           (action, name, modifiers) = (unhide ? .unhide : .open, "\(unhide ? "Unhide" : "Open") \(displayName)",
                                        [.waitForAppToLaunch, .background])
         } else {
           (action, name, modifiers) = (.open, "Open \(displayName)", wait)
         }
-        return .application(.init(application: app, name: name, action: rewriteToUnhide ? .unhide : action, modifiers: modifiers))
+
+        return .application(.init(
+          application: app,
+          name: name,
+          action: rewriteToUnhide ? .unhide : action,
+          modifiers: modifiers,
+        ))
       }
 
       if !stageManagerEnabled, !runningIDs.contains("bobko.aerospace") {

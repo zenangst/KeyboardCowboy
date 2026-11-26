@@ -12,12 +12,17 @@ private func catalog(_ ids: String...) -> [ApplicationCatalog.Application] {
   ids.map { .init(bundleIdentifier: $0, bundleName: $0, path: "/Applications/\($0).app") }
 }
 
-private func running(_ id: String?, _ pid: Int32, hidden: Bool = false, finished: Bool = false) -> Workspace.RunningApplication {
+private func running(
+  _ id: String?,
+  _ pid: Int32,
+  hidden: Bool = false,
+  finished: Bool = false,
+) -> Workspaces.RunningApplication {
   .init(pid: pid, bundleIdentifier: id, isHidden: hidden, isFinishedLaunching: finished)
 }
 
 private func window(_ pid: Int32, id: Int = 1, owner: String = "Fixture",
-                    width: CGFloat = 420, height: CGFloat = 250, alpha: Double = 1) -> Workspace.Window {
+                    width: CGFloat = 420, height: CGFloat = 250, alpha: Double = 1) -> Workspaces.Window {
   .init(id: id, pid: pid, ownerName: owner, size: CGSize(width: width, height: height), alpha: alpha)
 }
 
@@ -36,9 +41,10 @@ private struct App: Equatable {
   }
 }
 
-private func apps(_ steps: [Workspace.Step]) -> [App] {
+private func apps(_ steps: [Workspaces.Step]) -> [App] {
   steps.compactMap {
     guard case .application(let step) = $0 else { return nil }
+
     return App(step.application.bundleIdentifier, step.action, step.name, step.modifiers)
   }
 }
@@ -114,8 +120,10 @@ private func apps(_ steps: [Workspace.Step]) -> [App] {
     == [.open, .open])
   #expect(apps(workspace.expand(catalog: catalog, runningApplications: [], dynamicBundleIdentifiers: ["Dynamic"],
                                 onlyUnhide: true)).map(\.action) == [.open, .open])
-  #expect(apps(Workspace(applications: []).expand(catalog: catalog, runningApplications: [],
-                                                 dynamicBundleIdentifiers: ["Dynamic"], onlyUnhide: true)).map(\.action)
+  #expect(apps(Workspace(applications: []).expand(
+    catalog: catalog, runningApplications: [],
+    dynamicBundleIdentifiers: ["Dynamic"],
+    onlyUnhide: true)).map(\.action)
     == [.open])
 }
 
@@ -133,10 +141,13 @@ private func apps(_ steps: [Workspace.Step]) -> [App] {
     == [.hideAllApps(name: "Hide All Apps", delayMilliseconds: nil)])
 }
 
-@Test(arguments: Workspace.Tiling.allCases)
-func keepsEachWorkspaceTilingAfterTheApplication(_ tiling: Workspaces.Workspace.Tiling) {
+@Test(arguments: Workspaces.Tiling.allCases)
+func keepsEachWorkspaceTilingAfterTheApplication(_ tiling: Workspaces.Tiling) {
   let workspace = Workspace(applications: [.init("One")], tiling: tiling, hideOtherApps: true)
   let steps = workspace.expand(catalog: catalog("One"), runningApplications: [])
   #expect(steps.count == 3)
-  #expect(Array(steps.dropFirst()) == [.tiling(tiling), .hideAllApps(name: "Hide All Apps", delayMilliseconds: 40)])
+  #expect(Array(steps.dropFirst()) == [
+    .tiling(tiling),
+    .hideAllApps(name: "Hide All Apps", delayMilliseconds: 40),
+  ])
 }
