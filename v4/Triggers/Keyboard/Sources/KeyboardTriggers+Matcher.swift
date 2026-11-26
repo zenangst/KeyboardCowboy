@@ -22,7 +22,7 @@ public extension KeyboardTriggers {
 
     func matchSequence(
       _ signatures: [Signature], frontmostBundleIdentifier: String?, enabledModeIDs: [String],
-    ) -> SequenceMatch {
+    ) -> Decision {
       guard let first = signatures.first, let rules = rulesBySignature[first] else { return .noMatch }
       let suffix = signatures.dropFirst()
       func usesWildcard(_ rule: Rule) -> Bool {
@@ -35,7 +35,8 @@ public extension KeyboardTriggers {
                                        : $0.continuation.starts(with: suffix)
                                    }) else { return .noMatch }
       let length = rule.continuation.count + (rule.endsWithAnyKey ? 1 : 0)
-      return length == suffix.count ? .exact(rule.workflowID) : .partial
+      return Decision(match: length == suffix.count ? .exact(rule.workflowID) : .partial,
+                      disposition: rule.passthrough ? .passThrough : .suppress)
     }
 
     private static func winner(

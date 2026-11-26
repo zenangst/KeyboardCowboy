@@ -19,28 +19,37 @@ public extension KeyboardTriggers {
     public mutating func receive(
       _ signature: Signature, at time: Duration, frontmostBundleIdentifier: String?, enabledModeIDs: [String] = [],
     ) -> SequenceMatch {
+      receiveDecision(signature, at: time, frontmostBundleIdentifier: frontmostBundleIdentifier,
+                      enabledModeIDs: enabledModeIDs).match
+    }
+
+    /// Reports how the host should handle the current key-down alongside the match.
+    /// It does not post events, run workflows, or change previously handled keys.
+    public mutating func receiveDecision(
+      _ signature: Signature, at time: Duration, frontmostBundleIdentifier: String?, enabledModeIDs: [String] = [],
+    ) -> Decision {
       if let lastInput,
          time < lastInput || time - lastInput >= timeout || app != frontmostBundleIdentifier || modes != enabledModeIDs {
         reset()
       }
 
       prefix.append(signature)
-      var match = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
-                                        enabledModeIDs: enabledModeIDs)
-      if match == .noMatch, prefix.count > 1 {
+      var decision = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
+                                           enabledModeIDs: enabledModeIDs)
+      if decision.match == .noMatch, prefix.count > 1 {
         prefix = [signature]
-        match = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
-                                      enabledModeIDs: enabledModeIDs)
+        decision = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
+                                         enabledModeIDs: enabledModeIDs)
       }
 
-      if match == .partial {
+      if decision.match == .partial {
         lastInput = time
         app = frontmostBundleIdentifier
         modes = enabledModeIDs
       } else {
         reset()
       }
-      return match
+      return decision
     }
 
     /// Clear pending input on disruption, capture handoff, or layout changes.

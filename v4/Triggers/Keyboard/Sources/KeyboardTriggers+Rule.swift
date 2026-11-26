@@ -4,6 +4,7 @@ public extension KeyboardTriggers {
     public let signature: Signature
     public let continuation: [Signature]
     public let endsWithAnyKey: Bool
+    public let passthrough: Bool
     public let allowedBundleIdentifiers: Set<String>
     public let disallowedBundleIdentifiers: Set<String>
     public let modeIDs: Set<String>
@@ -22,11 +23,13 @@ public extension KeyboardTriggers {
       isWorkflowEnabled: Bool = true,
       continuation: [Signature] = [],
       endsWithAnyKey: Bool = false,
+      passthrough: Bool = false,
     ) {
       self.workflowID = workflowID
       self.signature = signature
       self.continuation = continuation
       self.endsWithAnyKey = endsWithAnyKey
+      self.passthrough = passthrough
       self.allowedBundleIdentifiers = allowedBundleIdentifiers
       self.disallowedBundleIdentifiers = disallowedBundleIdentifiers
       self.modeIDs = modeIDs
