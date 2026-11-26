@@ -11,10 +11,11 @@ public enum SystemCommand {
     case missionControl
     case applicationWindows
     case showDesktop
+    case hideAllApps
   }
 
   public enum Completion: Equatable, Sendable {
-    /// The Dock function returned; this does not confirm any visible effect.
+    /// The system operation returned; this does not confirm every visible effect.
     case invoked
     /// The Applications executor finished its ordinary open request; focus is not verified.
     case applicationOpenCompleted
@@ -36,6 +37,7 @@ public enum SystemCommand {
     private let sendDockNotification: @MainActor (String) throws -> Void
     private let previousApplication: @MainActor () -> (PreviousApplication?, UserSpace.Snapshot)
     private let openApplication: @MainActor (Command.Application, CGEventType?, UserSpace.Snapshot) async throws -> Void
+    private let hideAllApps: @MainActor ([Command.Application]) async throws -> Void
 
     /// Keep the executor (or its shared UserSpace) alive to accumulate activation history.
     public init() {
@@ -53,7 +55,10 @@ public enum SystemCommand {
           let previous = snapshot.apps.previous.flatMap { app -> PreviousApplication? in
             guard !app.runningApplication.isTerminated else { return nil }
 
-            return PreviousApplication(bundleIdentifier: app.bundleIdentifier.value, bundleURL: app.runningApplication.bundleURL)
+            return PreviousApplication(
+              bundleIdentifier: app.bundleIdentifier.value,
+              bundleURL: app.runningApplication.bundleURL,
+            )
           }
           return (previous, snapshot)
         },
@@ -66,21 +71,35 @@ public enum SystemCommand {
     init(
       sendDockNotification: @escaping @MainActor (String) throws -> Void,
       previousApplication: @escaping @MainActor () -> (PreviousApplication?, UserSpace.Snapshot),
-      openApplication: @escaping @MainActor (Command.Application, CGEventType?, UserSpace.Snapshot) async throws -> Void,
+      openApplication: @escaping @MainActor (
+        Command.Application,
+        CGEventType?,
+        UserSpace.Snapshot,
+      ) async throws -> Void,
+      hideAllApps: @escaping @MainActor ([Command.Application]) async throws -> Void = {
+        try await HideAllApps.live().run($0)
+      },
     ) {
       self.sendDockNotification = sendDockNotification
       self.previousApplication = previousApplication
       self.openApplication = openApplication
+      self.hideAllApps = hideAllApps
     }
 
     /// Checks cancellation before dispatch. An effect that already took place cannot be undone.
     public func run(_ action: Action) async throws -> Completion {
+      try await run(action, workflowApplications: [])
+    }
+
+    /// For Hide All Apps, supply all application commands in workflow order.
+    public func run(_ action: Action, workflowApplications: [Command.Application]) async throws -> Completion {
       try Task.checkCancellation()
       switch action {
       case .activateLastApplication: return try await activateLastApplication()
       case .missionControl: try sendDockNotification("com.apple.expose.awake")
       case .applicationWindows: try sendDockNotification("com.apple.expose.front.awake")
       case .showDesktop: try sendDockNotification("com.apple.showdesktop.awake")
+      case .hideAllApps: try await hideAllApps(workflowApplications)
       }
       return .invoked
     }
