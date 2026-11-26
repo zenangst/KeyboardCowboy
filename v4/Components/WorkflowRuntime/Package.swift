@@ -6,5 +6,16 @@ let package = Package(
   name: "WorkflowRuntime",
   platforms: [.macOS(.v14)],
   products: [.library(name: "WorkflowRuntime", targets: ["WorkflowRuntime"])],
-  targets: [.target(name: "WorkflowRuntime", path: "Sources")],
+  dependencies: [
+    .package(path: "../Commands"),
+    .package(path: "../../Triggers/Application"),
+  ],
+  targets: [
+    .target(name: "WorkflowRuntime", dependencies: ["Commands"], path: "Sources"),
+    .testTarget(
+      name: "WorkflowRuntimeTests",
+      dependencies: ["WorkflowRuntime", "Commands", .product(name: "ApplicationTriggers", package: "Application")],
+      path: "Tests",
+    ),
+  ],
 )
