@@ -3,6 +3,7 @@ import Commands
 import CoreGraphics
 import Darwin
 import Foundation
+import ScriptingFeature
 import UserSpace
 
 public enum SystemCommand {
@@ -13,6 +14,7 @@ public enum SystemCommand {
     case showDesktop
     case hideAllApps
     case minimizeAllOpenWindows
+    case showNotificationCenter
   }
 
   public enum Completion: Equatable, Sendable {
@@ -40,6 +42,7 @@ public enum SystemCommand {
     private let openApplication: @MainActor (Command.Application, CGEventType?, UserSpace.Snapshot) async throws -> Void
     private let hideAllApps: @MainActor ([Command.Application]) async throws -> Void
     private let minimizeAllOpenWindows: @MainActor ([String]?) async throws -> Void
+    private let executeScript: @MainActor (ScriptRequest) async throws -> String?
 
     /// Keep the executor (or its shared UserSpace) alive to accumulate activation history.
     public init() {
@@ -84,12 +87,16 @@ public enum SystemCommand {
       minimizeAllOpenWindows: @escaping @MainActor ([String]?) async throws -> Void = {
         try await MinimizeAllWindows.live().run($0)
       },
+      executeScript: @escaping @MainActor (ScriptRequest) async throws -> String? = {
+        try await ScriptCommandDispatcher(.production).execute($0)
+      },
     ) {
       self.sendDockNotification = sendDockNotification
       self.previousApplication = previousApplication
       self.openApplication = openApplication
       self.hideAllApps = hideAllApps
       self.minimizeAllOpenWindows = minimizeAllOpenWindows
+      self.executeScript = executeScript
     }
 
     /// Checks cancellation before dispatch. An effect that already took place cannot be undone.
@@ -116,6 +123,16 @@ public enum SystemCommand {
       case .showDesktop: try sendDockNotification("com.apple.showdesktop.awake")
       case .hideAllApps: try await hideAllApps(workflowApplications)
       case .minimizeAllOpenWindows: try await minimizeAllOpenWindows(visibleWindowOwners)
+      case .showNotificationCenter:
+        _ = try await executeScript(.init(
+          id: Action.showNotificationCenter.rawValue,
+          kind: .appleScript(.regular),
+          source: .inline("""
+            tell application "System Events"
+            click menu bar item 2 of menu bar 1 of application process "ControlCenter"
+            end tell
+            """),
+        ))
       }
       return .invoked
     }
