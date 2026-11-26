@@ -22,8 +22,8 @@ public extension KeyboardTriggers {
 
     func matchSequence(
       _ signatures: [Signature], frontmostBundleIdentifier: String?, enabledModeIDs: [String],
-    ) -> (decision: Decision, allowsRepeat: Bool) {
-      guard let first = signatures.first, let rules = rulesBySignature[first] else { return (.noMatch, false) }
+    ) -> (decision: Decision, rule: Rule?) {
+      guard let first = signatures.first, let rules = rulesBySignature[first] else { return (.noMatch, nil) }
       let suffix = signatures.dropFirst()
       func usesWildcard(_ rule: Rule) -> Bool {
         rule.endsWithAnyKey && suffix.count == rule.continuation.count + 1
@@ -33,11 +33,11 @@ public extension KeyboardTriggers {
                                    accepting: {
                                      usesWildcard($0) ? $0.continuation.elementsEqual(suffix.dropLast())
                                        : $0.continuation.starts(with: suffix)
-                                   }) else { return (.noMatch, false) }
+                                   }) else { return (.noMatch, nil) }
       let length = rule.continuation.count + (rule.endsWithAnyKey ? 1 : 0)
       let decision = Decision(match: length == suffix.count ? .exact(rule.workflowID) : .partial,
                               disposition: rule.passthrough ? .passThrough : .suppress)
-      return (decision, rule.allowRepeat)
+      return (decision, rule)
     }
 
     private static func winner(

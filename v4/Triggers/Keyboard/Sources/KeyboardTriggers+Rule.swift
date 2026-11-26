@@ -6,6 +6,7 @@ public extension KeyboardTriggers {
     public let endsWithAnyKey: Bool
     public let passthrough: Bool
     public let allowRepeat: Bool
+    public let holdDuration: Duration?
     public let allowedBundleIdentifiers: Set<String>
     public let disallowedBundleIdentifiers: Set<String>
     public let modeIDs: Set<String>
@@ -26,6 +27,7 @@ public extension KeyboardTriggers {
       endsWithAnyKey: Bool = false,
       passthrough: Bool = false,
       allowRepeat: Bool = true,
+      holdDuration: Duration? = nil,
     ) {
       self.workflowID = workflowID
       self.signature = signature
@@ -33,6 +35,7 @@ public extension KeyboardTriggers {
       self.endsWithAnyKey = endsWithAnyKey
       self.passthrough = passthrough
       self.allowRepeat = allowRepeat
+      self.holdDuration = holdDuration
       self.allowedBundleIdentifiers = allowedBundleIdentifiers
       self.disallowedBundleIdentifiers = disallowedBundleIdentifiers
       self.modeIDs = modeIDs
