@@ -18,6 +18,7 @@ let package = Package(
     ),
   ],
   dependencies: [
+    .package(path: "../../Components/Commands"),
     .package(path: "../../Components/RuntimeEnvironment"),
     .package(path: "../../Components/AppleScriptRuntime"),
     .package(path: "../../Components/FileSystem"),
@@ -27,6 +28,7 @@ let package = Package(
     .target(
       name: "ScriptingFeature",
       dependencies: [
+        .product(name: "Commands", package: "Commands"),
         .product(name: "RuntimeEnvironment", package: "RuntimeEnvironment"),
         .product(name: "AppleScriptRuntime", package: "AppleScriptRuntime"),
         .product(name: "FileSystem", package: "FileSystem"),
@@ -37,7 +39,7 @@ let package = Package(
     ),
     .testTarget(
       name: "ScriptingFeatureTests",
-      dependencies: ["AppleScriptRuntime", "FileSystem", "ProcessSystem", "ScriptingFeature"],
+      dependencies: ["AppleScriptRuntime", "Commands", "FileSystem", "ProcessSystem", "ScriptingFeature"],
       path: "Tests",
     ),
   ],
