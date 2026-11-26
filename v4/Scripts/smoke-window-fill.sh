@@ -3,8 +3,8 @@ set -euo pipefail
 
 root="${0:A:h:h}"
 display="${1:-primary}"
-if [[ $# -gt 1 || ( "$display" != primary && "$display" != secondary ) ]]; then
-  print -u2 "Usage: $0 [primary|secondary]"
+if [[ $# -gt 1 || ( "$display" != primary && "$display" != secondary && "$display" != system ) ]]; then
+  print -u2 "Usage: $0 [primary|secondary|system]"
   exit 2
 fi
 scratch="$(mktemp -d "${TMPDIR:-/tmp}/kc-fill.XXXXXXXX")"
@@ -20,6 +20,11 @@ plutil -insert CFBundlePackageType -string APPL "$plist"
 swiftc -parse-as-library "$root/Scripts/WindowFillSmokeFixture.swift" -o "$fixture/Contents/MacOS/Fixture"
 codesign --force --sign - "$fixture"
 sw_vers
+if [[ "$display" == system ]]; then
+  KC_SYSTEM_FILL_FIXTURE="$fixture" swift test --package-path "$root/Features/System" \
+    --configuration "${CONFIGURATION:-release}" --filter liveFillAllWindows
+  exit
+fi
 KC_FILL_SMOKE_FIXTURE="$fixture" KC_FILL_SMOKE_DISPLAY="$display" \
   swift test --package-path "$root/Features/WindowManagement" \
     --configuration "${CONFIGURATION:-debug}" --filter liveFillTiming
