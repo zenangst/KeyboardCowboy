@@ -12,6 +12,7 @@ public extension KeyboardTriggers {
     private var pendingRelease: PendingRelease?
     private var heldPrefix: HeldPrefix?
     private var leader: LeaderPrefix?
+    private static let leaderGrace = Duration.milliseconds(100)
 
     private struct RepeatBinding: Sendable {
       let signature: Signature
@@ -44,6 +45,7 @@ public extension KeyboardTriggers {
     private struct LeaderPrefix: Sendable {
       let signature: Signature
       var releasedAt: Duration?
+      var used = false
     }
 
     /// The timeout is measured between consecutive keys using caller-supplied monotonic time.
@@ -92,6 +94,7 @@ public extension KeyboardTriggers {
       }
 
       let decision = result.decision
+      if prefix.count > 1, decision.match != .noMatch { leader?.used = true }
       if decision.match == .partial {
         if prefix.count == 1, let rule = result.rule, !rule.passthrough,
            let duration = rule.holdDuration, duration > .zero {
@@ -179,20 +182,38 @@ public extension KeyboardTriggers {
       finishRelease(keyCode: keyCode, at: time)
     }
 
+    /// Returns an unused leader tap at most once. The host owns the timer and
+    /// must service due replays before routing later key-downs.
+    public mutating func completeLeaderTap(
+      at time: Duration, frontmostBundleIdentifier: String?, enabledModeIDs: [String] = [],
+    ) -> Signature? {
+      guard let leader, !leader.used, let releasedAt = leader.releasedAt,
+            let deadline = leaderReplayDeadline else { return nil }
+      guard time >= releasedAt, app == frontmostBundleIdentifier, modes == enabledModeIDs else {
+        clearPrefix()
+        return nil
+      }
+      guard time >= deadline else { return nil }
+      clearPrefix()
+      return leader.signature
+    }
+
     private mutating func finishRelease(keyCode: UInt16, at time: Duration?) -> Decision {
       if repeating?.signature.keyCode == keyCode { repeating = nil }
       if pendingHold?.keyCode == keyCode { cancelHold() }
       if heldPrefix?.keyCode == keyCode { clearPrefix() }
+      var replayDeadline: Duration?
       if leader?.signature.keyCode == keyCode, leader?.releasedAt == nil {
         if let time, let lastInput, time >= lastInput {
           leader?.releasedAt = time
+          replayDeadline = leaderReplayDeadline
         } else {
           clearPrefix()
         }
       }
       let disposition: Decision.Disposition = suppressedKeyCodes.remove(keyCode) == nil ? .passThrough : .suppress
       guard let pendingRelease, pendingRelease.keyCode == keyCode else {
-        return Decision(match: .noMatch, disposition: disposition)
+        return Decision(match: .noMatch, disposition: disposition, leaderReplayDeadline: replayDeadline)
       }
       self.pendingRelease = nil
       let match: SequenceMatch
@@ -201,7 +222,7 @@ public extension KeyboardTriggers {
       } else {
         match = .noMatch
       }
-      return Decision(match: match, disposition: disposition)
+      return Decision(match: match, disposition: disposition, leaderReplayDeadline: replayDeadline)
     }
 
     /// Clear the sequence and key pairings when the host loses the input stream,
@@ -225,7 +246,12 @@ public extension KeyboardTriggers {
 
     private func leaderExpired(at time: Duration) -> Bool {
       guard let releasedAt = leader?.releasedAt else { return false }
-      return time < releasedAt || time - releasedAt >= .milliseconds(100)
+      return time < releasedAt || time - releasedAt >= Self.leaderGrace
+    }
+
+    private var leaderReplayDeadline: Duration? {
+      guard let leader, !leader.used, let releasedAt = leader.releasedAt, let lastInput else { return nil }
+      return max(releasedAt, min(releasedAt + Self.leaderGrace, lastInput + timeout))
     }
   }
 }
