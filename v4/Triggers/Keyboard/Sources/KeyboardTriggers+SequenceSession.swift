@@ -7,6 +7,14 @@ public extension KeyboardTriggers {
     private var app: String?
     private var modes: [String] = []
     private var suppressedKeyCodes: Set<UInt16> = []
+    private var repeating: RepeatBinding?
+
+    private struct RepeatBinding: Sendable {
+      let signature: Signature
+      let workflowID: String
+      let app: String?
+      let modes: [String]
+    }
 
     /// The timeout is measured between consecutive keys using caller-supplied monotonic time.
     public init(matcher: Matcher, timeout: Duration) {
@@ -29,26 +37,31 @@ public extension KeyboardTriggers {
     public mutating func receiveDecision(
       _ signature: Signature, at time: Duration, frontmostBundleIdentifier: String?, enabledModeIDs: [String] = [],
     ) -> Decision {
+      repeating = nil
       if let lastInput,
          time < lastInput || time - lastInput >= timeout || app != frontmostBundleIdentifier || modes != enabledModeIDs {
         clearPrefix()
       }
 
       prefix.append(signature)
-      var decision = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
-                                           enabledModeIDs: enabledModeIDs)
-      if decision.match == .noMatch, prefix.count > 1 {
-        prefix = [signature]
-        decision = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
+      var result = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
                                          enabledModeIDs: enabledModeIDs)
+      if result.decision.match == .noMatch, prefix.count > 1 {
+        prefix = [signature]
+        result = matcher.matchSequence(prefix, frontmostBundleIdentifier: frontmostBundleIdentifier,
+                                       enabledModeIDs: enabledModeIDs)
       }
 
+      let decision = result.decision
       if decision.match == .partial {
         lastInput = time
         app = frontmostBundleIdentifier
         modes = enabledModeIDs
       } else {
         clearPrefix()
+      }
+      if result.allowsRepeat, case let .exact(workflowID) = decision.match {
+        repeating = .init(signature: signature, workflowID: workflowID, app: frontmostBundleIdentifier, modes: enabledModeIDs)
       }
       if decision.disposition == .suppress {
         suppressedKeyCodes.insert(signature.keyCode)
@@ -58,10 +71,27 @@ public extension KeyboardTriggers {
       return decision
     }
 
+    /// Repeats only the last completed binding, with unchanged flags and scope.
+    /// A repeat never starts, advances, or extends a pending sequence.
+    public mutating func receiveRepeat(
+      _ signature: Signature, frontmostBundleIdentifier: String?, enabledModeIDs: [String] = [],
+    ) -> Decision {
+      let disposition: Decision.Disposition = suppressedKeyCodes.contains(signature.keyCode) ? .suppress : .passThrough
+      guard let repeating else { return Decision(match: .noMatch, disposition: disposition) }
+      if repeating.app != frontmostBundleIdentifier || repeating.modes != enabledModeIDs
+        || (repeating.signature.keyCode == signature.keyCode && repeating.signature != signature) {
+        self.repeating = nil
+        return Decision(match: .noMatch, disposition: disposition)
+      }
+      let match: SequenceMatch = repeating.signature == signature ? .exact(repeating.workflowID) : .noMatch
+      return Decision(match: match, disposition: disposition)
+    }
+
     /// Pair a release with its key-down even if modifier flags or focus changed.
     /// Releasing a prefix key does not end the pending shortcut sequence.
     public mutating func release(keyCode: UInt16) -> Decision.Disposition {
-      suppressedKeyCodes.remove(keyCode) == nil ? .passThrough : .suppress
+      if repeating?.signature.keyCode == keyCode { repeating = nil }
+      return suppressedKeyCodes.remove(keyCode) == nil ? .passThrough : .suppress
     }
 
     /// Clear the sequence and key pairings when the host loses the input stream,
@@ -69,6 +99,7 @@ public extension KeyboardTriggers {
     public mutating func reset() {
       clearPrefix()
       suppressedKeyCodes.removeAll(keepingCapacity: true)
+      repeating = nil
     }
 
     private mutating func clearPrefix() {
