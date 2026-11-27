@@ -239,6 +239,15 @@ apps. A single session performs five moves; the fixture verifies the exact
 key-window sequence and that a minimized decoy stays minimized. This mode
 does not switch Spaces.
 
+For a manual Space round trip, prepare a second empty desktop on the same
+display, then run `v4/Scripts/smoke-next-window.sh --space-switch [app-path]`
+from the original desktop. Keep both fixture apps on that desktop (not
+assigned to all desktops). Follow the spoken cues to switch away and back;
+if needed, click the original fixture window on return. The smoke resets
+the same session on Space-change notifications, checks that the fixture
+windows are no longer on-screen while away, and verifies that Previous uses
+fresh ring order after returning. Each transition has a 45-second timeout.
+
 If you use yabai, add a fixture-only rule before launching the smoke test so
 yabai does not tile the test windows:
 

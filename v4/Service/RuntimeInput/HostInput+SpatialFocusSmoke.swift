@@ -9,7 +9,7 @@ package extension HostInput {
   static func smokeSpatialFocus(arguments: [String]) async {
     let log = Logger(subsystem: "com.zenangst.keyboardcowboy.v4", category: "SpatialFocusSmoke")
     guard arguments.count == 2 || arguments.count == 3, let pid = pid_t(arguments[0]), pid > 0,
-          ["center", "quarter", "left", "right", "up", "down", "space-ring"].contains(arguments[1]),
+          ["center", "quarter", "left", "right", "up", "down", "space-ring", "space-switch"].contains(arguments[1]),
           let app = NSRunningApplication(processIdentifier: pid),
           let screen = NSScreen.main, let primary = NSScreen.screens.first else { return }
     let fixture = "com.zenangst.kc-next-window-fixture"
@@ -21,7 +21,7 @@ package extension HostInput {
             Set([app.bundleIdentifier, other.bundleIdentifier]) == [fixture, peer] else { return }
       allowed.insert(otherPID)
     } else {
-      guard app.bundleIdentifier == fixture, arguments[1] != "space-ring" else { return }
+      guard app.bundleIdentifier == fixture, !["space-ring", "space-switch"].contains(arguments[1]) else { return }
     }
     guard AXIsProcessTrusted() else {
       log.notice("Accessibility trusted: false")
@@ -54,6 +54,8 @@ package extension HostInput {
           guard focused else { return }
           try await Task.sleep(for: .milliseconds(150))
         }
+      case "space-switch":
+        try await smokeSpaceSwitch(session, source: pid, allowed: allowed)
       default:
         let directions: [String: WindowFocus.DirectionalSearch.Direction] = [
           "left": .left, "right": .right, "up": .up, "down": .down,

@@ -3,13 +3,13 @@ set -euo pipefail
 
 root="${0:A:h:h}"
 fixture_args=()
-if [[ "${1:-}" == --spatial || "${1:-}" == --multi-display || "${1:-}" == --cross-app || "${1:-}" == --space-ring ]]; then
+if [[ "${1:-}" == --spatial || "${1:-}" == --multi-display || "${1:-}" == --cross-app || "${1:-}" == --space-ring || "${1:-}" == --space-switch ]]; then
   fixture_args=("$1")
   shift
 fi
 service="${1:-$root/Service/.build/app/debug/Keyboard Cowboy.app}"
 if [[ $# -gt 1 || ! -x "$service/Contents/MacOS/KeyboardCowboy" ]]; then
-  print -u2 "Usage: $0 [--spatial|--multi-display|--cross-app|--space-ring] [path to signed Debug or Window Focus validation Service.app]"
+  print -u2 "Usage: $0 [--spatial|--multi-display|--cross-app|--space-ring|--space-switch] [path to signed Debug or Window Focus validation Service.app]"
   print -u2 "Build and grant Accessibility to that Service before running."
   exit 1
 fi
@@ -28,7 +28,7 @@ plutil -insert CFBundleExecutable -string Fixture "$plist"
 plutil -insert CFBundlePackageType -string APPL "$plist"
 
 swiftc -parse-as-library "$root/Scripts/NextWindowSmokeFixture.swift" -o "$fixture/Contents/MacOS/Fixture"
-if [[ "${fixture_args[1]:-}" == --cross-app || "${fixture_args[1]:-}" == --space-ring ]]; then
+if [[ "${fixture_args[1]:-}" == --cross-app || "${fixture_args[1]:-}" == --space-ring || "${fixture_args[1]:-}" == --space-switch ]]; then
   peer="$scratch/Next Window Peer.app"
   ditto "$fixture" "$peer"
   plutil -replace CFBundleIdentifier -string com.zenangst.kc-next-window-peer "$peer/Contents/Info.plist"

@@ -14,7 +14,8 @@ struct NextWindowSmokeFixture {
     let multiDisplay = arguments.count == 4 && arguments[3] == "--multi-display"
     let crossApp = arguments.count == 4 && arguments[3] == "--cross-app"
     let spaceRing = arguments.count == 4 && arguments[3] == "--space-ring"
-    guard arguments.count == 3 || spatial || multiDisplay || crossApp || spaceRing else { exit(2) }
+    let spaceSwitch = arguments.count == 4 && arguments[3] == "--space-switch"
+    guard arguments.count == 3 || spatial || multiDisplay || crossApp || spaceRing || spaceSwitch else { exit(2) }
 
     let app = NSApplication.shared
     app.setActivationPolicy(.regular)
@@ -22,13 +23,14 @@ struct NextWindowSmokeFixture {
     let service = CommandLine.arguments[1]
     let result = URL(fileURLWithPath: CommandLine.arguments[2])
 
-    DispatchQueue.main.asyncAfter(deadline: .now() + (spatial || multiDisplay ? 150 : 20)) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + (spatial || multiDisplay || spaceSwitch ? 150 : 20)) {
       try? "FAIL: timed out waiting for the Service\n".write(to: result, atomically: true, encoding: .utf8)
       app.terminate(nil)
     }
     Task { @MainActor in
-      let message = if crossApp || spaceRing {
-        await checkCrossApp(app, service: service, directory: result.deletingLastPathComponent(), spaceRing: spaceRing)
+      let message = if crossApp || spaceRing || spaceSwitch {
+        await checkCrossApp(app, service: service, directory: result.deletingLastPathComponent(),
+                            ringMode: spaceSwitch ? "space-switch" : (spaceRing ? "space-ring" : nil))
       } else if multiDisplay {
         await checkDisplayEdges(app, service: service)
       } else if spatial {
@@ -94,11 +96,11 @@ struct NextWindowSmokeFixture {
         }
       }
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 25) { app.terminate(nil) }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 155) { app.terminate(nil) }
     withExtendedLifetime((target, decoy, reporter)) { app.run() }
   }
 
-  private static func checkCrossApp(_ app: NSApplication, service: String, directory: URL, spaceRing: Bool) async -> String {
+  private static func checkCrossApp(_ app: NSApplication, service: String, directory: URL, ringMode: String?) async -> String {
     guard let screen = NSScreen.main, screen.visibleFrame.width >= 920, screen.visibleFrame.height >= 590 else {
       return "FAIL: cross-app fixture requires a 920×590 visible display"
     }
@@ -133,7 +135,7 @@ struct NextWindowSmokeFixture {
       guard try await waitForFocus({ app.isActive && anchor.isKeyWindow }) else { throw Failure.fixtureInactive }
       let a = String(getpid())
       let b = String(peer.processIdentifier)
-      if spaceRing {
+      if let ringMode {
         let minimized = crossAppWindow("Minimized decoy", at: CGPoint(x: origin.x, y: origin.y + 270))
         defer { minimized.close() }
         minimized.miniaturize(nil)
@@ -146,8 +148,15 @@ struct NextWindowSmokeFixture {
         let reporter = PeerKeyReporter(state: anchorState, trace: trace)
         anchor.delegate = reporter
         defer { anchor.delegate = nil }
-        try await launchService(service, command: ["--smoke-spatial-focus", a, "space-ring", b])
+        try await launchService(service, command: ["--smoke-spatial-focus", a, ringMode, b])
         let observed = try String(contentsOf: trace, encoding: .utf8).split(separator: "\n").map(String.init)
+        if ringMode == "space-switch" {
+          guard observed == ["Peer decoy", "Fixture anchor", "Peer target"],
+                NSWorkspace.shared.frontmostApplication == peer, peerKey() == "Peer target", minimized.isMiniaturized else {
+            return "FAIL: unexpected Space-switch key trace: \(observed); expected Previous to land on Peer target after reset"
+          }
+          return "PASS: returning to the original Space discarded Previous history and focused Peer target"
+        }
         guard observed == ["Peer decoy", "Peer target", "Fixture anchor", "Peer target", "Fixture anchor"],
               app.isActive, anchor.isKeyWindow, minimized.isMiniaturized else {
           return "FAIL: unexpected ring trace: \(observed); decoy still minimized: \(minimized.isMiniaturized)"
