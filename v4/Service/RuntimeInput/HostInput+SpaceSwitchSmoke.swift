@@ -17,10 +17,17 @@ package extension HostInput {
       process.arguments = [message]
       try process.run()
     }
-    func visibleFixtureOwners() -> Set<pid_t>? {
+    func visibleFixtureWindows() -> [CGWindowID: pid_t]? {
       guard let rows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
         as? [[String: Any]] else { return nil }
-      return Set(rows.compactMap { $0[kCGWindowOwnerPID as String] as? pid_t }).intersection(allowed)
+      var result: [CGWindowID: pid_t] = [:]
+      for row in rows {
+        guard row[kCGWindowLayer as String] as? Int == 0,
+              let owner = row[kCGWindowOwnerPID as String] as? pid_t, allowed.contains(owner),
+              let id = row[kCGWindowNumber as String] as? CGWindowID else { continue }
+        result[id] = owner
+      }
+      return result
     }
     func waitFor(_ condition: () -> Bool) async throws -> Bool {
       let deadline = ContinuousClock.now + .seconds(45)
@@ -34,7 +41,7 @@ package extension HostInput {
     guard try await session.cycleInCurrentSpace(.next),
           try await session.cycleInCurrentSpace(.previous),
           NSWorkspace.shared.frontmostApplication?.processIdentifier == source,
-          visibleFixtureOwners() == allowed else {
+          let baseline = visibleFixtureWindows(), baseline.count == 3, Set(baseline.values) == allowed else {
       log.error("Could not prime Space-switch history")
       return
     }
@@ -52,18 +59,29 @@ package extension HostInput {
     defer { center.removeObserver(observer) }
 
     try speak("Space switch test ready. Switch to an empty desktop on this display. Wait for the next instruction.")
-    guard try await waitFor({ changes.count > 0 && visibleFixtureOwners() == [] }),
-          try await !session.cycleInCurrentSpace(.next) else {
-      log.error("No confirmed switch to an empty Space, or ring selected an off-Space window")
+    guard try await waitFor({
+      guard changes.count > 0, let visible = visibleFixtureWindows() else { return false }
+      return baseline.keys.allSatisfy { visible[$0] == nil }
+    }) else {
+      let visible = visibleFixtureWindows()
+      let remaining = visible.map { current in baseline.keys.filter { current[$0] != nil }.count } ?? -1
+      log.error("Space departure timed out: \(changes.count) notifications, \(remaining) of 3 tracked windows still on-screen (-1 means inventory unavailable)")
+      return
+    }
+    guard try await !session.cycleInCurrentSpace(.next) else {
+      log.error("Ring unexpectedly selected a window on the empty Space")
       return
     }
     let afterLeaving = changes.count
     try speak("Return to the original desktop. Keep the first fixture app frontmost.")
     guard try await waitFor({
-      changes.count > afterLeaving && visibleFixtureOwners() == allowed
+      changes.count > afterLeaving && visibleFixtureWindows() == baseline
         && NSWorkspace.shared.frontmostApplication?.processIdentifier == source
     }) else {
-      log.error("No confirmed return to the original Space and fixture anchor")
+      let visible = visibleFixtureWindows()
+      let restored = visible.map { current in baseline.filter { current[$0.key] == $0.value }.count } ?? -1
+      let sourceActive = NSWorkspace.shared.frontmostApplication?.processIdentifier == source
+      log.error("Space return timed out: \(changes.count - afterLeaving) notifications, \(restored) of 3 tracked windows restored, source active: \(sourceActive)")
       return
     }
 

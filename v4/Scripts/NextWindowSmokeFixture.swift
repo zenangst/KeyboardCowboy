@@ -151,7 +151,11 @@ struct NextWindowSmokeFixture {
         try await launchService(service, command: ["--smoke-spatial-focus", a, ringMode, b])
         let observed = try String(contentsOf: trace, encoding: .utf8).split(separator: "\n").map(String.init)
         if ringMode == "space-switch" {
-          guard observed == ["Peer decoy", "Fixture anchor", "Peer target"],
+          // Returning to the original Space can deliver another key event for the anchor.
+          let distinct = observed.enumerated().compactMap { index, title in
+            index == 0 || title != observed[index - 1] ? title : nil
+          }
+          guard distinct == ["Peer decoy", "Fixture anchor", "Peer target"],
                 NSWorkspace.shared.frontmostApplication == peer, peerKey() == "Peer target", minimized.isMiniaturized else {
             return "FAIL: unexpected Space-switch key trace: \(observed); expected Previous to land on Peer target after reset"
           }
