@@ -1,8 +1,16 @@
 import CoreGraphics
 import Testing
-import WindowFocusFeature
+@testable import WindowFocusFeature
 
 private typealias Ring = WindowFocus.SpaceRing
+
+@Test func ringInventoryUsesLessRestrictiveEligibilityThanSpatialFocus() {
+  let compact = window(1)
+  let transparent = Ring.Window(id: 2, owner: 10, frame: CGRect(x: 0, y: 0, width: 350, height: 240), alpha: 0.5)
+  let opaque = Ring.Window(id: 3, owner: 10, frame: transparent.frame)
+  #expect([compact, transparent, opaque].filter(\.isEligible).map(\.id) == [1, 2, 3])
+  #expect([compact, transparent, opaque].filter(\.isSpatiallyEligible).map(\.id) == [3])
+}
 
 private func window(
   _ id: CGWindowID, owner: pid_t = 10, y: CGFloat = 0, width: CGFloat = 200,

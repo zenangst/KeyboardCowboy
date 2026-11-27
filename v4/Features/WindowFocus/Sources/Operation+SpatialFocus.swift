@@ -11,12 +11,19 @@ extension Operation {
       case center(CGRect, CGRect, CGFloat)
       case quarter(WindowFocus.Quarter, CGRect, CGFloat)
       case directional(DirectionalFocus)
+      case spaceRing(WindowFocus.SpaceRing.Direction)
+
+      var usesSpaceRing: Bool {
+        if case .spaceRing = self { return true }
+        return false
+      }
     }
 
     private let accessibility: AccessibilitySystem.Client
     private let processIdentifiers: Set<pid_t>?
     private var center = WindowFocus.CenterCycle()
     private var quarter = WindowFocus.QuarterCycle()
+    private var spaceRing = WindowFocus.SpaceRing()
     private var running = false
     private let revision = OSAllocatedUnfairLock(initialState: 0)
 
@@ -28,6 +35,7 @@ extension Operation {
     func reset() {
       revision.withLock { $0 &+= 1 }
       resetCycles()
+      spaceRing.reset()
     }
 
     func callAsFunction(_ selection: Selection) async throws -> Bool {
@@ -37,13 +45,17 @@ extension Operation {
             source.processIdentifier != getpid() else { return false }
 
       running = true
-      defer { running = false }
+      let usesSpaceRing = selection.usesSpaceRing
+      defer {
+        if usesSpaceRing { spaceRing.cancelSelection() }
+        running = false
+      }
       let stamp = revision.withLock { $0 }
       guard let focused = try await focusedID(of: source.processIdentifier),
             revision.withLock({ $0 }) == stamp, NSWorkspace.shared.frontmostApplication == source else { return false }
 
-      let inventory = Self.inventory()
-      let anchors = inventory.filter { $0.window.id == focused }
+      let inventory = Self.inventory(forSpaceRing: usesSpaceRing)
+      let anchors = inventory.filter { $0.id == focused }
       guard anchors.count == 1, let anchor = anchors.first, anchor.owner == source.processIdentifier else {
         return false
       }
@@ -54,18 +66,18 @@ extension Operation {
 
         return !app.isHidden && !app.isTerminated
       }
-      let windows = eligible.map(\.window)
       let id: CGWindowID?
       switch selection {
       case let .center(display, visibleFrame, spacing):
-        id = center.select(in: display, visibleFrame: visibleFrame, spacing: spacing, windows: windows,
+        id = center.select(in: display, visibleFrame: visibleFrame, spacing: spacing, windows: eligible.map(\.spatialWindow),
                            focusedWindowID: focused)
       case let .quarter(region, display, spacing):
         center.reset()
-        id = quarter.select(region, in: display, spacing: spacing, windows: windows, focusedWindowID: focused)
+        id = quarter.select(region, in: display, spacing: spacing, windows: eligible.map(\.spatialWindow),
+                            focusedWindowID: focused)
       case let .directional(operation):
         resetCycles()
-        let candidates = eligible.map { (id: $0.window.id, owner: $0.owner, frame: $0.window.frame) }
+        let candidates = eligible.map { (id: $0.id, owner: $0.owner, frame: $0.frame) }
         id = try await accessibility.withApplication(
           processIdentifier: source.processIdentifier) { [revision] session in
             try operation(
@@ -74,8 +86,14 @@ extension Operation {
               session: session,
               isCurrent: { revision.withLock { $0 } == stamp && NSWorkspace.shared.frontmostApplication == source })
           }
+      case let .spaceRing(direction):
+        center.reset()
+        guard eligible.contains(anchor) else { return false }
+        spaceRing.update(eligible)
+        spaceRing.observeFocus(windowID: focused, owner: source.processIdentifier)
+        id = spaceRing.select(direction, frontmostOwner: source.processIdentifier)?.id
       }
-      guard let id, let candidate = inventory.first(where: { $0.window.id == id }),
+      guard let id, let candidate = eligible.first(where: { $0.id == id }),
             let target = NSRunningApplication(processIdentifier: candidate.owner) else { return false }
 
       // Re-read focus before entering the target transaction. Never retarget this invocation.
@@ -90,7 +108,7 @@ extension Operation {
               guard let current = try session.focusedWindow(),
                     try session.windowIDCandidate(for: current) == focused else { return false }
             }
-            let fresh = Self.inventory()
+            let fresh = Self.inventory(forSpaceRing: usesSpaceRing)
             return Self.isCurrent(candidate, in: target, inventory: fresh)
               && Self.isCurrent(anchor, in: source, inventory: fresh)
               && NSWorkspace.shared.frontmostApplication == source && revision.withLock { $0 } == stamp
@@ -103,13 +121,16 @@ extension Operation {
       }
       try Task.checkCancellation()
       guard raised, revision.withLock({ $0 }) == stamp,
-            Self.isCurrent(candidate, in: target, inventory: Self.inventory()) else { return false }
+            Self.isCurrent(candidate, in: target, inventory: Self.inventory(forSpaceRing: usesSpaceRing)) else { return false }
 
       if NSWorkspace.shared.frontmostApplication != target {
         guard NSWorkspace.shared.frontmostApplication == source, target.activate(from: source) else { return false }
       }
       let observed = try await focusedID(of: candidate.owner)
-      return revision.withLock { $0 } == stamp && NSWorkspace.shared.frontmostApplication == target && observed == id
+      guard revision.withLock({ $0 }) == stamp, NSWorkspace.shared.frontmostApplication == target, observed == id
+      else { return false }
+      if usesSpaceRing { spaceRing.observeFocus(windowID: id, owner: candidate.owner) }
+      return true
     }
 
     private func resetCycles() {
@@ -125,24 +146,19 @@ extension Operation {
       }
     }
 
-    private struct Entry: Sendable {
-      let window: WindowFocus.SpatialWindow
-      let owner: pid_t
-    }
-
     private nonisolated static func isCurrent(
-      _ candidate: Entry,
+      _ candidate: WindowFocus.SpaceRing.Window,
       in app: NSRunningApplication,
-      inventory: [Entry],
+      inventory: [WindowFocus.SpaceRing.Window],
     ) -> Bool {
       guard !app.isHidden, !app.isTerminated else { return false }
 
-      let matches = inventory.filter { $0.window.id == candidate.window.id }
+      let matches = inventory.filter { $0.id == candidate.id }
       return matches.count == 1 && matches[0].owner == candidate.owner
-        && matches[0].window.frame == candidate.window.frame
+        && matches[0].frame == candidate.frame
     }
 
-    private nonisolated static func inventory() -> [Entry] {
+    private nonisolated static func inventory(forSpaceRing: Bool) -> [WindowFocus.SpaceRing.Window] {
       guard let rows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
         as? [[String: Any]] else { return [] }
 
@@ -150,13 +166,13 @@ extension Operation {
         guard let id = row[kCGWindowNumber as String] as? CGWindowID, id != 0,
               let owner = row[kCGWindowOwnerPID as String] as? pid_t, owner > 0,
               let name = row[kCGWindowOwnerName as String] as? String,
-              !["borders", "WindowManager", "Window Server"].contains(name),
-              row[kCGWindowAlpha as String] as? Double == 1,
+              let alpha = row[kCGWindowAlpha as String] as? Double,
               let bounds = row[kCGWindowBounds as String] as? [String: Any],
-              let frame = CGRect(dictionaryRepresentation: bounds as CFDictionary),
-              WindowFocus.SpatialWindow.isValid(frame), frame.width > 300, frame.height > 200 else { return nil }
+              let frame = CGRect(dictionaryRepresentation: bounds as CFDictionary) else { return nil }
 
-        return Entry(window: .init(id: id, frame: frame), owner: owner)
+        let window = WindowFocus.SpaceRing.Window(id: id, owner: owner, frame: frame, alpha: alpha, ownerName: name)
+        guard forSpaceRing ? window.isEligible : window.isSpatiallyEligible else { return nil }
+        return window
       }
     }
   }

@@ -48,7 +48,13 @@ public extension WindowFocus {
                                               deadzoneSpacing: deadzoneSpacing)))
     }
 
-    /// Call on Space changes or external focus changes.
+    /// Steps through visible windows on the current Space. Use the same session
+    /// for successive calls so Previous can prefer confirmed focus history.
+    public func cycleInCurrentSpace(_ direction: SpaceRing.Direction) async throws -> Bool {
+      try await operation(.spaceRing(direction))
+    }
+
+    /// Call on Space changes or when discarding focus history.
     public func reset() {
       operation.reset()
     }

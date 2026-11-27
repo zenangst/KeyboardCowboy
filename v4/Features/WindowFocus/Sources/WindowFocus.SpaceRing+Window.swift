@@ -26,5 +26,9 @@ public extension WindowFocus.SpaceRing {
         && WindowFocus.SpatialWindow.isValid(frame) && frame.width > 100 && frame.height > 100
         && !["borders", "WindowManager", "Window Server"].contains(ownerName)
     }
+
+    var spatialWindow: WindowFocus.SpatialWindow { .init(id: id, frame: frame) }
+
+    var isSpatiallyEligible: Bool { isEligible && alpha == 1 && frame.width > 300 && frame.height > 200 }
   }
 }
