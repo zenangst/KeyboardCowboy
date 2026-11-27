@@ -62,6 +62,21 @@ public extension AccessibilitySystem {
       return try elements(kAXWindowsAttribute, of: application)
     }
 
+    /// Reads another application's windows without leaving this transaction.
+    public func windows(in processIdentifier: Int32) throws -> [Element] {
+      try checkpoint()
+      return try elements(kAXWindowsAttribute, of: element(transport.application(processIdentifier)))
+    }
+
+    /// Hit-tests in AX global coordinates and returns the hit window or its
+    /// AXWindow relationship. The result remains scoped to this transaction.
+    public func window(at point: CGPoint) throws -> Element? {
+      try checkpoint()
+      let hit = try element(transport.element(at: point))
+      if try read(.role, of: hit) == .window { return hit }
+      return try relatedElement(kAXWindowAttribute, of: hit)
+    }
+
     /// An unverified candidate from the optional macOS compatibility bridge.
     /// A nil result means the element or OS did not provide an ID. Check
     /// the owner and any visibility requirements against fresh CG data.

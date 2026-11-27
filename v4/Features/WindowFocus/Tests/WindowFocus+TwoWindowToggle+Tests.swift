@@ -84,3 +84,15 @@ func unavailableOrMismatchedToggleIdentityFallsBackToTheDirectionalProbe(resolve
   }
   await #expect(throws: CancellationError.self) { try await task.value }
 }
+
+@Test func directionalSearchPropagatesResolverErrorsWithoutProbing() {
+  enum ResolutionError: Error { case unavailable }
+
+  #expect(throws: ResolutionError.unavailable) {
+    try Search.select(from: left, windows: [left, right], direction: .right, visibleFrames: displays,
+                      resolveAXIdentity: { _ in throw ResolutionError.unavailable }) { _ in
+      Issue.record("A resolver error must not be swallowed")
+      return nil
+    }
+  }
+}

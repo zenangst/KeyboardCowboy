@@ -3,7 +3,7 @@ import CoreGraphics
 extension WindowFocus.DirectionalSearch {
   static func displayCenterFallback(
     from anchor: Window, candidates: [Window], direction: Direction, displays: [CGRect],
-    resolveAXIdentity: (Window) -> CGWindowID?,
+    resolveAXIdentity: (Window) throws -> CGWindowID?,
   ) throws -> Match? {
     try Task.checkCancellation()
     let ranked = displays.map { display in
@@ -33,7 +33,7 @@ extension WindowFocus.DirectionalSearch {
       case .left, .right: guard candidate.frame.minX != anchor.frame.minX else { continue }
       case .up, .down: guard candidate.frame.minY != anchor.frame.minY else { continue }
       }
-      let resolvedID = resolveAXIdentity(candidate)
+      let resolvedID = try resolveAXIdentity(candidate)
       try Task.checkCancellation()
       if resolvedID == candidate.id {
         return .init(windowID: candidate.id, direction: direction, branch: .displayCenter)

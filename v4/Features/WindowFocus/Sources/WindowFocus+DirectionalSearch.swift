@@ -41,7 +41,7 @@ public extension WindowFocus {
       mainDisplayFrame: CGRect? = nil,
       deadzoneSpacing: CGFloat? = nil,
       maxProbes: Int = 1024,
-      resolveAXIdentity: ((Window) -> CGWindowID?)? = nil,
+      resolveAXIdentity: ((Window) throws -> CGWindowID?)? = nil,
       hitAt: (CGPoint) throws -> CGWindowID?,
     ) throws -> Match? {
       try Task.checkCancellation()
@@ -51,7 +51,7 @@ public extension WindowFocus {
       guard let first = candidates.first else { return nil }
 
       if candidates.count == 1, let resolveAXIdentity {
-        let resolvedID = resolveAXIdentity(first)
+        let resolvedID = try resolveAXIdentity(first)
         try Task.checkCancellation()
         if resolvedID == first.id {
           return .init(windowID: first.id, direction: direction, branch: .twoWindowToggle)

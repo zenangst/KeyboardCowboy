@@ -13,6 +13,7 @@ private final class Fixture: AX.Transport {
   var frameSize = CGSize(width: 30, height: 10)
   var geometryReadError = false
   let app = AX.Handle()
+  let otherApp = AX.Handle()
   let first = AX.Handle()
   let second = AX.Handle()
   let nested = AX.Handle()
@@ -32,11 +33,13 @@ private final class Fixture: AX.Transport {
   var malformedRole = false
   var onRead: (() -> Void)?
   var hitPoint: CGPoint?
+  var hitIsWindow = false
+  var hitHasWindow = false
   var selectBothDirectChildren = false
   var secondHasReadableChildren = false
   var nestedHasReadableChildren = false
 
-  func application(_ pid: Int32) -> AX.Handle { app }
+  func application(_ pid: Int32) -> AX.Handle { pid == 43 ? otherApp : app }
   var focusOnApp = false
   func focusedElement() throws -> AX.Handle { focusOnApp ? app : first }
   func element(at point: CGPoint) throws -> AX.Handle {
@@ -67,6 +70,7 @@ private final class Fixture: AX.Transport {
       return .bool(handle == first || handle == nested || (selectBothDirectChildren && handle == second))
     }
     if name == "AXFocusedWindow", handle == app { return .element(second) }
+    if name == kAXWindowAttribute, handle == first, hitHasWindow { return .element(second) }
     if name == kAXMenuBarAttribute, handle == app { return .element(first) }
     if name == kAXEnabledAttribute { return .bool(handle == nested) }
     if name == "AXParent", handle == first { return .element(second) }
@@ -85,7 +89,7 @@ private final class Fixture: AX.Transport {
       if failWindows {
         throw AX.Failure(.cannotComplete, operation: name, rawAXStatus: -25204)
       }
-      return .elements([first, second])
+      return .elements(handle == otherApp ? [nested] : [first, second])
     }
 
     if name == "AXChildren" {
@@ -99,6 +103,7 @@ private final class Fixture: AX.Transport {
 
     if name == "AXRole" {
       if malformedRole { return .malformed }
+      if handle == first, hitIsWindow { return .string(kAXWindowRole) }
       return .string(handle == app ? "AXApplication" : "AXWebArea")
     }
 
@@ -373,6 +378,38 @@ private func withGeometryFixture(_ test: (Fixture, AX.Session, AX.Element) throw
   #expect(role == .webArea)
   #expect(frame == CGRect(x: -140, y: 40, width: 30, height: 10))
   #expect(frame.contains(point))
+}
+
+@Test(arguments: [false, true])
+func directionalWindowHitResolvesAWindowOrItsRelationship(direct: Bool) async throws {
+  let point = CGPoint(x: -120.5, y: 44.25)
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.hitPoint = point
+    fixture.hitIsWindow = direct
+    fixture.hitHasWindow = !direct
+    return fixture
+  })
+  try await client.withApplication(processIdentifier: 42) { session in
+    let windows = try session.windows()
+    let hit = try session.window(at: point)
+    #expect(hit == windows[direct ? 0 : 1])
+    let other = try session.windows(in: 43)
+    #expect(other.count == 1)
+    #expect(other.allSatisfy { !windows.contains($0) })
+  }
+}
+
+@Test func directionalWindowHitDoesNotGuessWhenTheRelationshipIsMissing() async throws {
+  let client = AX.Client(makeTransport: {
+    let fixture = Fixture()
+    fixture.hitPoint = .zero
+    return fixture
+  })
+  try await client.withApplication(processIdentifier: 42) { session in
+    let hit = try session.window(at: .zero)
+    #expect(hit == nil)
+  }
 }
 
 @Test func nativeDecoderValidatesGeometryWithoutRemoteCalls() throws {

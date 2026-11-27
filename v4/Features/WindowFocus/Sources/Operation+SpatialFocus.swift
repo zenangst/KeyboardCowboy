@@ -10,6 +10,7 @@ extension Operation {
     enum Selection {
       case center(CGRect, CGRect, CGFloat)
       case quarter(WindowFocus.Quarter, CGRect, CGFloat)
+      case directional(DirectionalFocus)
     }
 
     private let accessibility: AccessibilitySystem.Client
@@ -24,8 +25,7 @@ extension Operation {
 
     func reset() {
       revision.withLock { $0 &+= 1 }
-      center.reset()
-      quarter.reset()
+      resetCycles()
     }
 
     func callAsFunction(_ selection: Selection) async throws -> Bool {
@@ -39,13 +39,15 @@ extension Operation {
             revision.withLock({ $0 }) == stamp, NSWorkspace.shared.frontmostApplication == source else { return false }
 
       let inventory = Self.inventory()
-      guard inventory.contains(where: { $0.owner == source.processIdentifier && $0.window.id == focused }) else {
+      let anchors = inventory.filter { $0.window.id == focused }
+      guard anchors.count == 1, let anchor = anchors.first, anchor.owner == source.processIdentifier else {
         return false
       }
-      let windows = inventory.filter {
+      let eligible = inventory.filter {
         guard $0.owner != getpid(), let app = NSRunningApplication(processIdentifier: $0.owner) else { return false }
         return !app.isHidden && !app.isTerminated
-      }.map(\.window)
+      }
+      let windows = eligible.map(\.window)
       let id: CGWindowID?
       switch selection {
       case let .center(display, visibleFrame, spacing):
@@ -54,6 +56,13 @@ extension Operation {
       case let .quarter(region, display, spacing):
         center.reset()
         id = quarter.select(region, in: display, spacing: spacing, windows: windows, focusedWindowID: focused)
+      case let .directional(operation):
+        resetCycles()
+        let candidates = eligible.map { (id: $0.window.id, owner: $0.owner, frame: $0.window.frame) }
+        id = try await accessibility.withApplication(processIdentifier: source.processIdentifier) { [revision] session in
+          try operation(anchorID: focused, candidates: candidates, session: session,
+                        isCurrent: { revision.withLock { $0 } == stamp && NSWorkspace.shared.frontmostApplication == source })
+        }
       }
       guard let id, let candidate = inventory.first(where: { $0.window.id == id }),
             let target = NSRunningApplication(processIdentifier: candidate.owner) else { return false }
@@ -69,8 +78,10 @@ extension Operation {
               guard let current = try session.focusedWindow(),
                     try session.windowIDCandidate(for: current) == focused else { return false }
             }
-            return Self.isCurrent(candidate, in: target) && NSWorkspace.shared.frontmostApplication == source
-              && revision.withLock { $0 } == stamp
+            let fresh = Self.inventory()
+            return Self.isCurrent(candidate, in: target, inventory: fresh)
+              && Self.isCurrent(anchor, in: source, inventory: fresh)
+              && NSWorkspace.shared.frontmostApplication == source && revision.withLock { $0 } == stamp
           },
           raise: {
             try session.checkpoint()
@@ -79,12 +90,18 @@ extension Operation {
         )
       }
       try Task.checkCancellation()
-      guard raised, revision.withLock({ $0 }) == stamp, Self.isCurrent(candidate, in: target) else { return false }
+      guard raised, revision.withLock({ $0 }) == stamp,
+            Self.isCurrent(candidate, in: target, inventory: Self.inventory()) else { return false }
       if NSWorkspace.shared.frontmostApplication != target {
         guard NSWorkspace.shared.frontmostApplication == source, target.activate(from: source) else { return false }
       }
       let observed = try await focusedID(of: candidate.owner)
       return revision.withLock { $0 } == stamp && NSWorkspace.shared.frontmostApplication == target && observed == id
+    }
+
+    private func resetCycles() {
+      center.reset()
+      quarter.reset()
     }
 
     private func focusedID(of pid: pid_t) async throws -> CGWindowID? {
@@ -99,9 +116,9 @@ extension Operation {
       let owner: pid_t
     }
 
-    private nonisolated static func isCurrent(_ candidate: Entry, in app: NSRunningApplication) -> Bool {
+    private nonisolated static func isCurrent(_ candidate: Entry, in app: NSRunningApplication, inventory: [Entry]) -> Bool {
       guard !app.isHidden, !app.isTerminated else { return false }
-      let matches = inventory().filter { $0.window.id == candidate.window.id }
+      let matches = inventory.filter { $0.window.id == candidate.window.id }
       return matches.count == 1 && matches[0].owner == candidate.owner
         && matches[0].window.frame == candidate.window.frame
     }
