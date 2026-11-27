@@ -149,6 +149,14 @@ struct NextWindowSmokeFixture {
         anchor.delegate = reporter
         defer { anchor.delegate = nil }
         try await launchService(service, command: ["--smoke-spatial-focus", a, ringMode, b])
+        if ringMode == "space-switch" {
+          // AX's focused window can be readable before AppKit delivers the key event.
+          guard try await waitForFocus({ NSWorkspace.shared.frontmostApplication == peer && peerKey() == "Peer target" })
+          else {
+            let observed = (try? String(contentsOf: trace, encoding: .utf8)) ?? ""
+            return "FAIL: Peer target did not settle as key after returning; last peer key: \(peerKey() ?? "none"); trace: \(observed.debugDescription)"
+          }
+        }
         let observed = try String(contentsOf: trace, encoding: .utf8).split(separator: "\n").map(String.init)
         if ringMode == "space-switch" {
           // Returning to the original Space can deliver another key event for the anchor.
