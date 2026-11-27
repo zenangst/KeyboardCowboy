@@ -17,7 +17,7 @@ public extension WindowFocus {
     }
 
     public struct Match: Equatable, Sendable {
-      public enum Branch: Equatable, Sendable { case twoWindowToggle, directHit, constrainedHit }
+      public enum Branch: Equatable, Sendable { case twoWindowToggle, directHit, constrainedHit, displayCenter }
 
       public let windowID: CGWindowID
       public let direction: Direction
@@ -29,7 +29,8 @@ public extension WindowFocus {
     /// The primary scan uses top-left global coordinates. Supply eligible windows and
     /// visible display frames in their original order, and classify tiling on the initial
     /// probe display. The hit test must also return an exact AX window identity.
-    /// This selector does not fall back to a display center or perform focus effects.
+    /// On a scan miss, the resolver can also verify a display-center fallback target.
+    /// This selector does not perform focus effects.
     public static func select(
       from anchor: Window,
       windows: [Window],
@@ -74,14 +75,15 @@ public extension WindowFocus {
       default: break
       }
 
-      var direction = direction
+      let initialDirection = direction
+      var direction = initialDirection
       var visited = Set<Probe>()
       let deadzones = deadzones(in: mainDisplayFrame, spacing: deadzoneSpacing ?? spacing)
       for _ in 0 ..< maxProbes {
         try Task.checkCancellation()
         probe.origin = direction.advance(probe.origin, by: side)
         guard valid(probe), direction.isInRange(probe, bounds: bounds, spacing: spacing),
-              visited.insert(.init(x: probe.minX, y: probe.minY, direction: direction)).inserted else { return nil }
+              visited.insert(.init(x: probe.minX, y: probe.minY, direction: direction)).inserted else { break }
 
         let point = CGPoint(x: probe.midX, y: probe.midY)
         let inDeadzone = deadzones.contains { $0.contains(point) }
@@ -96,11 +98,13 @@ public extension WindowFocus {
           }
         }
 
-        guard let display = displays.first(where: { $0.intersects(probe) }) else { return nil }
+        guard let display = displays.first(where: { $0.intersects(probe) }) else { break }
 
         if let tiling, direction.isPastEdge(probe, of: display) { direction = tiling.reroute(direction) }
       }
-      return nil
+      guard let resolveAXIdentity else { return nil }
+      return try displayCenterFallback(from: anchor, candidates: candidates, direction: initialDirection,
+                                       displays: displays, resolveAXIdentity: resolveAXIdentity)
     }
 
     private static let side: CGFloat = 50
