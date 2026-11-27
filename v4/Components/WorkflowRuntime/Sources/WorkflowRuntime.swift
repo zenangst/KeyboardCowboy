@@ -23,11 +23,13 @@ public enum WorkflowRuntime {
       self.sleep = sleep
     }
 
-    /// Runs one ordered list; the caller owns its task. Ordinary failures continue
-    /// by default. Cancellation always throws and does not roll back dispatched effects.
+    /// Runs one ordered list; the caller owns its task. The lane only controls delays
+    /// here; use `Scheduler` for replacement. Ordinary failures continue by default.
+    /// Cancellation always throws and does not roll back dispatched effects.
     public func run(
       _ request: Request<Payload>,
       from initialContext: Context<Snapshot>,
+      lane: Lane = .serial,
     ) async throws -> Result<Snapshot> {
       try Task.checkCancellation()
       let enabled = Request(workflowID: request.workflowID, origin: request.origin,
@@ -53,7 +55,7 @@ public enum WorkflowRuntime {
         }
         try Task.checkCancellation()
         // Match serial post-command timing. Ignore nonpositive or unrepresentable delays.
-        if let delay = step.metadata.delay, delay > 0, delay < Double(Int64.max) {
+        if lane == .serial, let delay = step.metadata.delay, delay > 0, delay < Double(Int64.max) {
           try await sleep(.milliseconds(delay))
           try Task.checkCancellation()
         }
