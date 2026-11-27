@@ -216,9 +216,6 @@ focus, two top-left presses on overlapping windows (Focus Behind), and rightward
 focus from both unequal left windows to a target at the top, middle, and bottom.
 On a display with at least 1010×770 visible points, it also checks all 16 hops
 around a nine-window grid and out-and-back from its center in all four directions.
-With additional usable displays, the fixture also checks round trips in the
-directions allowed by the actual monitor layout (including above/below). It
-reports when there is no usable separate display instead of claiming coverage.
 The smoke operation only targets the fixture process and checks actual AppKit
 key-window changes. Keep at least 880×540 visible points on the starting screen
 and leave the fixture frontmost during the spoken cues.
@@ -230,11 +227,17 @@ It verifies all three crossings in both directions for the connected layout,
 using actual window positions to predict the next row or column. Rearrange
 the displays and rerun to cover a different axis.
 
+Use `v4/Scripts/smoke-next-window.sh --cross-app [app-path]` for app-to-app
+focus. Right must activate the disposable peer app and make its target
+window key instead of its previously focused decoy; Left must return to the
+original app and window. The smoke limits selection to the two fixture
+processes and requires at least 920×590 visible points.
+
 If you use yabai, add a fixture-only rule before launching the smoke test so
 yabai does not tile the test windows:
 
 ```sh
-yabai -m rule --add label=kc-smoke-fixtures app='^(Center Fixture|Next Window Fixture)$' manage=off
+yabai -m rule --add label=kc-smoke-fixtures app='^(Center Fixture|Next Window Fixture|Next Window Peer)$' manage=off
 ```
 
 This rule lasts until yabai restarts. To remove it sooner, run

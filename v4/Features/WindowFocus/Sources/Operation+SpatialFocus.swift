@@ -14,15 +14,15 @@ extension Operation {
     }
 
     private let accessibility: AccessibilitySystem.Client
-    private let processIdentifier: pid_t?
+    private let processIdentifiers: Set<pid_t>?
     private var center = WindowFocus.CenterCycle()
     private var quarter = WindowFocus.QuarterCycle()
     private var running = false
     private let revision = OSAllocatedUnfairLock(initialState: 0)
 
-    init(accessibility: AccessibilitySystem.Client, processIdentifier: pid_t? = nil) {
+    init(accessibility: AccessibilitySystem.Client, processIdentifiers: Set<pid_t>? = nil) {
       self.accessibility = accessibility
-      self.processIdentifier = processIdentifier
+      self.processIdentifiers = processIdentifiers
     }
 
     func reset() {
@@ -33,7 +33,7 @@ extension Operation {
     func callAsFunction(_ selection: Selection) async throws -> Bool {
       try Task.checkCancellation()
       guard !running, let source = NSWorkspace.shared.frontmostApplication,
-            processIdentifier == nil || processIdentifier == source.processIdentifier,
+            processIdentifiers?.contains(source.processIdentifier) ?? true,
             source.processIdentifier != getpid() else { return false }
 
       running = true
@@ -49,7 +49,7 @@ extension Operation {
       }
 
       let eligible = inventory.filter {
-        guard (processIdentifier == nil || $0.owner == processIdentifier),
+        guard processIdentifiers?.contains($0.owner) ?? true,
               $0.owner != getpid(), let app = NSRunningApplication(processIdentifier: $0.owner) else { return false }
 
         return !app.isHidden && !app.isTerminated

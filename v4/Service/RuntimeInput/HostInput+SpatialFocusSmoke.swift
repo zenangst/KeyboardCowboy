@@ -8,11 +8,21 @@ package extension HostInput {
   @MainActor
   static func smokeSpatialFocus(arguments: [String]) async {
     let log = Logger(subsystem: "com.zenangst.keyboardcowboy.v4", category: "SpatialFocusSmoke")
-    guard arguments.count == 2, let pid = pid_t(arguments[0]), pid > 0,
+    guard arguments.count == 2 || arguments.count == 3, let pid = pid_t(arguments[0]), pid > 0,
           ["center", "quarter", "left", "right", "up", "down"].contains(arguments[1]),
           let app = NSRunningApplication(processIdentifier: pid),
-          app.bundleIdentifier == "com.zenangst.kc-next-window-fixture",
           let screen = NSScreen.main, let primary = NSScreen.screens.first else { return }
+    let fixture = "com.zenangst.kc-next-window-fixture"
+    let peer = "com.zenangst.kc-next-window-peer"
+    var allowed: Set<pid_t> = [pid]
+    if arguments.count == 3 {
+      guard let otherPID = pid_t(arguments[2]), otherPID > 0, otherPID != pid,
+            let other = NSRunningApplication(processIdentifier: otherPID),
+            Set([app.bundleIdentifier, other.bundleIdentifier]) == [fixture, peer] else { return }
+      allowed.insert(otherPID)
+    } else {
+      guard app.bundleIdentifier == fixture else { return }
+    }
     guard AXIsProcessTrusted() else {
       log.notice("Accessibility trusted: false")
       return
@@ -21,7 +31,9 @@ package extension HostInput {
     func axFrame(_ frame: CGRect) -> CGRect {
       CGRect(x: frame.minX, y: primary.frame.maxY - frame.maxY, width: frame.width, height: frame.height)
     }
-    let session = WindowFocus.SpatialFocus(in: pid)
+    // The first PID is the expected anchor; a focus change must not reverse the hop.
+    guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { return }
+    let session = WindowFocus.SpatialFocus(in: allowed)
     do {
       switch arguments[1] {
       case "center":

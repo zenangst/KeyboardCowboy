@@ -5,9 +5,15 @@ import AppKit
 struct NextWindowSmokeFixture {
   static func main() {
     let arguments = CommandLine.arguments
+    if arguments.count == 6, arguments[1] == "--peer",
+       let x = Double(arguments[3]), let y = Double(arguments[4]), let owner = pid_t(arguments[5]) {
+      runPeer(state: URL(fileURLWithPath: arguments[2]), origin: .init(x: x, y: y), owner: owner)
+      return
+    }
     let spatial = arguments.count == 4 && arguments[3] == "--spatial"
     let multiDisplay = arguments.count == 4 && arguments[3] == "--multi-display"
-    guard arguments.count == 3 || spatial || multiDisplay else { exit(2) }
+    let crossApp = arguments.count == 4 && arguments[3] == "--cross-app"
+    guard arguments.count == 3 || spatial || multiDisplay || crossApp else { exit(2) }
 
     let app = NSApplication.shared
     app.setActivationPolicy(.regular)
@@ -20,7 +26,9 @@ struct NextWindowSmokeFixture {
       app.terminate(nil)
     }
     Task { @MainActor in
-      let message = if multiDisplay {
+      let message = if crossApp {
+        await checkCrossApp(app, service: service, directory: result.deletingLastPathComponent())
+      } else if multiDisplay {
         await checkDisplayEdges(app, service: service)
       } else if spatial {
         await checkSpatial(app, service: service)
@@ -31,6 +39,105 @@ struct NextWindowSmokeFixture {
       app.terminate(nil)
     }
     app.run()
+  }
+
+  private static func crossAppWindow(_ title: String, at origin: CGPoint) -> NSWindow {
+    let window = NSWindow(contentRect: CGRect(origin: origin, size: CGSize(width: 330, height: 220)),
+                          styleMask: [.titled, .closable], backing: .buffered, defer: false)
+    window.title = title
+    window.isReleasedWhenClosed = false
+    window.orderFrontRegardless()
+    return window
+  }
+
+  private final class PeerKeyReporter: NSObject, NSWindowDelegate {
+    let state: URL
+
+    init(state: URL) { self.state = state }
+
+    func windowDidBecomeKey(_ notification: Notification) {
+      guard let window = notification.object as? NSWindow else { return }
+      try? window.title.write(to: state, atomically: true, encoding: .utf8)
+    }
+  }
+
+  private static func runPeer(state: URL, origin: CGPoint, owner: pid_t) {
+    let app = NSApplication.shared
+    app.setActivationPolicy(.regular)
+    app.finishLaunching()
+    let target = crossAppWindow("Peer target", at: origin)
+    let decoy = crossAppWindow("Peer decoy", at: CGPoint(x: origin.x, y: origin.y + 270))
+    let reporter = PeerKeyReporter(state: state)
+    target.delegate = reporter
+    decoy.delegate = reporter
+    decoy.makeKeyAndOrderFront(nil)
+    app.activate()
+    Task { @MainActor in
+      for _ in 0 ..< 20 {
+        if app.isActive, decoy.isKeyWindow, let fixture = NSRunningApplication(processIdentifier: owner) {
+          // Cooperate only during setup. The two Service hops must work unaided.
+          app.yieldActivation(to: fixture)
+          try? "ready".write(to: state.appendingPathExtension("ready"), atomically: true, encoding: .utf8)
+          return
+        }
+        do {
+          try await Task.sleep(for: .milliseconds(100))
+        } catch {
+          return
+        }
+      }
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 25) { app.terminate(nil) }
+    withExtendedLifetime((target, decoy, reporter)) { app.run() }
+  }
+
+  private static func checkCrossApp(_ app: NSApplication, service: String, directory: URL) async -> String {
+    guard let screen = NSScreen.main, screen.visibleFrame.width >= 920, screen.visibleFrame.height >= 590 else {
+      return "FAIL: cross-app fixture requires a 920×590 visible display"
+    }
+    let visible = screen.visibleFrame
+    let origin = CGPoint(x: visible.minX + 45, y: visible.minY + 45)
+    let anchor = crossAppWindow("Fixture anchor", at: origin)
+    defer { anchor.close() }
+    let state = directory.appendingPathComponent("peer-key")
+    let peerURL = directory.appendingPathComponent("Next Window Peer.app")
+    let options = NSWorkspace.OpenConfiguration()
+    options.createsNewApplicationInstance = true
+    options.arguments = ["--peer", state.path, String(Double(origin.x + 470)), String(Double(origin.y)), String(getpid())]
+    func waitForFocus(_ predicate: () -> Bool) async throws -> Bool {
+      for _ in 0 ..< 20 {
+        if predicate() { return true }
+        try await Task.sleep(for: .milliseconds(100))
+      }
+      return false
+    }
+    func peerKey() -> String? { try? String(contentsOf: state, encoding: .utf8) }
+    do {
+      let peer = try await NSWorkspace.shared.openApplication(at: peerURL, configuration: options)
+      defer { _ = peer.terminate() }
+      guard try await waitForFocus({
+        NSWorkspace.shared.frontmostApplication == peer && peerKey() == "Peer decoy"
+          && FileManager.default.fileExists(atPath: state.appendingPathExtension("ready").path)
+      })
+      else { return "FAIL: peer decoy did not become key during setup" }
+
+      anchor.makeKeyAndOrderFront(nil)
+      _ = NSRunningApplication.current.activate(from: peer)
+      guard try await waitForFocus({ app.isActive && anchor.isKeyWindow }) else { throw Failure.fixtureInactive }
+      let a = String(getpid())
+      let b = String(peer.processIdentifier)
+      try await launchService(service, command: ["--smoke-spatial-focus", a, "right", b])
+      guard try await waitForFocus({ NSWorkspace.shared.frontmostApplication == peer && peerKey() == "Peer target" })
+      else { return "FAIL: Right did not focus Peer target; last peer key window: \(peerKey() ?? "none")" }
+
+      try await launchService(service, command: ["--smoke-spatial-focus", b, "left", a])
+      guard try await waitForFocus({ app.isActive && anchor.isKeyWindow }) else {
+        return "FAIL: Left did not return to Fixture anchor"
+      }
+      return "PASS: cross-app Right focused Peer target instead of the decoy; Left returned to Fixture anchor"
+    } catch {
+      return "FAIL: \(error); check Accessibility and SpatialFocusSmoke logs"
+    }
   }
 
   private static func checkDisplayEdges(_ app: NSApplication, service: String) async -> String {
@@ -198,36 +305,7 @@ struct NextWindowSmokeFixture {
         gridCoverage = "Grid: clockwise and center spokes passed (16 verified hops)"
       }
 
-      let others = NSScreen.screens.filter { $0 != screen }
-      var routes: [String] = []
-      for other in others {
-        let bounds = other.visibleFrame
-        guard bounds.width >= 360, bounds.height >= 280 else { continue }
-        for (outbound, inbound, separated) in [
-          ("left", "right", bounds.maxX <= visible.minX),
-          ("right", "left", bounds.minX >= visible.maxX),
-          ("up", "down", bounds.minY >= visible.maxY),
-          ("down", "up", bounds.maxY <= visible.minY),
-        ] where separated {
-          let sourceX = outbound == "right" ? visible.maxX - 340 : visible.minX + 10
-          let sourceY = outbound == "up" ? visible.maxY - 270 : visible.minY + 10
-          let anchor = window("Display anchor", x: sourceX, y: sourceY)
-          let decoy = window("Same-position display decoy", x: sourceX, y: sourceY)
-          let target = window("Other display target", x: bounds.maxX - 340, y: bounds.minY + 10)
-          try await prepare(anchor)
-          guard anchor.screen == screen, target.screen == other else {
-            return "FAIL: cross-display fixture windows landed on the wrong screens"
-          }
-          try await expectKeyWindow(target, service: service, pid: pid,
-                                    scenario: "cross-display \(outbound)", command: command(outbound))
-          try await expectKeyWindow(anchor, service: service, pid: pid,
-                                    scenario: "cross-display \(inbound)", command: command(inbound))
-          routes.append("\(outbound)/\(inbound)")
-          [anchor, decoy, target].forEach { $0.orderOut(nil) }
-        }
-      }
-      let coverage = routes.isEmpty ? "SKIP: no usable separate display for live handoff" : "Display routes: \(routes.joined(separator: ", "))"
-      return "PASS: center, repeated top-left, and rightward focus from both left anchors to top/middle/bottom\n\(gridCoverage)\n\(coverage)"
+      return "PASS: center, repeated top-left, and rightward focus from both left anchors to top/middle/bottom\n\(gridCoverage)"
     } catch {
       return "FAIL: \(error); check Accessibility and SpatialFocusSmoke logs"
     }
@@ -316,12 +394,19 @@ struct NextWindowSmokeFixture {
     _ window: NSWindow, service: String, pid: pid_t, scenario: String, command: [String]? = nil,
   ) async throws {
     guard NSApp.isActive else { throw Failure.fixtureInactive }
+    try await launchService(service, command: command ?? ["--smoke-next-window", String(pid)])
+    try await Task.sleep(for: .milliseconds(150))
+    guard NSApp.isActive, window.isKeyWindow else {
+      throw Failure.unexpectedFocus(scenario: scenario, expected: window.title)
+    }
+  }
 
+  private static func launchService(_ service: String, command: [String]) async throws {
     let status = try await Task.detached {
       // Wait for the one-shot launch without blocking the fixture's AX run loop.
       let process = Process()
       process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-      process.arguments = ["-g", "-n", "-W", service, "--args"] + (command ?? ["--smoke-next-window", String(pid)])
+      process.arguments = ["-g", "-n", "-W", service, "--args"] + command
       try process.run()
       process.waitUntilExit()
       return process.terminationStatus
@@ -329,9 +414,5 @@ struct NextWindowSmokeFixture {
     .value
     guard status == 0 else { throw Failure.launchFailed(status) }
 
-    try await Task.sleep(for: .milliseconds(150))
-    guard NSApp.isActive, window.isKeyWindow else {
-      throw Failure.unexpectedFocus(scenario: scenario, expected: window.title)
-    }
   }
 }

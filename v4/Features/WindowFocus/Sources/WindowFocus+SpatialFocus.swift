@@ -14,8 +14,13 @@ public extension WindowFocus {
     }
 
     /// Restricts both the anchor and targets to this process.
-    public init(in processIdentifier: pid_t, using accessibility: AccessibilitySystem.Client = .init()) {
-      operation = .init(accessibility: accessibility, processIdentifier: processIdentifier)
+    public convenience init(in processIdentifier: pid_t, using accessibility: AccessibilitySystem.Client = .init()) {
+      self.init(in: [processIdentifier], using: accessibility)
+    }
+
+    /// Restricts both the anchor and targets to the supplied processes.
+    public init(in processIdentifiers: Set<pid_t>, using accessibility: AccessibilitySystem.Client = .init()) {
+      operation = .init(accessibility: accessibility, processIdentifiers: processIdentifiers)
     }
 
     /// Returns true only if the selected window was observed focused after the attempt.
