@@ -9,10 +9,18 @@ let package = Package(
   dependencies: [
     .package(path: "../../Components/ApplicationCatalog"),
     .package(path: "../../Components/Commands"),
+    .package(path: "../../Components/UserSpace"),
+    .package(path: "../Applications"),
   ],
   targets: [
     .target(name: "WorkspacesFeature", dependencies: ["ApplicationCatalog", "Commands"], path: "Sources"),
-    .testTarget(name: "WorkspacesFeatureTests", dependencies: ["WorkspacesFeature", "ApplicationCatalog", "Commands"],
-                path: "Tests"),
+    .testTarget(
+      name: "WorkspacesFeatureTests",
+      dependencies: [
+        "WorkspacesFeature", "ApplicationCatalog", "Commands", "UserSpace",
+        .product(name: "ApplicationsFeature", package: "Applications"),
+      ],
+      path: "Tests",
+    ),
   ],
 )

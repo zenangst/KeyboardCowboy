@@ -1,6 +1,6 @@
 import ApplicationCatalog
 import Testing
-import WorkspacesFeature
+@testable import WorkspacesFeature
 
 private typealias Executor = Workspaces.Executor<Int>
 
@@ -111,4 +111,93 @@ private func catalog(_ ids: String...) -> [ApplicationCatalog.Application] {
   }
   #expect(executor.current == workspace)
   #expect(calls == (cancelled ? ["child", "reset"] : ["child"]))
+}
+
+@Test(arguments: [nil, "outside", "main"] as [String?])
+@MainActor func focusFallbackReadsFreshStateAfterTheFinalChild(menuBarOwner: String?) async throws {
+  var calls: [String] = []
+  var captures = 0
+  let executor = Executor(
+    captureSnapshot: {
+      captures += 1
+      return captures
+    },
+    runChild: { step, snapshot in
+      switch step {
+      case .application(let app):
+        calls.append("\(app.application.bundleIdentifier):\(app.action.rawValue):\(snapshot)")
+        if snapshot == 3 { #expect(app.modifiers.isEmpty) }
+      case .hideAllApps: calls.append("hide:\(snapshot)")
+      case .tiling: Issue.record("Unexpected child")
+      }
+    },
+    runTiling: { _, _ in calls.append("tile") },
+    resetFocus: { calls.append("reset") },
+    sleep: { calls.append($0 == .milliseconds(50) ? "settle" : "hide delay") },
+    readFocusState: {
+      calls.append("read focus")
+      return .init(menuBarOwner: menuBarOwner, runningBundleIdentifiers: [])
+    },
+  )
+  let workspace = Workspaces.SavedWorkspace(
+    id: "layout", applications: [.init("main"), .init("optional", onlyWhenRunning: true)], tiling: .fill,
+    hideOtherApps: true,
+  )
+  let input = Workspaces.ActivationInput(catalog: catalog("main", "optional"))
+  _ = try await executor.activate(workspace, input: input, parentSnapshot: 0)
+  let fallback = menuBarOwner == "outside" ? ["main:open:3"] : []
+  #expect(calls == ["main:open:1", "tile", "hide:2", "settle", "read focus"] + fallback + ["hide delay", "reset"])
+}
+
+@Test @MainActor func terminalTilingSkipsFocusFallback() async throws {
+  let executor = Executor(
+    captureSnapshot: { 0 },
+    runChild: { _, _ in },
+    runTiling: { _, _ in },
+    sleep: { _ in Issue.record("No fallback delay after direct tiling") },
+    readFocusState: {
+      Issue.record("No fallback read after direct tiling")
+      return .init(menuBarOwner: "outside", runningBundleIdentifiers: [])
+    },
+  )
+  _ = try await executor.activate(.init(id: "layout", tiling: .fill),
+                                  input: .init(catalog: catalog("app"), membership: membershipForLayout()), parentSnapshot: 0)
+}
+
+private func membershipForLayout() -> Workspaces.Membership {
+  var membership = Workspaces.Membership()
+  membership.assign("app", to: "layout", stageManagerEnabled: false)
+  return membership
+}
+
+@Test @MainActor func newerActivationCancelsDeferredIndexEvenIfSleepIgnoresCancellation() async throws {
+  let (starts, signal) = AsyncStream<CheckedContinuation<Void, Never>>.makeStream()
+  var waits = starts.makeAsyncIterator()
+  var calls: [String] = []
+  let executor = Executor(
+    captureSnapshot: { 0 },
+    runChild: { _, _ in },
+    runTiling: { _, _ in },
+    resetFocus: { calls.append("reset") },
+    sleep: { duration in
+      #expect(duration == .milliseconds(375))
+      await withCheckedContinuation { signal.yield($0) }
+    },
+    indexTiling: { calls.append("index") },
+  )
+
+  let input = Workspaces.ActivationInput(catalog: [])
+  _ = try await executor.activate(.init(id: "first"), input: input, parentSnapshot: 0)
+  let first = try #require(executor.pendingIndex)
+  let firstWait = await waits.next()
+  _ = try await executor.activate(.init(id: "second"), input: input, parentSnapshot: 0)
+  firstWait?.resume()
+  await first.value
+  #expect(first.isCancelled)
+  #expect(calls == ["reset", "reset"])
+  let second = try #require(executor.pendingIndex)
+  let secondWait = await waits.next()
+  secondWait?.resume()
+  await second.value
+  #expect(calls == ["reset", "reset", "index"])
 }
