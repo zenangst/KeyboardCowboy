@@ -9,7 +9,7 @@ package extension HostInput {
   static func smokeSpatialFocus(arguments: [String]) async {
     let log = Logger(subsystem: "com.zenangst.keyboardcowboy.v4", category: "SpatialFocusSmoke")
     guard arguments.count == 2 || arguments.count == 3, let pid = pid_t(arguments[0]), pid > 0,
-          ["center", "quarter", "left", "right", "up", "down"].contains(arguments[1]),
+          ["center", "quarter", "left", "right", "up", "down", "space-ring"].contains(arguments[1]),
           let app = NSRunningApplication(processIdentifier: pid),
           let screen = NSScreen.main, let primary = NSScreen.screens.first else { return }
     let fixture = "com.zenangst.kc-next-window-fixture"
@@ -21,7 +21,7 @@ package extension HostInput {
             Set([app.bundleIdentifier, other.bundleIdentifier]) == [fixture, peer] else { return }
       allowed.insert(otherPID)
     } else {
-      guard app.bundleIdentifier == fixture else { return }
+      guard app.bundleIdentifier == fixture, arguments[1] != "space-ring" else { return }
     }
     guard AXIsProcessTrusted() else {
       log.notice("Accessibility trusted: false")
@@ -43,6 +43,14 @@ package extension HostInput {
         for _ in 0 ..< 2 {
           let focused = try await session.quarter(.topLeft, in: axFrame(screen.frame))
           log.notice("Quarter focus observed: \(focused, privacy: .public)")
+          guard focused else { return }
+          try await Task.sleep(for: .milliseconds(150))
+        }
+      case "space-ring":
+        let directions: [WindowFocus.SpaceRing.Direction] = [.next, .next, .next, .previous, .previous]
+        for (index, direction) in directions.enumerated() {
+          let focused = try await session.cycleInCurrentSpace(direction)
+          log.notice("Current-Space ring hop \(index + 1, privacy: .public) observed: \(focused, privacy: .public)")
           guard focused else { return }
           try await Task.sleep(for: .milliseconds(150))
         }

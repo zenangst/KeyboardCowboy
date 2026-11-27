@@ -13,7 +13,8 @@ struct NextWindowSmokeFixture {
     let spatial = arguments.count == 4 && arguments[3] == "--spatial"
     let multiDisplay = arguments.count == 4 && arguments[3] == "--multi-display"
     let crossApp = arguments.count == 4 && arguments[3] == "--cross-app"
-    guard arguments.count == 3 || spatial || multiDisplay || crossApp else { exit(2) }
+    let spaceRing = arguments.count == 4 && arguments[3] == "--space-ring"
+    guard arguments.count == 3 || spatial || multiDisplay || crossApp || spaceRing else { exit(2) }
 
     let app = NSApplication.shared
     app.setActivationPolicy(.regular)
@@ -26,8 +27,8 @@ struct NextWindowSmokeFixture {
       app.terminate(nil)
     }
     Task { @MainActor in
-      let message = if crossApp {
-        await checkCrossApp(app, service: service, directory: result.deletingLastPathComponent())
+      let message = if crossApp || spaceRing {
+        await checkCrossApp(app, service: service, directory: result.deletingLastPathComponent(), spaceRing: spaceRing)
       } else if multiDisplay {
         await checkDisplayEdges(app, service: service)
       } else if spatial {
@@ -43,7 +44,7 @@ struct NextWindowSmokeFixture {
 
   private static func crossAppWindow(_ title: String, at origin: CGPoint) -> NSWindow {
     let window = NSWindow(contentRect: CGRect(origin: origin, size: CGSize(width: 330, height: 220)),
-                          styleMask: [.titled, .closable], backing: .buffered, defer: false)
+                          styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
     window.title = title
     window.isReleasedWhenClosed = false
     window.orderFrontRegardless()
@@ -52,12 +53,18 @@ struct NextWindowSmokeFixture {
 
   private final class PeerKeyReporter: NSObject, NSWindowDelegate {
     let state: URL
+    let trace: URL
 
-    init(state: URL) { self.state = state }
+    init(state: URL, trace: URL? = nil) {
+      self.state = state
+      self.trace = trace ?? state.appendingPathExtension("trace")
+    }
 
     func windowDidBecomeKey(_ notification: Notification) {
       guard let window = notification.object as? NSWindow else { return }
       try? window.title.write(to: state, atomically: true, encoding: .utf8)
+      let previous = (try? String(contentsOf: trace, encoding: .utf8)) ?? ""
+      try? (previous + window.title + "\n").write(to: trace, atomically: true, encoding: .utf8)
     }
   }
 
@@ -91,7 +98,7 @@ struct NextWindowSmokeFixture {
     withExtendedLifetime((target, decoy, reporter)) { app.run() }
   }
 
-  private static func checkCrossApp(_ app: NSApplication, service: String, directory: URL) async -> String {
+  private static func checkCrossApp(_ app: NSApplication, service: String, directory: URL, spaceRing: Bool) async -> String {
     guard let screen = NSScreen.main, screen.visibleFrame.width >= 920, screen.visibleFrame.height >= 590 else {
       return "FAIL: cross-app fixture requires a 920×590 visible display"
     }
@@ -126,6 +133,27 @@ struct NextWindowSmokeFixture {
       guard try await waitForFocus({ app.isActive && anchor.isKeyWindow }) else { throw Failure.fixtureInactive }
       let a = String(getpid())
       let b = String(peer.processIdentifier)
+      if spaceRing {
+        let minimized = crossAppWindow("Minimized decoy", at: CGPoint(x: origin.x, y: origin.y + 270))
+        defer { minimized.close() }
+        minimized.miniaturize(nil)
+        guard try await waitForFocus({ minimized.isMiniaturized && app.isActive && anchor.isKeyWindow })
+        else { return "FAIL: could not prepare a minimized decoy without changing anchor" }
+
+        let trace = state.appendingPathExtension("trace")
+        try "".write(to: trace, atomically: true, encoding: .utf8)
+        let anchorState = directory.appendingPathComponent("anchor-key")
+        let reporter = PeerKeyReporter(state: anchorState, trace: trace)
+        anchor.delegate = reporter
+        defer { anchor.delegate = nil }
+        try await launchService(service, command: ["--smoke-spatial-focus", a, "space-ring", b])
+        let observed = try String(contentsOf: trace, encoding: .utf8).split(separator: "\n").map(String.init)
+        guard observed == ["Peer decoy", "Peer target", "Fixture anchor", "Peer target", "Fixture anchor"],
+              app.isActive, anchor.isKeyWindow, minimized.isMiniaturized else {
+          return "FAIL: unexpected ring trace: \(observed); decoy still minimized: \(minimized.isMiniaturized)"
+        }
+        return "PASS: current-Space ring verified five key-window hops across apps, including Next wrap, Previous history, and minimized-window exclusion"
+      }
       try await launchService(service, command: ["--smoke-spatial-focus", a, "right", b])
       guard try await waitForFocus({ NSWorkspace.shared.frontmostApplication == peer && peerKey() == "Peer target" })
       else { return "FAIL: Right did not focus Peer target; last peer key window: \(peerKey() ?? "none")" }

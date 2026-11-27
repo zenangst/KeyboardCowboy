@@ -233,6 +233,12 @@ window key instead of its previously focused decoy; Left must return to the
 original app and window. The smoke limits selection to the two fixture
 processes and requires at least 920×590 visible points.
 
+Use `v4/Scripts/smoke-next-window.sh --space-ring [app-path]` to verify
+current-Space Next wraparound and Previous history across the same disposable
+apps. A single session performs five moves; the fixture verifies the exact
+key-window sequence and that a minimized decoy stays minimized. This mode
+does not switch Spaces.
+
 If you use yabai, add a fixture-only rule before launching the smoke test so
 yabai does not tile the test windows:
 
