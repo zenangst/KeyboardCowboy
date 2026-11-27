@@ -27,9 +27,11 @@ extension Operation {
       let targets = owners.compactMap { owner -> (pid: Int32, bundleID: String)? in
         guard let app = apps.first(where: { $0.name == owner }), let id = app.bundleID,
               seen.insert(id).inserted else { return nil }
+
         return (app.pid, id)
       }
       guard !targets.isEmpty else { return }
+
       let catalog = await catalogBundleIDs()
       try Task.checkCancellation()
       for target in targets where catalog.contains(target.bundleID) {
@@ -51,6 +53,7 @@ extension Operation {
         pressMinimizeAll: { pid in
           try await accessibility.withApplication(processIdentifier: pid) { session in
             guard let menuBar = try session.menuBar() else { return }
+
             let item = try session.firstElement(
               under: menuBar, includingRoot: false, missingChildren: .skipNoValueOrUnsupported,
             ) { element in
@@ -78,6 +81,7 @@ extension Operation {
               let bounds = row[kCGWindowBounds as String] as? [String: Any],
               let frame = CGRect(dictionaryRepresentation: bounds as CFDictionary),
               frame.width > 100, frame.height > 100 else { return nil }
+
         return (owner, frame.minY)
       }
       return windows.sorted { $0.y < $1.y }.map(\.owner)

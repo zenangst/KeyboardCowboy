@@ -24,7 +24,7 @@ private final class AppEvents {
 
 private let app = "com.example.app"
 private let rule = ApplicationTriggers.Rule(workflowID: "workflow", bundleIdentifier: app,
-                                           contexts: Set(ApplicationTriggers.Context.allCases))
+                                            contexts: Set(ApplicationTriggers.Context.allCases))
 
 @Test @MainActor func subscribesOnlyWhenAnEnabledContextExistsAndSeedsWithoutMatching() {
   let events = AppEvents()
@@ -54,7 +54,7 @@ private let rule = ApplicationTriggers.Rule(workflowID: "workflow", bundleIdenti
   let events = AppEvents()
   var workflowIDs: [String] = []
   let gatedRule = ApplicationTriggers.Rule(workflowID: "gated", bundleIdentifier: app,
-                                          contexts: [.launched], requiredModeIDs: ["mode"])
+                                           contexts: [.launched], requiredModeIDs: ["mode"])
   let installation = ApplicationTriggers.install(rules: [gatedRule], source: events.source,
                                                  enabledModeIDs: { events.enabledModes }) { workflowIDs += $0.map(\.workflowID) }
   events.handlers.last?(.runningApplications([app]))

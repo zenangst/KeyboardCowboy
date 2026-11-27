@@ -14,6 +14,7 @@ import Testing
   let session = HostInput.KeyboardLayoutSession(center: center) {
     loads += 1
     guard let next else { throw KeyCodeSystem.LookupError.layoutUnavailable }
+
     return next
   }
 

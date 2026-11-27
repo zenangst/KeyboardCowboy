@@ -39,6 +39,7 @@ func liveFillAllWindows() async throws {
             row[kCGWindowOwnerPID as String] as? pid_t == app.processIdentifier, allowedIDs.contains(id),
             let bounds = row[kCGWindowBounds as String] as? [String: Any],
             let frame = CGRect(dictionaryRepresentation: bounds as CFDictionary) else { return nil }
+
       return (id, frame)
     })
   }

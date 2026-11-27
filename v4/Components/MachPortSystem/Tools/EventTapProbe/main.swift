@@ -72,6 +72,7 @@ private func monitorRevocation() throws -> Int32 {
     say("Inconclusive. No physical key pair arrived before changing permission.")
     return 2
   }
+
   driveRunLoop(seconds: 3)
   say("Turn off only Cowboy Event Tap Probe under Input Monitoring. If asked to quit, choose Later. Do not change Accessibility.")
   driveRunLoop(seconds: 35) { !CGPreflightListenEventAccess() }
@@ -140,11 +141,13 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
       say("Inconclusive. The primary tap did not report a timeout, or the witness tap was disrupted.")
       return 2
     }
+
     driveRunLoop(seconds: 2)
     guard tap.isRunning, !tap.isEnabled else {
       say("The probe failed. The primary tap did not stay installed and disabled.")
       return 1
     }
+
     let disabledBaseline = routedPhysical
     witnessedPhysical = Events()
     say("Timeout confirmed. While the tap is disabled, tap and release A once more.")
@@ -153,6 +156,7 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
       say("Inconclusive. The witness did not see the physical key pair.")
       return 2
     }
+
     let disabledQuiet = routedPhysical == disabledBaseline && !tap.isEnabled
 
     try tap.reload()
@@ -160,6 +164,7 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
       say("The probe failed. Reload did not enable the tap.")
       return 1
     }
+
     routedPhysical = Events()
     witnessedPhysical = Events()
     driveRunLoop(seconds: 2)
@@ -170,6 +175,7 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
       say("Inconclusive. The witness did not confirm exactly one physical key pair after reload.")
       return 2
     }
+
     let recovered = routedPhysical.hasExactlyOneKeyPair && disruptions == [.timeout]
     tap.stop()
     let stoppedBaseline = routedPhysical
@@ -181,6 +187,7 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
       say("Inconclusive. The witness did not see the final physical key pair.")
       return 2
     }
+
     let stoppedQuiet = routedPhysical == stoppedBaseline
     let passed = disabledQuiet && recovered && stoppedQuiet
     print("Timeout: true; disabled silence: \(disabledQuiet); reload delivery: \(recovered); stopped silence: \(stoppedQuiet)")
@@ -195,6 +202,7 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
     say("Inconclusive. The primary tap did not observe both physical pairs, or a tap was disrupted.")
     return 2
   }
+
   driveRunLoop(seconds: 1)
 
   let modifiers: CGEventFlags = [.maskCommand, .maskControl, .maskAlternate, .maskShift, .maskSecondaryFn]
@@ -203,6 +211,7 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
     say("Inconclusive. TextEdit must be frontmost and all modifiers must be released before posting.")
     return 2
   }
+
   let poster = try tap.makeKeyboardEventPoster()
   let beforePosting = routedPhysical
   try poster.post(keyCode: 0, action: .down)
@@ -212,6 +221,7 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
     say("Inconclusive. The downstream tap did not confirm delivery of both tagged events.")
     return 2
   }
+
   let bypassed = routedTagged == Events() && routedPhysical == beforePosting
   tap.stop()
   let beforeStoppedPhase = routedPhysical
@@ -224,6 +234,7 @@ private func run(pid: Int32, timeout: Bool) throws -> Int32 {
     say("Inconclusive. The downstream tap did not see the final physical key pair.")
     return 2
   }
+
   let stopped = routedPhysical == beforeStoppedPhase
   FileHandle.standardError.write(Data("Physical delivery: true; tagged bypass: \(bypassed); stopped silence: \(stopped)\n".utf8))
   say(bypassed && stopped ? "The Mach port probe passed." : "The Mach port probe did not pass.")
@@ -237,6 +248,7 @@ if arguments == ["--revoke-posting"] {
     say("Use the dedicated probe app with Input Monitoring off and Accessibility on.")
     exit(2)
   }
+
   say("Probe ready. Turn off Accessibility for Cowboy Event Tap Probe only. Leave Input Monitoring off.")
   driveRunLoop(seconds: 45) { !CGPreflightPostEventAccess() }
   let listening = CGPreflightListenEventAccess()
@@ -245,6 +257,7 @@ if arguments == ["--revoke-posting"] {
   say("Running process check complete. Leave both permissions off for the fresh launch check.")
   exit(listening ? 2 : 0)
 }
+
 if arguments == ["--permissions"] {
   let listening = CGPreflightListenEventAccess()
   let posting = CGPreflightPostEventAccess()
@@ -261,10 +274,12 @@ guard arguments.count == 1 || timeout || revocation,
   FileHandle.standardError.write(Data("Usage: EventTapProbe --permissions | --revoke-posting | TEXTEDIT_PID [--timeout|--revoke-input-monitoring]\n".utf8))
   exit(2)
 }
+
 guard CGPreflightListenEventAccess(), CGPreflightPostEventAccess() else {
   say("The active tap probe needs Input Monitoring and Accessibility permissions. No tap was started.")
   exit(2)
 }
+
 do {
   exit(try revocation ? monitorRevocation() : run(pid: pid, timeout: timeout))
 } catch {

@@ -40,10 +40,12 @@ public extension ApplicationTriggers {
       self.rules = rules.filter { $0.isGroupEnabled && $0.isWorkflowEnabled && !$0.contexts.isEmpty }
       guard !self.rules.isEmpty else { stop(); return }
       guard baseline == nil else { return }
+
       baseline = source.snapshot()
       let generation = self.generation
       let observation = source.observe { [weak self] change in
         guard let self, self.generation == generation else { return }
+
         self.receive(change)
       }
       if self.generation == generation {
@@ -65,6 +67,7 @@ public extension ApplicationTriggers {
 
     private func receive(_ change: Change) {
       guard var baseline else { return }
+
       let transition: Transition
       switch change {
       case .runningApplications(let current):

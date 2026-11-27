@@ -24,6 +24,7 @@ extension Operation {
     func callAsFunction() async throws {
       try Task.checkCancellation()
       guard let display = display() else { return }
+
       let targets = windows().reversed().filter { $0.bounds.intersects(display.visibleBounds) }
       let filled = display.visibleBounds.insetBy(dx: display.spacing, dy: display.spacing)
       for (index, window) in targets.enumerated() {
@@ -37,16 +38,16 @@ extension Operation {
       let accessibility = AccessibilitySystem.Client()
       return Self(display: {
         guard let screen = NSScreen.main, let primary = NSScreen.screens.first else { return nil }
+
         let frame = screen.visibleFrame
         let bounds = CGRect(x: frame.minX, y: primary.frame.maxY - frame.maxY,
                             width: frame.width, height: frame.height)
         let settings = UserDefaults(suiteName: "com.apple.WindowManager")
-        let spacing: CGFloat
-        if settings?.bool(forKey: "EnableTiledWindowMargins") == true {
-          spacing = max(0, (settings?.object(forKey: "TiledWindowSpacing") as? NSNumber)
+        let spacing: CGFloat = if settings?.bool(forKey: "EnableTiledWindowMargins") == true {
+          max(0, (settings?.object(forKey: "TiledWindowSpacing") as? NSNumber)
             .map { CGFloat($0.doubleValue) } ?? 8)
         } else {
-          spacing = 0
+          0
         }
         return Display(visibleBounds: bounds, spacing: spacing)
       }, windows: visibleWindows, fill: { window, skipFrame in
@@ -65,6 +66,7 @@ extension Operation {
           guard let target, !app.isTerminated,
                 visibleWindows().contains(where: { $0.id == window.id && $0.pid == window.pid })
           else { return false }
+
           if let skipFrame, (try? session.frame(of: target)) == skipFrame { return false }
 
           try session.checkpoint()
@@ -73,8 +75,10 @@ extension Operation {
         }
         try Task.checkCancellation()
         guard prepared, !app.isTerminated else { return }
+
         if NSWorkspace.shared.frontmostApplication?.isEqual(app) != true {
           guard app.activate(options: []) else { return }
+
           for _ in 0 ..< 10 {
             if NSWorkspace.shared.frontmostApplication?.isEqual(app) == true { break }
             try await Task.sleep(for: .milliseconds(10))
@@ -84,7 +88,7 @@ extension Operation {
       })
     }
 
-    nonisolated private static func visibleWindows() -> [Window] {
+    private nonisolated static func visibleWindows() -> [Window] {
       let rows = CGWindowListCopyWindowInfo([.excludeDesktopElements, .optionOnScreenOnly], kCGNullWindowID)
         as? [[String: Any]] ?? []
       let excluded = ["borders", "WindowManager", "Window Server"]

@@ -136,6 +136,7 @@ public extension KeyboardTriggers {
     private mutating func resolve(_ signature: Signature, app: String?, modes: [String]) -> (decision: Decision, rule: Rule?) {
       let exact = matcher.matchSequence(prefix, frontmostBundleIdentifier: app, enabledModeIDs: modes)
       guard exact.decision.match == .noMatch, useLegacyFunctionKeyFallback else { return exact }
+
       let index = prefix.count - 1
       for candidate in signature.functionKeyFallbacks {
         prefix[index] = candidate
@@ -157,6 +158,7 @@ public extension KeyboardTriggers {
         return nil
       }
       guard time >= pendingHold.deadline else { return nil }
+
       cancelHold()
       return pendingHold.workflowID
     }
@@ -174,6 +176,7 @@ public extension KeyboardTriggers {
     ) -> Decision {
       let disposition: Decision.Disposition = suppressedKeyCodes.contains(signature.keyCode) ? .suppress : .passThrough
       guard let repeating else { return Decision(match: .noMatch, disposition: disposition) }
+
       if repeating.app != frontmostBundleIdentifier || repeating.modes != enabledModeIDs
         || (repeating.signature.keyCode == signature.keyCode && repeating.signature != signature) {
         self.repeating = nil
@@ -207,6 +210,7 @@ public extension KeyboardTriggers {
         return nil
       }
       guard time >= deadline else { return nil }
+
       clearPrefix()
       return leader.signature
     }
@@ -228,12 +232,12 @@ public extension KeyboardTriggers {
       guard let pendingRelease, pendingRelease.keyCode == keyCode else {
         return Decision(match: .noMatch, disposition: disposition, leaderReplayDeadline: replayDeadline)
       }
+
       self.pendingRelease = nil
-      let match: SequenceMatch
-      if let time, time >= pendingRelease.startedAt, time - pendingRelease.startedAt > pendingRelease.minimumHold {
-        match = .exact(pendingRelease.workflowID)
+      let match: SequenceMatch = if let time, time >= pendingRelease.startedAt, time - pendingRelease.startedAt > pendingRelease.minimumHold {
+        .exact(pendingRelease.workflowID)
       } else {
-        match = .noMatch
+        .noMatch
       }
       return Decision(match: match, disposition: disposition, leaderReplayDeadline: replayDeadline)
     }
@@ -259,11 +263,13 @@ public extension KeyboardTriggers {
 
     private func leaderExpired(at time: Duration) -> Bool {
       guard let releasedAt = leader?.releasedAt else { return false }
+
       return time < releasedAt || time - releasedAt >= Self.leaderGrace
     }
 
     private var leaderReplayDeadline: Duration? {
       guard let leader, !leader.used, let releasedAt = leader.releasedAt, let lastInput else { return nil }
+
       return max(releasedAt, min(releasedAt + Self.leaderGrace, lastInput + timeout))
     }
   }

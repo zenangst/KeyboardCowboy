@@ -40,15 +40,16 @@ private func notificationExecutor(
     Issue.record("Expected regular inline AppleScript")
     return
   }
+
   #expect(source == """
-    tell application "System Events"
-      if exists action "AXToggleUI" of application process "NotificationCenter" then
-        perform action "AXToggleUI" of application process "NotificationCenter"
-      else
-        click menu bar item 2 of menu bar 1 of application process "ControlCenter"
-      end if
-    end tell
-    """)
+  tell application "System Events"
+    if exists action "AXToggleUI" of application process "NotificationCenter" then
+      perform action "AXToggleUI" of application process "NotificationCenter"
+    else
+      click menu bar item 2 of menu bar 1 of application process "ControlCenter"
+    end if
+  end tell
+  """)
 }
 
 private enum ScriptFailure: Error {

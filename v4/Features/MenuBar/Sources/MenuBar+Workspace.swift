@@ -13,7 +13,8 @@ extension MenuBar {
         frontmost: { NSWorkspace.shared.frontmostApplication?.processIdentifier },
         firstRunning: { identifier in
           NSRunningApplication.runningApplications(withBundleIdentifier: identifier)
-            .first(where: { !$0.isTerminated })?.processIdentifier
+            .first(where: { !$0.isTerminated })?
+            .processIdentifier
         },
         launch: { url in
           let configuration = NSWorkspace.OpenConfiguration()

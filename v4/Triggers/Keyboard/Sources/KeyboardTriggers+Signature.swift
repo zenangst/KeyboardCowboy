@@ -13,6 +13,7 @@ public extension KeyboardTriggers {
     /// Accepts value fields from input transport without altering the observed flags.
     public init?(eventKeyCode: Int64, flags: UInt64) {
       guard let code = UInt16(exactly: eventKeyCode) else { return nil }
+
       self.init(keyCode: code, flags: flags)
     }
   }

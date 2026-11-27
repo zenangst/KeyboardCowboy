@@ -56,6 +56,7 @@ extension Operation {
               app.isRegular, !app.isHidden(),
               let url = app.bundleURL, url.pathExtension == "app", !url.path.contains("Frameworks/")
         else { return false }
+
         return app.bundleID.map { $0 != targetID && !protectedIDs.contains($0) } ?? true
       }
 
@@ -73,6 +74,7 @@ extension Operation {
       // app need not have any windows, and unrelated windows may remain visible.
       let attempted = Set(candidates.map(\.pid))
       guard !attempted.isEmpty else { return }
+
       for _ in 0 ..< 100 {
         try Task.checkCancellation()
         if visiblePIDs(in: frame, windows: windows()).isDisjoint(with: attempted) { return }
@@ -82,16 +84,19 @@ extension Operation {
 
     private func visiblePIDs(in frame: CGRect, windows: [Window]) -> Set<Int32> {
       let excluded = ["borders", "WindowManager", "Window Server"]
-      return Set(windows.lazy.filter {
-        $0.id > 0 && !excluded.contains($0.owner) && $0.frame.width > 300 && $0.frame.height > 200
-          && $0.alpha == 1 && $0.frame.intersects(frame)
-      }.map(\.pid))
+      return Set(windows.lazy
+        .filter {
+          $0.id > 0 && !excluded.contains($0.owner) && $0.frame.width > 300 && $0.frame.height > 200
+            && $0.alpha == 1 && $0.frame.intersects(frame)
+        }
+        .map(\.pid))
     }
 
     static func live() -> Self {
       Self(
         screens: {
           guard let main = NSScreen.main, let primary = NSScreen.screens.first else { return [] }
+
           return ([main] + NSScreen.screens.filter { $0 != main }).map { screen in
             let frame = screen.visibleFrame
             return CGRect(x: frame.minX, y: primary.frame.maxY - frame.maxY,
@@ -114,6 +119,7 @@ extension Operation {
                   let bounds = row[kCGWindowBounds as String] as? [String: Any],
                   let frame = CGRect(dictionaryRepresentation: bounds as CFDictionary),
                   let alpha = row[kCGWindowAlpha as String] as? Double else { return nil }
+
             return Window(id: id, pid: pid, owner: row[kCGWindowOwnerName as String] as? String ?? "",
                           frame: frame, alpha: alpha)
           }

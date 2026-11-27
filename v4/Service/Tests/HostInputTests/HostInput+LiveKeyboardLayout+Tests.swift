@@ -140,5 +140,6 @@ func currentSourceID() -> String? {
 
 private func sourceID(_ source: TISInputSource) -> String? {
   guard let value = TISGetInputSourceProperty(source, kTISPropertyInputSourceID) else { return nil }
+
   return Unmanaged<CFString>.fromOpaque(value).takeUnretainedValue() as String
 }

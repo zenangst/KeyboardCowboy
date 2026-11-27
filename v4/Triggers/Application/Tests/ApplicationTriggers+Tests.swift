@@ -73,7 +73,8 @@ private let currentApp = "com.example.current"
   #expect(Triggers.match(.runningApplications(previous: [currentApp, currentApp], current: []), rules: rules)
     .map(\.workflowID) == ["close"])
   #expect(Triggers.match(.runningApplications(previous: [previousApp, currentApp], current: [currentApp, previousApp]),
-                         rules: rules).isEmpty)
+                         rules: rules)
+      .isEmpty)
 }
 
 @Test func simultaneousChangesPreserveRemovalThenInsertionOrder() {

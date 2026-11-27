@@ -48,6 +48,7 @@ public enum MenuBar {
           guard let failure = error as? AccessibilitySystem.Failure, failure.kind == .cannotComplete else {
             return error
           }
+
           return StartupReadFailure(underlying: failure)
         },
       )

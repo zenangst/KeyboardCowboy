@@ -1,8 +1,8 @@
 import Carbon
 import Foundation
 @testable import HostInput
-import KeyCodeSystem
 import KeyboardFeature
+import KeyCodeSystem
 import Testing
 
 @MainActor
@@ -15,6 +15,7 @@ import Testing
   let layouts = HostInput.KeyboardLayoutSession(center: center) {
     loads += 1
     guard let next else { throw KeyCodeSystem.LookupError.layoutUnavailable }
+
     return next
   }
   let shortcuts = [Keyboard.Shortcut(key: "a")]

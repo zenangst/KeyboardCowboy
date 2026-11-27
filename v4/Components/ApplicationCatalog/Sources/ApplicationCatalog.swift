@@ -45,6 +45,7 @@ public enum ApplicationCatalog {
           continue
         }
         guard isApp else { continue }
+
         if !isXcodePath {
           entries.skipDescendants()
         }
@@ -53,6 +54,7 @@ public enum ApplicationCatalog {
         guard visitedApps.insert(absoluteURL.path).inserted,
               let application = parse(absoluteURL, files: files)
         else { continue }
+
         apps.append((application.displayName.lowercased(), application))
       }
     }

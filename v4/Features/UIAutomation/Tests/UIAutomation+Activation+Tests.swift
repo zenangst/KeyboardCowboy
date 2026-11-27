@@ -30,8 +30,8 @@ import Testing
   var restored: [CGPoint] = []
   await #expect(throws: CancellationError.self) {
     try await UIAutomation.clickAndRestore(at: .zero, original: original, click: { _ in },
-                                        restore: { restored.append($0) },
-                                        wait: { throw CancellationError() })
+                                           restore: { restored.append($0) },
+                                           wait: { throw CancellationError() })
   }
   #expect(restored == [original])
 }

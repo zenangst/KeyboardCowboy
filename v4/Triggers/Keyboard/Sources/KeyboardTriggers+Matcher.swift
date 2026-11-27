@@ -24,6 +24,7 @@ public extension KeyboardTriggers {
       _ signatures: [Signature], frontmostBundleIdentifier: String?, enabledModeIDs: [String],
     ) -> (decision: Decision, rule: Rule?) {
       guard let first = signatures.first, let rules = rulesBySignature[first] else { return (.noMatch, nil) }
+
       let suffix = signatures.dropFirst()
       func usesWildcard(_ rule: Rule) -> Bool {
         rule.endsWithAnyKey && suffix.count == rule.continuation.count + 1
@@ -38,6 +39,7 @@ public extension KeyboardTriggers {
                                      usesWildcard($0) ? $0.continuation.elementsEqual(suffix.dropLast())
                                        : $0.continuation.starts(with: suffix)
                                    }) else { return (.noMatch, nil) }
+
       let decision = Decision(match: isPartial(rule) ? .partial : .exact(rule.workflowID),
                               disposition: rule.passthrough ? .passThrough : .suppress)
       return (decision, rule)
@@ -51,6 +53,7 @@ public extension KeyboardTriggers {
     ) -> Rule? {
       func shouldReplace(_ current: Rule?, with candidate: Rule) -> Bool {
         guard let current else { return true }
+
         if isFallback(current) != isFallback(candidate) { return !isFallback(candidate) }
         // v3's cache keeps an existing leader partial against later partials,
         // but a later exact binding can still replace it.
@@ -62,8 +65,10 @@ public extension KeyboardTriggers {
         var scoped: Rule?
         for rule in rules {
           guard modeID.map(rule.modeIDs.contains) ?? rule.modeIDs.isEmpty, accepting(rule) else { continue }
+
           if let app = frontmostBundleIdentifier {
             guard !rule.disallowedBundleIdentifiers.contains(app) else { continue }
+
             if rule.allowedBundleIdentifiers.contains(app) {
               if shouldReplace(scoped, with: rule) { scoped = rule }
               continue

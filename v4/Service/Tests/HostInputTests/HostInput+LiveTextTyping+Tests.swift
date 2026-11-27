@@ -92,6 +92,7 @@ func liveTextEditTyping() async throws {
     var settled = false
     while clock.now < deadline {
       guard currentSourceID() == sourceID else { throw SmokeFailure.inputSourceChanged }
+
       if try await documentMatches(expected) {
         let now = clock.now
         let start = matchingSince ?? now

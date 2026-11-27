@@ -3,6 +3,7 @@ import CoreGraphics
 extension KeyboardTriggers.Signature {
   var functionKeyFallbacks: [Self] {
     guard KeyboardTriggers.Compiler.functionKeys.contains(Int(keyCode)) else { return [] }
+
     let toggled = flags ^ CGEventFlags.maskSecondaryFn.rawValue
     let known = flags & Self.knownFlags
     return known == flags || known == toggled

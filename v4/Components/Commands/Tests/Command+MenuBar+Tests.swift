@@ -36,7 +36,7 @@ private struct MenuBarEnvelope: Codable {
   #expect(command.application?.displayName == "My Editor")
   #expect(command.application?.path == "/Applications/My Editor.app")
   #expect(command.meta == .init(delay: 1.25, id: "menu-id", name: "Fill window",
-                               isEnabled: false, notification: .capsule, variableName: "output"))
+                                isEnabled: false, notification: .capsule, variableName: "output"))
 
   let copy = command.copy()
   #expect(copy.id != command.id)

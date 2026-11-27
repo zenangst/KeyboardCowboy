@@ -20,12 +20,12 @@ private struct Envelope: Codable {
 func savedScriptCommandPreservesMetadataAndRoutes(kind: String, source: String, expected: String) async throws {
   let contents = source == "path" ? "/fixtures/<<value>>" : "<<value>>"
   let fixture = """
-    {"scriptCommand":{
-      "kind":\(kind),"source":{"\(source)":{"_0":"\(contents)"}},
-      "meta":{"id":"saved","name":"Saved script","enabled":false,"delay":125,
-              "notification":"bezel","variableName":"SCRIPT_RESULT"}
-    }}
-    """
+  {"scriptCommand":{
+    "kind":\(kind),"source":{"\(source)":{"_0":"\(contents)"}},
+    "meta":{"id":"saved","name":"Saved script","enabled":false,"delay":125,
+            "notification":"bezel","variableName":"SCRIPT_RESULT"}
+  }}
+  """
   let envelope = try JSONDecoder().decode(Envelope.self, from: Data(fixture.utf8))
   let command = envelope.scriptCommand
   #expect(command.meta == .init(delay: 125, id: "saved", name: "Saved script",
@@ -52,11 +52,11 @@ func savedScriptCommandPreservesMetadataAndRoutes(kind: String, source: String, 
 @Test(arguments: [#""unknown""#, #"{"appleScript":{"variant":{"unsupported":{}}}}"#])
 func savedScriptCommandRejectsUnknownKindOrVariant(kind: String) {
   let fixture = """
-    {"scriptCommand":{
-      "kind":\(kind),"source":{"inline":{"_0":"noop"}},
-      "meta":{"id":"saved","name":"Saved script","enabled":true}
-    }}
-    """
+  {"scriptCommand":{
+    "kind":\(kind),"source":{"inline":{"_0":"noop"}},
+    "meta":{"id":"saved","name":"Saved script","enabled":true}
+  }}
+  """
   #expect(throws: DecodingError.self) {
     try JSONDecoder().decode(Envelope.self, from: Data(fixture.utf8))
   }

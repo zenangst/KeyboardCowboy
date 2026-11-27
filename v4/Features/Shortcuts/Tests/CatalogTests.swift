@@ -28,12 +28,12 @@ private let third = "00000000-0000-4000-8000-000000000003"
 @Test func catalogKeepsLastSuccessfulListingUntilAnEmptyRefresh() async throws {
   let catalog = Shortcuts.Catalog.testing()
   let initial = try await ProcessSystem.Process.Testing.$mock.withValue(
-    .init(readStandardOutput: { Data("Entry (\(first))".utf8) })
+    .init(readStandardOutput: { Data("Entry (\(first))".utf8) }),
   ) { try await catalog.refresh() }
   #expect(initial.count == 1)
 
   await ProcessSystem.Process.Testing.$mock.withValue(
-    .init(terminationStatus: 1, readStandardError: { Data("unavailable".utf8) })
+    .init(terminationStatus: 1, readStandardError: { Data("unavailable".utf8) }),
   ) {
     await #expect(throws: Shortcuts.CatalogError.listingFailed("unavailable")) {
       try await catalog.refresh()
@@ -49,7 +49,7 @@ private let third = "00000000-0000-4000-8000-000000000003"
   }
 
   let empty = try await ProcessSystem.Process.Testing.$mock.withValue(
-    .init(readStandardOutput: { nil })
+    .init(readStandardOutput: { nil }),
   ) { try await catalog.refresh() }
   #expect(empty.isEmpty)
   #expect(await catalog.entries == [])

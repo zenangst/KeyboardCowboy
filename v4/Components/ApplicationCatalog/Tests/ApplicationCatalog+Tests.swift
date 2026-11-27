@@ -59,7 +59,7 @@ import Testing
 @discardableResult
 private func makeApp(
   in root: URL, at path: String, identifier: String,
-  hasIcon: Bool = true, extra: [String: Any] = [:]
+  hasIcon: Bool = true, extra: [String: Any] = [:],
 ) throws -> URL {
   let app = root.appending(path: path, directoryHint: .isDirectory)
   let contents = app.appending(path: "Contents", directoryHint: .isDirectory)

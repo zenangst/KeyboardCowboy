@@ -18,6 +18,7 @@ public extension KeyboardTriggers {
     /// Compiles a saved binding, not a key-posting request. `any` is reserved for sequence matching.
     public func signature(for shortcut: SavedShortcut) -> Signature? {
       guard !shortcut.key.isEmpty, shortcut.key != "any" else { return nil }
+
       let lowercased = shortcut.key.lowercased()
       guard let code = lookup(shortcut.key, true) ?? lookup(lowercased, true) ?? lookup(lowercased, false),
             let keyCode = UInt16(exactly: code) else { return nil }
@@ -31,9 +32,11 @@ public extension KeyboardTriggers {
     /// Does not shorten a binding when a step cannot be resolved.
     public func signatures(for shortcuts: [SavedShortcut]) -> [Signature]? {
       guard !shortcuts.isEmpty else { return nil }
+
       var signatures: [Signature] = []
       for shortcut in shortcuts {
         guard let signature = signature(for: shortcut) else { return nil }
+
         signatures.append(signature)
       }
       return signatures
@@ -45,6 +48,7 @@ public extension KeyboardTriggers {
       if endsWithAnyKey, shortcuts.last?.modifiers.isEmpty != true { return nil }
       let fixed = endsWithAnyKey ? Array(shortcuts.dropLast()) : shortcuts
       guard let signatures = signatures(for: fixed), let first = signatures.first else { return nil }
+
       return CompiledSequence(signature: first, continuation: Array(signatures.dropFirst()), endsWithAnyKey: endsWithAnyKey)
     }
 

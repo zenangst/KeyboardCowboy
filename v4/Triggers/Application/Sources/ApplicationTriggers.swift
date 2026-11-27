@@ -33,6 +33,7 @@ public enum ApplicationTriggers {
       }
     case let .frontmostApplication(previous, current):
       guard previous != current else { return [] }
+
       if let current {
         append(.frontMost, for: current, matching: anyApplication)
         append(.frontMost, for: current, matching: current)

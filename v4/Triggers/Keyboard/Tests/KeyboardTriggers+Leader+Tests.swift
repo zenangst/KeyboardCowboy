@@ -23,7 +23,7 @@ private let c = Triggers.Signature(keyCode: 2, flags: 0)
   let leaderRule = Triggers.Rule(workflowID: "leader", signature: leader, continuation: [b], leaderKey: true)
   let exact = Triggers.Rule(workflowID: "exact", signature: leader)
   let appRule = Triggers.Rule(workflowID: "scoped", signature: leader, allowedBundleIdentifiers: ["app"],
-                             continuation: [c], passthrough: true)
+                              continuation: [c], passthrough: true)
   let ordinary = Triggers.Rule(workflowID: "ordinary", signature: leader, continuation: [c], passthrough: true)
   var session = Triggers.SequenceSession(matcher: .init(rules: [leaderRule, exact, appRule]), timeout: .seconds(1))
   #expect(session.receive(leader, at: .zero, frontmostBundleIdentifier: nil) == .exact("exact"))

@@ -49,6 +49,7 @@ public extension Shortcuts {
           throw CatalogError.invalidListing
         }
         guard seen.insert(id).inserted else { return nil }
+
         return Entry(id: id, name: String(line[..<separator.lowerBound]))
       }
       let sorted = parsed.sorted {

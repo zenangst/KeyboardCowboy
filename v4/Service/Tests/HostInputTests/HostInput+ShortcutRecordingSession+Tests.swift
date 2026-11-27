@@ -2,8 +2,8 @@ import Carbon
 import CoreGraphics
 import Foundation
 @testable import HostInput
-import KeyCodeSystem
 import KeyboardFeature
+import KeyCodeSystem
 import MachPortSystem
 import Testing
 

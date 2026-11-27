@@ -16,9 +16,9 @@ private typealias FillAllWindows = SystemFeature.Operation.FillAllWindows
   var skipFrames: [CGRect?] = []
   let operation = FillAllWindows(display: { .init(visibleBounds: bounds, spacing: 8) },
                                  windows: { windows }, fill: { window, skipFrame in
-    ids.append(window.id)
-    skipFrames.append(skipFrame)
-  })
+                                   ids.append(window.id)
+                                   skipFrames.append(skipFrame)
+                                 })
 
   try await operation()
   #expect(ids == [3, 1])
@@ -42,9 +42,9 @@ private enum FillFailure: Error { case unavailable }
   let operation = FillAllWindows(display: { .init(visibleBounds: bounds, spacing: 0) },
                                  windows: { [.init(id: 1, pid: 1, bounds: bounds), .init(id: 2, pid: 1, bounds: bounds)] },
                                  fill: { window, _ in
-    ids.append(window.id)
-    if cancel { withUnsafeCurrentTask { $0?.cancel() } } else { throw FillFailure.unavailable }
-  })
+                                   ids.append(window.id)
+                                   if cancel { withUnsafeCurrentTask { $0?.cancel() } } else { throw FillFailure.unavailable }
+                                 })
   let task = Task { @MainActor in try await operation() }
   if cancel {
     await #expect(throws: CancellationError.self) { try await task.value }

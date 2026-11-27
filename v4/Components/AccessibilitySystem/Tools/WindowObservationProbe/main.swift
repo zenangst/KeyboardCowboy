@@ -46,6 +46,7 @@ func windowCount(_ phase: String) -> Int {
   let status = AXUIElementGetAttributeValueCount(app, kAXWindowsAttribute as CFString, &count)
   report("AX window count \(phase): \(count) (status \(status.rawValue))")
   guard status == .success else { finish(2) }
+
   return count
 }
 
@@ -77,6 +78,7 @@ if revocationOnly {
     report("Use the dedicated revocation app bundle and a running TextEdit PID.")
     finish(2)
   }
+
   _ = windowCount("before revocation")
   var events = 0
   start(pid) { _ in events += 1 }
@@ -100,6 +102,7 @@ if terminationOnly {
     report("Expected a running TextEdit process.")
     finish(2)
   }
+
   var originalEvents = 0
   start(pid) { _ in originalEvents += 1 }
   say("Quit TextEdit now with Command Q. Wait for the reopen cue.")
@@ -108,6 +111,7 @@ if terminationOnly {
     report("Original TextEdit did not exit.")
     finish(2)
   }
+
   observer.stop()
   observer.stop()
   let stoppedCount = originalEvents
@@ -121,10 +125,12 @@ if terminationOnly {
     guard let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first(where: {
       $0.processIdentifier != pid && !$0.isTerminated && $0.isFinishedLaunching
     }) else { return false }
+
     let candidate = AXUIElementCreateApplication(running.processIdentifier)
     var count: CFIndex = 0
     guard AXUIElementGetAttributeValueCount(candidate, kAXWindowsAttribute as CFString, &count) == .success,
           count > 0 else { return false }
+
     before = count
     replacement = running
     replacementApp = candidate
@@ -134,6 +140,7 @@ if terminationOnly {
     report("No relaunched TextEdit with a new PID and a readable AX window.")
     finish(2)
   }
+
   // Give the restored window and the spoken reopen cue time to settle.
   driveRunLoop(seconds: 5)
   let baselineStatus = AXUIElementGetAttributeValueCount(
@@ -142,6 +149,7 @@ if terminationOnly {
     report("Inconclusive: the restored window is no longer readable.")
     finish(2)
   }
+
   var events: [AccessibilitySystem.WindowEvent] = []
   start(replacement.processIdentifier) { event in
     events.append(event)
@@ -158,6 +166,7 @@ if terminationOnly {
     report("Inconclusive: no additional AX window was verified.")
     finish(2)
   }
+
   let resumed = events.contains(.created) && events.contains(.focusChanged)
   let originalQuiet = originalEvents == stoppedCount
   report("Replacement delivery: \(resumed); original callback stayed silent: \(originalQuiet)")
@@ -170,6 +179,7 @@ if destructionOnly {
     report("Open at least two separate disposable TextEdit windows before running.")
     finish(2)
   }
+
   var events: [AccessibilitySystem.WindowEvent] = []
   start(pid) { event in
     events.append(event)
@@ -192,6 +202,7 @@ start(pid) { event in
   first.append(event)
   report("Initial callback: \(event)")
 }
+
 say("Observer ready. Open a separate TextEdit window, switch focus to another window, and leave the new window open.")
 driveRunLoop(seconds: 25)
 observer.stop()
@@ -209,6 +220,7 @@ start(pid) { event in
   second.append(event)
   report("Restarted callback: \(event)")
 }
+
 say("Observer restarted. Open one more separate TextEdit window, switch focus, and leave all windows open.")
 driveRunLoop(seconds: 25)
 observer.stop()

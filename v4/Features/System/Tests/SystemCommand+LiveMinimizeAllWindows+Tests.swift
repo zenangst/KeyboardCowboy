@@ -30,6 +30,7 @@ func liveMinimizeAllWindows() async throws {
     return Set(rows.compactMap { row in
       guard row[kCGWindowOwnerPID as String] as? pid_t == app.processIdentifier,
             let id = row[kCGWindowNumber as String] as? CGWindowID, ids.contains(id) else { return nil }
+
       return id
     })
   }

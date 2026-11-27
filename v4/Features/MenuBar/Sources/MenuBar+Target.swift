@@ -60,6 +60,7 @@ extension MenuBar {
           try Task.checkCancellation()
           let instant = now()
           guard instant < deadline else { throw TargetError.launchRegistrationTimedOut }
+
           if let running = workspace.firstRunning(application.bundleIdentifier) {
             pid = running
             break
@@ -75,6 +76,7 @@ extension MenuBar {
       }
     } else {
       guard let frontmost = workspace.frontmost() else { throw TargetError.frontmostApplicationUnavailable }
+
       pid = frontmost
     }
 
@@ -87,6 +89,7 @@ extension MenuBar {
         try Task.checkCancellation()
         let instant = now()
         guard launched, instant < deadline else { throw failure.underlying }
+
         try await sleep(min(instant + .milliseconds(50), deadline))
         try Task.checkCancellation()
         guard now() < deadline else { throw failure.underlying }

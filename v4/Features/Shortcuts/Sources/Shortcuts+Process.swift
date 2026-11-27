@@ -17,7 +17,8 @@ func launchShortcuts(_ arguments: [String], environment: RuntimeEnvironment.Mode
   let mock = ProcessSystem.Process.Testing.mock
   return try await Task.detached {
     try ProcessSystem.Process.Testing.$mock.withValue(mock, operation: launch)
-  }.value
+  }
+  .value
   #else
   return try await Task.detached(operation: launch).value
   #endif
