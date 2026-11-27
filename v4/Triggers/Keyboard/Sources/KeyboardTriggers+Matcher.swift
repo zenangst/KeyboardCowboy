@@ -69,12 +69,13 @@ public extension KeyboardTriggers {
           if let app = frontmostBundleIdentifier {
             guard !rule.disallowedBundleIdentifiers.contains(app) else { continue }
 
-            if rule.allowedBundleIdentifiers.contains(app) {
+            if app != Rule.globalBundleIdentifier, rule.allowedBundleIdentifiers.contains(app) {
               if shouldReplace(scoped, with: rule) { scoped = rule }
               continue
             }
           }
-          if rule.allowedBundleIdentifiers.isEmpty, shouldReplace(global, with: rule) { global = rule }
+          if (rule.allowedBundleIdentifiers.isEmpty || rule.allowedBundleIdentifiers.contains(Rule.globalBundleIdentifier)),
+             shouldReplace(global, with: rule) { global = rule }
         }
         return scoped ?? global
       }

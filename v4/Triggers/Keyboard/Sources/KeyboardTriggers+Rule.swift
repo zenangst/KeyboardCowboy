@@ -17,8 +17,11 @@ public extension KeyboardTriggers {
     public let isGroupEnabled: Bool
     public let isWorkflowEnabled: Bool
 
-    /// An empty allowed set means global. A nonempty mode set matches any
-    /// listed active mode, in the caller's priority order.
+    static let globalBundleIdentifier = "*"
+
+    /// An empty allowed set or `*` permits global matching. Explicit IDs
+    /// alongside `*` also qualify for app-specific precedence. A nonempty
+    /// mode set matches any listed active mode in the caller's priority order.
     public init(
       workflowID: String,
       signature: Signature,
