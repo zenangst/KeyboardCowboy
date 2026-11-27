@@ -17,7 +17,9 @@ public extension WindowFocus {
     }
 
     public struct Match: Equatable, Sendable {
-      public enum Branch: Equatable, Sendable { case twoWindowToggle, directHit, constrainedHit, displayCenter }
+      public enum Branch: Equatable, Sendable {
+        case twoWindowToggle, directHit, constrainedHit, offAxis, displayCenter, displayEdge
+      }
 
       public let windowID: CGWindowID
       public let direction: Direction
@@ -62,6 +64,10 @@ public extension WindowFocus {
 
       let displays = visibleFrames.filter(valid)
       guard !displays.isEmpty else { return nil }
+      // With exact resolution available, handoffs use window alignment instead
+      // of accepting the first window touched by a single off-center probe.
+      let sourceDisplay = resolveAXIdentity != nil && displays.count > 1
+        ? display(containing: anchor.frame, among: displays) : nil
 
       let bounds = candidates.dropFirst().reduce(first.frame) { $0.union($1.frame) }
       guard valid(bounds), (bounds.maxX + spacing).isFinite, (bounds.maxY + spacing).isFinite else { return nil }
@@ -86,6 +92,9 @@ public extension WindowFocus {
               visited.insert(.init(x: probe.minX, y: probe.minY, direction: direction)).inserted else { break }
 
         let point = CGPoint(x: probe.midX, y: probe.midY)
+        // The source ray can leave all displays when their edges are offset.
+        // Do not hit-test there; the handoff ranks and resolves targets by ID.
+        if let sourceDisplay, !sourceDisplay.contains(point) { break }
         let inDeadzone = deadzones.contains { $0.contains(point) }
         let eligible = inDeadzone ? candidates.filter {
           direction.accepts($0.frame, relativeTo: frame) && probe.intersects($0.frame)
@@ -93,7 +102,9 @@ public extension WindowFocus {
         if !eligible.isEmpty {
           let hit = try hitAt(point)
           try Task.checkCancellation()
-          if let hit, eligible.contains(where: { $0.id == hit }) {
+          if let hit, eligible.contains(where: {
+            $0.id == hit && (sourceDisplay == nil || display(containing: $0.frame, among: displays) == sourceDisplay)
+          }) {
             return .init(windowID: hit, direction: direction, branch: inDeadzone ? .constrainedHit : .directHit)
           }
         }

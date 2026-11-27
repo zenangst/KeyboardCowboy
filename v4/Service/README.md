@@ -211,6 +211,25 @@ The fixture briefly takes focus; leave it frontmost until the script finishes.
 Pass the bundle path as the only argument to test a different signed Debug
 artifact. The script prints the macOS version and exits nonzero on failure.
 
+Use `v4/Scripts/smoke-next-window.sh --spatial [app-path]` to check center
+focus, two top-left presses on overlapping windows (Focus Behind), and rightward
+focus from both unequal left windows to a target at the top, middle, and bottom.
+On a display with at least 1010×770 visible points, it also checks all 16 hops
+around a nine-window grid and out-and-back from its center in all four directions.
+With additional usable displays, the fixture also checks round trips in the
+directions allowed by the actual monitor layout (including above/below). It
+reports when there is no usable separate display instead of claiming coverage.
+The smoke operation only targets the fixture process and checks actual AppKit
+key-window changes. Keep at least 880×540 visible points on the starting screen
+and leave the fixture frontmost during the spoken cues.
+
+For required cross-display verification, run
+`v4/Scripts/smoke-next-window.sh --multi-display [app-path]`. This exits nonzero
+unless two separate displays can fit three windows along both facing edges.
+It verifies all three crossings in both directions for the connected layout,
+using actual window positions to predict the next row or column. Rearrange
+the displays and rerun to cover a different axis.
+
 If you use yabai, add a fixture-only rule before launching the smoke test so
 yabai does not tile the test windows:
 
@@ -300,7 +319,7 @@ v4/Scripts/smoke-next-window.sh "$app"
 ```
 
 The candidate is under `v4/Service/.build/app/window-focus-validation/`. It
-contains only the next- and previous-window smoke commands, not the other
+contains only the next-, previous-, and spatial-focus smoke commands, not the other
 Debug commands.
 Grant Accessibility to the exact candidate if needed. Notarization is not
 required for this validation. Keep this artifact separate from builds intended

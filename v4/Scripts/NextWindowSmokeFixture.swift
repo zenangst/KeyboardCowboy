@@ -4,7 +4,10 @@ import AppKit
 @MainActor
 struct NextWindowSmokeFixture {
   static func main() {
-    guard CommandLine.arguments.count == 3 else { exit(2) }
+    let arguments = CommandLine.arguments
+    let spatial = arguments.count == 4 && arguments[3] == "--spatial"
+    let multiDisplay = arguments.count == 4 && arguments[3] == "--multi-display"
+    guard arguments.count == 3 || spatial || multiDisplay else { exit(2) }
 
     let app = NSApplication.shared
     app.setActivationPolicy(.regular)
@@ -12,16 +15,230 @@ struct NextWindowSmokeFixture {
     let service = CommandLine.arguments[1]
     let result = URL(fileURLWithPath: CommandLine.arguments[2])
 
-    DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + (spatial || multiDisplay ? 150 : 20)) {
       try? "FAIL: timed out waiting for the Service\n".write(to: result, atomically: true, encoding: .utf8)
       app.terminate(nil)
     }
     Task { @MainActor in
-      let message = await check(app, service: service)
+      let message = if multiDisplay {
+        await checkDisplayEdges(app, service: service)
+      } else if spatial {
+        await checkSpatial(app, service: service)
+      } else {
+        await check(app, service: service)
+      }
       try? (message + "\n").write(to: result, atomically: true, encoding: .utf8)
       app.terminate(nil)
     }
     app.run()
+  }
+
+  private static func checkDisplayEdges(_ app: NSApplication, service: String) async -> String {
+    let screens = NSScreen.screens
+    guard screens.count >= 2 else { return "FAIL: two separate displays are required" }
+
+    func edgeWindows(in screen: NSScreen, edge: String) -> [NSWindow] {
+      let bounds = screen.visibleFrame.insetBy(dx: 10, dy: 10)
+      let verticalEdge = edge == "left" || edge == "right"
+      let size = CGSize(width: 320, height: 230)
+      guard bounds.width >= size.width, bounds.height >= size.height,
+            verticalEdge ? bounds.height >= 3 * size.height : bounds.width >= 3 * size.width else { return [] }
+      return (0 ..< 3).map { index in
+        let fraction = CGFloat(index) / 2
+        let x = verticalEdge
+          ? (edge == "left" ? bounds.minX : bounds.maxX - size.width)
+          : bounds.minX + fraction * (bounds.width - size.width)
+        let y = verticalEdge
+          ? bounds.maxY - size.height - fraction * (bounds.height - size.height)
+          : (edge == "down" ? bounds.minY : bounds.maxY - size.height)
+        let window = NSWindow(contentRect: .zero, styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        window.setFrame(CGRect(origin: .init(x: x, y: y), size: size), display: false)
+        let positions = verticalEdge ? ["top", "middle", "bottom"] : ["left", "middle", "right"]
+        window.title = "\(screen.localizedName) \(edge) edge (\(positions[index]))"
+        window.orderFrontRegardless()
+        return window
+      }
+    }
+
+    func verify(from anchors: [NSWindow], to targets: [NSWindow], direction: String) async throws {
+      let horizontal = direction == "left" || direction == "right"
+      for anchor in anchors {
+        anchor.makeKeyAndOrderFront(nil)
+        app.activate()
+        try await Task.sleep(for: .milliseconds(300))
+        guard anchor.isKeyWindow, app.isActive else { throw Failure.fixtureInactive }
+        // Compare actual perpendicular coordinates (not the slot labels).
+        let center = horizontal ? anchor.frame.midY : anchor.frame.midX
+        guard let expected = targets.min(by: {
+          let first = horizontal ? $0.frame.midY : $0.frame.midX
+          let second = horizontal ? $1.frame.midY : $1.frame.midX
+          return abs(center - first) < abs(center - second)
+        }) else { throw Failure.fixtureInactive }
+        try await expectKeyWindow(expected, service: service, pid: getpid(),
+                                  scenario: "\(anchor.title) → \(expected.title)",
+                                  command: ["--smoke-spatial-focus", String(getpid()), direction])
+      }
+    }
+
+    var routes: [String] = []
+    do {
+      for (index, source) in screens.enumerated() {
+        let a = source.visibleFrame
+        for target in screens.dropFirst(index + 1) {
+          let b = target.visibleFrame
+          for (outbound, inbound, separated) in [
+            ("left", "right", b.maxX <= a.minX), ("right", "left", b.minX >= a.maxX),
+            ("up", "down", b.minY >= a.maxY), ("down", "up", b.maxY <= a.minY),
+          ] where separated {
+            let anchors = edgeWindows(in: source, edge: outbound)
+            let targets = edgeWindows(in: target, edge: inbound)
+            defer { (anchors + targets).forEach { $0.close() } }
+            guard anchors.count == 3, targets.count == 3 else { continue }
+            guard anchors.allSatisfy({ $0.screen == source }), targets.allSatisfy({ $0.screen == target }) else {
+              return "FAIL: edge windows landed on the wrong display"
+            }
+            try await verify(from: anchors, to: targets, direction: outbound)
+            try await verify(from: targets, to: anchors, direction: inbound)
+            routes.append("\(source.localizedName) \(NSStringFromRect(a)) ↔ \(target.localizedName) \(NSStringFromRect(b)): \(outbound)/\(inbound), six verified handoffs")
+          }
+        }
+      }
+    } catch {
+      return "FAIL: \(error); check Accessibility and SpatialFocusSmoke logs"
+    }
+    return routes.isEmpty ? "FAIL: no usable display pair with room for three windows along both facing edges"
+      : "PASS: matched the expected window for each facing-edge handoff\n\(routes.joined(separator: "\n"))"
+  }
+
+  private static func checkSpatial(_ app: NSApplication, service: String) async -> String {
+    guard let screen = NSScreen.main, screen.visibleFrame.width >= 880, screen.visibleFrame.height >= 540 else {
+      return "FAIL: spatial fixture requires an 880×540 visible display"
+    }
+    let visible = screen.visibleFrame
+    let full = screen.frame
+    var windows: [NSWindow] = []
+    defer { windows.forEach { $0.close() } }
+    func window(_ title: String, x: CGFloat, y: CGFloat, width: CGFloat = 330, height: CGFloat = 235) -> NSWindow {
+      let frame = NSRect(x: x, y: y, width: width, height: height)
+      let result = NSWindow(contentRect: frame, styleMask: [.titled, .closable], backing: .buffered, defer: false)
+      result.title = title
+      result.isReleasedWhenClosed = false
+      result.orderFrontRegardless()
+      windows.append(result)
+      return result
+    }
+    func prepare(_ anchor: NSWindow) async throws {
+      anchor.makeKeyAndOrderFront(nil)
+      app.activate()
+      try await Task.sleep(for: .milliseconds(500))
+      guard app.isActive, anchor.isKeyWindow else { throw Failure.fixtureInactive }
+    }
+    let pid = getpid()
+    func command(_ name: String) -> [String] { ["--smoke-spatial-focus", String(pid), name] }
+
+    do {
+      let center = window("Center target", x: full.midX - 165, y: full.midY - 118)
+      let corner = window("Quarter behind", x: visible.minX + 10, y: visible.maxY - 265)
+      let front = window("Quarter front", x: corner.frame.minX, y: corner.frame.minY)
+      try await prepare(front)
+      try await expectKeyWindow(center, service: service, pid: pid, scenario: "center", command: command("center"))
+
+      let trace = KeyTrace()
+      front.delegate = trace
+      corner.delegate = trace
+      try await expectKeyWindow(corner, service: service, pid: pid, scenario: "repeated quarter", command: command("quarter"))
+      guard trace.windows == [front.windowNumber, corner.windowNumber] else {
+        return "FAIL: repeated quarter expected \(front.windowNumber) → \(corner.windowNumber), observed \(trace.windows)"
+      }
+      windows.forEach { $0.orderOut(nil) }
+
+      let taller = window("Tall left anchor", x: visible.minX + 25, y: visible.midY - 170, width: 350, height: 320)
+      let shorter = window("Short left anchor", x: visible.minX + 30, y: visible.midY - 35, width: 320, height: 210)
+      for (placement, y) in [
+        ("top", visible.maxY - 280), ("middle", visible.midY - 120), ("bottom", visible.minY + 20),
+      ] {
+        let target = window("Right target (\(placement))", x: visible.maxX - 355, y: y)
+        for anchor in [taller, shorter] {
+          try await prepare(anchor)
+          try await expectKeyWindow(target, service: service, pid: pid,
+                                    scenario: "\(anchor.title) → \(target.title)", command: command("right"))
+        }
+        target.orderOut(nil)
+      }
+      windows.forEach { $0.orderOut(nil) }
+
+      var gridCoverage = "SKIP: nine-window grid requires 1010×770 visible points"
+      if visible.width >= 1010, visible.height >= 770 {
+        let width = min(350, (visible.width - 80) / 3)
+        let height = min(245, (visible.height - 140) / 3)
+        let names = ["Top left", "Top center", "Top right", "Left", "Center", "Right",
+                     "Bottom left", "Bottom center", "Bottom right"]
+        let grid = names.enumerated().map { index, title in
+          window("Grid \(title)",
+                 x: visible.minX + 10 + CGFloat(index % 3) * (visible.width - width - 20) / 2,
+                 y: visible.maxY - height - 32 - CGFloat(index / 3) * (visible.height - height - 42) / 2,
+                 width: width, height: height)
+        }
+        let clockwise = [("right", 1), ("right", 2), ("down", 5), ("down", 8),
+                         ("left", 7), ("left", 6), ("up", 3), ("right", 4)]
+        let spokes = [("left", 3), ("right", 4), ("up", 1), ("down", 4),
+                      ("right", 5), ("left", 4), ("down", 7), ("up", 4)]
+        for (label, start, path) in [("clockwise", 0, clockwise), ("center spokes", 4, spokes)] {
+          try await prepare(grid[start])
+          var from = start
+          for (direction, destination) in path {
+            try await expectKeyWindow(grid[destination], service: service, pid: pid,
+                                      scenario: "grid \(label): \(names[from]) → \(names[destination])",
+                                      command: command(direction))
+            from = destination
+          }
+        }
+        grid.forEach { $0.orderOut(nil) }
+        gridCoverage = "Grid: clockwise and center spokes passed (16 verified hops)"
+      }
+
+      let others = NSScreen.screens.filter { $0 != screen }
+      var routes: [String] = []
+      for other in others {
+        let bounds = other.visibleFrame
+        guard bounds.width >= 360, bounds.height >= 280 else { continue }
+        for (outbound, inbound, separated) in [
+          ("left", "right", bounds.maxX <= visible.minX),
+          ("right", "left", bounds.minX >= visible.maxX),
+          ("up", "down", bounds.minY >= visible.maxY),
+          ("down", "up", bounds.maxY <= visible.minY),
+        ] where separated {
+          let sourceX = outbound == "right" ? visible.maxX - 340 : visible.minX + 10
+          let sourceY = outbound == "up" ? visible.maxY - 270 : visible.minY + 10
+          let anchor = window("Display anchor", x: sourceX, y: sourceY)
+          let decoy = window("Same-position display decoy", x: sourceX, y: sourceY)
+          let target = window("Other display target", x: bounds.maxX - 340, y: bounds.minY + 10)
+          try await prepare(anchor)
+          guard anchor.screen == screen, target.screen == other else {
+            return "FAIL: cross-display fixture windows landed on the wrong screens"
+          }
+          try await expectKeyWindow(target, service: service, pid: pid,
+                                    scenario: "cross-display \(outbound)", command: command(outbound))
+          try await expectKeyWindow(anchor, service: service, pid: pid,
+                                    scenario: "cross-display \(inbound)", command: command(inbound))
+          routes.append("\(outbound)/\(inbound)")
+          [anchor, decoy, target].forEach { $0.orderOut(nil) }
+        }
+      }
+      let coverage = routes.isEmpty ? "SKIP: no usable separate display for live handoff" : "Display routes: \(routes.joined(separator: ", "))"
+      return "PASS: center, repeated top-left, and rightward focus from both left anchors to top/middle/bottom\n\(gridCoverage)\n\(coverage)"
+    } catch {
+      return "FAIL: \(error); check Accessibility and SpatialFocusSmoke logs"
+    }
+  }
+
+  private final class KeyTrace: NSObject, NSWindowDelegate {
+    var windows: [Int] = []
+
+    func windowDidBecomeKey(_ notification: Notification) {
+      if let window = notification.object as? NSWindow { windows.append(window.windowNumber) }
+    }
   }
 
   static func check(_ app: NSApplication, service: String) async -> String {

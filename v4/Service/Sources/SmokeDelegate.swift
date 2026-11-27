@@ -12,9 +12,9 @@ final class SmokeDelegate: NSObject, NSApplicationDelegate {
     #if DEBUG
     let commands = ["--smoke-open-browser", "--smoke-selected-text", "--smoke-hit-test",
                     "--smoke-capture", "--smoke-ui-element", "--smoke-static-text",
-                    "--smoke-window-id", "--smoke-next-window", "--smoke-previous-window"]
+                    "--smoke-window-id", "--smoke-next-window", "--smoke-previous-window", "--smoke-spatial-focus"]
     #else
-    let commands = ["--smoke-next-window", "--smoke-previous-window"]
+    let commands = ["--smoke-next-window", "--smoke-previous-window", "--smoke-spatial-focus"]
     #endif
     guard let command = arguments.first, commands.contains(command) else { return }
 
@@ -23,6 +23,8 @@ final class SmokeDelegate: NSObject, NSApplicationDelegate {
       switch command {
       case "--smoke-next-window", "--smoke-previous-window":
         await HostInput.smokeWindowFocus(previous: command == "--smoke-previous-window", arguments: options)
+      case "--smoke-spatial-focus":
+        await HostInput.smokeSpatialFocus(arguments: options)
       #if DEBUG
       case "--smoke-open-browser":
         await HostOpen.smokeBrowser(arguments: options)

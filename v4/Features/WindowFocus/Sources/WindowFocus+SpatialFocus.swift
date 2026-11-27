@@ -13,6 +13,11 @@ public extension WindowFocus {
       operation = .init(accessibility: accessibility)
     }
 
+    /// Restricts both the anchor and targets to this process.
+    public init(in processIdentifier: pid_t, using accessibility: AccessibilitySystem.Client = .init()) {
+      operation = .init(accessibility: accessibility, processIdentifier: processIdentifier)
+    }
+
     /// Returns true only if the selected window was observed focused after the attempt.
     public func center(in display: CGRect, visibleFrame: CGRect, spacing: CGFloat = 0) async throws -> Bool {
       try await operation(.center(display, visibleFrame, spacing))
