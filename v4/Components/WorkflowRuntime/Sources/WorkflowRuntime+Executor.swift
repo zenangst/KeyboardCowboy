@@ -1,15 +1,29 @@
-public enum WorkflowRuntime {
+public extension WorkflowRuntime {
   @MainActor
-  public struct Executor<Payload: Sendable, Snapshot: Sendable> {
+  struct Executor<Payload: Sendable, Snapshot: Sendable> {
     public typealias Dispatch = @MainActor (
       Step<Payload>,
       Request<Payload>,
       Context<Snapshot>,
     ) async throws -> CommandResult<Snapshot>
 
+    /// Awaits a child in the current task and lane. Its outcomes are returned
+    /// separately from the parent's, and its context is only merged explicitly.
+    public typealias RunChild = @MainActor (
+      Request<Payload>,
+      ChildContext<Snapshot>,
+    ) async throws -> Result<Snapshot>
+
+    public typealias NestedDispatch = @MainActor (
+      Step<Payload>,
+      Request<Payload>,
+      Context<Snapshot>,
+      RunChild,
+    ) async throws -> CommandResult<Snapshot>
+
     public typealias FailurePolicy = @MainActor (Step<Payload>, any Error) -> FailureDecision
 
-    private let dispatch: Dispatch
+    private let dispatch: NestedDispatch
     private let failurePolicy: FailurePolicy
     private let sleep: @MainActor (Duration) async throws -> Void
 
@@ -18,7 +32,17 @@ public enum WorkflowRuntime {
       sleep: @escaping @MainActor (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
       dispatch: @escaping Dispatch,
     ) {
-      self.dispatch = dispatch
+      self.init(failurePolicy: failurePolicy, sleep: sleep, dispatchingNested: { step, request, context, _ in
+        try await dispatch(step, request, context)
+      })
+    }
+
+    public init(
+      failurePolicy: @escaping FailurePolicy = { _, _ in .proceed },
+      sleep: @escaping @MainActor (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
+      dispatchingNested: @escaping NestedDispatch,
+    ) {
+      self.dispatch = dispatchingNested
       self.failurePolicy = failurePolicy
       self.sleep = sleep
     }
@@ -31,7 +55,20 @@ public enum WorkflowRuntime {
       from initialContext: Context<Snapshot>,
       lane: Lane = .serial,
     ) async throws -> Result<Snapshot> {
+      try await run(request, from: initialContext, lane: lane, ancestors: [])
+    }
+
+    private func run(
+      _ request: Request<Payload>,
+      from initialContext: Context<Snapshot>,
+      lane: Lane,
+      ancestors: Set<String>,
+    ) async throws -> Result<Snapshot> {
       try Task.checkCancellation()
+      guard !ancestors.contains(request.workflowID) else {
+        throw ReentryError(workflowID: request.workflowID)
+      }
+      let path = ancestors.union([request.workflowID])
       let enabled = Request(workflowID: request.workflowID, origin: request.origin,
                             steps: request.steps.filter(\.metadata.isEnabled))
       var context = initialContext
@@ -39,9 +76,14 @@ public enum WorkflowRuntime {
       for step in enabled.steps {
         try Task.checkCancellation()
         do {
-          let result = try await dispatch(step, enabled, context)
+          let result = try await dispatch(step, enabled, context) { child, childContext in
+            try await run(child, from: childContext.initial, lane: lane, ancestors: path)
+          }
           try Task.checkCancellation()
           context.snapshot = result.snapshot
+          if let variables = result.variables {
+            context.variables = variables
+          }
           if let name = step.metadata.variableName {
             context.variables[name] = result.output
           }

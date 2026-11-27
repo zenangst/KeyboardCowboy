@@ -12,7 +12,7 @@ private func request(_ id: String) -> Request {
 }
 
 @MainActor
-private final class DispatchGate {
+final class DispatchGate {
   let started: AsyncStream<Void>
   private let signal: AsyncStream<Void>.Continuation
   private var resume: CheckedContinuation<Void, Never>?
