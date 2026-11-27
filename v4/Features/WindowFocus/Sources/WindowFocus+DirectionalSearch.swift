@@ -17,28 +17,51 @@ public extension WindowFocus {
     }
 
     public struct Match: Equatable, Sendable {
-      public enum Branch: Equatable, Sendable { case directHit, constrainedHit }
+      public enum Branch: Equatable, Sendable { case twoWindowToggle, directHit, constrainedHit }
 
       public let windowID: CGWindowID
       public let direction: Direction
       public let branch: Branch
     }
 
-    /// Scans the primary directional path in top-left global coordinates. Supply eligible
-    /// windows and visible display frames in their original order, and classify tiling
-    /// on the initial probe display. The hit test must return an exact AX window identity.
-    /// This selector does not toggle two windows, fall back to a display center, or focus a window.
+    /// With one eligible window besides the anchor, try to resolve that window's exact
+    /// AX identity before scanning. Return `nil` from `resolveAXIdentity` when unavailable.
+    /// The primary scan uses top-left global coordinates. Supply eligible windows and
+    /// visible display frames in their original order, and classify tiling on the initial
+    /// probe display. The hit test must also return an exact AX window identity.
+    /// This selector does not fall back to a display center or perform focus effects.
     public static func select(
-      from anchor: Window, windows: [Window], direction: Direction, visibleFrames: [CGRect],
-      tiling: Tiling? = nil, spacing: CGFloat = 0, mainDisplayFrame: CGRect? = nil,
-      deadzoneSpacing: CGFloat? = nil, maxProbes: Int = 1024,
+      from anchor: Window,
+      windows: [Window],
+      direction: Direction,
+      visibleFrames: [CGRect],
+      tiling: Tiling? = nil,
+      spacing: CGFloat = 0,
+      mainDisplayFrame: CGRect? = nil,
+      deadzoneSpacing: CGFloat? = nil,
+      maxProbes: Int = 1024,
+      resolveAXIdentity: ((Window) -> CGWindowID?)? = nil,
       hitAt: (CGPoint) throws -> CGWindowID?,
     ) throws -> Match? {
       try Task.checkCancellation()
-      guard anchor.id != 0, valid(anchor.frame), spacing.isFinite, spacing >= 0, maxProbes > 0 else { return nil }
+      guard anchor.id != 0, valid(anchor.frame) else { return nil }
+
       let candidates = windows.filter { $0.id != 0 && $0.id != anchor.id && valid($0.frame) }
+      guard let first = candidates.first else { return nil }
+
+      if candidates.count == 1, let resolveAXIdentity {
+        let resolvedID = resolveAXIdentity(first)
+        try Task.checkCancellation()
+        if resolvedID == first.id {
+          return .init(windowID: first.id, direction: direction, branch: .twoWindowToggle)
+        }
+      }
+
+      guard spacing.isFinite, spacing >= 0, maxProbes > 0 else { return nil }
+
       let displays = visibleFrames.filter(valid)
-      guard let first = candidates.first, !displays.isEmpty else { return nil }
+      guard !displays.isEmpty else { return nil }
+
       let bounds = candidates.dropFirst().reduce(first.frame) { $0.union($1.frame) }
       guard valid(bounds), (bounds.maxX + spacing).isFinite, (bounds.maxY + spacing).isFinite else { return nil }
 
@@ -74,6 +97,7 @@ public extension WindowFocus {
         }
 
         guard let display = displays.first(where: { $0.intersects(probe) }) else { return nil }
+
         if let tiling, direction.isPastEdge(probe, of: display) { direction = tiling.reroute(direction) }
       }
       return nil
@@ -99,6 +123,7 @@ public extension WindowFocus {
 
     private static func deadzones(in frame: CGRect?, spacing: CGFloat) -> [CGRect] {
       guard let frame, valid(frame), spacing.isFinite, spacing > 0 else { return [] }
+
       return [
         CGRect(x: frame.midX - spacing / 2, y: frame.minY, width: spacing, height: frame.height),
         CGRect(x: frame.minX, y: frame.midY, width: frame.width, height: spacing),
