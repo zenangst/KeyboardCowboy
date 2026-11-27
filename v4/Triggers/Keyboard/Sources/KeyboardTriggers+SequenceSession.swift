@@ -1,8 +1,12 @@
+import Carbon
+
 public extension KeyboardTriggers {
   struct SequenceSession: Sendable {
     private let matcher: Matcher
     private let timeout: Duration
     private let useLegacyFunctionKeyFallback: Bool
+    private let useLegacyRapidLeaderTap: Bool
+    private var lastKeyRelease: Duration?
     private var prefix: [Signature] = []
     private var lastInput: Duration?
     private var app: String?
@@ -14,6 +18,7 @@ public extension KeyboardTriggers {
     private var heldPrefix: HeldPrefix?
     private var leader: LeaderPrefix?
     private static let leaderGrace = Duration.milliseconds(100)
+    private static let rapidLeaderWindow = Duration.milliseconds(300)
 
     private struct RepeatBinding: Sendable {
       let signature: Signature
@@ -50,16 +55,21 @@ public extension KeyboardTriggers {
     }
 
     /// The timeout is measured between consecutive keys using caller-supplied monotonic time.
-    public init(matcher: Matcher, timeout: Duration, useLegacyFunctionKeyFallback: Bool = false) {
+    /// Opt into rapid leader taps by supplying physical key-ups via `releaseDecision`.
+    public init(
+      matcher: Matcher, timeout: Duration, useLegacyFunctionKeyFallback: Bool = false,
+      useLegacyRapidLeaderTap: Bool = false,
+    ) {
       self.matcher = matcher
       self.timeout = timeout
       self.useLegacyFunctionKeyFallback = useLegacyFunctionKeyFallback
+      self.useLegacyRapidLeaderTap = useLegacyRapidLeaderTap
     }
 
     /// Feed eligible non-repeating key-down events only. A mismatch retries the current key as
     /// a fresh start. At a shared prefix, scope/mode and rule order choose
     /// between completing a shortcut and waiting for another key.
-    /// Use `receiveDecision` when the caller needs to schedule holds.
+    /// Use `receiveDecision` for event dispositions, holds, and replay.
     public mutating func receive(
       _ signature: Signature, at time: Duration, frontmostBundleIdentifier: String?, enabledModeIDs: [String] = [],
     ) -> SequenceMatch {
@@ -69,8 +79,11 @@ public extension KeyboardTriggers {
 
     /// Reports how the host should handle a non-repeating key-down alongside the match.
     /// It does not post events, run workflows, or change previously handled keys.
+    /// Service due leader replays before routing this key-down.
     public mutating func receiveDecision(
-      _ signature: Signature, at time: Duration, frontmostBundleIdentifier: String?, enabledModeIDs: [String] = [],
+      _ signature: Signature,
+      at time: Duration, frontmostBundleIdentifier: String?,
+      enabledModeIDs: [String] = [],
     ) -> Decision {
       repeating = nil
       pendingHold = nil
@@ -100,6 +113,12 @@ public extension KeyboardTriggers {
            let duration = rule.holdDuration, duration > .zero {
           heldPrefix = .init(keyCode: signature.keyCode, readyAt: time + duration)
         } else if prefix.count == 1, let rule = result.rule, rule.leaderKey, !rule.passthrough {
+          if useLegacyRapidLeaderTap, let lastKeyRelease, time >= lastKeyRelease,
+             time - lastKeyRelease < Self.rapidLeaderWindow {
+            clearPrefix()
+            suppressedKeyCodes.insert(signature.keyCode)
+            return Decision(match: .noMatch, disposition: .suppress, immediateReplay: signature)
+          }
           leader = .init(signature: signature)
         }
         lastInput = time
@@ -127,13 +146,22 @@ public extension KeyboardTriggers {
           pendingRelease = .init(keyCode: signature.keyCode, workflowID: workflowID,
                                  startedAt: time, minimumHold: minimumHold)
         } else if rule.allowRepeat {
-          repeating = .init(signature: signature, workflowID: workflowID, app: frontmostBundleIdentifier, modes: enabledModeIDs)
+          repeating = .init(
+            signature: signature,
+            workflowID: workflowID,
+            app: frontmostBundleIdentifier,
+            modes: enabledModeIDs,
+          )
         }
       }
       return decision
     }
 
-    private mutating func resolve(_ signature: Signature, app: String?, modes: [String]) -> (decision: Decision, rule: Rule?) {
+    private mutating func resolve(
+      _ signature: Signature,
+      app: String?,
+      modes: [String],
+    ) -> (decision: Decision, rule: Rule?) {
       let exact = matcher.matchSequence(prefix, frontmostBundleIdentifier: app, enabledModeIDs: modes)
       guard exact.decision.match == .noMatch, useLegacyFunctionKeyFallback else { return exact }
 
@@ -216,6 +244,7 @@ public extension KeyboardTriggers {
     }
 
     private mutating func finishRelease(keyCode: UInt16, at time: Duration?) -> Decision {
+      if useLegacyRapidLeaderTap, keyCode != UInt16(kVK_Escape) { lastKeyRelease = time }
       if repeating?.signature.keyCode == keyCode { repeating = nil }
       if pendingHold?.keyCode == keyCode { cancelHold() }
       if heldPrefix?.keyCode == keyCode { clearPrefix() }
@@ -234,7 +263,9 @@ public extension KeyboardTriggers {
       }
 
       self.pendingRelease = nil
-      let match: SequenceMatch = if let time, time >= pendingRelease.startedAt, time - pendingRelease.startedAt > pendingRelease.minimumHold {
+      let match: SequenceMatch = if let time, time >= pendingRelease.startedAt,
+                                    time - pendingRelease.startedAt > pendingRelease
+                                      .minimumHold {
         .exact(pendingRelease.workflowID)
       } else {
         .noMatch
@@ -246,6 +277,7 @@ public extension KeyboardTriggers {
     /// such as on tap disruption or capture handoff.
     public mutating func reset() {
       clearPrefix()
+      lastKeyRelease = nil
       suppressedKeyCodes.removeAll(keepingCapacity: true)
       repeating = nil
       pendingRelease = nil

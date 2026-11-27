@@ -49,7 +49,11 @@ public extension KeyboardTriggers {
       let fixed = endsWithAnyKey ? Array(shortcuts.dropLast()) : shortcuts
       guard let signatures = signatures(for: fixed), let first = signatures.first else { return nil }
 
-      return CompiledSequence(signature: first, continuation: Array(signatures.dropFirst()), endsWithAnyKey: endsWithAnyKey)
+      return CompiledSequence(
+        signature: first,
+        continuation: Array(signatures.dropFirst()),
+        endsWithAnyKey: endsWithAnyKey,
+      )
     }
 
     private static let arrows: Set<Int> = [kVK_UpArrow, kVK_DownArrow, kVK_LeftArrow, kVK_RightArrow]

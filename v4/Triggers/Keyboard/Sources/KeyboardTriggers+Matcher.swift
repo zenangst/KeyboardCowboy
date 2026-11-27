@@ -74,8 +74,12 @@ public extension KeyboardTriggers {
               continue
             }
           }
-          if (rule.allowedBundleIdentifiers.isEmpty || rule.allowedBundleIdentifiers.contains(Rule.globalBundleIdentifier)),
-             shouldReplace(global, with: rule) { global = rule }
+
+          if (rule.allowedBundleIdentifiers.isEmpty ||
+            rule.allowedBundleIdentifiers.contains(Rule.globalBundleIdentifier)),
+            shouldReplace(global, with: rule) {
+            global = rule
+          }
         }
         return scoped ?? global
       }

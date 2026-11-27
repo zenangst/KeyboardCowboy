@@ -9,7 +9,10 @@ public extension KeyboardTriggers {
       allowedBundleIdentifiers = try container.decodeIfPresent(Set<String>.self, forKey: .bundleIdentifiers)
         ?? container.decodeIfPresent(Set<String>.self, forKey: .allowedBundleIdentifiers)
         ?? []
-      disallowedBundleIdentifiers = try container.decodeIfPresent(Set<String>.self, forKey: .disallowedBundleIdentifiers) ?? []
+      disallowedBundleIdentifiers = try container.decodeIfPresent(
+        Set<String>.self,
+        forKey: .disallowedBundleIdentifiers,
+      ) ?? []
     }
 
     private enum CodingKeys: CodingKey {
