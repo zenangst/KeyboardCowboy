@@ -14,8 +14,7 @@ public extension WindowTidy {
     private let restore: @MainActor (Window) async throws -> Bool
 
     /// Effect adapters must verify the exact target immediately before acting,
-    /// and return false when unavailable. A group tile also needs its native
-    /// participant scope verified by the adapter.
+    /// and return false when unavailable. Group layouts contain individual steps.
     public init(
       inventory: @escaping @MainActor () -> [Window],
       apply: @escaping @MainActor (Plan.Step) async throws -> Bool,
@@ -29,6 +28,10 @@ public extension WindowTidy {
     public func run(_ request: Request, visibleFrame: CGRect, spacing: CGFloat = 0) async throws -> Result {
       try Task.checkCancellation()
       let plan = WindowTidy.plan(windows: inventory(), visibleFrame: visibleFrame, spacing: spacing, rules: request.rules)
+      return try await run(plan, visibleFrame: visibleFrame)
+    }
+
+    func run(_ plan: Plan, visibleFrame: CGRect) async throws -> Result {
       var applied: [CGWindowID] = []
       var skipped: [CGWindowID] = []
       for step in plan.steps {

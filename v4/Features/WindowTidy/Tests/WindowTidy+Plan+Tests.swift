@@ -18,11 +18,11 @@ private func window(_ id: CGWindowID, _ frame: CGRect = free, owner: pid_t = 42,
 @Test func singleAppPlansFillPairsAndQuartersOnTheOriginalAnchor() {
   let anchor = window(1, topRight)
   let windows = [anchor, window(2), window(3)]
-  let actions: [WindowTiling.Action] = [.fill, .arrangeRightLeft, .arrangeRightQuarters]
+  let actions: [[WindowTiling.Action]] = [[.fill], [.left, .right], [.bottomLeft, .topLeft, .right]]
   for (offset, action) in actions.enumerated() {
     let plan = WindowTidy.plan(windows: Array(windows.prefix(offset + 1)), visibleFrame: display)
-    #expect(plan.steps.map(\.window.id) == [1])
-    #expect(plan.steps.map(\.action) == [action])
+    #expect(plan.steps.map(\.window.id) == Array((1 ... CGWindowID(offset + 1)).reversed()))
+    #expect(plan.steps.map(\.action) == action)
     #expect(plan.restoreFocus == anchor)
   }
 }

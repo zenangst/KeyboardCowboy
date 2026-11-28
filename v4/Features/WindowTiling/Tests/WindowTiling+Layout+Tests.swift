@@ -51,3 +51,21 @@ import Testing
   #expect(WindowTiling.classify(screen, in: screen, margin: -.infinity) == nil)
   #expect(WindowTiling.classify(screen, in: screen, margin: 0, tolerance: .nan) == nil)
 }
+
+@Test func targetFramesRoundTripWithoutImplicitGroupActions() throws {
+  let screen = CGRect(x: -1539, y: 285, width: 1539, height: 1155)
+  let window = CGRect(x: -1400, y: 300, width: 420, height: 280)
+  let actions: [WindowTiling.Action] = [
+    .fill, .center, .left, .right, .top, .bottom, .topLeft, .topRight, .bottomLeft, .bottomRight,
+  ]
+  for action in WindowTiling.Action.allCases {
+    let target = WindowTiling.targetFrame(for: action, window: window, in: screen, margin: 8)
+    if actions.contains(action) {
+      let frame = try #require(target)
+      #expect(WindowTiling.classify(frame, in: screen, margin: 8, tolerance: 0) == action)
+      if action == .center { #expect(frame.size == window.size) }
+    } else {
+      #expect(target == nil)
+    }
+  }
+}

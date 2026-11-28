@@ -8,8 +8,7 @@ extension WindowTidy {
     let left = favorsLeft(layout(anchor))
     switch windows.count {
     case 1: return [.init(window: anchor, action: .fill)]
-    case 2: return [.init(window: anchor, action: left ? .arrangeLeftRight : .arrangeRightLeft)]
-    case 3: return [.init(window: anchor, action: left ? .arrangeLeftQuarters : .arrangeRightQuarters)]
+    case 2, 3: return smallGroup(windows, anchor: anchor, left: left)
     default:
       return windows.reversed().map { window in
         if window.id == anchor.id { return .init(window: window, action: left ? .left : .right) }
@@ -32,26 +31,19 @@ extension WindowTidy {
     _ windows: [Window], anchor: Window, rules: [Rule], layout: (Window) -> WindowTiling.Action?,
   ) -> [Plan.Step] {
     let left = favorsLeft(layout(anchor))
-    let order = Array(windows.reversed())
     if windows.count <= 3 {
-      return order.enumerated().map { index, window in
-        let action: Tile
-        if window.id == anchor.id {
-          action = left ? .left : .right
-        } else if windows.count == 2 {
-          action = left ? .right : .left
-        } else if left {
-          action = index == 0 ? .bottomRight : .topRight
-        } else {
-          action = index == 0 ? .bottomLeft : .topLeft
-        }
-        return .init(window: window, action: action)
-      }
+      return smallGroup(windows, anchor: anchor, left: left)
     }
+    let order = windows.reversed()
 
     func rule(for window: Window) -> Tile? {
       guard let bundle = window.bundleIdentifier else { return nil }
-      return rules.first { $0.bundleIdentifier == bundle }?.tiling
+      guard let action = rules.first(where: { $0.bundleIdentifier == bundle })?.tiling else { return nil }
+      switch action {
+      case .left, .right, .top, .bottom, .topLeft, .topRight, .bottomLeft, .bottomRight, .fill, .center:
+        return action
+      default: return nil
+      }
     }
     // Reserve explicit rule slots before allocating unruled windows.
     let reserved = Set(order.compactMap(rule).flatMap(slots))
@@ -68,6 +60,22 @@ extension WindowTidy {
       }
       guard let action else { return nil }
       occupied.formUnion(slots(action))
+      return .init(window: window, action: action)
+    }
+  }
+
+  private static func smallGroup(_ windows: [Window], anchor: Window, left: Bool) -> [Plan.Step] {
+    windows.reversed().enumerated().map { index, window in
+      let action: Tile
+      if window.id == anchor.id {
+        action = left ? .left : .right
+      } else if windows.count == 2 {
+        action = left ? .right : .left
+      } else if left {
+        action = index == 0 ? .bottomRight : .topRight
+      } else {
+        action = index == 0 ? .bottomLeft : .topLeft
+      }
       return .init(window: window, action: action)
     }
   }
