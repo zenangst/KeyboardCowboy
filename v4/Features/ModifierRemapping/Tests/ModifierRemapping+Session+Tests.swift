@@ -80,9 +80,22 @@ func disablingMidPressOnlyReleasesAnEmittedHold(held: Bool) throws {
   #expect(session.reset() == [event(control, .up)])
   #expect(session.reset().isEmpty)
   #expect(!session.receive(event(control, .repeated), at: .seconds(1)).forwardsInput)
+  #expect(session.receive(event(escape, .up), at: .seconds(1)).forwardsInput)
   #expect(!session.receive(event(control, .down), at: .seconds(2)).forwardsInput)
   #expect(session.receive(event(control, .up), at: .seconds(2) + .milliseconds(50)).output
     == [event(escape, .down), event(escape, .up)])
+}
+
+@Test(arguments: [false, true])
+func resetRequiresKnownReleasedTargetBeforeTapping(snapshotAvailable: Bool) throws {
+  var session = Remap.Session(rule: try rule())
+  _ = session.receive(event(control, .down), at: .zero)
+  #expect(session.reset(physicallyHeldKeys: snapshotAvailable ? [] : nil).isEmpty)
+  #expect(!session.receive(event(control, .up), at: .milliseconds(50)).forwardsInput)
+  _ = session.receive(event(control, .down), at: .seconds(1))
+  let tap = session.receive(event(control, .up), at: .seconds(1) + .milliseconds(50))
+  #expect(!tap.forwardsInput)
+  #expect(tap.output == (snapshotAvailable ? [event(escape, .down), event(escape, .up)] : []))
 }
 
 @Test(arguments: [false, true])

@@ -5,7 +5,8 @@ public extension ModifierRemapping {
     public private(set) var rule: Rule?
     private var state: State = .idle
     private var discardedReleases: Set<UInt16> = []
-    private var physicallyHeldKeys: Set<UInt16> = []
+    private var physicalKeys: [UInt16: Bool] = [:]
+    private var hasPhysicalBaseline = true
 
     private enum State: Sendable {
       case idle
@@ -13,6 +14,7 @@ public extension ModifierRemapping {
       case holding
     }
 
+    /// Starts at a known all-keys-up boundary.
     public init(rule: Rule? = nil) {
       self.rule = rule
     }
@@ -30,8 +32,8 @@ public extension ModifierRemapping {
 
     public mutating func receive(_ event: Event, at time: Duration) -> Decision {
       switch event.phase {
-      case .down, .repeated: physicallyHeldKeys.insert(event.keyCode)
-      case .up: physicallyHeldKeys.remove(event.keyCode)
+      case .down, .repeated: physicalKeys[event.keyCode] = true
+      case .up: physicalKeys[event.keyCode] = hasPhysicalBaseline ? nil : false
       }
       let due = advance(to: time)
       if discardedReleases.contains(event.keyCode) {
@@ -53,7 +55,7 @@ public extension ModifierRemapping {
         return .init(output: due, forwardsInput: true)
       case (.pending(let start), .up):
         state = .idle
-        guard time >= start, !physicallyHeldKeys.contains(rule.tapKeyCode) else {
+        guard time >= start, physicalKeys[rule.tapKeyCode].map({ !$0 }) ?? hasPhysicalBaseline else {
           return .init(output: due, forwardsInput: false)
         }
         return .init(output: [.init(keyCode: rule.tapKeyCode, phase: .down),
@@ -67,11 +69,14 @@ public extension ModifierRemapping {
       return .init(output: due, forwardsInput: false)
     }
 
-    /// Discard pending taps and forget observed key state after losing the
-    /// input stream. Release a modifier only if its logical down was emitted,
-    /// and suppress the old physical up if it still arrives.
-    public mutating func reset() -> [Event] {
-      physicallyHeldKeys.removeAll(keepingCapacity: true)
+    /// Discard pending taps when the stream is disrupted. Without a fresh
+    /// physical snapshot, only observed releases make a tap target eligible.
+    /// Return cleanup for a logical hold and suppress its stale physical up.
+    /// If output failed, use `OutputDelivery.recover` instead of sending this
+    /// returned cleanup: it only releases presses accepted by the sink.
+    public mutating func reset(physicallyHeldKeys: Set<UInt16>? = nil) -> [Event] {
+      hasPhysicalBaseline = physicallyHeldKeys != nil
+      physicalKeys = Dictionary(uniqueKeysWithValues: (physicallyHeldKeys ?? []).map { ($0, true) })
       return cancelPress()
     }
 
