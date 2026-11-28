@@ -1,9 +1,8 @@
-#if DEBUG || WINDOW_FOCUS_VALIDATION
 import AccessibilitySystem
 import CoreGraphics
 
 public extension WindowFocus {
-  /// Experimental effect runner. Use a single session across repeated invocations.
+  /// Use a single session across repeated invocations.
   /// Display rectangles use top-left global coordinates, like the selectors.
   @MainActor
   final class SpatialFocus {
@@ -60,4 +59,3 @@ public extension WindowFocus {
     }
   }
 }
-#endif

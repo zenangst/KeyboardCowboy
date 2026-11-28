@@ -332,8 +332,10 @@ Omit both IDs to test reverse cycling without history.
 
 #### Opt-in Window Focus validation build
 
-To check the private bridge in a distribution-style build without enabling it
-in standard Release, build a separate optimized, hardened-runtime bundle.
+The Window Focus library exposes native execution in standard Release. The
+Service does not route saved workflows to it yet. To run the signed fixtures,
+build a separate optimized, hardened-runtime bundle with the smoke entry
+points enabled.
 Set `developer_id` to your Developer ID Application signing identity:
 
 ```sh

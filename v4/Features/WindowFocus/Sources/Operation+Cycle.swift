@@ -1,8 +1,9 @@
-#if DEBUG || WINDOW_FOCUS_VALIDATION
 import AccessibilitySystem
 import CoreGraphics
 import Darwin
+#if DEBUG || WINDOW_FOCUS_VALIDATION
 import OSLog
+#endif
 
 extension Operation {
   struct Cycle: Sendable {
@@ -21,10 +22,16 @@ extension Operation.Cycle {
     in processIdentifier: pid_t,
     isAppActive: @escaping @Sendable () -> Bool,
   ) async throws -> Bool {
+    let trace: @Sendable (String) -> Void
+    #if DEBUG || WINDOW_FOCUS_VALIDATION
     let log = Logger(subsystem: "com.zenangst.keyboardcowboy.v4", category: "WindowFocusSmoke")
+    trace = { log.notice("Cycle PID \(processIdentifier, privacy: .public): \($0, privacy: .public)") }
+    #else
+    trace = { _ in }
+    #endif
     // AX can execute a same-process action inline on this off-main worker.
     guard processIdentifier > 0, processIdentifier != getpid(), isAppActive() else {
-      log.notice("Cycle skipped: invalid or inactive target PID \(processIdentifier, privacy: .public)")
+      trace("skipped: invalid or inactive target PID")
       return false
     }
 
@@ -35,10 +42,10 @@ extension Operation.Cycle {
         isAppActive: isAppActive,
         focusedWindow: session.focusedWindow,
         windows: session.windows,
-        candidates: session.debugWindowIDCandidates(for:),
+        candidates: { try $0.map { try session.windowIDCandidate(for: $0) } },
         onScreenOwners: Self.onScreenOwners,
         raise: { try session.perform(.raise, on: $0) },
-        trace: { log.notice("Cycle PID \(processIdentifier, privacy: .public): \($0, privacy: .public)") },
+        trace: trace,
       )
     }
     guard let selection else { return false }
@@ -53,7 +60,7 @@ extension Operation.Cycle {
         }
       },
     )
-    log.notice("Cycle PID \(processIdentifier, privacy: .public): focus observed on \(selection.target, privacy: .public): \(observed, privacy: .public)")
+    trace("focus observed on \(selection.target): \(observed)")
     return observed
   }
 
@@ -159,4 +166,3 @@ extension Operation.Cycle {
     }
   }
 }
-#endif

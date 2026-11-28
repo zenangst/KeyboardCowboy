@@ -1,4 +1,3 @@
-#if DEBUG
 import CoreGraphics
 import Testing
 @testable import WindowFocusFeature
@@ -181,4 +180,3 @@ private final class NextWindowFixture {
     ) != nil
   }
 }
-#endif

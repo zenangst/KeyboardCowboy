@@ -1,4 +1,3 @@
-#if DEBUG || WINDOW_FOCUS_VALIDATION
 import AccessibilitySystem
 import Darwin
 
@@ -29,4 +28,3 @@ public extension WindowFocus {
     return try await cycle(.previous(history), in: processIdentifier, isAppActive: isAppActive)
   }
 }
-#endif

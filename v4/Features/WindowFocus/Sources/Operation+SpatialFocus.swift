@@ -1,4 +1,3 @@
-#if DEBUG || WINDOW_FOCUS_VALIDATION
 import AccessibilitySystem
 import AppKit
 import CoreGraphics
@@ -177,4 +176,3 @@ extension Operation {
     }
   }
 }
-#endif

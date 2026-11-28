@@ -1,4 +1,3 @@
-#if DEBUG || WINDOW_FOCUS_VALIDATION
 import CoreGraphics
 
 public extension WindowFocus {
@@ -16,4 +15,3 @@ public extension WindowFocus {
     }
   }
 }
-#endif
