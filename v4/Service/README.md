@@ -317,6 +317,10 @@ Run repeatedly to check that the same windows cycle and wrap. The command
 raises at most one window, only if the specified app is still active and the
 current and target windows are still verified on-screen. With one eligible
 window or a different active app, expect `Next window raise succeeded: false`.
+When a cycle fails, compare the fixture's before, expected, and actual key
+window IDs with the Service log. `Cycle ... skipped` identifies a failed
+precondition; `AX accepted raise` means only that AX accepted the action,
+not that the target became key.
 It does not activate an app, post input, or cache window IDs. Standard Release
 builds do not recognize this launch option.
 

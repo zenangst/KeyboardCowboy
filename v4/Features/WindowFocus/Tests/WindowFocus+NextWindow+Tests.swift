@@ -103,6 +103,17 @@ private func rechecksAndDoesNotRetargetOnInvalidation(reason: Invalidation) thro
   #expect(fixture.snapshots == 2)
 }
 
+@Test func tracesAcceptedRaiseSeparatelyFromASkippedRaise() throws {
+  let fixture = NextWindowFixture()
+  #expect(try fixture.run())
+  #expect(fixture.trace == ["selected 20 from focused 10; eligible IDs [10, 20, 30]", "AX accepted raise of 20"])
+  fixture.trace.removeAll()
+  fixture.afterFirstSnapshot = { fixture.owners?[30] = nil }
+  fixture.snapshots = 0
+  #expect(try !fixture.run())
+  #expect(fixture.trace.last == "skipped: focused or target ID no longer verified on-screen")
+}
+
 private final class NextWindowFixture {
   enum Failure: Error { case raise }
 
@@ -116,6 +127,7 @@ private final class NextWindowFixture {
   var afterFirstSnapshot: (() -> Void)?
   var raised: [Int] = []
   var snapshots = 0
+  var trace: [String] = []
 
   func run(_ direction: Operation.Cycle.Direction = .next) throws -> Bool {
     try Operation.Cycle.run(
@@ -139,6 +151,7 @@ private final class NextWindowFixture {
         order.insert(target, at: 0)
         focused = target
       },
+      trace: { trace.append($0) },
     )
   }
 }

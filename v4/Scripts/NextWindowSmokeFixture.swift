@@ -391,8 +391,8 @@ struct NextWindowSmokeFixture {
       try await Task.sleep(for: .milliseconds(500))
       guard app.isActive, windows[0].isKeyWindow else { return "FAIL: fixture did not become active" }
 
-      for index in [1, 2, 0] {
-        try await expectKeyWindow(windows[index], service: service, pid: pid, scenario: "cycle")
+      for (step, index) in [1, 2, 0].enumerated() {
+        try await expectKeyWindow(windows[index], service: service, pid: pid, scenario: "cycle \(step + 1)/3")
       }
 
       windows[2].makeKeyAndOrderFront(nil)
@@ -437,16 +437,21 @@ struct NextWindowSmokeFixture {
     case fixtureInactive
     case launchFailed(Int32)
     case unexpectedFocus(scenario: String, expected: String)
+    case unexpectedCycleFocus(scenario: String, expectedID: Int, beforeID: Int?, actualID: Int?, active: Bool)
   }
 
   private static func expectKeyWindow(
     _ window: NSWindow, service: String, pid: pid_t, scenario: String, command: [String]? = nil,
   ) async throws {
     guard NSApp.isActive else { throw Failure.fixtureInactive }
+    let before = NSApp.keyWindow?.windowNumber
     try await launchService(service, command: command ?? ["--smoke-next-window", String(pid)])
     try await Task.sleep(for: .milliseconds(150))
     guard NSApp.isActive, window.isKeyWindow else {
-      throw Failure.unexpectedFocus(scenario: scenario, expected: window.title)
+      throw Failure.unexpectedCycleFocus(
+        scenario: scenario, expectedID: window.windowNumber, beforeID: before,
+        actualID: NSApp.keyWindow?.windowNumber, active: NSApp.isActive,
+      )
     }
   }
 

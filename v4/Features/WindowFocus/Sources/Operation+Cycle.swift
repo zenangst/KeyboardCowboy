@@ -2,6 +2,7 @@
 import AccessibilitySystem
 import CoreGraphics
 import Darwin
+import OSLog
 
 extension Operation {
   struct Cycle: Sendable {
@@ -20,8 +21,12 @@ extension Operation.Cycle {
     in processIdentifier: pid_t,
     isAppActive: @escaping @Sendable () -> Bool,
   ) async throws -> Bool {
+    let log = Logger(subsystem: "com.zenangst.keyboardcowboy.v4", category: "WindowFocusSmoke")
     // AX can execute a same-process action inline on this off-main worker.
-    guard processIdentifier > 0, processIdentifier != getpid(), isAppActive() else { return false }
+    guard processIdentifier > 0, processIdentifier != getpid(), isAppActive() else {
+      log.notice("Cycle skipped: invalid or inactive target PID \(processIdentifier, privacy: .public)")
+      return false
+    }
 
     return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
       try Self.run(
@@ -33,6 +38,7 @@ extension Operation.Cycle {
         candidates: session.debugWindowIDCandidates(for:),
         onScreenOwners: Self.onScreenOwners,
         raise: { try session.perform(.raise, on: $0) },
+        trace: { log.notice("Cycle PID \(processIdentifier, privacy: .public): \($0, privacy: .public)") },
       )
     }
   }
@@ -46,14 +52,24 @@ extension Operation.Cycle {
     candidates: ([Window]) throws -> [CGWindowID?]?,
     onScreenOwners: () -> [CGWindowID: Set<pid_t>]?,
     raise: (Window) throws -> Void,
+    trace: (String) -> Void = { _ in },
   ) throws -> Bool {
-    guard let focused = try focusedWindow() else { return false }
+    func skip(_ reason: String) -> Bool {
+      trace("skipped: \(reason)")
+      return false
+    }
+
+    guard let focused = try focusedWindow() else { return skip("no AX focused window") }
 
     let windows = try windows()
-    guard let focusedIndex = windows.firstIndex(of: focused),
-          let ids = try candidates(windows), ids.count == windows.count,
-          let focusedID = ids[focusedIndex],
-          let onScreen = onScreenOwners() else { return false }
+    guard let focusedIndex = windows.firstIndex(of: focused) else {
+      return skip("AX focused window missing from AXWindows (\(windows.count) windows)")
+    }
+    guard let ids = try candidates(windows), ids.count == windows.count else {
+      return skip("AX window ID lookup unavailable or incomplete")
+    }
+    guard let focusedID = ids[focusedIndex] else { return skip("AX focused window has no CG ID") }
+    guard let onScreen = onScreenOwners() else { return skip("no on-screen CG snapshot") }
 
     let idCounts = Dictionary(ids.compactMap { $0 }.map { ($0, 1) }, uniquingKeysWith: +)
     let eligible = zip(ids, windows)
@@ -63,7 +79,11 @@ extension Operation.Cycle {
         return (id, window)
       }
       .sorted { $0.id < $1.id }
-    guard eligible.count > 1, let cursor = eligible.firstIndex(where: { $0.id == focusedID }) else { return false }
+    let eligibleIDs = eligible.map(\.id)
+    guard let cursor = eligible.firstIndex(where: { $0.id == focusedID }) else {
+      return skip("focused ID \(focusedID) not in eligible IDs \(eligibleIDs)")
+    }
+    guard eligible.count > 1 else { return skip("focused ID \(focusedID) is the only eligible window") }
 
     let target = switch direction {
     case .next:
@@ -79,12 +99,18 @@ extension Operation.Cycle {
 
     // Do not use the old snapshot if focus, either AX association, or current
     // on-screen ownership changed. Never retarget or retry this invocation.
-    guard try focusedWindow() == focused,
-          try candidates([focused, target.window]) == [focusedID, target.id],
-          let fresh = onScreenOwners(), fresh[focusedID] == [pid], fresh[target.id] == [pid],
-          isAppActive() else { return false }
+    trace("selected \(target.id) from focused \(focusedID); eligible IDs \(eligibleIDs)")
+    guard try focusedWindow() == focused else { return skip("AX focus changed before raise") }
+    guard try candidates([focused, target.window]) == [focusedID, target.id] else {
+      return skip("AX window ID association changed before raise")
+    }
+    guard let fresh = onScreenOwners(), fresh[focusedID] == [pid], fresh[target.id] == [pid] else {
+      return skip("focused or target ID no longer verified on-screen")
+    }
+    guard isAppActive() else { return skip("app no longer active before raise") }
 
     try raise(target.window)
+    trace("AX accepted raise of \(target.id)")
     return true
   }
 
