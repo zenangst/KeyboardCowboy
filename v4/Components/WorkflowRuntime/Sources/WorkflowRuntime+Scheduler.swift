@@ -10,6 +10,11 @@ public extension WorkflowRuntime {
       self.executor = executor
     }
 
+    /// Like explicit cancellation, teardown does not wait for in-flight effects.
+    deinit {
+      for run in runs.values { run.task.cancel() }
+    }
+
     /// Starts a run and returns its result and cancellation handle. A host can
     /// request cancellation of both lanes before starting, independent of lane.
     /// Replacement is cooperative: it does not wait for an in-flight effect to finish.

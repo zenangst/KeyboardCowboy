@@ -7,13 +7,6 @@ public extension WorkflowRuntime {
       Context<Snapshot>,
     ) async throws -> CommandResult<Snapshot>
 
-    /// Awaits a child in the current task and lane. Its outcomes are returned
-    /// separately from the parent's, and its context is only merged explicitly.
-    public typealias RunChild = @MainActor (
-      Request<Payload>,
-      ChildContext<Snapshot>,
-    ) async throws -> Result<Snapshot>
-
     public typealias NestedDispatch = @MainActor (
       Step<Payload>,
       Request<Payload>,
@@ -57,14 +50,16 @@ public extension WorkflowRuntime {
       from initialContext: Context<Snapshot>,
       lane: Lane = .serial,
     ) async throws -> Result<Snapshot> {
-      try await run(request, from: initialContext, lane: lane, ancestors: [])
+      try await run(request, from: initialContext, lane: lane, policy: .laneDefault, ancestors: [])
     }
 
     private func run(
       _ request: Request<Payload>,
       from initialContext: Context<Snapshot>,
       lane: Lane,
+      policy: ChildPolicy,
       ancestors: Set<String>,
+      forwardsPartialContext: Bool = false,
     ) async throws -> Result<Snapshot> {
       try Task.checkCancellation()
       guard !ancestors.contains(request.workflowID) else {
@@ -78,9 +73,12 @@ public extension WorkflowRuntime {
       for step in enabled.steps {
         try Task.checkCancellation()
         do {
-          let result = try await dispatch(step, enabled, context) { child, childContext in
-            try await run(child, from: childContext.initial, lane: lane, ancestors: path)
-          }
+          let result = try await dispatch(step, enabled, context, RunChild { child, childContext, childPolicy in
+            try await run(
+              child, from: childContext.initial, lane: lane, policy: childPolicy, ancestors: path,
+              forwardsPartialContext: childContext.isShared && childPolicy == .delayAfterSuccessAndAbortOnFailure,
+            )
+          })
           try Task.checkCancellation()
           context.snapshot = result.snapshot
           if let variables = result.variables {
@@ -94,12 +92,19 @@ public extension WorkflowRuntime {
           throw CancellationError()
         } catch {
           try Task.checkCancellation()
-          if failurePolicy(step, error, lane) == .abort { throw error }
-          outcomes.append(.failed(commandID: step.metadata.id, error: error))
+          let childFailure = error as? SharedChildFailure<Snapshot>
+          if let childFailure { context = childFailure.context }
+          let cause = childFailure?.cause ?? error
+          if policy == .delayAfterSuccessAndAbortOnFailure || failurePolicy(step, cause, lane) == .abort {
+            if forwardsPartialContext { throw SharedChildFailure(context: context, cause: cause) }
+            throw cause
+          }
+          outcomes.append(.failed(commandID: step.metadata.id, error: cause))
         }
         try Task.checkCancellation()
-        // Match serial post-command timing. Ignore nonpositive or unrepresentable delays.
-        if lane == .serial, let delay = step.metadata.delay, delay > 0, delay < Double(Int64.max) {
+        // Ignore nonpositive or unrepresentable delays.
+        if lane == .serial || policy == .delayAfterSuccessAndAbortOnFailure,
+           let delay = step.metadata.delay, delay > 0, delay < Double(Int64.max) {
           try await sleep(.milliseconds(delay))
           try Task.checkCancellation()
         }

@@ -135,7 +135,61 @@ private enum ChildFailure: Error, Equatable { case script }
   }
 }
 
-@Test @MainActor func schedulerCancellationDuringChildUnwindsParentWithoutDispatchingLaterSteps() async {
+@Test(arguments: [false, true], [false, true])
+@MainActor func bundledChildPolicyDelaysSuccessAndBubblesFailureInConcurrentLane(fails: Bool, shared: Bool) async throws {
+  var events: [String] = []
+  var delays: [Duration] = []
+  let child = request("child", step("update", variable: "child value", delay: 5),
+                      step("finish", delay: 10), step("child tail"))
+  let executor = Executor(
+    failurePolicy: { step, error, lane in
+      #expect(lane == .concurrent && error as? ChildFailure == .script)
+      events.append("classify \(step.payload)")
+      return .proceed
+    },
+    sleep: { delays.append($0); events.append("delay") },
+    dispatchingNested: { step, _, context, runChild in
+      events.append(step.payload)
+      switch step.payload {
+      case "expand":
+        let childContext: WorkflowRuntime.ChildContext<Int> = shared ? .shared(context) : .isolated(snapshot: 20)
+        let result = try await runChild(child, childContext, policy: .delayAfterSuccessAndAbortOnFailure)
+        return .init(context: shared ? result.context : context, output: "")
+      case "update":
+        #expect(context.snapshot == (shared ? 10 : 20))
+        #expect(context.variables == (shared ? ["seed": "parent"] : [:]))
+        return .init(snapshot: context.snapshot + 1, output: "updated")
+      case "finish":
+        #expect(context.variables["child value"] == "updated")
+        if fails { throw ChildFailure.script }
+      default: break
+      }
+      return .init(snapshot: context.snapshot, output: "")
+    },
+  )
+  let result = try await executor.run(
+    request("parent", step("expand", delay: 20), step("parent tail")),
+    from: .init(snapshot: 10, variables: ["seed": "parent"]), lane: .concurrent,
+  )
+
+  #expect(result.context.snapshot == (shared ? 11 : 10))
+  #expect(result.context.variables == (shared ? ["seed": "parent", "child value": "updated"] : ["seed": "parent"]))
+  if fails {
+    #expect(events == ["expand", "update", "delay", "finish", "classify expand", "parent tail"])
+    #expect(delays == [.milliseconds(5)])
+    guard case .failed(let id, let error) = result.outcomes.first else {
+      Issue.record("Expected the parent step to receive the child failure")
+      return
+    }
+    #expect(id == "expand" && error as? ChildFailure == .script)
+  } else {
+    #expect(events == ["expand", "update", "delay", "finish", "delay", "child tail", "parent tail"])
+    #expect(delays == [.milliseconds(5), .milliseconds(10)])
+  }
+}
+
+@Test(arguments: [false, true])
+@MainActor func schedulerCancellationDuringChildUnwindsParentWithoutDispatchingLaterSteps(onTeardown: Bool) async throws {
   let gate = DispatchGate()
   var events: [String] = []
   let child = request("child", step("hold", delay: 5), step("unexpected child step"))
@@ -159,10 +213,19 @@ private enum ChildFailure: Error, Equatable { case script }
       return .init(snapshot: context.snapshot, output: "")
     },
   )
-  let scheduler = WorkflowRuntime.Scheduler(executor: executor)
-  let task = scheduler.start(request("parent", step("expand"), step("unexpected parent step")), from: .init(snapshot: 10))
+  var scheduler: WorkflowRuntime.Scheduler? = .init(executor: executor)
+  weak var retainedScheduler = scheduler
+  let task = try #require(scheduler?.start(
+    request("parent", step("expand"), step("unexpected parent step")), from: .init(snapshot: 10),
+  ))
   for await _ in gate.started {}
-  scheduler.cancelAll()
+  if onTeardown {
+    scheduler = nil
+    #expect(retainedScheduler == nil)
+  } else {
+    scheduler?.cancelAll()
+  }
+  #expect(task.isCancelled)
   gate.open()
 
   await #expect(throws: CancellationError.self) { try await task.value }
