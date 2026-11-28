@@ -12,8 +12,11 @@ elif [[ "${1:-}" == --app-focus && $# -eq 1 ]]; then
 elif [[ "${1:-}" == --tidy && $# -eq 1 ]]; then
   filter=liveWindowTidy
   package=WindowTidy
+elif [[ "${1:-}" == --tidy-multi-app && $# -eq 1 ]]; then
+  filter=liveMultiAppWindowTidy
+  package=WindowTidy
 elif (( $# != 0 )); then
-  print -u2 "Usage: $0 [--effects|--app-focus|--tidy]"
+  print -u2 "Usage: $0 [--effects|--app-focus|--tidy|--tidy-multi-app]"
   exit 2
 fi
 scratch="$(mktemp -d "${TMPDIR:-/tmp}/kc-workspace.XXXXXXXX")"
@@ -39,6 +42,8 @@ elif [[ "$filter" == liveAppFocus ]]; then
   /usr/bin/say "Testing App Focus activation, hide, and fill."
 elif [[ "$filter" == liveWindowTidy ]]; then
   /usr/bin/say "Testing Window Tidy on two disposable windows and one decoy."
+elif [[ "$filter" == liveMultiAppWindowTidy ]]; then
+  /usr/bin/say "Testing Window Tidy rules across two disposable apps."
 else
   /usr/bin/say "Testing workspace A, workspace B, then previous workspace."
 fi
