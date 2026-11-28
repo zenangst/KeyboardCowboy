@@ -104,13 +104,19 @@ extension Operation {
           }
         },
         applications: {
-          NSWorkspace.shared.runningApplications.filter {
-            !$0.isTerminated && (processIdentifiers?.contains($0.processIdentifier) ?? true)
-          }.map { app in
-            Application(pid: app.processIdentifier, bundleID: app.bundleIdentifier, bundleURL: app.bundleURL,
-                        isRegular: app.activationPolicy == .regular, isHidden: { app.isHidden },
-                        hide: { _ = app.hide() })
-          }
+          NSWorkspace.shared
+            .runningApplications
+            .filter {
+              !$0.isTerminated && (processIdentifiers?.contains($0.processIdentifier) ?? true)
+            }
+            .map { app in
+              Application(
+                pid: app.processIdentifier,
+                bundleID: app.bundleIdentifier,
+                bundleURL: app.bundleURL,
+                isRegular: app.activationPolicy == .regular, isHidden: { app.isHidden },
+                hide: { _ = app.hide() })
+            }
         },
         windows: {
           let rows = CGWindowListCopyWindowInfo([.excludeDesktopElements, .optionOnScreenOnly], kCGNullWindowID)

@@ -3,10 +3,14 @@ set -euo pipefail
 
 root="${0:A:h:h}"
 filter=liveWorkspaceActivation
+package=Workspaces
 if [[ "${1:-}" == --effects && $# -eq 1 ]]; then
   filter=liveWorkspaceEffects
+elif [[ "${1:-}" == --app-focus && $# -eq 1 ]]; then
+  filter=liveAppFocus
+  package=AppFocus
 elif (( $# != 0 )); then
-  print -u2 "Usage: $0 [--effects]"
+  print -u2 "Usage: $0 [--effects|--app-focus]"
   exit 2
 fi
 scratch="$(mktemp -d "${TMPDIR:-/tmp}/kc-workspace.XXXXXXXX")"
@@ -28,12 +32,14 @@ done
 /usr/bin/say "Workspace activation smoke ready. Leave focus alone."
 if [[ "$filter" == liveWorkspaceEffects ]]; then
   /usr/bin/say "Testing workspace fill and hiding the other disposable app."
+elif [[ "$filter" == liveAppFocus ]]; then
+  /usr/bin/say "Testing App Focus activation, hide, and fill."
 else
   /usr/bin/say "Testing workspace A, workspace B, then previous workspace."
 fi
 KC_WORKSPACES_EFFECTS=0
 [[ "$filter" != liveWorkspaceEffects ]] || KC_WORKSPACES_EFFECTS=1
-if KC_WORKSPACES_FIXTURES="$scratch" KC_WORKSPACES_EFFECTS="$KC_WORKSPACES_EFFECTS" swift test --package-path "$root/Features/Workspaces" \
+if KC_WORKSPACES_FIXTURES="$scratch" KC_WORKSPACES_EFFECTS="$KC_WORKSPACES_EFFECTS" swift test --package-path "$root/Features/$package" \
     --configuration "${CONFIGURATION:-release}" --filter "$filter"; then
   /usr/bin/say "Workspace activation smoke passed."
 else
