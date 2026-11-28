@@ -26,7 +26,7 @@ func repeatsHonorTheCompletedRulesRepeatAndPassthroughSettings(allowRepeat: Bool
   #expect(session.receiveRepeat(b, frontmostBundleIdentifier: nil).disposition == .passThrough)
 }
 
-@Test(arguments: ["app", "mode", "flags", "reset", "new press"])
+@Test(arguments: ["app", "mode", "flags", "context change", "reset", "new press"])
 func repeatAuthorizationDoesNotSurviveInvalidation(reason: String) {
   let matcher = Triggers.Matcher(rules: [.init(workflowID: "a", signature: a)])
   var session = Triggers.SequenceSession(matcher: matcher, timeout: .seconds(1))
@@ -39,6 +39,8 @@ func repeatAuthorizationDoesNotSurviveInvalidation(reason: String) {
     #expect(session.receiveRepeat(a, frontmostBundleIdentifier: nil, enabledModeIDs: ["mode"]).match == .noMatch)
   case "flags":
     #expect(session.receiveRepeat(.init(keyCode: a.keyCode, flags: 0), frontmostBundleIdentifier: nil).match == .noMatch)
+  case "context change":
+    session.invalidateMatchingContext()
   case "reset":
     session.reset()
   default:

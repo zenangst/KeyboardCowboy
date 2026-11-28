@@ -64,13 +64,27 @@ private let next = KeyboardTriggers.Signature(keyCode: 1, flags: 0)
   #expect(stale.match == .noMatch && stale.disposition == .passThrough)
 }
 
+@Test func returningToTheSameAppDoesNotReviveAPendingHold() throws {
+  let stream = EventStream(rules: [.init(workflowID: "hold", signature: key, holdDuration: .milliseconds(200))])
+  let press = try stream.key(.keyDown, key, at: .zero)
+  let deadline = try #require(press.holdDeadline)
+  stream.frontmost = "other"
+  stream.frontmost = "initial"
+  #expect(stream.completeHold(at: deadline) == nil)
+  #expect(try stream.key(.keyUp, key, at: deadline).disposition == .suppress)
+}
+
 /// Composes the two public APIs with synthetic time, without a tap, posting,
 /// workflow dispatch, or asynchronous retention of live events.
 private final class EventStream {
   private let router = MachPortSystem.EventRouter(syntheticSignature: 0x4b43)
   let poster = MachPortSystem.KeyboardEventPoster(eventSource: nil, syntheticSignature: 0x4b43)
   private var session: KeyboardTriggers.SequenceSession
-  var frontmost: String? = "initial"
+  var frontmost: String? = "initial" {
+    didSet {
+      if oldValue != frontmost { session.invalidateMatchingContext() }
+    }
+  }
 
   init(rules: [KeyboardTriggers.Rule]) {
     session = .init(matcher: .init(rules: rules), timeout: .seconds(1))

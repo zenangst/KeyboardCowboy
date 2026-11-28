@@ -273,15 +273,22 @@ public extension KeyboardTriggers {
       return Decision(match: match, disposition: disposition, leaderReplayDeadline: replayDeadline)
     }
 
+    /// Call on each observed app or mode transition, even if a later transition
+    /// restores the original context. Cancel pending matches without discarding
+    /// physical key-up suppression or an armed release follow-up.
+    public mutating func invalidateMatchingContext() {
+      clearPrefix()
+      pendingHold = nil
+      repeating = nil
+    }
+
     /// Clear the sequence and key pairings when the host loses the input stream,
     /// such as on tap disruption or capture handoff.
     public mutating func reset() {
-      clearPrefix()
+      invalidateMatchingContext()
       lastKeyRelease = nil
       suppressedKeyCodes.removeAll(keepingCapacity: true)
-      repeating = nil
       pendingRelease = nil
-      cancelHold()
     }
 
     private mutating func clearPrefix() {

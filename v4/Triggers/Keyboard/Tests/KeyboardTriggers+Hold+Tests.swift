@@ -24,7 +24,7 @@ func singleShortcutHoldFiresOnceAtItsDeadline(passthrough: Bool) {
   #expect(session.release(keyCode: a.keyCode) == disposition)
 }
 
-@Test(arguments: ["release", "new press", "app", "mode", "clock", "modifier change", "reset"])
+@Test(arguments: ["release", "new press", "app", "mode", "clock", "modifier change", "context change", "reset"])
 func cancelledHoldCannotFireLater(reason: String) {
   let matcher = Triggers.Matcher(rules: [
     .init(workflowID: "hold", signature: a, holdDuration: .milliseconds(200)),
@@ -38,10 +38,11 @@ func cancelledHoldCannotFireLater(reason: String) {
   case "mode": #expect(session.completeHold(at: .milliseconds(1100), frontmostBundleIdentifier: nil, enabledModeIDs: ["mode"]) == nil)
   case "clock": #expect(session.completeHold(at: .zero, frontmostBundleIdentifier: nil) == nil)
   case "modifier change": session.cancelHold()
+  case "context change": session.invalidateMatchingContext()
   default: session.reset()
   }
   #expect(session.completeHold(at: .seconds(2), frontmostBundleIdentifier: nil) == nil)
-  if reason == "modifier change" {
+  if reason == "modifier change" || reason == "context change" {
     #expect(session.release(keyCode: a.keyCode) == .suppress)
   }
 }

@@ -21,7 +21,7 @@ private let matcher = Triggers.Matcher(rules: [
   #expect(session.receive(next, at: .milliseconds(151), frontmostBundleIdentifier: nil) == .noMatch)
 }
 
-@Test(arguments: ["used before release", "used during grace", "app", "mode", "reset"])
+@Test(arguments: ["used before release", "used during grace", "app", "mode", "context change", "reset"])
 func usedOrInvalidatedLeaderDoesNotReplay(reason: String) {
   var session = Triggers.SequenceSession(matcher: matcher, timeout: .seconds(1))
   #expect(session.receive(leader, at: .zero, frontmostBundleIdentifier: nil) == .partial)
@@ -37,6 +37,9 @@ func usedOrInvalidatedLeaderDoesNotReplay(reason: String) {
     #expect(session.completeLeaderTap(at: .milliseconds(150), frontmostBundleIdentifier: "other") == nil)
   case "mode":
     #expect(session.completeLeaderTap(at: .milliseconds(150), frontmostBundleIdentifier: nil, enabledModeIDs: ["mode"]) == nil)
+  case "context change":
+    session.invalidateMatchingContext()
+    #expect(session.receive(next, at: .milliseconds(75), frontmostBundleIdentifier: nil) == .noMatch)
   case "reset": session.reset()
   default: break
   }
