@@ -32,6 +32,22 @@ private func expectCanonicalRoundTrip(_ saved: Saved, _ json: String) throws {
   #expect(try JSONDecoder().decode(Saved.self, from: encoded) == saved)
 }
 
+@Test func savedTidyRetainsBundledEnvelopeAndRuleOrder() throws {
+  let json = fixture("tidy", """
+    {"id":"tidy","rules":[{"bundleIdentifier":"com.example.one","tiling":"left"},
+      {"bundleIdentifier":"com.example.one","tiling":"topRight"}]}
+    """)
+  let saved = try decode(json)
+  guard case let .tidy(command) = saved.kind else {
+    Issue.record("Expected a saved Tidy command")
+    return
+  }
+  #expect(command.id == "tidy")
+  #expect(command.rules.map(\.tiling.rawValue) == ["left", "topRight"])
+  #expect(saved.meta.id == "outer")
+  try expectCanonicalRoundTrip(saved, json)
+}
+
 @Test func savedWorkspaceRetainsMetadataAndProjectsToExpansionInput() throws {
   let json = fixture("workspace", workspace)
   let saved = try decode(json)

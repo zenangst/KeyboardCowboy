@@ -14,9 +14,12 @@ let package = Package(
     .package(path: "../Applications"),
     .package(path: "../System"),
     .package(path: "../WindowTiling"),
+    .package(path: "../WindowTidy"),
   ],
   targets: [
-    .target(name: "WorkspacesFeature", dependencies: ["ApplicationCatalog", "Commands"], path: "Sources"),
+    .target(name: "WorkspacesFeature", dependencies: [
+      "ApplicationCatalog", "Commands", .product(name: "WindowTidyFeature", package: "WindowTidy"),
+    ], path: "Sources"),
     .testTarget(
       name: "WorkspacesFeatureTests",
       dependencies: [

@@ -1,3 +1,5 @@
+import WindowTidyFeature
+
 public extension Workspaces.SavedCommand {
   enum Kind: Codable, Hashable, Sendable {
     case workspace(command: Workspaces.SavedWorkspace)
@@ -5,6 +7,7 @@ public extension Workspaces.SavedCommand {
     case assignToWorkspace(command: Assignment)
     case moveToWorkspace(command: Move)
     case appFocus(command: AppFocus)
+    case tidy(command: WindowTidy.Request)
   }
 
   struct Previous: Codable, Hashable, Sendable {
