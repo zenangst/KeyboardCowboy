@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 import Commands
 import CoreGraphics
@@ -31,3 +32,4 @@ private actor SnapshotLaunchRecorder {
   }
   #expect(await recorder.count == 1)
 }
+#endif

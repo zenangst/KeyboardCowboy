@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -37,3 +38,4 @@ import Testing
   #expect(cancelled)
   #expect(recorded == ["lookup", "terminate"])
 }
+#endif

@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -130,3 +131,4 @@ let activateBundleIdentifier = ApplicationSystem.BundleIdentifier("activate.me.p
   }
   #expect(result == .cancelled)
 }
+#endif

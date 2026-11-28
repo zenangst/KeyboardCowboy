@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import AppleScriptRuntime
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
@@ -81,3 +82,4 @@ private func ordinaryAcceptanceCommand() throws -> Command.Application {
   }
   #expect(cancelled)
 }
+#endif

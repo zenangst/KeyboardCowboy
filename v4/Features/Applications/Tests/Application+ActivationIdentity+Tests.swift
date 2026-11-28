@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -23,3 +24,4 @@ import Testing
     }
   }
 }
+#endif

@@ -8,13 +8,19 @@ import Testing
 @Test func cancellationBeforeLaunchAndForEmptySequence() async throws {
   let task = Task {
     withUnsafeCurrentTask { $0?.cancel() }
+    #if DEBUG
     let executor = ShellScript.Executor(.testing)
-    #expect(throws: CancellationError.self) { try executor.execute([]) }
     #expect(throws: CancellationError.self) { try JXA.Executor(.testing).execute("source") }
+    #else
+    let executor = ShellScript.Executor(.production)
+    #expect(throws: CancellationError.self) { try JXA.Executor(.production).execute("source") }
+    #endif
+    #expect(throws: CancellationError.self) { try executor.execute([]) }
   }
   await task.value
 }
 
+#if DEBUG
 @Test(arguments: [false, true])
 func cancellationCleansInlineTemporaryDirectory(jxa: Bool) async throws {
   let marker = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -89,6 +95,7 @@ func cancellationAfterTemporaryDirectoryCreationCleansUp(jxa: Bool) async {
   await task.value
 }
 
+#endif
 @Test(arguments: [false, true])
 func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
   // Run under an external watchdog: a regression can block task completion.
@@ -132,6 +139,7 @@ func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
   #expect(kill(pid, 0) == -1 && errno == ESRCH)
 }
 
+#if DEBUG
 @Test func cancellationWhileQueuedAtDispatcherDoesNotLaunch() async throws {
   let started = DispatchSemaphore(value: 0)
   let release = DispatchSemaphore(value: 0)
@@ -176,3 +184,4 @@ func cancellationReapsRunningDirectChild(closedPipes: Bool) async throws {
     Issue.record("Expected CancellationError, got \(error)")
   }
 }
+#endif

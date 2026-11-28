@@ -4,6 +4,7 @@ import Foundation
 import System
 import Testing
 
+#if DEBUG
 @Test(arguments: [false, true]) @MainActor func cachedAppleScriptExecutionReportsRuntimeError(file: Bool) async throws {
   let executor = AppleScript.Executor(.testing)
   try AppleScriptRuntime.NSAppleScript.Testing.$mock.withValue(.init(compileAndReturnError: true)) {
@@ -109,3 +110,4 @@ import Testing
     }
   }
 }
+#endif

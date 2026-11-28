@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -92,3 +93,4 @@ let bundleIdentifier = ApplicationSystem.BundleIdentifier("close.me.please")
   for await event in events { recorded.append(event) }
   #expect(recorded == ["lookup"])
 }
+#endif

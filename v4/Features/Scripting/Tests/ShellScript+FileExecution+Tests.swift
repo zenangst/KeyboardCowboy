@@ -4,6 +4,7 @@ import Foundation
 @testable import ScriptingFeature
 import Testing
 
+#if DEBUG
 @Test(arguments: [true, false]) func shellFileUsesOriginalPathAndInterpreter(shebang: Bool) async throws {
   let path = "/tmp/Example Folder/script with spaces.sh"
   let contents = shebang ? "#!/bin/bash -e -u\necho hello" : "echo hello"
@@ -28,8 +29,13 @@ import Testing
   }
 }
 
+#endif
 @Test func shellFileBeginningWithDashIsNotAnInterpreterOption() {
+  #if DEBUG
   let process = ShellScript.Builder(.testing).buildFile(at: "/tmp/-script.sh")
+  #else
+  let process = ShellScript.Builder(.production).buildFile(at: "/tmp/-script.sh")
+  #endif
   #expect(process.arguments?.last == "./-script.sh")
 }
 

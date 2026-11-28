@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -182,3 +183,4 @@ import UserSpace
     #expect(await unhide(currentBundleIdentifier, snapshot: snapshot) == false)
   })
 }
+#endif

@@ -3,6 +3,7 @@ import Foundation
 @testable import ScriptingFeature
 import Testing
 
+#if DEBUG
 private enum MockReadError: Error { case failed }
 
 @Test(arguments: ["empty", "invalid", "nil", "failure"])
@@ -37,3 +38,4 @@ func scriptedProcessStreamsAreIndependent(route: String) async throws {
   for await event in events { observed.append(event) }
   #expect(observed == (route == "failure" ? ["run", "stdout"] : ["run", "stdout", "stderr", "wait"]))
 }
+#endif

@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Commands
@@ -205,3 +206,4 @@ private func peekEdgeCommand(_ name: String, action: String) throws -> Command.A
   for await event in events { recorded.append(event) }
   #expect(recorded == ["launch Target.app", "release", "launch Previous.app"])
 }
+#endif

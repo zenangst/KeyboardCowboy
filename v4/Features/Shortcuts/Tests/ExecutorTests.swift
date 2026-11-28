@@ -1,9 +1,12 @@
 import Commands
 import Foundation
+#if DEBUG
 import ProcessSystem
+#endif
 @testable import ShortcutsFeature
 import Testing
 
+#if DEBUG
 private final class Calls: @unchecked Sendable {
   private let lock = NSLock()
   private var storage: [ProcessSystem.Process.LaunchConfiguration] = []
@@ -17,24 +20,37 @@ private final class Calls: @unchecked Sendable {
     return storage
   }
 }
+#endif
 
 private struct ShortcutFixture: Codable {
   let runShortcut: Command.Shortcut
 }
 
-@Test(arguments: ["My Shortcut", "日本語 ✨", "  shortcut with spaces  ", "", "A7E8-1234", "--x; '$(echo hi)'\nnext"])
-func savedCommandReachesSubprocessUnchanged(identifier: String) async throws {
-  let fixture: [String: Any] = ["runShortcut": [
+private let identifiers = ["My Shortcut", "日本語 ✨", "  shortcut with spaces  ", "", "A7E8-1234", "--x; '$(echo hi)'\nnext"]
+
+private func savedFixture(identifier: String) -> [String: Any] {
+  ["runShortcut": [
     "shortcutIdentifier": identifier,
     "meta": ["id": "saved-id", "name": "Display Name", "enabled": true,
              "delay": 1.5, "notification": "bezel", "variableName": "result"],
   ]]
+}
+
+@Test(arguments: identifiers)
+func savedCommandRoundTrips(identifier: String) throws {
+  let fixture = savedFixture(identifier: identifier)
   let data = try JSONSerialization.data(withJSONObject: fixture)
   let decoded = try JSONDecoder().decode(ShortcutFixture.self, from: data)
   let encoded = try JSONEncoder().encode(decoded)
   let actual = try #require(JSONSerialization.jsonObject(with: encoded) as? NSDictionary)
   #expect(actual == fixture as NSDictionary)
+}
 
+#if DEBUG
+@Test(arguments: identifiers)
+func savedCommandReachesSubprocessUnchanged(identifier: String) async throws {
+  let data = try JSONSerialization.data(withJSONObject: savedFixture(identifier: identifier))
+  let decoded = try JSONDecoder().decode(ShortcutFixture.self, from: data)
   let calls = Calls()
   let mock = ProcessSystem.Process.Mock(
     observeLaunch: { calls.record($0) },
@@ -168,3 +184,4 @@ func cancellationAfterLaunchDoesNotReplaceResult(policy: Shortcuts.CancellationP
   await execution.finish()
   #expect(try await task.value == "finished")
 }
+#endif

@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -104,3 +105,4 @@ private enum LaunchError: Error {
       })
   }
 }
+#endif

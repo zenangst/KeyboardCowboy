@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import AppleScriptRuntime
 @testable import ApplicationsFeature
 import Foundation
@@ -24,3 +25,4 @@ import Testing
   }
   #expect(cancelled)
 }
+#endif

@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -49,3 +50,4 @@ import Testing
   for await _ in firstLookup {}
   for await _ in firstLaunchRead {}
 }
+#endif

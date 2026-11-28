@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Commands
@@ -64,3 +65,4 @@ import UserSpace
     #expect(recorded == expected)
   }
 }
+#endif

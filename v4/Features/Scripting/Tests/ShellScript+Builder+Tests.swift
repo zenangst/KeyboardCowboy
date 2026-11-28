@@ -3,6 +3,7 @@ import Foundation
 @testable import ScriptingFeature
 import Testing
 
+#if DEBUG
 @Test func buildMixedInlineSourceAsOneShellScript() throws {
   try ProcessSystem.ProcessInfo.Testing.$mock.withValue(["FOO": "BAR"], operation: {
     let builder = ShellScript.Builder(.testing)
@@ -56,3 +57,4 @@ import Testing
     #expect(results[0].source == input)
   })
 }
+#endif

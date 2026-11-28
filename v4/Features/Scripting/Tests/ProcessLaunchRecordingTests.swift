@@ -4,6 +4,7 @@ import ProcessSystem
 @testable import ScriptingFeature
 import Testing
 
+#if DEBUG
 private final class LaunchRecorder: @unchecked Sendable {
   private let lock = NSLock()
   private var storage: [ProcessSystem.Process.LaunchConfiguration] = []
@@ -53,3 +54,4 @@ private final class LaunchRecorder: @unchecked Sendable {
   }
   #expect(recorder.launches.isEmpty)
 }
+#endif

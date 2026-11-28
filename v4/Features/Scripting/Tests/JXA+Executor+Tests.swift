@@ -5,6 +5,7 @@ import Foundation
 import System
 import Testing
 
+#if DEBUG
 @Test func testJXAExecutorHeadless() throws {
   let executor = JXA.Executor(.testing)
   let script = FilePath("/tmp/testscript")
@@ -41,11 +42,13 @@ import Testing
   }
 }
 
+#endif
 @Test func jxaSourceRunsWithRealTemporaryFile() throws {
   let (output, _) = try JXA.Executor(.production).execute("'hello from JXA'")
   #expect(output?.trimmingCharacters(in: .whitespacesAndNewlines) == "hello from JXA")
 }
 
+#if DEBUG
 @Test func jxaCleansUpWhenFileCreationFails() {
   let results = TestResults()
   FileSystem.FileManager.Testing.$mock.withValue(.init(createFile: false, removeItem: {
@@ -65,3 +68,4 @@ import Testing
     #expect(processes[0].arguments == ["-l", "JavaScript", "/tmp/a b; c.js"])
   }
 }
+#endif

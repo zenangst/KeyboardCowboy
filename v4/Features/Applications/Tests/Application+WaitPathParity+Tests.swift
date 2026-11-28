@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import AppleScriptRuntime
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
@@ -165,3 +166,4 @@ private func waitPathCommand(identifier: String = "example.target") throws -> Co
   let actual = await trace.finish()
   #expect(actual == expected)
 }
+#endif

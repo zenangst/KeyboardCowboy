@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import AppleScriptRuntime
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
@@ -165,3 +166,4 @@ private func ordinaryWaitCommand() throws -> Command.Application {
   }
   #expect(await trace.finish() == expected)
 }
+#endif

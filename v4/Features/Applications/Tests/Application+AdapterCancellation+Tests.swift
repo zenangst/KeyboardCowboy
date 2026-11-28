@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import AppleScriptRuntime
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
@@ -128,3 +129,4 @@ private func cancelWhileSuspended(_ gate: AdapterGate, operation: @escaping @Sen
     }
   }
 }
+#endif

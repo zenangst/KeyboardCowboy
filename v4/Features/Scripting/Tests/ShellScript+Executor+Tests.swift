@@ -5,6 +5,7 @@ import Foundation
 @testable import ScriptingFeature
 import Testing
 
+#if DEBUG
 final class TestResults: @unchecked Sendable {
   var didRun: Bool = false
   var didWaitUntilExit: Bool = false
@@ -55,6 +56,7 @@ enum ExecutorTestError: Error {
   #expect(results.didRemoveDirectory == false)
 }
 
+#endif
 @Test func shellSourceRunsWithRealTemporaryFile() throws {
   let processes = try ShellScript.Builder(.production).build("printf 'hello from shell'")
   let output = try ShellScript.Executor(.production).execute(processes)
@@ -139,6 +141,7 @@ private func executePerl(_ source: String) throws -> String? {
   #expect(kill(pid, 0) == -1 && errno == ESRCH)
 }
 
+#if DEBUG
 @Test func shellCleansUpAndPreservesLaunchError() throws {
   let processes = try ShellScript.Builder(.testing).build("echo hello")
   let results = TestResults()
@@ -204,6 +207,7 @@ private func executePerl(_ source: String) throws -> String? {
   #expect(results.didRemoveDirectory == true)
 }
 
+#endif
 @Test func inlineShellInheritsWorkingDirectory() throws {
   let expected = URL(fileURLWithPath: Foundation.FileManager.default.currentDirectoryPath)
     .resolvingSymlinksInPath()

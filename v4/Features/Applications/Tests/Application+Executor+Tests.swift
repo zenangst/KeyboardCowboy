@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import AppleScriptRuntime
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
@@ -707,3 +708,4 @@ private actor LaunchEvents {
   }
   #expect(cancelled)
 }
+#endif

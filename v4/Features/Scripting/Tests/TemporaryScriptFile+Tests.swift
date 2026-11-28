@@ -4,6 +4,7 @@ import Foundation
 @testable import ScriptingFeature
 import Testing
 
+#if DEBUG
 private enum TemporaryScriptEvent: Equatable, Sendable {
   case directory
   case create(String, Data?)
@@ -56,3 +57,4 @@ func temporaryScriptFileLifecycle(jxa: Bool, creationSucceeds: Bool) async throw
   expected.append(.remove(directory.path))
   #expect(observed == expected)
 }
+#endif

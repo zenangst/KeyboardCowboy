@@ -4,6 +4,7 @@ import Foundation
 import System
 import Testing
 
+#if DEBUG
 @Test(arguments: [false, true]) @MainActor
 func appleScriptCancelledBeforeExecutionDoesNotRun(file: Bool) async throws {
   let executor = AppleScript.Executor(.testing)
@@ -92,3 +93,4 @@ func appleScriptCancellationTakesPrecedenceOverCompileError(file: Bool) async {
   }.value
   #expect(result)
 }
+#endif

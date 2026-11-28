@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Commands
@@ -41,3 +42,4 @@ import UserSpace
   for await event in events { recorded.append(event) }
   #expect(recorded == ["terminate"])
 }
+#endif

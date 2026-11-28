@@ -4,6 +4,7 @@ import ScriptingFeature
 import System
 import Testing
 
+#if DEBUG
 @MainActor private final class AppleScriptTrace {
   var events: [String] = []
 }
@@ -64,3 +65,4 @@ import Testing
     _ = try executor.execute(FilePath("/good.scpt"), key: "file")
   }
 }
+#endif

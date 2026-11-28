@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import AppleScriptRuntime
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
@@ -71,3 +72,4 @@ import UserSpace
   }
   #expect(recorded == expected)
 }
+#endif

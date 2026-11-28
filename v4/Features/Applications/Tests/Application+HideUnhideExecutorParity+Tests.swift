@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Commands
@@ -120,3 +121,4 @@ func executorHidePreviousUsesSnapshotWithoutLookup(hidden: Bool) async throws {
   for await event in events { recorded.append(event) }
   #expect(recorded == (hidden ? ["hook"] : ["hook", "hide previous"]))
 }
+#endif

@@ -4,6 +4,7 @@ import Foundation
 @testable import ScriptingFeature
 import Testing
 
+#if DEBUG
 private enum ShellBoundaryError: Error {
   case directory, launch, cleanup
 }
@@ -78,3 +79,4 @@ private enum ShellBoundaryError: Error {
     #expect(process.arguments == ["-i", "-l"])
   }
 }
+#endif

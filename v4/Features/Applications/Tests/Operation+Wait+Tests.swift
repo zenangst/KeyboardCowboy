@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -241,3 +242,4 @@ private actor SleepRecorder {
     #expect(await recorder.recordedSleeps() == [finished ? .milliseconds(50) : .milliseconds(100)])
   }
 }
+#endif

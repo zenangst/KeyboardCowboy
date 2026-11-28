@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Commands
@@ -146,3 +147,4 @@ private func peekCommand(_ identifier: String = "example.target", action: String
   }
   #expect(cancelled)
 }
+#endif

@@ -1,3 +1,4 @@
+#if DEBUG
 @testable import ApplicationsFeature
 @testable import ApplicationSystem
 import Testing
@@ -243,3 +244,4 @@ import UserSpace
     }
   }
 }
+#endif
