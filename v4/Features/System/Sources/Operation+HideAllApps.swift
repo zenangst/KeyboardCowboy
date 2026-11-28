@@ -92,7 +92,7 @@ extension Operation {
         .map(\.pid))
     }
 
-    static func live() -> Self {
+    static func live(limitingTo processIdentifiers: Set<Int32>? = nil) -> Self {
       Self(
         screens: {
           guard let main = NSScreen.main, let primary = NSScreen.screens.first else { return [] }
@@ -104,7 +104,9 @@ extension Operation {
           }
         },
         applications: {
-          NSWorkspace.shared.runningApplications.filter { !$0.isTerminated }.map { app in
+          NSWorkspace.shared.runningApplications.filter {
+            !$0.isTerminated && (processIdentifiers?.contains($0.processIdentifier) ?? true)
+          }.map { app in
             Application(pid: app.processIdentifier, bundleID: app.bundleIdentifier, bundleURL: app.bundleURL,
                         isRegular: app.activationPolicy == .regular, isHidden: { app.isHidden },
                         hide: { _ = app.hide() })
