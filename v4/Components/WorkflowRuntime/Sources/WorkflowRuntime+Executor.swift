@@ -21,14 +21,16 @@ public extension WorkflowRuntime {
       RunChild,
     ) async throws -> CommandResult<Snapshot>
 
-    public typealias FailurePolicy = @MainActor (Step<Payload>, any Error) -> FailureDecision
+    /// Classifies ordinary failures in the run's lane, including inline children.
+    /// Cancellation does not reach this policy.
+    public typealias FailurePolicy = @MainActor (Step<Payload>, any Error, Lane) -> FailureDecision
 
     private let dispatch: NestedDispatch
     private let failurePolicy: FailurePolicy
     private let sleep: @MainActor (Duration) async throws -> Void
 
     public init(
-      failurePolicy: @escaping FailurePolicy = { _, _ in .proceed },
+      failurePolicy: @escaping FailurePolicy = { _, _, _ in .proceed },
       sleep: @escaping @MainActor (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
       dispatch: @escaping Dispatch,
     ) {
@@ -38,7 +40,7 @@ public extension WorkflowRuntime {
     }
 
     public init(
-      failurePolicy: @escaping FailurePolicy = { _, _ in .proceed },
+      failurePolicy: @escaping FailurePolicy = { _, _, _ in .proceed },
       sleep: @escaping @MainActor (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
       dispatchingNested: @escaping NestedDispatch,
     ) {
@@ -92,7 +94,7 @@ public extension WorkflowRuntime {
           throw CancellationError()
         } catch {
           try Task.checkCancellation()
-          if failurePolicy(step, error) == .abort { throw error }
+          if failurePolicy(step, error, lane) == .abort { throw error }
           outcomes.append(.failed(commandID: step.metadata.id, error: error))
         }
         try Task.checkCancellation()

@@ -92,8 +92,9 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
 
 @Test @MainActor func abortPolicyStopsBeforeTheDelayAndLaterSteps() async {
   var calls: [String] = []
-  let executor = Executor(failurePolicy: { step, error in
+  let executor = Executor(failurePolicy: { step, error, lane in
     #expect(error as? ProbeError == .failed)
+    #expect(lane == .serial)
     calls.append("policy:\(step.payload)")
     return .abort
   }, sleep: { _ in Issue.record("Unexpected sleep") },
@@ -124,7 +125,7 @@ private func step(_ id: String, enabled: Bool = true, delay: Double? = nil, vari
 @Test(arguments: [false, true])
 @MainActor func cancellationDuringDispatchBypassesFailurePolicy(throwsAfterCancelling: Bool) async {
   var calls: [String] = []
-  let executor = Executor(failurePolicy: { _, _ in
+  let executor = Executor(failurePolicy: { _, _, _ in
     Issue.record("Cancellation must not reach failure policy")
     return .proceed
   }, sleep: { _ in Issue.record("Unexpected sleep") }, dispatch: { step, _, context in

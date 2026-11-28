@@ -79,7 +79,7 @@ private func request(_ id: String, _ steps: Step...) -> Request {
   var calls: [String] = []
   let parent = request("parent", step("expand"))
   let child = request("child", step("reenter"))
-  let executor = Executor(failurePolicy: { _, _ in .abort }, dispatchingNested: { step, _, context, runChild in
+  let executor = Executor(failurePolicy: { _, _, _ in .abort }, dispatchingNested: { step, _, context, runChild in
     calls.append(step.payload)
     let result = try await runChild(step.payload == "expand" ? child : parent, .shared(context))
     return .init(context: result.context, output: "")
@@ -94,12 +94,53 @@ private func request(_ id: String, _ steps: Step...) -> Request {
   #expect(calls == ["expand", "reenter"])
 }
 
+private enum ChildFailure: Error, Equatable { case script }
+
+@Test(arguments: [WorkflowRuntime.Lane.serial, .concurrent])
+@MainActor func nestedFailurePolicyReceivesTheParentLane(lane: WorkflowRuntime.Lane) async throws {
+  var events: [String] = []
+  let parent = request("parent", step("expand"), step("parent tail"))
+  let child = request("child", step("script", delay: 5), step("child tail"))
+  let executor = Executor(
+    failurePolicy: { step, error, actualLane in
+      #expect(actualLane == lane)
+      #expect(error as? ChildFailure == .script)
+      events.append("classify \(step.payload)")
+      return actualLane == .serial ? .abort : .proceed
+    },
+    sleep: { _ in Issue.record("Neither an abort nor a concurrent step should sleep") },
+    dispatchingNested: { step, _, context, runChild in
+      events.append(step.payload)
+      if step.payload == "script" { throw ChildFailure.script }
+      if step.payload == "expand" {
+        let result = try await runChild(child, .shared(context))
+        guard case .failed(let id, let error) = result.outcomes.first else {
+          Issue.record("Expected the child failure to be recorded separately")
+          return .init(context: context, output: "")
+        }
+        #expect(id == "script" && error as? ChildFailure == .script)
+        return .init(context: result.context, output: "")
+      }
+      return .init(snapshot: context.snapshot + 1, output: "")
+    },
+  )
+
+  if lane == .serial {
+    await #expect(throws: ChildFailure.script) { try await executor.run(parent, from: .init(snapshot: 0), lane: lane) }
+    #expect(events == ["expand", "script", "classify script", "classify expand"])
+  } else {
+    let result = try await executor.run(parent, from: .init(snapshot: 0), lane: lane)
+    #expect(result.context.snapshot == 2)
+    #expect(events == ["expand", "script", "classify script", "child tail", "parent tail"])
+  }
+}
+
 @Test @MainActor func schedulerCancellationDuringChildUnwindsParentWithoutDispatchingLaterSteps() async {
   let gate = DispatchGate()
   var events: [String] = []
   let child = request("child", step("hold", delay: 5), step("unexpected child step"))
   let executor = Executor(
-    failurePolicy: { _, _ in
+    failurePolicy: { _, _, _ in
       Issue.record("Cancellation reached the failure policy")
       return .abort
     },
