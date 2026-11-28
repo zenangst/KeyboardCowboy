@@ -5,6 +5,7 @@ import Darwin
 public extension WindowFocus {
   /// Cycles within the active app in ascending CG ID order, independent of
   /// Z-order changes after a raise. No IDs are retained between calls.
+  /// Returns true only when the exact on-screen target is observed focused.
   @discardableResult
   static func nextWindow(
     in processIdentifier: pid_t,
@@ -16,6 +17,7 @@ public extension WindowFocus {
   }
 
   /// Prefers the last focused eligible window, otherwise cycles backward.
+  /// Returns true only when the exact on-screen target is observed focused.
   @discardableResult
   static func previousWindow(
     in processIdentifier: pid_t,

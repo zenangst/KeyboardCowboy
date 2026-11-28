@@ -32,13 +32,13 @@ package extension HostInput {
       let isActive: @Sendable () -> Bool = {
         NSWorkspace.shared.frontmostApplication?.processIdentifier == pid
       }
-      let raised = if previous {
+      let observed = if previous {
         try await WindowFocus.previousWindow(in: pid, history: history, isAppActive: isActive)
       } else {
         try await WindowFocus.nextWindow(in: pid, isAppActive: isActive)
       }
       let command = previous ? "Previous" : "Next"
-      log.notice("\(command, privacy: .public) window raise succeeded: \(raised, privacy: .public)")
+      log.notice("\(command, privacy: .public) window focus succeeded: \(observed, privacy: .public)")
     } catch let error {
       log.error("Window focus smoke failed: \(String(describing: error), privacy: .public)")
     }

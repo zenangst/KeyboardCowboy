@@ -114,6 +114,32 @@ private func rechecksAndDoesNotRetargetOnInvalidation(reason: Invalidation) thro
   #expect(fixture.trace.last == "skipped: focused or target ID no longer verified on-screen")
 }
 
+@Test func verifiesTheExactFocusedTargetAfterTheRaiseSettles() async throws {
+  var samples: [CGWindowID?] = [10, nil, 20]
+  var waits = 0
+  let observed = try await Operation.Cycle.observeFocus(
+    from: 10, to: 20, isCurrent: { true }, focusedID: { samples.removeFirst() }, wait: { waits += 1 },
+  )
+  #expect(observed && samples.isEmpty && waits == 2)
+}
+
+@Test func unobservedOrUnexpectedFocusDoesNotCountAsSuccess() async throws {
+  var waits = 0
+  #expect(try await !Operation.Cycle.observeFocus(
+    from: 10, to: 20, isCurrent: { true }, focusedID: { 10 }, wait: { waits += 1 },
+  ))
+  #expect(waits == 4)
+  #expect(try await !Operation.Cycle.observeFocus(
+    from: 10, to: 20, isCurrent: { true }, focusedID: { 30 }, wait: { Issue.record("Unexpected retry") },
+  ))
+
+  var current = true
+  #expect(try await !Operation.Cycle.observeFocus(
+    from: 10, to: 20, isCurrent: { current }, focusedID: { current = false; return 20 },
+    wait: { Issue.record("Unexpected retry") },
+  ))
+}
+
 private final class NextWindowFixture {
   enum Failure: Error { case raise }
 
@@ -152,7 +178,7 @@ private final class NextWindowFixture {
         focused = target
       },
       trace: { trace.append($0) },
-    )
+    ) != nil
   }
 }
 #endif

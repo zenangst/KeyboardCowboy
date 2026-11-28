@@ -28,7 +28,7 @@ extension Operation.Cycle {
       return false
     }
 
-    return try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
+    let selection = try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
       try Self.run(
         direction,
         in: processIdentifier,
@@ -41,6 +41,39 @@ extension Operation.Cycle {
         trace: { log.notice("Cycle PID \(processIdentifier, privacy: .public): \($0, privacy: .public)") },
       )
     }
+    guard let selection else { return false }
+
+    let observed = try await Self.observeFocus(
+      from: selection.source, to: selection.target,
+      isCurrent: { isAppActive() && Self.onScreenOwners()?[selection.target] == [processIdentifier] },
+      focusedID: {
+        try await accessibility.withApplication(processIdentifier: processIdentifier) { session in
+          guard let window = try session.focusedWindow() else { return nil }
+          return try session.windowIDCandidate(for: window)
+        }
+      },
+    )
+    log.notice("Cycle PID \(processIdentifier, privacy: .public): focus observed on \(selection.target, privacy: .public): \(observed, privacy: .public)")
+    return observed
+  }
+
+  /// Waits briefly for AX focus to catch up without raising again or retargeting.
+  static func observeFocus(
+    from source: CGWindowID, to target: CGWindowID, isCurrent: () -> Bool,
+    focusedID: () async throws -> CGWindowID?,
+    wait: () async throws -> Void = { try await Task.sleep(for: .milliseconds(40)) },
+  ) async throws -> Bool {
+    for attempt in 0 ... 4 {
+      try Task.checkCancellation()
+      guard isCurrent() else { return false }
+      let actual = try await focusedID()
+      try Task.checkCancellation()
+      guard isCurrent() else { return false }
+      if actual == target { return true }
+      if let actual, actual != source { return false }
+      if attempt < 4 { try await wait() }
+    }
+    return false
   }
 
   static func run<Window: Equatable>(
@@ -53,10 +86,10 @@ extension Operation.Cycle {
     onScreenOwners: () -> [CGWindowID: Set<pid_t>]?,
     raise: (Window) throws -> Void,
     trace: (String) -> Void = { _ in },
-  ) throws -> Bool {
-    func skip(_ reason: String) -> Bool {
+  ) throws -> (source: CGWindowID, target: CGWindowID)? {
+    func skip(_ reason: String) -> (source: CGWindowID, target: CGWindowID)? {
       trace("skipped: \(reason)")
-      return false
+      return nil
     }
 
     guard let focused = try focusedWindow() else { return skip("no AX focused window") }
@@ -111,7 +144,7 @@ extension Operation.Cycle {
 
     try raise(target.window)
     trace("AX accepted raise of \(target.id)")
-    return true
+    return (focusedID, target.id)
   }
 
   private static func onScreenOwners() -> [CGWindowID: Set<pid_t>]? {
