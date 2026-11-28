@@ -84,3 +84,23 @@ func disablingMidPressOnlyReleasesAnEmittedHold(held: Bool) throws {
   #expect(session.receive(event(control, .up), at: .seconds(2) + .milliseconds(50)).output
     == [event(escape, .down), event(escape, .up)])
 }
+
+@Test(arguments: [false, true])
+func enablingWhileTheTapTargetIsHeldDoesNotReleaseIt(releaseBeforeTap: Bool) throws {
+  var session = Remap.Session()
+  let targetDown = session.receive(event(escape, .down), at: .zero)
+  #expect(targetDown.forwardsInput)
+  #expect(try session.updateRule(rule()).isEmpty)
+  _ = session.receive(event(control, .down), at: .milliseconds(10))
+  if releaseBeforeTap {
+    #expect(session.receive(event(escape, .up), at: .milliseconds(20)).forwardsInput)
+  }
+
+  let tap = session.receive(event(control, .up), at: .milliseconds(30))
+  #expect(!tap.forwardsInput)
+  #expect(tap.output == (releaseBeforeTap ? [event(escape, .down), event(escape, .up)] : []))
+  if !releaseBeforeTap {
+    let targetUp = session.receive(event(escape, .up), at: .milliseconds(40))
+    #expect(targetUp.forwardsInput && targetUp.output.isEmpty)
+  }
+}

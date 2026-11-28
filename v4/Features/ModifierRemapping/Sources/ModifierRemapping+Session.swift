@@ -5,6 +5,7 @@ public extension ModifierRemapping {
     public private(set) var rule: Rule?
     private var state: State = .idle
     private var discardedReleases: Set<UInt16> = []
+    private var physicallyHeldKeys: Set<UInt16> = []
 
     private enum State: Sendable {
       case idle
@@ -28,6 +29,10 @@ public extension ModifierRemapping {
     }
 
     public mutating func receive(_ event: Event, at time: Duration) -> Decision {
+      switch event.phase {
+      case .down, .repeated: physicallyHeldKeys.insert(event.keyCode)
+      case .up: physicallyHeldKeys.remove(event.keyCode)
+      }
       let due = advance(to: time)
       if discardedReleases.contains(event.keyCode) {
         if event.phase != .repeated { discardedReleases.remove(event.keyCode) }
@@ -48,7 +53,9 @@ public extension ModifierRemapping {
         return .init(output: due, forwardsInput: true)
       case (.pending(let start), .up):
         state = .idle
-        guard time >= start else { return .init(output: due, forwardsInput: false) }
+        guard time >= start, !physicallyHeldKeys.contains(rule.tapKeyCode) else {
+          return .init(output: due, forwardsInput: false)
+        }
         return .init(output: [.init(keyCode: rule.tapKeyCode, phase: .down),
                               .init(keyCode: rule.tapKeyCode, phase: .up)], forwardsInput: false)
       case (.holding, .up):
@@ -60,9 +67,23 @@ public extension ModifierRemapping {
       return .init(output: due, forwardsInput: false)
     }
 
-    /// Discard pending taps; release a modifier only if its logical down was
-    /// emitted. Suppress the old physical up if it still arrives.
+    /// Discard pending taps and forget observed key state after losing the
+    /// input stream. Release a modifier only if its logical down was emitted,
+    /// and suppress the old physical up if it still arrives.
     public mutating func reset() -> [Event] {
+      physicallyHeldKeys.removeAll(keepingCapacity: true)
+      return cancelPress()
+    }
+
+    /// Reset the old rule before changing it. The caller must apply any cleanup.
+    public mutating func updateRule(_ rule: Rule?) -> [Event] {
+      guard self.rule != rule else { return [] }
+      let cleanup = cancelPress()
+      self.rule = rule
+      return cleanup
+    }
+
+    private mutating func cancelPress() -> [Event] {
       guard let modifier = rule?.modifier.keyCode else { return [] }
       defer { state = .idle }
       switch state {
@@ -74,14 +95,6 @@ public extension ModifierRemapping {
         discardedReleases.insert(modifier)
         return [.init(keyCode: modifier, phase: .up)]
       }
-    }
-
-    /// Reset the old rule before changing it. The caller must apply any cleanup.
-    public mutating func updateRule(_ rule: Rule?) -> [Event] {
-      guard self.rule != rule else { return [] }
-      let cleanup = reset()
-      self.rule = rule
-      return cleanup
     }
 
     private mutating func beginHold() -> [Event] {

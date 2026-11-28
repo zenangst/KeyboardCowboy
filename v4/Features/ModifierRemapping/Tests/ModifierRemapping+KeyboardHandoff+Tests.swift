@@ -21,6 +21,16 @@ private let rightControl = CGEventFlags(rawValue: UInt64(NX_DEVICERCTLKEYMASK))
   #expect(fixture.taggedTypes == [.keyDown, .keyUp])
 }
 
+@Test func remappedTapDoesNotDuplicateAnAlreadyPressedShortcut() throws {
+  let fixture = try KeyboardHandoff()
+  try fixture.send(escape, .down, at: .zero)
+  try fixture.send(control, .down, flags: [.maskControl, leftControl], at: .milliseconds(10))
+  try fixture.send(control, .up, at: .milliseconds(50))
+  try fixture.send(escape, .up, at: .milliseconds(60))
+  #expect(fixture.matches == ["tap"])
+  #expect(fixture.taggedTypes.isEmpty)
+}
+
 @Test func earlyChordAppliesLogicalFlagsBeforeMatchingAndClearsThemOnRelease() throws {
   let fixture = try KeyboardHandoff()
   try fixture.send(control, .down, flags: [.maskControl, leftControl], at: .zero)
